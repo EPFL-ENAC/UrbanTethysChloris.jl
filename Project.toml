@@ -3,5 +3,8 @@ uuid = "8ae36e77-b357-5cab-a873-ceeadc1a5254"
 authors = ["Hugo Solleder <hugo.solleder@epfl.ch>"]
 version = "0.1.0"
 
+[deps]
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+
 [compat]
 julia = "1.10"
