@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+TethysChlorisCore = "c22758e7-e854-5bdb-8df2-7602c47a9d98"
 
 [compat]
 julia = "1.10"
