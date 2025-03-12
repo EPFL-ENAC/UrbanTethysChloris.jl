@@ -55,7 +55,7 @@ function initialize_urbangeometry_parameters(
     return initialize(FT, UrbanGeometryParameters, data)
 end
 
-function get_required_fields(::Type{UrbanGeometryParameters})
+function TethysChlorisCore.get_required_fields(::Type{UrbanGeometryParameters})
     return [
         :Height_canyon,
         :Width_canyon,
@@ -70,7 +70,7 @@ function get_required_fields(::Type{UrbanGeometryParameters})
     ]
 end
 
-function preprocess_fields(
+function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{UrbanGeometryParameters}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
     data["hcanyon"] = data["Height_canyon"] / data["Width_canyon"]
