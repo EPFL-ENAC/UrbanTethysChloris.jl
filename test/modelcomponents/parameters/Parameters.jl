@@ -7,3 +7,7 @@ end
 @safetestset "UrbanGeometryParameters" begin
     include("UrbanGeometryParameters.jl")
 end
+
+@safetestset "VegetationParameters" begin
+    include("VegetationParameters.jl")
+end
