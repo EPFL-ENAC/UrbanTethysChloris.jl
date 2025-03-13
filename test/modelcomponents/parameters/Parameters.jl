@@ -15,3 +15,7 @@ end
 @safetestset "VegetationParameters" begin
     include("VegetationParameters.jl")
 end
+
+@safetestset "ParameterSet" begin
+    include("ParameterSet.jl")
+end
