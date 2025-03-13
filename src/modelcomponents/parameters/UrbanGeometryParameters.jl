@@ -73,15 +73,145 @@ end
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{UrbanGeometryParameters}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    data["hcanyon"] = data["Height_canyon"] / data["Width_canyon"]
-    data["wcanyon"] = data["Width_canyon"] / data["Width_canyon"]
-    data["wroof"] = data["Width_roof"] / data["Width_canyon"]
-    data["htree"] = data["Height_tree"] / data["Width_canyon"]
-    data["radius_tree"] = data["Radius_tree"] / data["Width_canyon"]
-    data["distance_tree"] = data["Distance_tree"] / data["Width_canyon"]
-    data["ratio"] = data["hcanyon"] / data["wcanyon"]
-    data["wcanyon_norm"] = data["wcanyon"] / (data["wcanyon"] + data["wroof"])
-    data["wroof_norm"] = data["wroof"] / (data["wcanyon"] + data["wroof"])
+    hcanyon, wcanyon, wroof, htree, radius_tree, distance_tree, ratio, wcanyon_norm, wroof_norm = preprocess_geometry(
+        data["Height_canyon"],
+        data["Width_canyon"],
+        data["Width_roof"],
+        data["Height_tree"],
+        data["Radius_tree"],
+        data["Distance_tree"],
+    )
+
+    data["hcanyon"] = hcanyon
+    data["wcanyon"] = wcanyon
+    data["wroof"] = wroof
+    data["htree"] = htree
+    data["radius_tree"] = radius_tree
+    data["distance_tree"] = distance_tree
+    data["ratio"] = ratio
+    data["wcanyon_norm"] = wcanyon_norm
+    data["wroof_norm"] = wroof_norm
 
     return data
+end
+
+function TethysChlorisCore.validate_fields(
+    ::Type{UrbanGeometryParameters}, data::Dict{String,Any}
+)
+
+    # check that none of the data fields used by the validate function is NaN
+    for key in keys(data)
+        if key in [
+            "Height_canyon",
+            "Width_canyon",
+            "Width_roof",
+            "Height_tree",
+            "Radius_tree",
+            "Distance_tree",
+        ]
+            if isnan(data[key])
+                throw(ArgumentError("Field $key must be a number, got NaN"))
+            end
+        end
+    end
+
+    if data["Width_canyon"] <= 0.0
+        throw(ArgumentError("Urban canyon width must be strictly positive"))
+    end
+
+    if data["Width_roof"] <= 0.0
+        throw(ArgumentError("Urban canyon roof width must be strictly positive"))
+    end
+
+    if data["Height_canyon"] <= 0.0
+        throw(ArgumentError("Urban canyon height must be strictly positive"))
+    end
+
+    if data["ftree"] != 1.0
+        throw(ArgumentError("Tree fraction must be 1.0"))
+    end
+
+    hcanyon, wcanyon, wroof, htree, radius_tree, distance_tree = preprocess_geometry(
+        data["Height_canyon"],
+        data["Width_canyon"],
+        data["Width_roof"],
+        data["Height_tree"],
+        data["Radius_tree"],
+        data["Distance_tree"],
+    )
+
+    if data["trees"]
+        if data["Height_tree"] <= 0.0
+            throw(ArgumentError("Tree height cannot be 0"))
+        end
+
+        if data["Radius_tree"] <= 0.0
+            throw(ArgumentError("Tree radius cannot be 0"))
+        end
+
+        if data["Distance_tree"] <= 0.0
+            throw(ArgumentError("Tree distance cannot be 0"))
+        end
+
+        if hcanyon - 2 * radius_tree <= 0.0
+            throw(ArgumentError("Tree radius is too large for the canyon height"))
+        end
+
+        if wcanyon - 4 * radius_tree <= 0.0
+            throw(ArgumentError("Tree radius is too large for the canyon width"))
+        end
+
+        if hcanyon - (radius_tree + htree) <= 0.0
+            throw(ArgumentError("Tree height is too large for the canyon height"))
+        end
+
+        if htree - radius_tree <= 0.0
+            throw(ArgumentError("Tree radius is too large for the tree height"))
+        end
+
+        if distance_tree - radius_tree <= 0.0
+            throw(ArgumentError("Tree radius is too large for the tree distance"))
+        end
+
+        if wcanyon - 2 * (radius_tree + distance_tree) <= 0.0
+            throw(ArgumentError("Tree distance is too large for the canyon width"))
+        end
+    end
+
+    if hcanyon <= 0.0
+        throw(ArgumentError("Normalized height of urban canyon must be strictly positive"))
+    end
+
+    if wcanyon < 0.0
+        throw(ArgumentError("Normalized width of urban canyon must be stricly positive"))
+    end
+
+    if wroof < 0.0
+        throw(
+            ArgumentError("Normalized roof width of urban canyon must be strictly positive")
+        )
+    end
+end
+
+function preprocess_geometry(
+    canyon_height::FT,
+    canon_width::FT,
+    roof_width::FT,
+    tree_height::FT,
+    tree_radius::FT,
+    tree_distance::FT,
+) where {FT<:AbstractFloat}
+    hcanyon = canyon_height / canon_width
+    wcanyon = canon_width / canon_width
+    wroof = roof_width / canon_width
+    htree = tree_height / canon_width
+    radius_tree = tree_radius / canon_width
+    distance_tree = tree_distance / canon_width
+    ratio = hcanyon / wcanyon
+    wcanyon_norm = wcanyon / (wcanyon + wroof)
+    wroof_norm = wroof / (wcanyon + wroof)
+
+    return hcanyon,
+    wcanyon, wroof, htree, radius_tree, distance_tree, ratio, wcanyon_norm,
+    wroof_norm
 end
