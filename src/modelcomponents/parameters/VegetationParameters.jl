@@ -149,17 +149,21 @@ function TethysChlorisCore.get_required_fields(::Type{VegetationParameters})
     return [:roof, :ground, :tree]
 end
 
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{VegetationParameters}, data::Dict{String,Any}
-) where {FT<:AbstractFloat}
-    processed = Dict{String,Any}()
-
+function TethysChlorisCore.validate_fields(
+    ::Type{VegetationParameters}, data::Dict{String,Any}
+)
     # Check that data does not include a key beyond the three components
     for key in keys(data)
         if key ∉ ["roof", "ground", "tree"]
             throw(ArgumentError("Extraneous key: $key"))
         end
     end
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{VegetationParameters}, data::Dict{String,Any}
+) where {FT<:AbstractFloat}
+    processed = Dict{String,Any}()
 
     for (key, value) in data
         processed[key] = initialize(FT, HeightDependentVegetationParameters, value)
