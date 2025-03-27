@@ -1,11 +1,13 @@
 surfacefractions:
-  fveg_R: 0.5
-  fimp_G: 0.455
-  Per_runoff_R: 1.0
-  Per_runoff_G: 0.9
-  fimp_R: 0.5
-  fveg_G: 0.545
-  fbare_G: 0.0
+  roof:
+    fimp: 0.5
+    Per_runoff: 1.0
+    fveg: 0.5
+  ground:
+    fimp: 0.455
+    fbare: 0.0
+    Per_runoff: 0.9
+    fveg: 0.545
 vegetation:
   roof:
     ZRmax: .NaN

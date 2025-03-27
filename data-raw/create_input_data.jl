@@ -40,14 +40,12 @@ data["urbangeometry"] = Dict{String,Any}(
 data["urbangeometry"]["Height_tree"] = 5.0 - data["urbangeometry"]["Radius_tree"]
 data["urbangeometry"]["Distance_tree"] = 0.5 + data["urbangeometry"]["Radius_tree"]
 
-data["surfacefractions"] = Dict{String,Any}(
-    "fveg_R" => 0.5,
-    "fimp_R" => 0.5,
-    "Per_runoff_R" => 1.0,
-    "fveg_G" => 0.545,
-    "fbare_G" => 0.0,
-    "fimp_G" => 0.455,
-    "Per_runoff_G" => 0.9,
+data["surfacefractions"] = Dict{String,Any}()
+data["surfacefractions"]["roof"] = Dict{String,Any}(
+    "fveg" => 0.5, "fimp" => 0.5, "Per_runoff" => 1.0
+)
+data["surfacefractions"]["ground"] = Dict{String,Any}(
+    "fveg" => 0.545, "fbare" => 0.0, "fimp" => 0.455, "Per_runoff" => 0.9
 )
 
 # Vegetation
