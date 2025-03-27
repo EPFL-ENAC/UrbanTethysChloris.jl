@@ -16,6 +16,10 @@ end
     include("VegetationParameters.jl")
 end
 
+@safetestset "OpticalProperties" begin
+    include("OpticalProperties.jl")
+end
+
 @safetestset "ParameterSet" begin
     include("ParameterSet.jl")
 end

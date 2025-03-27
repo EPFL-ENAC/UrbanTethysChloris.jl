@@ -8,4 +8,6 @@ graph TD
   A --> C[ThermalProperties]
   A --> D[UrbanGeometryParameters]
   A --> E[VegetationParameters] --> G[HeightDependentVegetationParameters]
+  A --> H[Optical Properties] --> I[SimpleOpticalProperties]
+  H --> J[VegetatedOpticalProperties]
 ```

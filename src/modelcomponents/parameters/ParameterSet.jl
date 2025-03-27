@@ -4,6 +4,7 @@ const APS = AbstractParameterSet
 Base.@kwdef struct ParameterSet{FT<:AbstractFloat} <: APS{FT}
     surfacefractions::SurfaceFractions{FT}
     thermal::ThermalProperties{FT}
+    # optical::OpticalProperties{FT}
     urbangeometry::UrbanGeometryParameters{FT}
     vegetation::VegetationParameters{FT}
 end
@@ -15,7 +16,7 @@ function initialize_parameter_set(
 end
 
 function TethysChlorisCore.get_required_fields(::Type{ParameterSet})
-    return [:surfacefractions, :thermal, :urbangeometry, :vegetation]
+    return [:surfacefractions, :thermal, :optical, :urbangeometry, :vegetation]
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -28,6 +29,9 @@ function TethysChlorisCore.preprocess_fields(
         FT, data["surfacefractions"]
     )
     processed["thermal"] = initialize_thermalproperties(FT, data["thermal"])
+    processed["optical"] = initialize_optical_properties(
+        FT, data["optical"], processed["surfacefractions"]
+    )
     processed["urbangeometry"] = initialize_urbangeometry_parameters(
         FT, data["urbangeometry"]
     )

@@ -8,6 +8,25 @@ surfacefractions:
     fbare: 0.0
     Per_runoff: 0.9
     fveg: 0.545
+optical:
+  roof:
+    aveg: 0.2
+    eveg: 0.9944834355792392
+    aimp: 0.15
+    eimp: 0.95
+  ground:
+    aveg: 0.2
+    eveg: 0.9944834355792392
+    abare: 0.15
+    ebare: 0.95
+    aimp: 0.1
+    eimp: 0.95
+  tree:
+    emissivity: 0.95
+    albedo: 0.2
+  wall:
+    emissivity: 0.95
+    albedo: 0.4
 vegetation:
   roof:
     ZRmax: .NaN

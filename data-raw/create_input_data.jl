@@ -111,5 +111,26 @@ data["thermal"]["ground"] = Dict{String,Any}("lan_dry" => 1.2, "cv_s" => 1.5e6)
 
 data["thermal"]["wall"] = data["thermal"]["roof"]
 
+data["optical"] = Dict{String,Any}()
+data["optical"]["wall"] = Dict{String,Any}("albedo" => 0.4, "emissivity" => 0.95)
+data["optical"]["tree"] = Dict{String,Any}("albedo" => 0.2, "emissivity" => 0.95)
+
+LAI_R = data["vegetation"]["roof"]["LAI"]
+SAI_R = data["vegetation"]["roof"]["SAI"]
+data["optical"]["roof"] = Dict{String,Any}(
+    "aveg" => 0.2, "aimp" => 0.15, "eveg" => 1 - exp(-(LAI_R + SAI_R)), "eimp" => 0.95
+)
+
+LAI_G = data["vegetation"]["ground"]["LAI"]
+SAI_G = data["vegetation"]["ground"]["SAI"]
+data["optical"]["ground"] = Dict{String,Any}(
+    "aveg" => 0.2,
+    "abare" => 0.15,
+    "aimp" => 0.1,
+    "eveg" => 1 - exp(-(LAI_G + SAI_G)),
+    "ebare" => 0.95,
+    "eimp" => 0.95,
+)
+
 YAML.write_file(joinpath(@__DIR__, "..", "data", "parameters.yaml"), data)
 YAML.write_file(joinpath(@__DIR__, "..", "test", "data", "parameters.yaml"), data)

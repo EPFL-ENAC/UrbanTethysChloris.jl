@@ -3,10 +3,13 @@ module Parameters
 using TethysChlorisCore
 using TethysChlorisCore.ModelComponents
 
-include("UrbanGeometryParameters.jl")
 include("SurfaceFractions.jl")
 include("ThermalProperties.jl")
+include("UrbanGeometryParameters.jl")
 include("VegetationParameters.jl")
+
+# Depends on SurfaceFractions
+include("OpticalProperties.jl")
 
 include("ParameterSet.jl")
 
