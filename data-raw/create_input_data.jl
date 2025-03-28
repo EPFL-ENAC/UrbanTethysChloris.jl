@@ -132,5 +132,41 @@ data["optical"]["ground"] = Dict{String,Any}(
     "eimp" => 0.95,
 )
 
+data["soil"] = Dict{String,Any}()
+
+# Roof soil parameters
+data["soil"]["roof"] = Dict{String,Any}(
+    "Pcla" => 0.20,
+    "Psan" => 0.40,
+    "Porg" => 0.025,
+    "In_max_imp" => 0.25,
+    "In_max_ground" => 10.0,
+    "Sp_In" => 0.2,
+    "Kimp" => 0.0,
+    "Kfc" => 0.2,
+    "Phy" => 10000.0,
+    "SPAR" => 2,
+    "Kbot" => NaN,
+)
+
+# Ground soil parameters
+data["soil"]["ground"] = Dict{String,Any}(
+    "Pcla" => 0.20,
+    "Psan" => 0.40,
+    "Porg" => 0.025,
+    "In_max_imp" => 0.5,
+    "In_max_underveg" => 10.0,
+    "In_max_bare" => 10.0,
+    "Sp_In" => 0.2,
+    "Kimp" => 0.001,
+    "Kfc" => 0.2,
+    "Phy" => 10000.0,
+    "SPAR" => 2,
+    "Kbot" => NaN,
+)
+
+# Tree interception parameter
+data["soil"]["Sp_In_T"] = 0.2
+
 YAML.write_file(joinpath(@__DIR__, "..", "data", "parameters.yaml"), data)
 YAML.write_file(joinpath(@__DIR__, "..", "test", "data", "parameters.yaml"), data)

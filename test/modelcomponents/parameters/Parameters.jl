@@ -1,5 +1,9 @@
 using SafeTestsets
 
+@safetestset "SoilParameters.jl" begin
+    include("SoilParameters.jl")
+end
+
 @safetestset "SurfaceFractions" begin
     include("SurfaceFractions.jl")
 end

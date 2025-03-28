@@ -2,6 +2,7 @@ abstract type AbstractParameterSet{FT<:AbstractFloat} <: AbstractModelComponentS
 const APS = AbstractParameterSet
 
 Base.@kwdef struct ParameterSet{FT<:AbstractFloat} <: APS{FT}
+    soil::SoilParameters{FT}
     surfacefractions::SurfaceFractions{FT}
     thermal::ThermalProperties{FT}
     optical::OpticalProperties{FT}
@@ -16,7 +17,7 @@ function initialize_parameter_set(
 end
 
 function TethysChlorisCore.get_required_fields(::Type{ParameterSet})
-    return [:surfacefractions, :thermal, :optical, :urbangeometry, :vegetation]
+    return [:soil, :surfacefractions, :thermal, :optical, :urbangeometry, :vegetation]
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -25,6 +26,8 @@ function TethysChlorisCore.preprocess_fields(
     processed = Dict{String,Any}()
 
     # Initialize each component
+    processed["soil"] = initialize_soil_parameters(FT, data["soil"])
+
     processed["surfacefractions"] = initialize_surfacefractions(
         FT, data["surfacefractions"]
     )

@@ -145,3 +145,30 @@ urbangeometry:
   Hcan_std: .NaN
   Height_canyon: 6.5
   Hcan_max: .NaN
+soil:
+  roof:
+    Porg: 0.025
+    SPAR: 2
+    Psan: 0.4
+    Kfc: 0.2
+    In_max_ground: 10.0
+    Sp_In: 0.2
+    Kimp: 0.0
+    Kbot: .NaN
+    Pcla: 0.2
+    Phy: 10000.0
+    In_max_imp: 0.25
+  ground:
+    Porg: 0.025
+    SPAR: 2
+    Psan: 0.4
+    In_max_underveg: 10.0
+    Kfc: 0.2
+    Kbot: .NaN
+    Sp_In: 0.2
+    Kimp: 0.001
+    In_max_bare: 10.0
+    Pcla: 0.2
+    Phy: 10000.0
+    In_max_imp: 0.5
+  Sp_In_T: 0.2
