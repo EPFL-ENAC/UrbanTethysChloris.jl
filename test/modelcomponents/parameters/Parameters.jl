@@ -24,6 +24,10 @@ end
     include("OpticalProperties.jl")
 end
 
+@testset "Parameters" begin
+    include("BuildingEnergyModelParameters.jl")
+end
+
 @safetestset "ParameterSet" begin
     include("ParameterSet.jl")
 end

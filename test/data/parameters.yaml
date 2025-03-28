@@ -134,6 +134,49 @@ thermal:
   wall:
     lan_dry: 0.67
     cv_s: 1.0e6
+building_energy:
+  indoor_optical:
+    abc: 0.3
+    abw: 0.3
+    abm: 0.3
+    eg: 0.95
+    em: 0.95
+    ew: 0.95
+    abg: 0.3
+    ec: 0.95
+  thermal:
+    lan_ground_floor: 1.2
+    IntMassOn: 0
+    dzWall: 0.2
+    cv_ground_floor: 1.5e6
+    FloorHeight: 3.0
+    lan_floor_IntMass: 0.67
+    dzFloor: 0.2
+    cv_wall_IntMass: 1.0e6
+    lan_wall_IntMass: 0.67
+    cv_floor_IntMass: 1.0e6
+  windows:
+    GlazingRatio: 0.15
+    WindowsOn: 1
+    lan_windows: .NaN
+    cv_glass: 2.1e6
+    dztot: 0.02
+    SHGC: 0.8
+    SolarAlbedo: 0.4
+    SolarAbsorptivity: 0.0
+    Uvalue: 4.95
+    SolarTransmittance: 0.6
+  hvac:
+    ACH: 0.5
+    RHsetpointHeating: .NaN
+    TsetpointHeating: 293.15
+    Heatingon: 1
+    TsetpointCooling: 298.15
+    f_ACLatentToQ: 1.0
+    COPHeat: 0.9
+    ACon: 1
+    COPAC: 3.26
+    RHsetpointCooling: 60.0
 urbangeometry:
   Width_roof: 4.73
   Width_canyon: 5.78

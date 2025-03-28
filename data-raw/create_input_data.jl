@@ -168,5 +168,53 @@ data["soil"]["ground"] = Dict{String,Any}(
 # Tree interception parameter
 data["soil"]["Sp_In_T"] = 0.2
 
+data["building_energy"] = Dict{String,Any}()
+data["building_energy"]["indoor_optical"] = Dict{String,Any}(
+    "abc" => 0.3,
+    "abw" => 0.3,
+    "abg" => 0.3,
+    "abm" => 0.3,
+    "ec" => 0.95,
+    "eg" => 0.95,
+    "ew" => 0.95,
+    "em" => 0.95,
+)
+data["building_energy"]["thermal"] = Dict{String,Any}(
+    "IntMassOn" => 0,
+    "FloorHeight" => 3.0,
+    "dzFloor" => 0.2,
+    "dzWall" => 0.2,
+    "lan_ground_floor" => 1.2,
+    "cv_ground_floor" => 1.5e6,
+    "lan_floor_IntMass" => 0.67,
+    "cv_floor_IntMass" => 1.0e6,
+    "lan_wall_IntMass" => 0.67,
+    "cv_wall_IntMass" => 1.0e6,
+)
+data["building_energy"]["windows"] = Dict{String,Any}(
+    "WindowsOn" => 1,
+    "GlazingRatio" => 0.15,
+    "Uvalue" => 4.95,
+    "lan_windows" => NaN,
+    "cv_glass" => 2.1e6,
+    "dztot" => 0.02,
+    "SHGC" => 0.8,
+    "SolarTransmittance" => 0.6,
+    "SolarAbsorptivity" => 0.0,
+    "SolarAlbedo" => 0.4,
+)
+data["building_energy"]["hvac"] = Dict{String,Any}(
+    "ACon" => 1,
+    "Heatingon" => 1,
+    "TsetpointCooling" => 298.15,
+    "TsetpointHeating" => 293.15,
+    "RHsetpointCooling" => 60.0,
+    "RHsetpointHeating" => NaN,
+    "ACH" => 0.5,
+    "COPAC" => 3.26,
+    "COPHeat" => 0.9,
+    "f_ACLatentToQ" => 1.0,
+)
+
 YAML.write_file(joinpath(@__DIR__, "..", "data", "parameters.yaml"), data)
 YAML.write_file(joinpath(@__DIR__, "..", "test", "data", "parameters.yaml"), data)
