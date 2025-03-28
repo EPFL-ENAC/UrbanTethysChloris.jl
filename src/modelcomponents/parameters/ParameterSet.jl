@@ -1,6 +1,21 @@
 abstract type AbstractParameterSet{FT<:AbstractFloat} <: AbstractModelComponentSet{FT} end
 const APS = AbstractParameterSet
 
+"""
+    ParameterSet{FT<:AbstractFloat} <: AbstractParameterSet{FT}
+
+Parameters for the Urban Tethys-Chloris model.
+
+# Fields
+- `building_energy::BuildingEnergyModelParameters{FT}`: Parameters for the building energy model.
+- `person::PersonParameters{FT}`: Parameters for the person.
+- `soil::SoilParameters{FT}`: Parameters for the soil.
+- `surfacefractions::SurfaceFractions{FT}`: Parameters for the surface fractions.
+- `thermal::ThermalProperties{FT}`: Parameters for the thermal properties.
+- `optical::OpticalProperties{FT}`: Parameters for the optical properties.
+- `urbangeometry::UrbanGeometryParameters{FT}`: Parameters for the urban geometry.
+- `vegetation::VegetationParameters{FT}`: Parameters for the vegetation.
+"""
 Base.@kwdef struct ParameterSet{FT<:AbstractFloat} <: APS{FT}
     building_energy::BuildingEnergyModelParameters{FT}
     person::PersonParameters{FT}
