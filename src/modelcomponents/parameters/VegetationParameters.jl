@@ -123,6 +123,14 @@ function TethysChlorisCore.get_required_fields(::Type{HeightDependentVegetationP
     ]
 end
 
+function TethysChlorisCore.validate_fields(
+    ::Type{HeightDependentVegetationParameters}, data::Dict{String,Any}
+)
+    if data["LAI"] <= 0.0
+        throw(ArgumentError("LAI must be > 0"))
+    end
+end
+
 """
     VegetationParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
 
