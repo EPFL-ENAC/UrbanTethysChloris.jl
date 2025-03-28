@@ -177,6 +177,12 @@ building_energy:
     ACon: 1
     COPAC: 3.26
     RHsetpointCooling: 60.0
+person:
+  PersonHeight: 0.11
+  HeightWind: 1.1
+  PositionPx: 2.89
+  PositionPz: 1.1
+  PersonWidth: 0.03
 urbangeometry:
   Width_roof: 4.73
   Width_canyon: 5.78

@@ -3,6 +3,7 @@ const APS = AbstractParameterSet
 
 Base.@kwdef struct ParameterSet{FT<:AbstractFloat} <: APS{FT}
     building_energy::BuildingEnergyModelParameters{FT}
+    person::PersonParameters{FT}
     soil::SoilParameters{FT}
     surfacefractions::SurfaceFractions{FT}
     thermal::ThermalProperties{FT}
@@ -20,6 +21,7 @@ end
 function TethysChlorisCore.get_required_fields(::Type{ParameterSet})
     return [
         :building_energy,
+        :person,
         :soil,
         :surfacefractions,
         :thermal,
@@ -38,6 +40,7 @@ function TethysChlorisCore.preprocess_fields(
     processed["building_energy"] = initialize_building_energy_model_parameters(
         FT, data["building_energy"]
     )
+    processed["person"] = initialize_person_parameters(FT, data["person"])
     processed["soil"] = initialize_soil_parameters(FT, data["soil"])
 
     processed["surfacefractions"] = initialize_surfacefractions(

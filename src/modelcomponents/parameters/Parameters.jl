@@ -3,6 +3,7 @@ module Parameters
 using TethysChlorisCore
 using TethysChlorisCore.ModelComponents
 
+include("PersonParameters.jl")
 include("SoilParameters.jl")
 include("SurfaceFractions.jl")
 include("ThermalProperties.jl")

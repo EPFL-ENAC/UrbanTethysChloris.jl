@@ -216,5 +216,14 @@ data["building_energy"]["hvac"] = Dict{String,Any}(
     "f_ACLatentToQ" => 1.0,
 )
 
+# Add person parameters
+data["person"] = Dict{String,Any}(
+    "PositionPx" => data["urbangeometry"]["Width_canyon"] / 2,
+    "PositionPz" => 1.1,
+    "PersonWidth" => 0.06 / 2,
+    "PersonHeight" => 0.22 / 2,
+    "HeightWind" => 1.1,
+)
+
 YAML.write_file(joinpath(@__DIR__, "..", "data", "parameters.yaml"), data)
 YAML.write_file(joinpath(@__DIR__, "..", "test", "data", "parameters.yaml"), data)
