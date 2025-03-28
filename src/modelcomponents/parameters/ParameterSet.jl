@@ -4,7 +4,7 @@ const APS = AbstractParameterSet
 Base.@kwdef struct ParameterSet{FT<:AbstractFloat} <: APS{FT}
     surfacefractions::SurfaceFractions{FT}
     thermal::ThermalProperties{FT}
-    # optical::OpticalProperties{FT}
+    optical::OpticalProperties{FT}
     urbangeometry::UrbanGeometryParameters{FT}
     vegetation::VegetationParameters{FT}
 end
