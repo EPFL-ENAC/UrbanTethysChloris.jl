@@ -27,3 +27,10 @@ end
 function TethysChlorisCore.get_required_fields(::Type{PersonParameters})
     return [:PositionPx, :PositionPz, :PersonWidth, :PersonHeight, :HeightWind]
 end
+
+function TethysChlorisCore.validate_fields(::Type{PersonParameters}, data::Dict{String,Any})
+    # Check if PositionPx and PositionPz are within valid ranges
+    if data["PositionPx"] < 0.0 || data["PositionPz"] < 0.0
+        throw(ArgumentError("PositionPx and PositionPz must be non-negative"))
+    end
+end

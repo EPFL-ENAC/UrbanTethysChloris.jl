@@ -72,3 +72,36 @@ function TethysChlorisCore.preprocess_fields(
 
     return processed
 end
+
+function TethysChlorisCore.validate_fields(::Type{ParameterSet}, data::Dict{String,Any})
+    hcanyon, wcanyon, wroof, htree, radius_tree, distance_tree, ratio, wcanyon_norm, wroof_norm = preprocess_geometry(
+        data["urbangeometry"]["Height_canyon"],
+        data["urbangeometry"]["Width_canyon"],
+        data["urbangeometry"]["Width_roof"],
+        data["urbangeometry"]["Height_tree"],
+        data["urbangeometry"]["Radius_tree"],
+        data["urbangeometry"]["Distance_tree"],
+    )
+
+    # Validate the person position with respect to the urban geometry
+    px = data["person"]["PositionPx"] / data["urbangeometry"]["Width_canyon"]
+    pz = data["person"]["PositionPz"] / data["urbangeometry"]["Height_canyon"]
+
+    if px >= wcanyon
+        throw(ArgumentError("This position of the person P is not permitted"))
+    end
+
+    if pz >= hcanyon
+        throw(ArgumentError("This position of the person P is not permitted"))
+    end
+
+    if data["urbangeometry"]["trees"]
+        if sqrt((px - distance_tree)^2 + (pz - radius_tree)^2) <= radius_tree
+            throw(ArgumentError("This position of the person P is not permitted"))
+        end
+
+        if sqrt(((wcanyon - px) - distance_tree)^2 + (pz - htree)^2) <= radius_tree
+            throw(ArgumentError("This position of the person P is not permitted"))
+        end
+    end
+end
