@@ -10,4 +10,12 @@ graph TD
   A --> E[VegetationParameters] --> G[HeightDependentVegetationParameters]
   A --> H[Optical Properties] --> I[SimpleOpticalProperties]
   H --> J[VegetatedOpticalProperties]
+  A --> K[BuildingEnergyModelParameters]
+  K --> L[IndoorOpticalProperties]
+  K --> M[ThermalBuilding]
+  K --> N[WindowParameters]
+  K --> O[HVACParameters]
+  A --> P[PersonParameters]
+  A --> Q[SoilParameters]
+  Q --> R[VegetatedSoilParameters]
 ```
