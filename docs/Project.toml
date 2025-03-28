@@ -7,3 +7,6 @@ UrbanTethysChloris = "8ae36e77-b357-5cab-a873-ceeadc1a5254"
 
 [compat]
 Documenter = "1"
+
+[sources]
+TethysChlorisCore = {url = "https://github.com/EPFL-ENAC/TethysChlorisCore.jl"}
