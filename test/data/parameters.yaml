@@ -1,0 +1,223 @@
+surfacefractions:
+  roof:
+    fimp: 0.5
+    Per_runoff: 1.0
+    fveg: 0.5
+  ground:
+    fimp: 0.455
+    fbare: 0.0
+    Per_runoff: 0.9
+    fveg: 0.545
+optical:
+  roof:
+    aveg: 0.2
+    eveg: 0.9944834355792392
+    aimp: 0.15
+    eimp: 0.95
+  ground:
+    aveg: 0.2
+    eveg: 0.9944834355792392
+    abare: 0.15
+    ebare: 0.95
+    aimp: 0.1
+    eimp: 0.95
+  tree:
+    emissivity: 0.95
+    albedo: 0.2
+  wall:
+    emissivity: 0.95
+    albedo: 0.4
+vegetation:
+  roof:
+    ZRmax: .NaN
+    Psi_sto_50: -3.0
+    SPARTREE: 2
+    ZR95: 1000.0
+    rjv: 2.4
+    e_relN: 1.0
+    a1: 9.0
+    ZR50: .NaN
+    d_leaf: 0.8
+    Vmax: 68.0
+    CASE_ROOT: 1
+    Rrootl: 4000.0
+    FI: 0.081
+    Knit: 0.15
+    mSl: 0.0
+    go: 0.01
+    Do: 1000.0
+    Ha: 76.0
+    Kopt: 0.5
+    Sl: 0.024
+    PsiL50: -3.0
+    hc: .NaN
+    e_rel: 1.0
+    SAI: 0.2
+    CT: 3
+    DSE: 0.649
+    PsiX50: -4.5
+    Psi_sto_00: -0.5
+    h_disp: 0.09999999999999999
+    LAI: 5.0
+    gmes: .inf
+  ground:
+    ZRmax: .NaN
+    Psi_sto_50: -3.0
+    SPARTREE: 2
+    ZR95: 1000.0
+    rjv: 2.4
+    e_relN: 1.0
+    a1: 9.0
+    ZR50: .NaN
+    d_leaf: 0.8
+    Vmax: 68.0
+    CASE_ROOT: 1
+    Rrootl: 4000.0
+    FI: 0.081
+    Knit: 0.15
+    mSl: 0.0
+    go: 0.01
+    Do: 1000.0
+    Ha: 76.0
+    Kopt: 0.5
+    Sl: 0.024
+    PsiL50: -3.0
+    hc: .NaN
+    e_rel: 1.0
+    SAI: 0.2
+    CT: 3
+    DSE: 0.649
+    PsiX50: -4.5
+    Psi_sto_00: -0.5
+    h_disp: 0.09999999999999999
+    LAI: 5.0
+    gmes: .inf
+  tree:
+    ZRmax: .NaN
+    Psi_sto_50: -3.0
+    SPARTREE: 2
+    ZR95: 1000.0
+    rjv: 2.4
+    e_relN: 1.0
+    a1: 9.0
+    ZR50: .NaN
+    d_leaf: 0.8
+    Vmax: 68.0
+    CASE_ROOT: 1
+    Rrootl: 4000.0
+    FI: 0.081
+    Knit: 0.15
+    mSl: 0.0
+    go: 0.01
+    Do: 1000.0
+    Ha: 76.0
+    Kopt: 0.5
+    Sl: 0.024
+    PsiL50: -3.0
+    hc: .NaN
+    e_rel: 1.0
+    SAI: 0.2
+    CT: 3
+    DSE: 0.649
+    PsiX50: -4.5
+    Psi_sto_00: -0.5
+    h_disp: 0.09999999999999999
+    LAI: 5.0
+    gmes: .inf
+thermal:
+  roof:
+    lan_dry: 0.67
+    cv_s: 1.0e6
+  ground:
+    lan_dry: 1.2
+    cv_s: 1.5e6
+  wall:
+    lan_dry: 0.67
+    cv_s: 1.0e6
+building_energy:
+  indoor_optical:
+    abc: 0.3
+    abw: 0.3
+    abm: 0.3
+    eg: 0.95
+    em: 0.95
+    ew: 0.95
+    abg: 0.3
+    ec: 0.95
+  thermal:
+    lan_ground_floor: 1.2
+    IntMassOn: 0
+    dzWall: 0.2
+    cv_ground_floor: 1.5e6
+    FloorHeight: 3.0
+    lan_floor_IntMass: 0.67
+    dzFloor: 0.2
+    cv_wall_IntMass: 1.0e6
+    lan_wall_IntMass: 0.67
+    cv_floor_IntMass: 1.0e6
+  windows:
+    GlazingRatio: 0.15
+    WindowsOn: 1
+    lan_windows: .NaN
+    cv_glass: 2.1e6
+    dztot: 0.02
+    SHGC: 0.8
+    SolarAlbedo: 0.4
+    SolarAbsorptivity: 0.0
+    Uvalue: 4.95
+    SolarTransmittance: 0.6
+  hvac:
+    ACH: 0.5
+    RHsetpointHeating: .NaN
+    TsetpointHeating: 293.15
+    Heatingon: 1
+    TsetpointCooling: 298.15
+    f_ACLatentToQ: 1.0
+    COPHeat: 0.9
+    ACon: 1
+    COPAC: 3.26
+    RHsetpointCooling: 60.0
+person:
+  PersonHeight: 0.11
+  HeightWind: 1.1
+  PositionPx: 2.89
+  PositionPz: 1.1
+  PersonWidth: 0.03
+urbangeometry:
+  Width_roof: 4.73
+  Width_canyon: 5.78
+  trees: true
+  Radius_tree: 0.289
+  Distance_tree: 0.7889999999999999
+  ftree: 1.0
+  Height_tree: 4.711
+  Hcan_std: .NaN
+  Height_canyon: 6.5
+  Hcan_max: .NaN
+soil:
+  roof:
+    Porg: 0.025
+    SPAR: 2
+    Psan: 0.4
+    Kfc: 0.2
+    In_max_ground: 10.0
+    Sp_In: 0.2
+    Kimp: 0.0
+    Kbot: .NaN
+    Pcla: 0.2
+    Phy: 10000.0
+    In_max_imp: 0.25
+  ground:
+    Porg: 0.025
+    SPAR: 2
+    Psan: 0.4
+    In_max_underveg: 10.0
+    Kfc: 0.2
+    Kbot: .NaN
+    Sp_In: 0.2
+    Kimp: 0.001
+    In_max_bare: 10.0
+    Pcla: 0.2
+    Phy: 10000.0
+    In_max_imp: 0.5
+  Sp_In_T: 0.2

@@ -15,3 +15,28 @@ Pages = ["95-reference.md"]
 ```@autodocs
 Modules = [UrbanTethysChloris]
 ```
+
+## Model Components
+
+### Parameters
+
+```@docs
+UrbanTethysChloris.ModelComponents.Parameters.HeightDependentVegetationParameters
+UrbanTethysChloris.ModelComponents.Parameters.SurfaceFractions
+UrbanTethysChloris.ModelComponents.Parameters.LocationSpecificThermalProperties
+UrbanTethysChloris.ModelComponents.Parameters.UrbanGeometryParameters
+UrbanTethysChloris.ModelComponents.Parameters.VegetationParameters
+UrbanTethysChloris.ModelComponents.Parameters.ThermalProperties
+UrbanTethysChloris.ModelComponents.Parameters.OpticalProperties
+UrbanTethysChloris.ModelComponents.Parameters.SimpleOpticalProperties
+UrbanTethysChloris.ModelComponents.Parameters.VegetatedOpticalProperties
+UrbanTethysChloris.ModelComponents.Parameters.BuildingEnergyModelParameters
+UrbanTethysChloris.ModelComponents.Parameters.IndoorOpticalProperties
+UrbanTethysChloris.ModelComponents.Parameters.ThermalBuilding
+UrbanTethysChloris.ModelComponents.Parameters.WindowParameters
+UrbanTethysChloris.ModelComponents.Parameters.HVACParameters
+UrbanTethysChloris.ModelComponents.Parameters.SoilParameters
+UrbanTethysChloris.ModelComponents.Parameters.VegetatedSoilParameters
+UrbanTethysChloris.ModelComponents.Parameters.PersonParameters
+UrbanTethysChloris.ModelComponents.Parameters.ParameterSet
+```
