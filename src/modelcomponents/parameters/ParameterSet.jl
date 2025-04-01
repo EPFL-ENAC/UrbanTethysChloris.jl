@@ -74,7 +74,7 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 function TethysChlorisCore.validate_fields(::Type{ParameterSet}, data::Dict{String,Any})
-    hcanyon, wcanyon, wroof, htree, radius_tree, distance_tree, ratio, wcanyon_norm, wroof_norm = preprocess_geometry(
+    hcanyon, wcanyon, _, htree, radius_tree, distance_tree, _ = preprocess_geometry(
         data["urbangeometry"]["Height_canyon"],
         data["urbangeometry"]["Width_canyon"],
         data["urbangeometry"]["Width_roof"],
