@@ -6,60 +6,58 @@ using UrbanTethysChloris.ModelComponents.Parameters:
     initialize_windowparameters,
     initialize_hvacparameters
 
-# Test data based on Data_UEHM_site_ZH.m
 data = Dict{String,Any}(
     "indoor_optical" => Dict{String,Any}(
-        "abc" => 0.3,  # Albedo ceiling
-        "abw" => 0.3,  # Albedo wall
-        "abg" => 0.3,  # Albedo ground
-        "abm" => 0.3,  # Albedo internal mass
-        "ec" => 0.95,  # Emissivity ceiling
-        "eg" => 0.95,  # Emissivity ground
-        "ew" => 0.95,  # Emissivity wall
-        "em" => 0.95,  # Emissivity internal mass
+        "abc" => 0.3,
+        "abw" => 0.3,
+        "abg" => 0.3,
+        "abm" => 0.3,
+        "ec" => 0.95,
+        "eg" => 0.95,
+        "ew" => 0.95,
+        "em" => 0.95,
     ),
     "thermal" => Dict{String,Any}(
-        "IntMassOn" => 0,      # Include building internal mass
-        "FloorHeight" => 3.0,   # Average floor height (m)
-        "dzFloor" => 0.2,      # Average floor thickness (m)
-        "dzWall" => 0.2,       # Average wall thickness (m)
-        "lan_ground_floor" => 1.2,      # Ground thermal conductivity (W/m K)
-        "cv_ground_floor" => 1.5e6,     # Ground volumetric heat capacity (J/m³ K)
-        "lan_floor_IntMass" => 0.67,    # Floor thermal conductivity (W/m K)
-        "cv_floor_IntMass" => 1.0e6,    # Floor volumetric heat capacity (J/m³ K)
-        "lan_wall_IntMass" => 0.67,     # Wall thermal conductivity (W/m K)
-        "cv_wall_IntMass" => 1.0e6,     # Wall volumetric heat capacity (J/m³ K)
+        "IntMassOn" => 0,
+        "FloorHeight" => 3.0,
+        "dzFloor" => 0.2,
+        "dzWall" => 0.2,
+        "lan_ground_floor" => 1.2,
+        "cv_ground_floor" => 1.5e6,
+        "lan_floor_IntMass" => 0.67,
+        "cv_floor_IntMass" => 1.0e6,
+        "lan_wall_IntMass" => 0.67,
+        "cv_wall_IntMass" => 1.0e6,
     ),
     "windows" => Dict{String,Any}(
-        "WindowsOn" => 1,          # Include windows in simulation
-        "GlazingRatio" => 0.15,    # Window-to-wall ratio
-        "Uvalue" => 4.95,          # U-value (W/m² K)
-        "lan_windows" => NaN,      # Thermal conductivity (W/m K)
-        "cv_glass" => 2.1e6,       # Volumetric heat capacity (J/m³ K)
-        "dztot" => 0.02,          # Total glass thickness (m)
-        "SHGC" => 0.8,            # Solar heat gain coefficient
-        "SolarTransmittance" => 0.6, # Solar transmittance
-        "SolarAbsorptivity" => 0.0,  # Solar absorptivity
-        "SolarAlbedo" => 0.4,        # Solar albedo
+        "WindowsOn" => 1,
+        "GlazingRatio" => 0.15,
+        "Uvalue" => 4.95,
+        "lan_windows" => NaN,
+        "cv_glass" => 2.1e6,
+        "dztot" => 0.02,
+        "SHGC" => 0.8,
+        "SolarTransmittance" => 0.6,
+        "SolarAbsorptivity" => 0.0,
+        "SolarAlbedo" => 0.4,
     ),
     "hvac" => Dict{String,Any}(
-        "ACon" => 1,                # Enable AC
-        "Heatingon" => 1,           # Enable heating
-        "TsetpointCooling" => 298.15, # 25°C
-        "TsetpointHeating" => 293.15, # 20°C
-        "RHsetpointCooling" => 60.0,  # Cooling RH setpoint (%)
-        "RHsetpointHeating" => NaN,   # Heating RH setpoint (%)
-        "ACH" => 0.5,               # Air changes per hour
-        "COPAC" => 3.26,            # AC coefficient of performance
-        "COPHeat" => 0.9,           # Heating coefficient of performance
-        "f_ACLatentToQ" => 1.0,     # Fraction of latent heat condensed
+        "ACon" => 1,
+        "Heatingon" => 1,
+        "TsetpointCooling" => 298.15,
+        "TsetpointHeating" => 293.15,
+        "RHsetpointCooling" => 60.0,
+        "RHsetpointHeating" => NaN,
+        "ACH" => 0.5,
+        "COPAC" => 3.26,
+        "COPHeat" => 0.9,
+        "f_ACLatentToQ" => 1.0,
     ),
 )
 
 FT = Float64
 
 @testset "IndoorOpticalProperties initialization" begin
-    # Test roof soil parameters
     io_input = data["indoor_optical"]
     io_parameters = initialize_indooropticalproperties(FT, io_input)
 

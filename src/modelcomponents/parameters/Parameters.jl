@@ -9,7 +9,7 @@ include("SurfaceFractions.jl")
 include("ThermalProperties.jl")
 include("UrbanGeometryParameters.jl")
 include("VegetationParameters.jl")
-include("BuildingEnergyModelParameters.jl")  # Add this line
+include("BuildingEnergyModelParameters.jl")
 
 # Depends on SurfaceFractions
 include("OpticalProperties.jl")

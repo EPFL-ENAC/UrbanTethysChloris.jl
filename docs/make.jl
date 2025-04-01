@@ -16,7 +16,6 @@ const numbered_pages = [
 makedocs(;
     modules=[UrbanTethysChloris],
     authors="Hugo Solleder <hugo.solleder@epfl.ch>",
-    # repo = "https://github.com/EPFL-ENAC/UrbanTethysChloris.jl/blob/{commit}{path}#{line}",
     repo=Remotes.GitHub("EPFL-ENAC", "UrbanTethysChloris.jl"),
     sitename="UrbanTethysChloris.jl",
     format=Documenter.HTML(; canonical="https://EPFL-ENAC.github.io/UrbanTethysChloris.jl"),

@@ -9,7 +9,6 @@ FT = Float64
 
 soil_params = Dict{String,Any}()
 
-# Roof soil parameters
 soil_params["roof"] = Dict{String,Any}(
     "Pcla" => 0.20,
     "Psan" => 0.40,
@@ -24,7 +23,6 @@ soil_params["roof"] = Dict{String,Any}(
     "Kbot" => NaN,
 )
 
-# Ground soil parameters
 soil_params["ground"] = Dict{String,Any}(
     "Pcla" => 0.20,
     "Psan" => 0.40,

@@ -5,7 +5,7 @@ using UrbanTethysChloris.ModelComponents.Parameters:
 FT = Float64
 
 person_params = Dict{String,Any}(
-    "PositionPx" => 5.78 / 2,  # Width_canyon/2
+    "PositionPx" => 5.78 / 2,
     "PositionPz" => 1.1,
     "PersonWidth" => 0.06 / 2,
     "PersonHeight" => 0.22 / 2,
