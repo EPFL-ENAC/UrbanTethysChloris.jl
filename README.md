@@ -20,6 +20,22 @@ If you use UrbanTethysChloris.jl in your work, please cite using the reference g
 
 If you want to make contributions of any kind, please first that a look into our [contributing guide directly on GitHub](docs/src/90-contributing.md) or the [contributing page on the website](https://EPFL-ENAC.github.io/UrbanTethysChloris.jl/dev/90-contributing/)
 
+### Creating example input data
+
+To create example input data based on the Zurich example in the [original MATLAB code](https://github.com/NaikaMeili/UTC_ModelCode), run the `data-raw/create_input_data` script. The script will automatically create a `data` subfolder and download a MAT file, `ForcingData_ZH2010.mat`, as well as create an example NetCDF and YAML input for the model. Lastly, smaller files will also be created based on the Zurich example for testing purposes.
+
+First, instantiate the environment and manually add the MAT package:
+
+```bash
+julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.add("MAT")'
+```
+
+Then, run the script:
+
+```bash
+julia --project=. data-raw/create_input_data.jl
+```
+
 ---
 
 ### Contributors
