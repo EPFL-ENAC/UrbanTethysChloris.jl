@@ -12,18 +12,14 @@ function initialize_locationspecific_surfacefractions(
     return initialize(FT, LocationSpecificSurfaceFractions, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{LocationSpecificSurfaceFractions})
-    return [:fveg, :fimp, :Per_runoff]
+function get_optional_fields(::Type{LocationSpecificSurfaceFractions})
+    return [:fbare]
 end
 
 function TethysChlorisCore.validate_fields(
     ::Type{LocationSpecificSurfaceFractions}, data::Dict{String,Any}
 )
-    check_extraneous_fields(
-        LocationSpecificSurfaceFractions,
-        data,
-        String.(fieldnames(LocationSpecificSurfaceFractions)),
-    )
+    check_extraneous_fields(LocationSpecificSurfaceFractions, data)
 
     if data["fveg"] + data["fimp"] != 1.0
         throw(ArgumentError("Surface fractions must sum to 1.0"))
@@ -59,10 +55,6 @@ function initialize_surfacefractions(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
     return initialize(FT, SurfaceFractions, data)
-end
-
-function TethysChlorisCore.get_required_fields(::Type{SurfaceFractions})
-    return [:roof, :ground]
 end
 
 function TethysChlorisCore.preprocess_fields(

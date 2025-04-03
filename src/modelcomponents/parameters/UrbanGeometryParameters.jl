@@ -55,18 +55,17 @@ function initialize_urbangeometry_parameters(
     return initialize(FT, UrbanGeometryParameters, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{UrbanGeometryParameters})
+function get_calculated_fields(::Type{UrbanGeometryParameters})
     return [
-        :Height_canyon,
-        :Width_canyon,
-        :Width_roof,
-        :Height_tree,
-        :Radius_tree,
-        :Distance_tree,
-        :Hcan_max,
-        :Hcan_std,
-        :trees,
-        :ftree,
+        :hcanyon,
+        :wcanyon,
+        :wroof,
+        :htree,
+        :radius_tree,
+        :distance_tree,
+        :ratio,
+        :wcanyon_norm,
+        :wroof_norm,
     ]
 end
 
@@ -100,9 +99,7 @@ end
 function TethysChlorisCore.validate_fields(
     ::Type{UrbanGeometryParameters}, data::Dict{String,Any}
 )
-    check_extraneous_fields(
-        UrbanGeometryParameters, data, String.(get_required_fields(UrbanGeometryParameters))
-    )
+    check_extraneous_fields(UrbanGeometryParameters, data)
 
     # check that none of the data fields used by the validate function is NaN
     for key in keys(data)

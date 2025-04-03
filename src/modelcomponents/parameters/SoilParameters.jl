@@ -47,34 +47,11 @@ function initialize_vegetated_soilparameters(
     return initialize(FT, VegetatedSoilParameters, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{VegetatedSoilParameters})
-    return [
-        :Pcla,
-        :Psan,
-        :Porg,
-        :In_max_imp,
-        :Sp_In,
-        :Kimp,
-        :Kfc,
-        :Phy,
-        :SPAR,
-        :Kbot,
-        :Zs,
-        :FixSM,
-        :FixSM_LayerStart,
-        :FixSM_LayerEnd,
-    ]
+function get_calculated_fields(::Type{VegetatedSoilParameters})
+    return [:ms]
 end
-
-function TethysChlorisCore.validate_fields(
-    ::Type{VegetatedSoilParameters}, data::Dict{String,Any}
-)
-    # Check that data does not include a key beyond the three components
-    for key in keys(data)
-        if key ∉ String.(fieldnames(VegetatedSoilParameters))
-            throw(ArgumentError("Extraneous key: $key"))
-        end
-    end
+function get_optional_fields(::Type{VegetatedSoilParameters})
+    return [:In_max_ground, :In_max_underveg, :In_max_bare, :dz1, :dz2]
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -96,10 +73,6 @@ function initialize_wall_soilparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
     return initialize(FT, WallSoilParameters, data)
-end
-
-function TethysChlorisCore.get_required_fields(::Type{WallSoilParameters})
-    return [:dz1, :dz2]
 end
 
 """
@@ -129,8 +102,4 @@ function initialize_soil_parameters(
     processed["wall"] = initialize_wall_soilparameters(FT, data["wall"])
 
     return initialize(FT, SoilParameters, processed)
-end
-
-function TethysChlorisCore.get_required_fields(::Type{SoilParameters})
-    return [:roof, :ground, :wall, :Sp_In_T]
 end

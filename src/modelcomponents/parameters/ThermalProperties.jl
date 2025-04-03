@@ -42,10 +42,6 @@ function initialize_tree_thermalproperties(
     return initialize(FT, TreeThermalProperties, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{TreeThermalProperties})
-    return [:Cthermal_leaf]
-end
-
 """
     ThermalProperties{FT<:AbstractFloat} <: AbstractParameters{FT}
 
@@ -69,16 +65,12 @@ function initialize_thermalproperties(
     return initialize(FT, ThermalProperties, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{ThermalProperties})
-    return [:roof, :ground, :wall, :tree]
-end
-
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{ThermalProperties}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
-    check_extraneous_fields(ThermalProperties, data, String.(fieldnames(ThermalProperties)))
+    check_extraneous_fields(ThermalProperties, data)
 
     processed["roof"] = initialize(FT, LocationSpecificThermalProperties, data["roof"])
     processed["ground"] = initialize(FT, LocationSpecificThermalProperties, data["ground"])
