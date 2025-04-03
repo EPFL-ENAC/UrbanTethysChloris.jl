@@ -18,4 +18,7 @@ graph TD
   A --> P[PersonParameters]
   A --> Q[SoilParameters]
   Q --> R[VegetatedSoilParameters]
+  C --> S[TreeThermalProperties]
+  C --> T[LocationSpecificThermalProperties]
+  Q --> U[WallSoilParameters]
 ```

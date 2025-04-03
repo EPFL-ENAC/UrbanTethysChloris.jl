@@ -39,4 +39,5 @@ UrbanTethysChloris.ModelComponents.Parameters.SoilParameters
 UrbanTethysChloris.ModelComponents.Parameters.VegetatedSoilParameters
 UrbanTethysChloris.ModelComponents.Parameters.PersonParameters
 UrbanTethysChloris.ModelComponents.Parameters.ParameterSet
+UrbanTethysChloris.ModelComponents.Parameters.TreeThermalProperties
 ```
