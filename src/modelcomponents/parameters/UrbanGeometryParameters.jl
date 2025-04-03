@@ -73,6 +73,8 @@ end
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{UrbanGeometryParameters}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
+    processed = copy(data)
+
     hcanyon, wcanyon, wroof, htree, radius_tree, distance_tree, ratio, wcanyon_norm, wroof_norm = preprocess_geometry(
         data["Height_canyon"],
         data["Width_canyon"],
@@ -82,17 +84,17 @@ function TethysChlorisCore.preprocess_fields(
         data["Distance_tree"],
     )
 
-    data["hcanyon"] = hcanyon
-    data["wcanyon"] = wcanyon
-    data["wroof"] = wroof
-    data["htree"] = htree
-    data["radius_tree"] = radius_tree
-    data["distance_tree"] = distance_tree
-    data["ratio"] = ratio
-    data["wcanyon_norm"] = wcanyon_norm
-    data["wroof_norm"] = wroof_norm
+    processed["hcanyon"] = hcanyon
+    processed["wcanyon"] = wcanyon
+    processed["wroof"] = wroof
+    processed["htree"] = htree
+    processed["radius_tree"] = radius_tree
+    processed["distance_tree"] = distance_tree
+    processed["ratio"] = ratio
+    processed["wcanyon_norm"] = wcanyon_norm
+    processed["wroof_norm"] = wroof_norm
 
-    return data
+    return processed
 end
 
 function TethysChlorisCore.validate_fields(
