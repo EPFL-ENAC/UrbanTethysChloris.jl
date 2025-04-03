@@ -73,12 +73,9 @@ end
 function TethysChlorisCore.validate_fields(
     ::Type{VegetatedOpticalProperties}, data::Dict{String,Any}
 )
-    # Check that data does not include a key beyond the three components
-    for key in keys(data)
-        if key ∉ ["aveg", "aimp", "abare", "eveg", "eimp", "ebare"]
-            throw(ArgumentError("Extraneous key: $key"))
-        end
-    end
+    return check_extraneous_fields(
+        VegetatedOpticalProperties, data, String.(fieldnames(VegetatedOpticalProperties))
+    )
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -141,15 +138,4 @@ end
 
 function TethysChlorisCore.get_required_fields(::Type{OpticalProperties})
     return [:roof, :ground, :wall, :tree]
-end
-
-function TethysChlorisCore.validate_fields(
-    ::Type{OpticalProperties}, data::Dict{String,Any}
-)
-    # Check that data does not include a key beyond the four components
-    for key in keys(data)
-        if key ∉ ["roof", "ground", "wall", "tree"]
-            throw(ArgumentError("Extraneous key: $key"))
-        end
-    end
 end

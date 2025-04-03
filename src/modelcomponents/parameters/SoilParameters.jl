@@ -86,12 +86,3 @@ end
 function TethysChlorisCore.get_required_fields(::Type{SoilParameters})
     return [:roof, :ground, :Sp_In_T]
 end
-
-function TethysChlorisCore.validate_fields(::Type{SoilParameters}, data::Dict{String,Any})
-    # Check that data does not include a key beyond the four components
-    for key in keys(data)
-        if key ∉ String.(fieldnames(SoilParameters))
-            throw(ArgumentError("Extraneous key: $key"))
-        end
-    end
-end

@@ -19,6 +19,12 @@ end
 function TethysChlorisCore.validate_fields(
     ::Type{LocationSpecificSurfaceFractions}, data::Dict{String,Any}
 )
+    check_extraneous_fields(
+        LocationSpecificSurfaceFractions,
+        data,
+        String.(fieldnames(LocationSpecificSurfaceFractions)),
+    )
+
     if data["fveg"] + data["fimp"] != 1.0
         throw(ArgumentError("Surface fractions must sum to 1.0"))
     end

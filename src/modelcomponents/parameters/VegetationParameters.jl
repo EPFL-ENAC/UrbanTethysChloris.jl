@@ -126,6 +126,12 @@ end
 function TethysChlorisCore.validate_fields(
     ::Type{HeightDependentVegetationParameters}, data::Dict{String,Any}
 )
+    check_extraneous_fields(
+        HeightDependentVegetationParameters,
+        data,
+        String.(fieldnames(HeightDependentVegetationParameters)),
+    )
+
     if data["LAI"] <= 0.0
         throw(ArgumentError("LAI must be > 0"))
     end
@@ -155,17 +161,6 @@ end
 
 function TethysChlorisCore.get_required_fields(::Type{VegetationParameters})
     return [:roof, :ground, :tree]
-end
-
-function TethysChlorisCore.validate_fields(
-    ::Type{VegetationParameters}, data::Dict{String,Any}
-)
-    # Check that data does not include a key beyond the three components
-    for key in keys(data)
-        if key ∉ ["roof", "ground", "tree"]
-            throw(ArgumentError("Extraneous key: $key"))
-        end
-    end
 end
 
 function TethysChlorisCore.preprocess_fields(

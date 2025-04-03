@@ -74,6 +74,21 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 function TethysChlorisCore.validate_fields(::Type{ParameterSet}, data::Dict{String,Any})
+    check_extraneous_fields(
+        ParameterSet,
+        data,
+        [
+            "building_energy",
+            "person",
+            "soil",
+            "surfacefractions",
+            "thermal",
+            "optical",
+            "urbangeometry",
+            "vegetation",
+        ],
+    )
+
     hcanyon, wcanyon, _, htree, radius_tree, distance_tree, _ = preprocess_geometry(
         data["urbangeometry"]["Height_canyon"],
         data["urbangeometry"]["Width_canyon"],

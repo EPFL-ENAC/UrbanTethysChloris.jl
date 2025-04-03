@@ -100,6 +100,9 @@ end
 function TethysChlorisCore.validate_fields(
     ::Type{UrbanGeometryParameters}, data::Dict{String,Any}
 )
+    check_extraneous_fields(
+        UrbanGeometryParameters, data, String.(get_required_fields(UrbanGeometryParameters))
+    )
 
     # check that none of the data fields used by the validate function is NaN
     for key in keys(data)
