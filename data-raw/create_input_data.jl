@@ -110,6 +110,7 @@ data["thermal"]["roof"] = Dict{String,Any}("lan_dry" => 0.67, "cv_s" => 1e6)
 data["thermal"]["ground"] = Dict{String,Any}("lan_dry" => 1.2, "cv_s" => 1.5e6)
 
 data["thermal"]["wall"] = data["thermal"]["roof"]
+data["thermal"]["tree"] = Dict{String,Any}("Cthermal_leaf" => 640.0)
 
 data["optical"] = Dict{String,Any}()
 data["optical"]["wall"] = Dict{String,Any}("albedo" => 0.4, "emissivity" => 0.95)

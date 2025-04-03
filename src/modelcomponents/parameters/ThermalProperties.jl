@@ -1,5 +1,5 @@
 """
-    LocationSpecificThermalProperties{FT<:AbstractFloat} <: AbstractParameters{FT}
+    LocationSpecificThermalProperties{FT<:AbstractFloat} <: AbstractHeightDependentParameters{FT}
 
 Parameters for the location-specific (wall, roof, ground) thermal properties.
 
@@ -24,6 +24,29 @@ function TethysChlorisCore.get_required_fields(::Type{LocationSpecificThermalPro
 end
 
 """
+    TreeThermalProperties{FT<:AbstractFloat} <: AbstractHeightDependentParameters{FT}
+
+Parameters for the tree thermal properties.
+
+# Fields
+- `Cthermal_leaf::FT`: [J m-2 K-1] Heat capacity per single leaf area
+"""
+Base.@kwdef struct TreeThermalProperties{FT<:AbstractFloat} <:
+                   AbstractHeightDependentParameters{FT}
+    Cthermal_leaf::FT
+end
+
+function initialize_tree_thermalproperties(
+    ::Type{FT}, data::Dict{String,Any}
+) where {FT<:AbstractFloat}
+    return initialize(FT, TreeThermalProperties, data)
+end
+
+function TethysChlorisCore.get_required_fields(::Type{TreeThermalProperties})
+    return [:Cthermal_leaf]
+end
+
+"""
     ThermalProperties{FT<:AbstractFloat} <: AbstractParameters{FT}
 
 Container for vegetation parameters for different urban surface components.
@@ -37,6 +60,7 @@ Base.@kwdef struct ThermalProperties{FT<:AbstractFloat} <: AbstractParameters{FT
     roof::LocationSpecificThermalProperties{FT}
     ground::LocationSpecificThermalProperties{FT}
     wall::LocationSpecificThermalProperties{FT}
+    tree::TreeThermalProperties{FT}
 end
 
 function initialize_thermalproperties(
@@ -46,7 +70,7 @@ function initialize_thermalproperties(
 end
 
 function TethysChlorisCore.get_required_fields(::Type{ThermalProperties})
-    return [:roof, :ground, :wall]
+    return [:roof, :ground, :wall, :tree]
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -54,16 +78,12 @@ function TethysChlorisCore.preprocess_fields(
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
-    # Check that data does not include a key beyond the three components
-    for key in keys(data)
-        if key ∉ ["roof", "ground", "wall"]
-            throw(ArgumentError("Extraneous key: $key"))
-        end
-    end
+    check_extraneous_fields(ThermalProperties, data, String.(fieldnames(ThermalProperties)))
 
-    for (key, value) in data
-        processed[key] = initialize(FT, LocationSpecificThermalProperties, value)
-    end
+    processed["roof"] = initialize(FT, LocationSpecificThermalProperties, data["roof"])
+    processed["ground"] = initialize(FT, LocationSpecificThermalProperties, data["ground"])
+    processed["wall"] = initialize(FT, LocationSpecificThermalProperties, data["wall"])
+    processed["tree"] = initialize(FT, TreeThermalProperties, data["tree"])
 
     return processed
 end

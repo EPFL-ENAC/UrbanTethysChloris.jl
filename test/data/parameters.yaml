@@ -131,6 +131,8 @@ thermal:
   ground:
     lan_dry: 1.2
     cv_s: 1.5e6
+  tree:
+    Cthermal_leaf: 640.0
   wall:
     lan_dry: 0.67
     cv_s: 1.0e6
