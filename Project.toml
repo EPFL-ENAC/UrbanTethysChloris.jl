@@ -11,8 +11,9 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 TethysChlorisCore = "c22758e7-e854-5bdb-8df2-7602c47a9d98"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
-[compat]
-julia = "1.11"
+[sources.TethysChlorisCore]
+url = "https://github.com/EPFL-ENAC/TethysChlorisCore.jl"
 
-[sources]
-TethysChlorisCore = {url = "https://github.com/EPFL-ENAC/TethysChlorisCore.jl"}
+[compat]
+YAML = "0.4"
+julia = "1.11"
