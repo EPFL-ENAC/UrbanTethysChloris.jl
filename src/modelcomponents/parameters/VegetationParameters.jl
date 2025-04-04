@@ -88,39 +88,8 @@ function initialize_heightdependent_vegetationparameters(
     return initialize(FT, HeightDependentVegetationParameters, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{HeightDependentVegetationParameters})
-    return [
-        :LAI,
-        :SAI,
-        :hc,
-        :h_disp,
-        :d_leaf,
-        :CASE_ROOT,
-        :ZR95,
-        :ZR50,
-        :ZRmax,
-        :Rrootl,
-        :PsiL50,
-        :PsiX50,
-        :FI,
-        :Do,
-        :a1,
-        :go,
-        :CT,
-        :DSE,
-        :Ha,
-        :gmes,
-        :rjv,
-        :Kopt,
-        :Knit,
-        :Vmax,
-        :mSl,
-        :e_rel,
-        :e_relN,
-        :Psi_sto_00,
-        :Psi_sto_50,
-        :Sl,
-    ]
+function get_optional_fields(::Type{HeightDependentVegetationParameters})
+    return [:SPARTREE]
 end
 
 function TethysChlorisCore.validate_fields(
@@ -157,10 +126,6 @@ function initialize_vegetationparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
     return initialize(FT, VegetationParameters, data)
-end
-
-function TethysChlorisCore.get_required_fields(::Type{VegetationParameters})
-    return [:roof, :ground, :tree]
 end
 
 function TethysChlorisCore.preprocess_fields(

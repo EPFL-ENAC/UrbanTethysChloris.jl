@@ -2,7 +2,8 @@ module Parameters
 
 using TethysChlorisCore
 using TethysChlorisCore.ModelComponents
-import ...UrbanTethysChloris: check_extraneous_fields
+import ...UrbanTethysChloris:
+    check_extraneous_fields, get_optional_fields, get_calculated_fields
 
 include("PersonParameters.jl")
 include("SoilParameters.jl")

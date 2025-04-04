@@ -33,19 +33,6 @@ function initialize_parameter_set(
     return initialize(FT, ParameterSet, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{ParameterSet})
-    return [
-        :building_energy,
-        :person,
-        :soil,
-        :surfacefractions,
-        :thermal,
-        :optical,
-        :urbangeometry,
-        :vegetation,
-    ]
-end
-
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{ParameterSet}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
@@ -74,20 +61,7 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 function TethysChlorisCore.validate_fields(::Type{ParameterSet}, data::Dict{String,Any})
-    check_extraneous_fields(
-        ParameterSet,
-        data,
-        [
-            "building_energy",
-            "person",
-            "soil",
-            "surfacefractions",
-            "thermal",
-            "optical",
-            "urbangeometry",
-            "vegetation",
-        ],
-    )
+    check_extraneous_fields(ParameterSet, data)
 
     hcanyon, wcanyon, _, htree, radius_tree, distance_tree, _ = preprocess_geometry(
         data["urbangeometry"]["Height_canyon"],

@@ -30,11 +30,6 @@ function initialize_indooropticalproperties(
     return initialize(FT, IndoorOpticalProperties, data)
 end
 
-# Required fields for each component
-function TethysChlorisCore.get_required_fields(::Type{IndoorOpticalProperties})
-    return [:abc, :abw, :abg, :abm, :ec, :eg, :ew, :em]
-end
-
 """
     ThermalBuilding{FT<:AbstractFloat} <: AbstractParameters{FT}
 
@@ -69,21 +64,6 @@ function initialize_thermalbuildingparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
     return initialize(FT, ThermalBuilding, data)
-end
-
-function TethysChlorisCore.get_required_fields(::Type{ThermalBuilding})
-    return [
-        :IntMassOn,
-        :FloorHeight,
-        :dzFloor,
-        :dzWall,
-        :lan_ground_floor,
-        :cv_ground_floor,
-        :lan_floor_IntMass,
-        :cv_floor_IntMass,
-        :lan_wall_IntMass,
-        :cv_wall_IntMass,
-    ]
 end
 
 """
@@ -122,21 +102,6 @@ function initialize_windowparameters(
     return initialize(FT, WindowParameters, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{WindowParameters})
-    return [
-        :WindowsOn,
-        :GlazingRatio,
-        :Uvalue,
-        :lan_windows,
-        :cv_glass,
-        :dztot,
-        :SHGC,
-        :SolarTransmittance,
-        :SolarAbsorptivity,
-        :SolarAlbedo,
-    ]
-end
-
 """
     HVACParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
 
@@ -173,21 +138,6 @@ function initialize_hvacparameters(
     return initialize(FT, HVACParameters, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{HVACParameters})
-    return [
-        :ACon,
-        :Heatingon,
-        :TsetpointCooling,
-        :TsetpointHeating,
-        :RHsetpointCooling,
-        :RHsetpointHeating,
-        :ACH,
-        :COPAC,
-        :COPHeat,
-        :f_ACLatentToQ,
-    ]
-end
-
 """
     BuildingEnergyModelParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
 
@@ -220,8 +170,4 @@ function initialize_building_energy_model_parameters(
     processed["hvac"] = initialize_hvacparameters(FT, data["hvac"])
 
     return initialize(FT, BuildingEnergyModelParameters, processed)
-end
-
-function TethysChlorisCore.get_required_fields(::Type{BuildingEnergyModelParameters})
-    return [:indoor_optical, :thermal, :windows, :hvac]
 end
