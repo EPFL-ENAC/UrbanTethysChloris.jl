@@ -51,11 +51,11 @@ function initialize_vegetated_opticalproperties(
     return initialize(FT, VegetatedOpticalProperties, data, fractions)
 end
 
-function get_optional_fields(::Type{VegetatedOpticalProperties})
+function TethysChlorisCore.get_optional_fields(::Type{VegetatedOpticalProperties})
     return [:abare, :ebare]
 end
 
-function get_calculated_fields(::Type{VegetatedOpticalProperties})
+function TethysChlorisCore.get_calculated_fields(::Type{VegetatedOpticalProperties})
     return [:albedo, :emissivity]
 end
 

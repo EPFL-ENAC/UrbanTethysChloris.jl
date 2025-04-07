@@ -12,7 +12,7 @@ function initialize_locationspecific_surfacefractions(
     return initialize(FT, LocationSpecificSurfaceFractions, data)
 end
 
-function get_optional_fields(::Type{LocationSpecificSurfaceFractions})
+function TethysChlorisCore.get_optional_fields(::Type{LocationSpecificSurfaceFractions})
     return [:fbare]
 end
 
