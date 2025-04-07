@@ -32,6 +32,13 @@ Base.@kwdef struct VegetatedSoilParameters{FT<:AbstractFloat} <: AbstractParamet
     Phy::FT
     SPAR::Int
     Kbot::FT
+    dz1::FT = FT(NaN)
+    dz2::FT = FT(NaN)
+    Zs::Vector{FT}
+    ms::Int
+    FixSM::Bool
+    FixSM_LayerStart::Int
+    FixSM_LayerEnd::Int
 end
 
 function initialize_vegetated_soilparameters(
@@ -40,19 +47,32 @@ function initialize_vegetated_soilparameters(
     return initialize(FT, VegetatedSoilParameters, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{VegetatedSoilParameters})
-    return [:Pcla, :Psan, :Porg, :In_max_imp, :Sp_In, :Kimp, :Kfc, :Phy, :SPAR, :Kbot]
+function get_calculated_fields(::Type{VegetatedSoilParameters})
+    return [:ms]
+end
+function get_optional_fields(::Type{VegetatedSoilParameters})
+    return [:In_max_ground, :In_max_underveg, :In_max_bare, :dz1, :dz2]
 end
 
-function TethysChlorisCore.validate_fields(
-    ::Type{VegetatedSoilParameters}, data::Dict{String,Any}
-)
-    # Check that data does not include a key beyond the three components
-    for key in keys(data)
-        if key ∉ String.(fieldnames(VegetatedSoilParameters))
-            throw(ArgumentError("Extraneous key: $key"))
-        end
-    end
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{VegetatedSoilParameters}, data::Dict{String,Any}
+) where {FT<:AbstractFloat}
+    processed = copy(data)
+
+    processed["ms"] = length(processed["Zs"]) - 1
+
+    return processed
+end
+
+Base.@kwdef struct WallSoilParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
+    dz1::FT
+    dz2::FT
+end
+
+function initialize_wall_soilparameters(
+    ::Type{FT}, data::Dict{String,Any}
+) where {FT<:AbstractFloat}
+    return initialize(FT, WallSoilParameters, data)
 end
 
 """
@@ -68,6 +88,7 @@ Container for soil parameters for different urban surface components.
 Base.@kwdef struct SoilParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
     roof::VegetatedSoilParameters{FT}
     ground::VegetatedSoilParameters{FT}
+    wall::WallSoilParameters{FT}
     Sp_In_T::FT
 end
 
@@ -76,13 +97,9 @@ function initialize_soil_parameters(
 ) where {FT<:AbstractFloat}
     processed = copy(data)
 
-    processed["Sp_In_T"] = data["Sp_In_T"]
     processed["roof"] = initialize_vegetated_soilparameters(FT, data["roof"])
     processed["ground"] = initialize_vegetated_soilparameters(FT, data["ground"])
+    processed["wall"] = initialize_wall_soilparameters(FT, data["wall"])
 
     return initialize(FT, SoilParameters, processed)
-end
-
-function TethysChlorisCore.get_required_fields(::Type{SoilParameters})
-    return [:roof, :ground, :Sp_In_T]
 end

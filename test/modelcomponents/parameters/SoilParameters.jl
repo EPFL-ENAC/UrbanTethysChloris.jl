@@ -3,6 +3,7 @@ using UrbanTethysChloris.ModelComponents.Parameters:
     VegetatedSoilParameters,
     SoilParameters,
     initialize_vegetated_soilparameters,
+    initialize_wall_soilparameters,
     initialize_soil_parameters
 
 FT = Float64
@@ -21,6 +22,12 @@ soil_params["roof"] = Dict{String,Any}(
     "Phy" => 10000.0,
     "SPAR" => 2,
     "Kbot" => NaN,
+    "dz1" => 0.1,
+    "dz2" => 0.1,
+    "Zs" => [0.0, 10.0, 20.0, 50.0, 100.0],
+    "FixSM" => true,
+    "FixSM_LayerStart" => 1,
+    "FixSM_LayerEnd" => 4,
 )
 
 soil_params["ground"] = Dict{String,Any}(
@@ -36,7 +43,29 @@ soil_params["ground"] = Dict{String,Any}(
     "Phy" => 10000.0,
     "SPAR" => 2,
     "Kbot" => NaN,
+    "Zs" => [
+        0.0,
+        10.0,
+        20.0,
+        50.0,
+        100.0,
+        150.0,
+        200.0,
+        300.0,
+        400.0,
+        600.0,
+        800.0,
+        1000.0,
+        1500.0,
+        2000.0,
+    ],
+    "FixSM" => true,
+    "FixSM_LayerStart" => 6,
+    "FixSM_LayerEnd" => 13,
 )
+
+# Wall soil parameters
+soil_params["wall"] = Dict{String,Any}("dz1" => 0.1, "dz2" => 0.1)
 
 # Tree interception parameter
 soil_params["Sp_In_T"] = 0.2
@@ -57,6 +86,13 @@ soil_params["Sp_In_T"] = 0.2
     @test roof_parameters.Phy == FT(10000.0)
     @test roof_parameters.SPAR == 2
     @test isnan(roof_parameters.Kbot)
+    @test roof_parameters.dz1 == FT(0.1)
+    @test roof_parameters.dz2 == FT(0.1)
+    @test roof_parameters.Zs == [FT(0.0), FT(10.0), FT(20.0), FT(50.0), FT(100.0)]
+    @test roof_parameters.ms == 4
+    @test roof_parameters.FixSM == true
+    @test roof_parameters.FixSM_LayerStart == 1
+    @test roof_parameters.FixSM_LayerEnd == 4
 
     # Test ground soil parameters
     ground_params = soil_params["ground"]
@@ -74,6 +110,40 @@ soil_params["Sp_In_T"] = 0.2
     @test ground_parameters.Phy == FT(10000.0)
     @test ground_parameters.SPAR == 2
     @test isnan(ground_parameters.Kbot)
+    @test ground_parameters.Zs == [
+        FT(0.0),
+        FT(10.0),
+        FT(20.0),
+        FT(50.0),
+        FT(100.0),
+        FT(150.0),
+        FT(200.0),
+        FT(300.0),
+        FT(400.0),
+        FT(600.0),
+        FT(800.0),
+        FT(1000.0),
+        FT(1500.0),
+        FT(2000.0),
+    ]
+    @test ground_parameters.ms == 13
+    @test ground_parameters.FixSM == true
+    @test ground_parameters.FixSM_LayerStart == 6
+end
+
+@testset "Extraneous VegetatedSoilParameters field" begin
+    extra_params = copy(soil_params["ground"])
+    extra_params["extra_field"] = 0.5
+    @test_throws ArgumentError initialize_vegetated_soilparameters(FT, extra_params)
+end
+
+@testset "WallSoilProperties initialization" begin
+    # Test wall soil parameters
+    wall_params = soil_params["wall"]
+    wall_parameters = initialize_wall_soilparameters(FT, wall_params)
+
+    @test wall_parameters.dz1 == FT(0.1)
+    @test wall_parameters.dz2 == FT(0.1)
 end
 
 @testset "SoilProperties initialization" begin
@@ -81,11 +151,4 @@ end
 
     soil_parameters = initialize_soil_parameters(FT, soil_params)
     @test soil_parameters.Sp_In_T == FT(0.2)
-end
-
-@testset "SoilProperties validation" begin
-    # Test that the validation function throws an error if an extraneous key is present
-    extraneous_params = copy(soil_params)
-    extraneous_params["extraneous"] = 0.0
-    @test_throws ArgumentError initialize_soil_parameters(FT, extraneous_params)
 end

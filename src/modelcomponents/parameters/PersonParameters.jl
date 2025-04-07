@@ -24,14 +24,8 @@ function initialize_person_parameters(
     return initialize(FT, PersonParameters, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{PersonParameters})
-    return [:PositionPx, :PositionPz, :PersonWidth, :PersonHeight, :HeightWind]
-end
-
 function TethysChlorisCore.validate_fields(::Type{PersonParameters}, data::Dict{String,Any})
-    check_extraneous_fields(
-        PersonParameters, data, String.(get_required_fields(PersonParameters))
-    )
+    check_extraneous_fields(PersonParameters, data)
 
     # Check if PositionPx and PositionPz are within valid ranges
     if data["PositionPx"] < 0.0 || data["PositionPz"] < 0.0

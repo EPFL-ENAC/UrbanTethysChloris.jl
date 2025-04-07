@@ -20,21 +20,6 @@ function initialize_simple_opticalproperties(
     return initialize(FT, SimpleOpticalProperties, data)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{SimpleOpticalProperties})
-    return [:albedo, :emissivity]
-end
-
-function TethysChlorisCore.validate_fields(
-    ::Type{SimpleOpticalProperties}, data::Dict{String,Any}
-)
-    # Check that data does not include a key beyond the three components
-    for key in keys(data)
-        if key ∉ ["albedo", "emissivity"]
-            throw(ArgumentError("Extraneous key: $key"))
-        end
-    end
-end
-
 """
     VegetatedOpticalProperties{FT<:AbstractFloat} <: AbstractParameters{FT}
 
@@ -66,16 +51,12 @@ function initialize_vegetated_opticalproperties(
     return initialize(FT, VegetatedOpticalProperties, data, fractions)
 end
 
-function TethysChlorisCore.get_required_fields(::Type{VegetatedOpticalProperties})
-    return [:aveg, :aimp, :eveg, :eimp]
+function get_optional_fields(::Type{VegetatedOpticalProperties})
+    return [:abare, :ebare]
 end
 
-function TethysChlorisCore.validate_fields(
-    ::Type{VegetatedOpticalProperties}, data::Dict{String,Any}
-)
-    return check_extraneous_fields(
-        VegetatedOpticalProperties, data, String.(fieldnames(VegetatedOpticalProperties))
-    )
+function get_calculated_fields(::Type{VegetatedOpticalProperties})
+    return [:albedo, :emissivity]
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -134,8 +115,4 @@ function initialize_optical_properties(
     processed["tree"] = initialize_simple_opticalproperties(FT, data["tree"])
 
     return initialize(FT, OpticalProperties, processed)
-end
-
-function TethysChlorisCore.get_required_fields(::Type{OpticalProperties})
-    return [:roof, :ground, :wall, :tree]
 end

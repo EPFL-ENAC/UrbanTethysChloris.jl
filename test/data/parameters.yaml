@@ -131,6 +131,8 @@ thermal:
   ground:
     lan_dry: 1.2
     cv_s: 1.5e6
+  tree:
+    Cthermal_leaf: 640.0
   wall:
     lan_dry: 0.67
     cv_s: 1.0e6
@@ -196,9 +198,12 @@ urbangeometry:
   Hcan_max: .NaN
 soil:
   roof:
+    FixSM_LayerStart: 1
     Porg: 0.025
     SPAR: 2
     Psan: 0.4
+    dz1: 0.1
+    FixSM_LayerEnd: 4
     Kfc: 0.2
     In_max_ground: 10.0
     Sp_In: 0.2
@@ -206,11 +211,21 @@ soil:
     Kbot: .NaN
     Pcla: 0.2
     Phy: 10000.0
+    FixSM: true
+    Zs:
+      - 0.0
+      - 10.0
+      - 20.0
+      - 50.0
+      - 100.0
     In_max_imp: 0.25
+    dz2: 0.1
   ground:
+    FixSM_LayerStart: 6
     Porg: 0.025
     SPAR: 2
     Psan: 0.4
+    FixSM_LayerEnd: 13
     In_max_underveg: 10.0
     Kfc: 0.2
     Kbot: .NaN
@@ -219,5 +234,24 @@ soil:
     In_max_bare: 10.0
     Pcla: 0.2
     Phy: 10000.0
+    FixSM: true
+    Zs:
+      - 0.0
+      - 10.0
+      - 20.0
+      - 50.0
+      - 100.0
+      - 150.0
+      - 200.0
+      - 300.0
+      - 400.0
+      - 600.0
+      - 800.0
+      - 1000.0
+      - 1500.0
+      - 2000.0
     In_max_imp: 0.5
+  wall:
+    dz1: 0.1
+    dz2: 0.1
   Sp_In_T: 0.2

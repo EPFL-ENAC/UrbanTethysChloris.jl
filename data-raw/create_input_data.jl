@@ -110,6 +110,7 @@ data["thermal"]["roof"] = Dict{String,Any}("lan_dry" => 0.67, "cv_s" => 1e6)
 data["thermal"]["ground"] = Dict{String,Any}("lan_dry" => 1.2, "cv_s" => 1.5e6)
 
 data["thermal"]["wall"] = data["thermal"]["roof"]
+data["thermal"]["tree"] = Dict{String,Any}("Cthermal_leaf" => 640.0)
 
 data["optical"] = Dict{String,Any}()
 data["optical"]["wall"] = Dict{String,Any}("albedo" => 0.4, "emissivity" => 0.95)
@@ -147,6 +148,12 @@ data["soil"]["roof"] = Dict{String,Any}(
     "Phy" => 10000.0,
     "SPAR" => 2,
     "Kbot" => NaN,
+    "dz1" => 0.1,
+    "dz2" => 0.1,
+    "Zs" => [0.0, 10.0, 20.0, 50.0, 100.0],
+    "FixSM" => true,
+    "FixSM_LayerStart" => 1,
+    "FixSM_LayerEnd" => 4,
 )
 
 # Ground soil parameters
@@ -163,7 +170,29 @@ data["soil"]["ground"] = Dict{String,Any}(
     "Phy" => 10000.0,
     "SPAR" => 2,
     "Kbot" => NaN,
+    "Zs" => [
+        0.0,
+        10.0,
+        20.0,
+        50.0,
+        100.0,
+        150.0,
+        200.0,
+        300.0,
+        400.0,
+        600.0,
+        800.0,
+        1000.0,
+        1500.0,
+        2000.0,
+    ],
+    "FixSM" => true,
+    "FixSM_LayerStart" => 6,
+    "FixSM_LayerEnd" => 13,
 )
+
+# Wall soil parameters
+data["soil"]["wall"] = Dict{String,Any}("dz1" => 0.1, "dz2" => 0.1)
 
 # Tree interception parameter
 data["soil"]["Sp_In_T"] = 0.2
