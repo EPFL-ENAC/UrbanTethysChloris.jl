@@ -18,6 +18,17 @@
         "projectManagement",
         "review"
       ]
+    },
+    {
+      "login": "hsolleder",
+      "name": "H Solleder",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9566930?v=4",
+      "profile": "https://github.com/hsolleder",
+      "contributions": [
+        "code",
+        "doc",
+        "review"
+      ]
     }
   ]
 }
