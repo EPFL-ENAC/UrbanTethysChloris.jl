@@ -1,5 +1,23 @@
 {
-  "projectName": "UrbanTethysChloris",
+  "projectName": "UrbanTethysChloris.jl",
   "projectOwner": "EPFL-ENAC",
-  "files": ["README.md", "docs/src/index.md"]
+  "files": [
+    "README.md",
+    "docs/src/index.md"
+  ],
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributorsPerLine": 7,
+  "contributors": [
+    {
+      "login": "sphamba",
+      "name": "Son Pham-Ba",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17217484?v=4",
+      "profile": "https://github.com/sphamba",
+      "contributions": [
+        "projectManagement",
+        "review"
+      ]
+    }
+  ]
 }
