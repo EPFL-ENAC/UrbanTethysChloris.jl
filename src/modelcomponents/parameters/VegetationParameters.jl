@@ -88,7 +88,7 @@ function initialize_heightdependent_vegetationparameters(
     return initialize(FT, HeightDependentVegetationParameters, data)
 end
 
-function get_optional_fields(::Type{HeightDependentVegetationParameters})
+function TethysChlorisCore.get_optional_fields(::Type{HeightDependentVegetationParameters})
     return [:SPARTREE]
 end
 

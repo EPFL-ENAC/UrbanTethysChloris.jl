@@ -11,11 +11,12 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 TethysChlorisCore = "c22758e7-e854-5bdb-8df2-7602c47a9d98"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
-[sources.TethysChlorisCore]
-url = "https://github.com/EPFL-ENAC/TethysChlorisCore.jl"
+[sources]
+TethysChlorisCore = {rev = "v0.1.2", url = "https://github.com/EPFL-ENAC/TethysChlorisCore.jl"}
 
 [compat]
 MAT = "0.10"
 NCDatasets = "0.14"
+TethysChlorisCore = "0.1.2"
 YAML = "0.4"
 julia = "1.11"

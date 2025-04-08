@@ -55,7 +55,7 @@ function initialize_urbangeometry_parameters(
     return initialize(FT, UrbanGeometryParameters, data)
 end
 
-function get_calculated_fields(::Type{UrbanGeometryParameters})
+function TethysChlorisCore.get_calculated_fields(::Type{UrbanGeometryParameters})
     return [
         :hcanyon,
         :wcanyon,
