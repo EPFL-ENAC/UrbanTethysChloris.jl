@@ -31,48 +31,43 @@ function direct_shortwave_trees(
 
     Xsi = tan(theta_Z) * abs(sin(theta_n))
 
+    denominator = (h_can - h_tree)^2 - r_tree^2
     tan_theta1 =
         (
             (1-d_tree)*(h_can-h_tree) +
             r_tree*sqrt((1-d_tree)^2 + (h_can-h_tree)^2 - r_tree^2)
-        )/((h_can-h_tree)^2 - r_tree^2)
+        )/denominator
     tan_theta2 =
         (
             (1-d_tree)*(h_can-h_tree) -
             r_tree*sqrt((1-d_tree)^2 + (h_can-h_tree)^2 - r_tree^2)
-        )/((h_can-h_tree)^2 - r_tree^2)
+        )/denominator
     tan_theta3 =
         (
             d_tree*(h_can-h_tree) + r_tree*sqrt(d_tree^2 + (h_can-h_tree)^2 - r_tree^2)
-        )/((h_can-h_tree)^2 - r_tree^2)
+        )/denominator
     tan_theta4 =
         (
             d_tree*(h_can-h_tree) - r_tree*sqrt(d_tree^2 + (h_can-h_tree)^2 - r_tree^2)
-        )/((h_can-h_tree)^2 - r_tree^2)
+        )/denominator
 
-    # Calculate SWR for tree 1
-    if Xsi >= tan_theta1
-        SWR_tree1 = FT(0)
-    elseif Xsi < tan_theta1 && Xsi >= tan_theta2
-        SWR_tree1 =
-            SWR_dir * (r_tree*sqrt(1+Xsi^2) + (1-d_tree) - (h_can-h_tree)*Xsi)/(2*π*r_tree)
-    elseif Xsi < tan_theta2
-        SWR_tree1 = SWR_dir * (2*r_tree*sqrt(1+Xsi^2))/(2*π*r_tree)
-    else
-        SWR_tree1 = FT(0)
+    # Helper function to calculate SWR for a tree
+    function calc_tree_swr(Xsi::FT, tan_upper::FT, tan_lower::FT, offset::FT)
+        if Xsi >= tan_upper
+            return FT(0)
+        elseif Xsi < tan_upper && Xsi >= tan_lower
+            return SWR_dir *
+                   (r_tree*sqrt(1+Xsi^2) + offset - (h_can-h_tree)*Xsi)/(2*π*r_tree)
+        elseif Xsi < tan_lower
+            return SWR_dir * (2*r_tree*sqrt(1+Xsi^2))/(2*π*r_tree)
+        else
+            return FT(0)
+        end
     end
 
-    # Calculate SWR for tree 2
-    if Xsi >= tan_theta3
-        SWR_tree2 = FT(0)
-    elseif Xsi < tan_theta3 && Xsi >= tan_theta4
-        SWR_tree2 =
-            SWR_dir * (r_tree*sqrt(1+Xsi^2) + d_tree - (h_can-h_tree)*Xsi)/(2*π*r_tree)
-    elseif Xsi < tan_theta4
-        SWR_tree2 = SWR_dir * (2*r_tree*sqrt(1+Xsi^2))/(2*π*r_tree)
-    else
-        SWR_tree2 = FT(0)
-    end
+    # Calculate SWR for both trees
+    SWR_tree1 = calc_tree_swr(Xsi, tan_theta1, tan_theta2, 1-d_tree)
+    SWR_tree2 = calc_tree_swr(Xsi, tan_theta3, tan_theta4, d_tree)
 
     return SWR_tree1, SWR_tree2
 end
