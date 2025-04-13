@@ -47,10 +47,10 @@ function initialize_vegetated_soilparameters(
     return initialize(FT, VegetatedSoilParameters, data)
 end
 
-function get_calculated_fields(::Type{VegetatedSoilParameters})
+function TethysChlorisCore.get_calculated_fields(::Type{VegetatedSoilParameters})
     return [:ms]
 end
-function get_optional_fields(::Type{VegetatedSoilParameters})
+function TethysChlorisCore.get_optional_fields(::Type{VegetatedSoilParameters})
     return [:In_max_ground, :In_max_underveg, :In_max_bare, :dz1, :dz2]
 end
 
