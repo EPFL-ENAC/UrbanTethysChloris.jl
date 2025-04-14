@@ -373,3 +373,147 @@ function create_longwave_radiation(
                     tree_canyon_term,
     )
 end
+
+"""
+    total_longwave_absorbed(
+        temperature_c::AbstractMatrix{FT},
+        geometry::UrbanGeometryParameters{FT},
+        LWR::FT,
+        fractions_ground::LocationSpecificSurfaceFractions{FT},
+        prop_optical_ground::VegetatedOpticalProperties{FT},
+        prop_optical_wall::SimpleOpticalProperties{FT},
+        prop_optical_tree::SimpleOpticalProperties{FT},
+        par_tree::HeightDependentVegetationParameters{FT},
+        view_factor::ViewFactor{FT}
+    ) where {FT<:AbstractFloat}
+
+Calculate total longwave radiation absorption for urban surfaces.
+
+# Arguments
+- `temperature_c`: Matrix of temperatures for each surface [K]
+- `geometry`: Urban geometry parameters
+- `LWR`: Atmospheric longwave radiation [W/m²]
+- `fractions_ground`: Ground surface fractions
+- `prop_optical_ground`: Ground optical properties
+- `prop_optical_wall`: Wall optical properties
+- `prop_optical_tree`: Tree optical properties
+- `par_tree`: Tree parameters
+- `view_factor`: View factors between surfaces
+
+# Returns
+Tuple of (LWRin_t, LWRout_t, LWRabs_t, LWREB_t)
+"""
+function total_longwave_absorbed(
+    temperature_c::AbstractVector{FT},
+    geometry::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+    LWR::FT,
+    fractions_ground::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+    prop_optical_ground::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
+    prop_optical_wall::ModelComponents.Parameters.SimpleOpticalProperties{FT},
+    prop_optical_tree::ModelComponents.Parameters.SimpleOpticalProperties{FT},
+    view_factor::RayTracing.ViewFactor{FT},
+) where {FT<:AbstractFloat}
+
+    # Extract temperatures
+    T_grimp = temperature_c[1]
+    T_gbare = temperature_c[2]
+    T_gveg = temperature_c[3]
+    T_wsun = temperature_c[4]
+    T_wshade = temperature_c[5]
+    T_tree = temperature_c[6]
+
+    # Extract geometry parameters
+    h_can = geometry.hcanyon
+    w_can = geometry.wcanyon
+    r_tree = geometry.radius_tree
+
+    # Extract ground fractions
+    fgveg = fractions_ground.fveg
+    fgbare = fractions_ground.fbare
+    fgimp = fractions_ground.fimp
+
+    # Extract optical properties
+    ew = prop_optical_wall.emissivity
+    et = prop_optical_tree.emissivity
+    egveg = prop_optical_ground.eveg
+    egbare = prop_optical_ground.ebare
+    egimp = prop_optical_ground.eimp
+
+    # Extract tree parameters
+    trees = geometry.trees
+    ftree = geometry.ftree
+
+    if trees == 1
+        # Calculate radiation without trees
+        LWRin_nT, LWRout_nT, LWRabs_nT, LWREB_nT = longwave_absorbed_no_tree(
+            h_can,
+            w_can,
+            LWR,
+            fgveg,
+            fgbare,
+            fgimp,
+            ew,
+            egveg,
+            egbare,
+            egimp,
+            T_grimp,
+            T_gbare,
+            T_gveg,
+            T_wsun,
+            T_wshade,
+            view_factor,
+        )
+
+        # Calculate radiation with trees
+        LWRin_T, LWRout_T, LWRabs_T, LWREB_T = longwave_absorbed_with_trees(
+            h_can,
+            w_can,
+            r_tree,
+            LWR,
+            fgveg,
+            fgbare,
+            fgimp,
+            ew,
+            et,
+            egveg,
+            egbare,
+            egimp,
+            T_grimp,
+            T_gbare,
+            T_gveg,
+            T_wsun,
+            T_wshade,
+            T_tree,
+            view_factor,
+        )
+
+        # Average results based on tree fraction
+        LWRin_t = combine(LWRin_T, LWRin_nT, ftree)
+        LWRout_t = combine(LWRout_T, LWRout_nT, ftree)
+        LWRabs_t = combine(LWRabs_T, LWRabs_nT, ftree)
+        LWREB_t = combine(LWREB_T, LWREB_nT, ftree)
+
+    else
+        # Calculate radiation without trees
+        LWRin_t, LWRout_t, LWRabs_t, LWREB_t = longwave_absorbed_no_tree(
+            h_can,
+            w_can,
+            LWR,
+            fgveg,
+            fgbare,
+            fgimp,
+            ew,
+            egveg,
+            egbare,
+            egimp,
+            T_grimp,
+            T_gbare,
+            T_gveg,
+            T_wsun,
+            T_wshade,
+            view_factor,
+        )
+    end
+
+    return LWRin_t, LWRout_t, LWRabs_t, LWREB_t
+end

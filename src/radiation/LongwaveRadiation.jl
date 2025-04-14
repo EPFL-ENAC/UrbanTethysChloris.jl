@@ -23,3 +23,18 @@ function Base.:-(
         TotalCanyon=(a.TotalCanyon - b.TotalCanyon),
     )
 end
+
+function combine(
+    tree::LongwaveRadiation{FT}, notree::LongwaveRadiation{FT}, tree_fraction::FT
+) where {FT<:AbstractFloat}
+    LongwaveRadiation{FT}(;
+        GroundImp=tree_fraction*tree.GroundImp + (1-tree_fraction)*notree.GroundImp,
+        GroundBare=tree_fraction*tree.GroundBare + (1-tree_fraction)*notree.GroundBare,
+        GroundVeg=tree_fraction*tree.GroundVeg + (1-tree_fraction)*notree.GroundVeg,
+        Tree=tree.Tree,
+        WallSun=tree_fraction*tree.WallSun + (1-tree_fraction)*notree.WallSun,
+        WallShade=tree_fraction*tree.WallShade + (1-tree_fraction)*notree.WallShade,
+        TotalGround=tree_fraction*tree.TotalGround + (1-tree_fraction)*notree.TotalGround,
+        TotalCanyon=tree_fraction*tree.TotalCanyon + (1-tree_fraction)*notree.TotalCanyon,
+    )
+end
