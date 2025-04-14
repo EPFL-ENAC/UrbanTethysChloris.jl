@@ -116,59 +116,19 @@ function longwave_absorbed_no_tree(
     Qnet_i[6] = 0  # Sky has fixed emission
 
     # Create output structures
-    LWRin_nT = LongwaveRadiation{FT}(;
-        GroundImp=A_i[3]*Cimp,
-        GroundBare=A_i[2]*Cbare,
-        GroundVeg=A_i[1]*Cveg,
-        Tree=0,
-        WallSun=A_i[4],
-        WallShade=A_i[5],
-        TotalGround=fgveg*A_i[1] + fgbare*A_i[2] + fgimp*A_i[3],
-        TotalCanyon=A_i[1]*fgveg +
-                    A_i[2]*fgbare +
-                    A_i[3]*fgimp +
-                    A_i[4]*h_can/w_can +
-                    A_i[5]*h_can/w_can,
+    LWRin_nT = create_longwave_radiation(
+        A_i, fgveg, fgbare, fgimp, h_can, w_can, nothing, Cimp, Cbare, Cveg
     )
-
-    # TODO: create a closure to create the composite structs
-
-    LWRout_nT = LongwaveRadiation{FT}(;
-        GroundImp=B_i[3]*Cimp,
-        GroundBare=B_i[2]*Cbare,
-        GroundVeg=B_i[1]*Cveg,
-        Tree=0,
-        WallSun=B_i[4],
-        WallShade=B_i[5],
-        TotalGround=fgveg*B_i[1] + fgbare*B_i[2] + fgimp*B_i[3],
-        TotalCanyon=B_i[1]*fgveg +
-                    B_i[2]*fgbare +
-                    B_i[3]*fgimp +
-                    B_i[4]*h_can/w_can +
-                    B_i[5]*h_can/w_can,
+    LWRout_nT = create_longwave_radiation(
+        B_i, fgveg, fgbare, fgimp, h_can, w_can, nothing, Cimp, Cbare, Cveg
     )
-
-    LWRabs_nT = LongwaveRadiation{FT}(;
-        GroundImp=Qnet_i[3]*Cimp,
-        GroundBare=Qnet_i[2]*Cbare,
-        GroundVeg=Qnet_i[1]*Cveg,
-        Tree=0,
-        WallSun=Qnet_i[4],
-        WallShade=Qnet_i[5],
-        TotalGround=fgveg*Qnet_i[1] + fgbare*Qnet_i[2] + fgimp*Qnet_i[3],
-        TotalCanyon=Qnet_i[1]*fgveg +
-                    Qnet_i[2]*fgbare +
-                    Qnet_i[3]*fgimp +
-                    Qnet_i[4]*h_can/w_can +
-                    Qnet_i[5]*h_can/w_can,
+    LWRabs_nT = create_longwave_radiation(
+        Qnet_i, fgveg, fgbare, fgimp, h_can, w_can, nothing, Cimp, Cbare, Cveg
     )
 
     LWREB_nT = LWRin_nT - LWRout_nT - LWRabs_nT
 
     # Energy balance check variables
-    A_g = w_can
-    A_w = h_can
-
     TotalLWRSurface_in = LWRin_nT.TotalCanyon
     TotalLWRSurface_abs = LWRabs_nT.TotalCanyon
     TotalLWRSurface_out = LWRout_nT.TotalCanyon
@@ -259,8 +219,8 @@ function longwave_absorbed_with_trees(
     bolzm = FT(5.67e-8)
 
     # Surface areas
-    A_g = w_can
-    A_w = h_can
+    w_can = w_can
+    h_can = h_can
     A_t = 4π * r_tree  # Area of two trees (2 * 2πr)
 
     # Check if view factors add up to 1
@@ -332,52 +292,14 @@ function longwave_absorbed_with_trees(
     Qnet_i[7] = 0  # Sky has fixed emission
 
     # Create output structures
-    LWRin_T = LongwaveRadiation{FT}(;
-        GroundImp=A_i[3]*Cimp,
-        GroundBare=A_i[2]*Cbare,
-        GroundVeg=A_i[1]*Cveg,
-        Tree=A_i[6],
-        WallSun=A_i[4],
-        WallShade=A_i[5],
-        TotalGround=fgveg*A_i[1] + fgbare*A_i[2] + fgimp*A_i[3],
-        TotalCanyon=A_i[1]*fgveg*A_g/A_g +
-                    A_i[2]*fgbare*A_g/A_g +
-                    A_i[3]*fgimp*A_g/A_g +
-                    A_i[4]*A_w/A_g +
-                    A_i[5]*A_w/A_g +
-                    A_i[6]*A_t/A_g,
+    LWRin_T = create_longwave_radiation(
+        A_i, fgveg, fgbare, fgimp, h_can, w_can, A_t, Cimp, Cbare, Cveg
     )
-
-    LWRout_T = LongwaveRadiation{FT}(;
-        GroundImp=B_i[3]*Cimp,
-        GroundBare=B_i[2]*Cbare,
-        GroundVeg=B_i[1]*Cveg,
-        Tree=B_i[6],
-        WallSun=B_i[4],
-        WallShade=B_i[5],
-        TotalGround=fgveg*B_i[1] + fgbare*B_i[2] + fgimp*B_i[3],
-        TotalCanyon=B_i[1]*fgveg*A_g/A_g +
-                    B_i[2]*fgbare*A_g/A_g +
-                    B_i[3]*fgimp*A_g/A_g +
-                    B_i[4]*A_w/A_g +
-                    B_i[5]*A_w/A_g +
-                    B_i[6]*A_t/A_g,
+    LWRout_T = create_longwave_radiation(
+        B_i, fgveg, fgbare, fgimp, h_can, w_can, A_t, Cimp, Cbare, Cveg
     )
-
-    LWRabs_T = LongwaveRadiation{FT}(;
-        GroundImp=Qnet_i[3]*Cimp,
-        GroundBare=Qnet_i[2]*Cbare,
-        GroundVeg=Qnet_i[1]*Cveg,
-        Tree=Qnet_i[6],
-        WallSun=Qnet_i[4],
-        WallShade=Qnet_i[5],
-        TotalGround=fgveg*Qnet_i[1] + fgbare*Qnet_i[2] + fgimp*Qnet_i[3],
-        TotalCanyon=Qnet_i[1]*fgveg*A_g/A_g +
-                    Qnet_i[2]*fgbare*A_g/A_g +
-                    Qnet_i[3]*fgimp*A_g/A_g +
-                    Qnet_i[4]*A_w/A_g +
-                    Qnet_i[5]*A_w/A_g +
-                    Qnet_i[6]*A_t/A_g,
+    LWRabs_T = create_longwave_radiation(
+        Qnet_i, fgveg, fgbare, fgimp, h_can, w_can, A_t, Cimp, Cbare, Cveg
     )
 
     LWREB_T = LWRin_T - LWRout_T - LWRabs_T
@@ -407,4 +329,47 @@ function longwave_absorbed_with_trees(
     end
 
     return LWRin_T, LWRout_T, LWRabs_T, LWREB_T
+end
+
+"""
+    create_longwave_radiation(
+        A_i::Vector{FT}, fgveg::FT, fgbare::FT, fgimp::FT,
+        h_can::FT, w_can::FT, A_t::Union{FT,Nothing},
+        Cimp::Bool, Cbare::Bool, Cveg::Bool
+    ) where {FT<:AbstractFloat}
+
+Helper function to create LongwaveRadiation objects
+"""
+function create_longwave_radiation(
+    A_i::Vector{FT},
+    fgveg::FT,
+    fgbare::FT,
+    fgimp::FT,
+    h_can::FT,
+    w_can::FT,
+    A_t::Union{FT,Nothing},
+    Cimp::Bool,
+    Cbare::Bool,
+    Cveg::Bool,
+) where {FT<:AbstractFloat}
+
+    # Tree contribution terms
+    tree_value = isnothing(A_t) ? zero(FT) : A_i[6]
+    tree_canyon_term = isnothing(A_t) ? zero(FT) : A_i[6]*A_t/w_can
+
+    return LongwaveRadiation{FT}(;
+        GroundImp=A_i[3]*Cimp,
+        GroundBare=A_i[2]*Cbare,
+        GroundVeg=A_i[1]*Cveg,
+        Tree=tree_value,
+        WallSun=A_i[4],
+        WallShade=A_i[5],
+        TotalGround=fgveg*A_i[1] + fgbare*A_i[2] + fgimp*A_i[3],
+        TotalCanyon=A_i[1]*fgveg +
+                    A_i[2]*fgbare +
+                    A_i[3]*fgimp +
+                    A_i[4]*h_can/w_can +
+                    A_i[5]*h_can/w_can +
+                    tree_canyon_term,
+    )
 end
