@@ -1,6 +1,6 @@
 # UrbanTethysChloris
 
-[![Stable Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://EPFL-ENAC.github.io/UrbanTethysChloris.jl/stable)
+<!-- [![Stable Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://EPFL-ENAC.github.io/UrbanTethysChloris.jl/stable) -->
 [![In development documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://EPFL-ENAC.github.io/UrbanTethysChloris.jl/dev)
 [![Build Status](https://github.com/EPFL-ENAC/UrbanTethysChloris.jl/workflows/Test/badge.svg)](https://github.com/EPFL-ENAC/UrbanTethysChloris.jl/actions)
 [![Test workflow status](https://github.com/EPFL-ENAC/UrbanTethysChloris.jl/actions/workflows/Test.yml/badge.svg?branch=main)](https://github.com/EPFL-ENAC/UrbanTethysChloris.jl/actions/workflows/Test.yml?query=branch%3Amain)
