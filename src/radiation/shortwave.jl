@@ -156,3 +156,230 @@ function direct_shortwave_surfaces(
 
     return SWRdir_g, SWRdir_wsun, SWRdir_wshd, SWRdir_t
 end
+
+"""
+    shortwave_absorbed_no_trees(
+        h_can::FT, w_can::FT,
+        fgveg::FT, fgbare::FT, fgimp::FT,
+        awraw::FT, agveg::FT, agbare::FT, agimp::FT,
+        SWR_dir::FT, SWR_diff::FT,
+        theta_z::FT, theta_n::FT,
+        view_factor::ViewFactor{FT},
+        ParVegTree::VegetationParams{FT},
+        ParWindows::WindowParams{FT},
+        bem_enabled::Bool
+    ) where {FT<:AbstractFloat}
+
+Calculate shortwave radiation exchange in an urban canyon without trees.
+"""
+function shortwave_absorbed_no_trees(
+    h_can::FT,
+    w_can::FT,
+    fgveg::FT,
+    fgbare::FT,
+    fgimp::FT,
+    awraw::FT,
+    agveg::FT,
+    agbare::FT,
+    agimp::FT,
+    SWR_dir::FT,
+    SWR_diff::FT,
+    theta_z::FT,
+    theta_n::FT,
+    view_factor::RayTracing.ViewFactor{FT},
+    ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+    ParWindows::ModelComponents.Parameters.WindowParameters{FT},
+    bem_enabled::Bool,
+) where {FT<:AbstractFloat}
+    A_s = w_can
+    A_g = h_can
+    A_w = h_can
+
+    # Check view factors sum to 1
+    svf = [
+        view_factor.F_gs_nT + 2view_factor.F_gw_nT,
+        view_factor.F_ww_nT + view_factor.F_wg_nT + view_factor.F_ws_nT,
+        view_factor.F_sg_nT + 2view_factor.F_sw_nT,
+    ]
+
+    all(x -> FT(0.999) ≤ x ≤ FT(1.001), svf) || @warn "View factors do not add up to 1"
+
+    # Get direct shortwave radiation
+    SWRdir_ground, SWRdir_wallsun, SWRdir_wallshade, _ = direct_shortwave_surfaces(
+        h_can, w_can, NaN, NaN, NaN, theta_z, theta_n, SWR_dir, NaN, false, ParVegTree
+    )
+
+    # Surface indicators
+    Cimp = fgimp > 0
+    Cbare = fgbare > 0
+    Cveg = fgveg > 0
+
+    # Calculate wall albedo accounting for windows if BEM is enabled
+    aw = if bem_enabled
+        awraw*(1-ParWindows.GlazingRatio) + ParWindows.SolarAlbedo*ParWindows.GlazingRatio
+    else
+        awraw
+    end
+
+    # Albedos vector [veg, bare, imp, sun wall, shade wall, sky]
+    ai = [agveg, agbare, agimp, aw, aw, FT(0)]
+
+    # View factor matrices for infinite reflections
+    Tij = [
+        1 0 0 -agveg*view_factor.F_gw_nT*Cveg -agveg*view_factor.F_gw_nT*Cveg -agveg*view_factor.F_gs_nT*Cveg;
+        0 1 0 -agbare*view_factor.F_gw_nT*Cbare -agbare*view_factor.F_gw_nT*Cbare -agbare*view_factor.F_gs_nT*Cbare;
+        0 0 1 -agimp*view_factor.F_gw_nT*Cimp -agimp*view_factor.F_gw_nT*Cimp -agimp*view_factor.F_gs_nT*Cimp;
+        -aw*view_factor.F_wg_nT*fgveg*Cveg -aw*view_factor.F_wg_nT*fgbare*Cbare -aw*view_factor.F_wg_nT*fgimp*Cimp 1 -aw*view_factor.F_ww_nT -aw*view_factor.F_ws_nT;
+        -aw*view_factor.F_wg_nT*fgveg*Cveg -aw*view_factor.F_wg_nT*fgbare*Cbare -aw*view_factor.F_wg_nT*fgimp*Cimp -aw*view_factor.F_ww_nT 1 -aw*view_factor.F_ws_nT;
+        0 0 0 0 0 1
+    ]
+
+    # Incoming shortwave radiation from sky
+    Omega_i = [
+        agveg*SWRdir_ground*Cveg;
+        agbare*SWRdir_ground*Cbare;
+        agimp*SWRdir_ground*Cimp;
+        aw*SWRdir_wallsun;
+        FT(0);
+        SWR_diff
+    ]
+
+    # Solve for outgoing radiation
+    B_i = Tij \ Omega_i
+
+    # Check sky radiation preserved
+    B_i[6] ≈ SWR_diff ||
+        @warn "Incoming longwave radiation and emitted longwave radiation from the sky after the matrix inversion are not equal"
+
+    # Matrix for incoming radiation
+    Tij2 = [
+        0 0 0 view_factor.F_gw_nT*Cveg view_factor.F_gw_nT*Cveg view_factor.F_gs_nT*Cveg;
+        0 0 0 view_factor.F_gw_nT*Cbare view_factor.F_gw_nT*Cbare view_factor.F_gs_nT*Cbare;
+        0 0 0 view_factor.F_gw_nT*Cimp view_factor.F_gw_nT*Cimp view_factor.F_gs_nT*Cimp;
+        view_factor.F_wg_nT*fgveg*Cveg view_factor.F_wg_nT*fgbare*Cbare view_factor.F_wg_nT*fgimp*Cimp 0 view_factor.F_ww_nT view_factor.F_ws_nT;
+        view_factor.F_wg_nT*fgveg*Cveg view_factor.F_wg_nT*fgbare*Cbare view_factor.F_wg_nT*fgimp*Cimp view_factor.F_ww_nT 0 view_factor.F_ws_nT;
+        0 0 0 0 0 0
+    ]
+
+    SWRdir_i = [
+        SWRdir_ground*Cveg;
+        SWRdir_ground*Cbare;
+        SWRdir_ground*Cimp;
+        SWRdir_wallsun;
+        FT(0);
+        FT(0)
+    ]
+
+    # Calculate incoming radiation
+    A_i1 = Tij2*B_i + SWRdir_i
+    A_i = B_i ./ ai
+    A_i[ai .== 0] .= A_i1[ai .== 0]
+    A_i[6] = 0  # Sky has fixed emission
+
+    # Calculate net absorbed radiation
+    Q_net = A_i .- B_i
+
+    # Energy balance checks
+    SWRin_atm = SWR_dir + SWR_diff
+    TotalSWRref_to_atm =
+        B_i[1]*view_factor.F_sg_nT*fgveg +
+        B_i[2]*view_factor.F_sg_nT*fgbare +
+        B_i[3]*view_factor.F_sg_nT*fgimp +
+        B_i[4]*view_factor.F_sw_nT +
+        B_i[5]*view_factor.F_sw_nT
+
+    canyon_albedo = TotalSWRref_to_atm/SWRin_atm
+
+    # Create SWR output structure
+    # Checked and correct
+    SWRin_nT = LongwaveRadiation{FT}(;
+        GroundImp=A_i[3]*Cimp,
+        GroundBare=A_i[2]*Cbare,
+        GroundVeg=A_i[1]*Cveg,
+        Tree=FT(0),
+        WallSun=A_i[4],
+        WallShade=A_i[5],
+        TotalGround=fgveg*A_i[1] + fgbare*A_i[2] + fgimp*A_i[3],
+        TotalCanyon=A_i[1]*fgveg +
+                    A_i[2]*fgbare +
+                    A_i[3]*fgimp +
+                    A_i[4]*h_can/w_can +
+                    A_i[5]*h_can/w_can,
+    )
+
+    # Create additional radiation components using the same structure
+    SWRout_nT = LongwaveRadiation{FT}(;
+        GroundImp=B_i[3]*Cimp,
+        GroundBare=B_i[2]*Cbare,
+        GroundVeg=B_i[1]*Cveg,
+        Tree=FT(0),
+        WallSun=B_i[4],
+        WallShade=B_i[5],
+        TotalGround=fgveg*B_i[1] + fgbare*B_i[2] + fgimp*B_i[3],
+        TotalCanyon=B_i[1]*fgveg +
+                    B_i[2]*fgbare +
+                    B_i[3]*fgimp +
+                    B_i[4]*h_can/w_can +
+                    B_i[5]*h_can/w_can,
+    )
+
+    SWRabs_nT = LongwaveRadiation{FT}(;
+        GroundImp=Q_net[3]*Cimp,
+        GroundBare=Q_net[2]*Cbare,
+        GroundVeg=Q_net[1]*Cveg,
+        Tree=FT(0),
+        WallSun=Q_net[4],
+        WallShade=Q_net[5],
+        TotalGround=fgveg*Q_net[1] + fgbare*Q_net[2] + fgimp*Q_net[3],
+        TotalCanyon=Q_net[1]*fgveg +
+                    Q_net[2]*fgbare +
+                    Q_net[3]*fgimp +
+                    Q_net[4]*h_can/w_can +
+                    Q_net[5]*h_can/w_can,
+    )
+
+    # Direct absorbed shortwave radiation
+    SWRabsDir_nT = LongwaveRadiation{FT}(;
+        GroundImp=(1-agimp)*SWRdir_ground*Cimp,
+        GroundBare=(1-agbare)*SWRdir_ground*Cbare,
+        GroundVeg=(1-agveg)*SWRdir_ground*Cveg,
+        Tree=FT(0),
+        WallSun=(1-aw)*SWRdir_wallsun,
+        WallShade=(1-aw)*SWRdir_wallshade,
+        TotalGround=fgveg*(1-agveg)*SWRdir_ground +
+                    fgbare*(1-agbare)*SWRdir_ground +
+                    fgimp*(1-agimp)*SWRdir_ground,
+        TotalCanyon=fgveg*(1-agveg)*SWRdir_ground*A_g/A_g +
+                    fgbare*(1-agbare)*SWRdir_ground*A_g/A_g +
+                    fgimp*(1-agimp)*SWRdir_ground*A_g/A_g +
+                    (1-aw)*SWRdir_wallsun*A_w/A_g +
+                    (1-aw)*SWRdir_wallshade*A_w/A_g,
+    )
+
+    # Diffuse absorbed shortwave radiation
+    SWRabsDiff_nT = LongwaveRadiation{FT}(;
+        GroundImp=(SWRabs_nT.GroundImp - SWRabsDir_nT.GroundImp)*Cimp,
+        GroundBare=(SWRabs_nT.GroundBare - SWRabsDir_nT.GroundBare)*Cbare,
+        GroundVeg=(SWRabs_nT.GroundVeg - SWRabsDir_nT.GroundVeg)*Cveg,
+        Tree=FT(0),
+        WallSun=(SWRabs_nT.WallSun - SWRabsDir_nT.WallSun),
+        WallShade=(SWRabs_nT.WallShade - SWRabsDir_nT.WallShade),
+        TotalGround=(SWRabs_nT.TotalGround - SWRabsDir_nT.TotalGround),
+        TotalCanyon=(SWRabs_nT.TotalCanyon - SWRabsDir_nT.TotalCanyon),
+    )
+
+    # Energy Balance of shortwave radiation
+    SWREB_nT = SWRin_nT - SWRout_nT - SWRabs_nT
+
+    # Energy balance checks
+    for field in propertynames(SWREB_nT)
+        val = getfield(SWREB_nT, field)
+        if abs(val) >= FT(1e-6)
+            @warn "$(String(field)) is not 0. Please check shortwave_absorbed_no_trees"
+        end
+    end
+
+    return SWRin_nT,
+    SWRout_nT, SWRabs_nT, SWRabsDir_nT, SWRabsDiff_nT, SWREB_nT,
+    canyon_albedo
+end
