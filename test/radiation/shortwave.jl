@@ -115,6 +115,9 @@ end
         "Sl" => 10.0,
         "SPARTREE" => 1,
     )
+
+    tree_vegetation = initialize_heightdependent_vegetationparameters(FT, tree_data)
+
     @testset "MATLAB - trees" begin
         # Both trees are completely shaded
         d_tree = FT(0.136505190311419)
@@ -127,8 +130,6 @@ end
         theta_n = FT(-0.593239662921201)
         theta_Z = FT(1.356513615208954)
         w_can = FT(1.0)
-
-        tree_vegetation = initialize_heightdependent_vegetationparameters(FT, tree_data)
 
         SWRdir_g, SWRdir_wsun, SWRdir_wshd, SWRdir_t = direct_shortwave_surfaces(
             h_can,
@@ -163,8 +164,6 @@ end
         theta_Z = FT(1.234325341923081)
         w_can = FT(1.0)
 
-        tree_vegetation = initialize_heightdependent_vegetationparameters(FT, tree_data)
-
         SWRdir_g, SWRdir_wsun, SWRdir_wshd, SWRdir_t = direct_shortwave_surfaces(
             h_can,
             w_can,
@@ -197,8 +196,6 @@ end
         theta_n = FT(π/4) # 45 degree angle
         theta_Z = FT(π/6) # 30 degree zenith
         w_can = FT(1.0)
-
-        tree_vegetation = initialize_heightdependent_vegetationparameters(FT, tree_data)
 
         SWRdir_g, SWRdir_wsun, SWRdir_wshd, SWRdir_t = direct_shortwave_surfaces(
             h_can,
