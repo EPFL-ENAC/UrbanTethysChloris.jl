@@ -19,16 +19,6 @@ Calculate direct shortwave radiation received by two trees in an urban canyon.
 function direct_shortwave_trees(
     h_can::FT, d_tree::FT, h_tree::FT, r_tree::FT, theta_Z::FT, theta_n::FT, SWR_dir::FT
 ) where {FT<:AbstractFloat}
-    # Correction for infeasible tree height and radius length
-    if 2*r_tree >= h_can
-        r_tree = h_can/2 - FT(0.000001)
-        @warn "tree diameter is bigger than canyon height and is set to the canyon height"
-    end
-    if h_tree + r_tree >= h_can
-        h_tree = h_can - r_tree - FT(0.000001)
-        @warn "tree height is bigger than canyon height and is set to the canyon height"
-    end
-
     Xsi = tan(theta_Z) * abs(sin(theta_n))
 
     denominator = (h_can - h_tree)^2 - r_tree^2

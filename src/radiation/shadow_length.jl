@@ -63,15 +63,6 @@ Calculate shadow lengths in an urban canyon with trees.
 function shadow_length_with_trees(
     h_can::FT, w_can::FT, d_tree::FT, h_tree::FT, r_tree::FT, theta_Z::FT, theta_n::FT
 ) where {FT<:AbstractFloat}
-    # Correction for infeasible tree height and radius length
-    if 2*r_tree >= h_can
-        r_tree = h_can/2 - 0.000001
-        @warn "tree diameter is bigger than canyon height and is set to the canyon height. The radius is adjusted."
-    end
-    if h_tree + r_tree >= h_can
-        h_tree = h_can - r_tree - 0.000001
-        @warn "tree height is bigger than canyon height and is set to the canyon height. The tree height is adjusted."
-    end
 
     # CALCULATION
     Xsi = tan(theta_Z) * abs(sin(theta_n))
