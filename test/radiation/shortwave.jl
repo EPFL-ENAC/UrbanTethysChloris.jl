@@ -3,13 +3,16 @@ using UrbanTethysChloris.Radiation:
     direct_shortwave_trees,
     direct_shortwave_surfaces,
     shortwave_absorbed_no_trees,
-    shortwave_absorbed_with_trees
+    shortwave_absorbed_with_trees,
+    total_shortwave_absorbed
 using UrbanTethysChloris.RayTracing: ViewFactor
 using UrbanTethysChloris.ModelComponents.Parameters:
-    HeightDependentVegetationParameters,
     initialize_heightdependent_vegetationparameters,
-    WindowParameters,
-    initialize_windowparameters
+    initialize_windowparameters,
+    initialize_urbangeometry_parameters,
+    initialize_locationspecific_surfacefractions,
+    initialize_vegetated_opticalproperties,
+    initialize_simple_opticalproperties
 
 FT = Float64
 
@@ -552,5 +555,203 @@ end
         end
 
         @test albedo_canyon ≈ 0.081229710084301
+    end
+end
+
+@testset "total_shortwave_absorbed" begin
+    @testset "MATLAB" begin
+        BEM_on = true
+        SWR_dir = FT(0.362608119924872)
+        SWR_diff = FT(32.637391880075121)
+        theta_n = FT(-0.808129569557205)
+        theta_Z = FT(1.470584035118792)
+
+        geometry_data = Dict{String,Any}(
+            "Height_canyon" => 6.5,
+            "Width_canyon" => 5.78,
+            "Width_roof" => 4.73,
+            "Radius_tree" => 0.289,
+            "Height_tree" => 4.711,
+            "Distance_tree" => 0.789,
+            "Hcan_max" => NaN,
+            "Hcan_std" => NaN,
+            "trees" => true,
+            "ftree" => 1.0,
+        )
+        geometry = initialize_urbangeometry_parameters(FT, geometry_data)
+
+        fractions_ground = initialize_locationspecific_surfacefractions(
+            FT,
+            Dict{String,Any}(
+                "fveg" => 0.545, "fbare" => 0.0, "fimp" => 0.455, "Per_runoff" => 0.9
+            ),
+        )
+
+        optical_ground = initialize_vegetated_opticalproperties(
+            FT,
+            Dict{String,Any}(
+                "aveg" => 0.2,
+                "abare" => 0.15,
+                "aimp" => 0.1,
+                "eveg" => 1 - exp(-(2.5 + 0.001)),
+                "ebare" => 0.95,
+                "eimp" => 0.95,
+            ),
+            fractions_ground,
+        )
+
+        optical_wall = initialize_simple_opticalproperties(
+            FT, Dict{String,Any}("albedo" => 0.4, "emissivity" => 0.95)
+        )
+
+        optical_tree = initialize_simple_opticalproperties(
+            FT, Dict{String,Any}("albedo" => 0.2, "emissivity" => 0.994483435579239)
+        )
+
+        tree_data = Dict{String,Any}(
+            "LAI" => 2.0,
+            "SAI" => 0.5,
+            "hc" => 1.0,
+            "h_disp" => 0.7,
+            "d_leaf" => 0.02,
+            "CASE_ROOT" => 1,
+            "ZR95" => 0.5,
+            "ZR50" => 0.3,
+            "ZRmax" => 1.0,
+            "Rrootl" => 5e-4,
+            "PsiL50" => -2.0,
+            "PsiX50" => -4.0,
+            "FI" => 0.08,
+            "Do" => 1000.0,
+            "a1" => 10.0,
+            "go" => 0.01,
+            "CT" => 3,
+            "DSE" => 0.649,
+            "Ha" => 72000.0,
+            "gmes" => 0.02,
+            "rjv" => 0.01,
+            "Kopt" => 0.5,
+            "Knit" => 0.5,
+            "Vmax" => 50.0,
+            "mSl" => 5.0,
+            "e_rel" => 0.0001,
+            "e_relN" => 0.3,
+            "Psi_sto_00" => -0.5,
+            "Psi_sto_50" => -2.0,
+            "Sl" => 10.0,
+            "SPARTREE" => 1,
+        )
+        tree_parameters = initialize_heightdependent_vegetationparameters(FT, tree_data)
+
+        view_factor = ViewFactor{FT}(;
+            F_gs_nT=0.380308601808867,
+            F_gw_nT=0.309845699095567,
+            F_ww_nT=0.448951341300808,
+            F_wg_nT=0.275524329349596,
+            F_ws_nT=0.275524329349596,
+            F_sg_nT=0.380308601808867,
+            F_sw_nT=0.309845699095567,
+            F_gs_T=0.320368159203980,
+            F_gt_T=0.097393034825871,
+            F_gw_T=0.291119402985075,
+            F_ww_T=0.361365059318791,
+            F_wt_T=0.150343283582090,
+            F_wg_T=0.258872330654420,
+            F_ws_T=0.229419326444700,
+            F_sg_T=0.320368159203980,
+            F_sw_T=0.257997512437811,
+            F_st_T=0.163636815920398,
+            F_tg_T=0.155005829152584,
+            F_tw_T=0.269085119079438,
+            F_ts_T=0.260436081255499,
+            F_tt_T=0.046387851433041,
+        )
+
+        window_data = Dict{String,Any}(
+            "WindowsOn" => 1,
+            "GlazingRatio" => 0.15,
+            "Uvalue" => 4.95,
+            "lan_windows" => NaN,
+            "cv_glass" => 2.1e6,
+            "dztot" => 0.02,
+            "SHGC" => 0.8,
+            "SolarTransmittance" => 0.6,
+            "SolarAbsorptivity" => 0.0,
+            "SolarAlbedo" => 0.4,
+        )
+        window_params = initialize_windowparameters(FT, window_data)
+
+        SWRin_t, SWRout_t, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, SWREB_t, albedo_canyon = total_shortwave_absorbed(
+            geometry,
+            SWR_dir,
+            SWR_diff,
+            theta_n,
+            theta_Z,
+            fractions_ground,
+            optical_ground,
+            optical_wall,
+            optical_tree,
+            tree_parameters,
+            view_factor,
+            window_params,
+            BEM_on,
+        )
+
+        @testset "SWRin_t" begin
+            @test SWRin_t.GroundImp ≈ 12.985532678378403
+            @test SWRin_t.GroundBare == 0
+            @test SWRin_t.GroundVeg ≈ 12.985532678378403
+            @test SWRin_t.Tree ≈ 11.052578721577198
+            @test SWRin_t.WallSun ≈ 10.077773945273417
+            @test SWRin_t.WallShade ≈ 9.796053253640592
+            @test SWRin_t.TotalGround ≈ 12.985532678378405
+            @test SWRin_t.TotalCanyon ≈ 42.279532354122331
+        end
+
+        @testset "SWRout_t" begin
+            @test SWRout_t.GroundImp ≈ 1.298553267837840
+            @test SWRout_t.GroundBare == 0
+            @test SWRout_t.GroundVeg ≈ 2.597106535675681
+            @test SWRout_t.Tree ≈ 2.210515744315440
+            @test SWRout_t.WallSun ≈ 4.031109578109367
+            @test SWRout_t.WallShade ≈ 3.918421301456237
+            @test SWRout_t.TotalGround ≈ 2.006264798809464
+            @test SWRout_t.TotalCanyon ≈ 12.334956664509845
+        end
+
+        @testset "SWRabs_t" begin
+            @test SWRabs_t.GroundImp ≈ 11.686979410540562
+            @test SWRabs_t.GroundBare == 0
+            @test SWRabs_t.GroundVeg ≈ 10.388426142702723
+            @test SWRabs_t.Tree ≈ 8.842062977261758
+            @test SWRabs_t.WallSun ≈ 6.046664367164050
+            @test SWRabs_t.WallShade ≈ 5.877631952184355
+            @test SWRabs_t.TotalGround ≈ 10.979267879568940
+            @test SWRabs_t.TotalCanyon ≈ 29.944575689612485
+        end
+
+        @testset "SWRabsDir_t" begin
+            @test SWRabsDir_t.GroundImp == 0.0
+            @test SWRabsDir_t.GroundBare == 0.0
+            @test SWRabsDir_t.GroundVeg == 0.0
+            @test SWRabsDir_t.Tree == 0.0
+            @test SWRabsDir_t.WallSun ≈ 0.193465378446070
+            @test SWRabsDir_t.WallShade == 0.0
+            @test SWRabsDir_t.TotalGround == 0.0
+            @test SWRabsDir_t.TotalCanyon ≈ 0.217564871954923
+        end
+
+        @testset "SWRabsDiff_t" begin
+            @test SWRabsDiff_t.GroundImp ≈ 11.686979410540562
+            @test SWRabsDiff_t.GroundBare == 0
+            @test SWRabsDiff_t.GroundVeg ≈ 10.388426142702723
+            @test SWRabsDiff_t.Tree ≈ 8.842062977261758
+            @test SWRabsDiff_t.WallSun ≈ 5.853198988717979
+            @test SWRabsDiff_t.WallShade ≈ 5.877631952184355
+            @test SWRabsDiff_t.TotalGround ≈ 10.979267879568940
+            @test SWRabsDiff_t.TotalCanyon ≈ 29.727010817657561
+        end
+
+        @test albedo_canyon ≈ 0.092588615466288
     end
 end

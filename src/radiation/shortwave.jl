@@ -577,3 +577,160 @@ function shortwave_absorbed_with_trees(
 
     return SWRin_T, SWRout_T, SWRabs_T, SWRabsDir_T, SWRabsDiff_T, SWREB_T, albedo_canyon
 end
+
+"""
+    total_shortwave_absorbed(
+        temperature_c::AbstractVector{FT},
+        geometry::UrbanGeometryParameters{FT},
+        SWR_dir::FT,
+        SWR_diff::FT,
+        fractions_ground::LocationSpecificSurfaceFractions{FT},
+        prop_optical_ground::VegetatedOpticalProperties{FT},
+        prop_optical_wall::SimpleOpticalProperties{FT},
+        prop_optical_tree::SimpleOpticalProperties{FT},
+        par_veg_tree::HeightDependentVegetationParameters{FT},
+        view_factor::ViewFactor{FT},
+        par_windows::WindowParameters{FT},
+        bem_enabled::Bool
+    ) where {FT<:AbstractFloat}
+
+Calculate total shortwave radiation absorption for urban surfaces.
+
+# Arguments
+- `temperature_c`: Vector of temperatures for each surface [K]
+- `geometry`: Urban geometry parameters
+- `SWR_dir`: Direct shortwave radiation [W/m²]
+- `SWR_diff`: Diffuse shortwave radiation [W/m²]
+- `fractions_ground`: Ground surface fractions
+- `prop_optical_ground`: Ground optical properties
+- `prop_optical_wall`: Wall optical properties
+- `prop_optical_tree`: Tree optical properties
+- `par_veg_tree`: Tree vegetation parameters
+- `view_factor`: View factors between surfaces
+- `par_windows`: Window parameters
+- `bem_enabled`: Whether building energy model is enabled
+
+# Returns
+Tuple of (SWRin_t, SWRout_t, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, SWREB_t, albedo_canyon)
+"""
+function total_shortwave_absorbed(
+    geometry::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+    SWR_dir::FT,
+    SWR_diff::FT,
+    theta_n::FT,
+    theta_Z::FT,
+    fractions_ground::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+    prop_optical_ground::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
+    prop_optical_wall::ModelComponents.Parameters.SimpleOpticalProperties{FT},
+    prop_optical_tree::ModelComponents.Parameters.SimpleOpticalProperties{FT},
+    par_veg_tree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+    view_factor::RayTracing.ViewFactor{FT},
+    par_windows::ModelComponents.Parameters.WindowParameters{FT},
+    bem_enabled::Bool,
+) where {FT<:AbstractFloat}
+
+    # Extract geometry parameters
+    h_can = geometry.hcanyon
+    w_can = geometry.wcanyon
+    h_tree = geometry.htree
+    r_tree = geometry.radius_tree
+    d_tree = geometry.distance_tree
+    trees = geometry.trees
+    ftree = geometry.ftree
+
+    # Extract ground fractions
+    fgveg = fractions_ground.fveg
+    fgbare = fractions_ground.fbare
+    fgimp = fractions_ground.fimp
+
+    # Extract optical properties
+    aw = prop_optical_wall.albedo
+    agveg = prop_optical_ground.aveg
+    agbare = prop_optical_ground.abare
+    agimp = prop_optical_ground.aimp
+    at = prop_optical_tree.albedo
+
+    # Extract tree parameters
+    LAIt = par_veg_tree.LAI
+
+    if trees == 1
+        # Calculate radiation without trees
+        SWRin_nT, SWRout_nT, SWRabs_nT, SWRabsDir_nT, SWRabsDiff_nT, SWREB_nT, _ = shortwave_absorbed_no_trees(
+            h_can,
+            w_can,
+            fgveg,
+            fgbare,
+            fgimp,
+            aw,
+            agveg,
+            agbare,
+            agimp,
+            SWR_dir,
+            SWR_diff,
+            theta_Z,
+            theta_n,
+            view_factor,
+            par_veg_tree,
+            par_windows,
+            bem_enabled,
+        )
+
+        # Calculate radiation with trees
+        SWRin_T, SWRout_T, SWRabs_T, SWRabsDir_T, SWRabsDiff_T, SWREB_T, albedo_canyon = shortwave_absorbed_with_trees(
+            h_can,
+            w_can,
+            h_tree,
+            r_tree,
+            d_tree,
+            fgveg,
+            fgbare,
+            fgimp,
+            aw,
+            agveg,
+            agbare,
+            agimp,
+            at,
+            LAIt,
+            SWR_dir,
+            SWR_diff,
+            theta_Z,
+            theta_n,
+            view_factor,
+            par_veg_tree,
+            par_windows,
+            bem_enabled,
+        )
+
+        # Combine results based on tree fraction
+        SWRin_t = combine(SWRin_T, SWRin_nT, ftree)
+        SWRout_t = combine(SWRout_T, SWRout_nT, ftree)
+        SWRabs_t = combine(SWRabs_T, SWRabs_nT, ftree)
+        SWRabsDir_t = combine(SWRabsDir_T, SWRabsDir_nT, ftree)
+        SWRabsDiff_t = combine(SWRabsDiff_T, SWRabsDiff_nT, ftree)
+        SWREB_t = combine(SWREB_T, SWREB_nT, ftree)
+
+    else
+        # Calculate radiation without trees
+        SWRin_t, SWRout_t, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, SWREB_t, albedo_canyon = shortwave_absorbed_no_trees(
+            h_can,
+            w_can,
+            fgveg,
+            fgbare,
+            fgimp,
+            aw,
+            agveg,
+            agbare,
+            agimp,
+            SWR_dir,
+            SWR_diff,
+            theta_Z,
+            theta_n,
+            view_factor,
+            par_veg_tree,
+            par_windows,
+            bem_enabled,
+        )
+    end
+
+    return SWRin_t, SWRout_t, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, SWREB_t, albedo_canyon
+end
