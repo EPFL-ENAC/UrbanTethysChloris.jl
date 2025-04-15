@@ -383,7 +383,6 @@ end
         prop_optical_ground::VegetatedOpticalProperties{FT},
         prop_optical_wall::SimpleOpticalProperties{FT},
         prop_optical_tree::SimpleOpticalProperties{FT},
-        par_tree::HeightDependentVegetationParameters{FT},
         view_factor::ViewFactor{FT}
     ) where {FT<:AbstractFloat}
 
@@ -397,7 +396,6 @@ Calculate total longwave radiation absorption for urban surfaces.
 - `prop_optical_ground`: Ground optical properties
 - `prop_optical_wall`: Wall optical properties
 - `prop_optical_tree`: Tree optical properties
-- `par_tree`: Tree parameters
 - `view_factor`: View factors between surfaces
 
 # Returns

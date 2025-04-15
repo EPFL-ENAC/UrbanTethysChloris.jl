@@ -50,6 +50,7 @@ end
 function TethysChlorisCore.get_calculated_fields(::Type{VegetatedSoilParameters})
     return [:ms]
 end
+
 function TethysChlorisCore.get_optional_fields(::Type{VegetatedSoilParameters})
     return [:In_max_ground, :In_max_underveg, :In_max_bare, :dz1, :dz2]
 end

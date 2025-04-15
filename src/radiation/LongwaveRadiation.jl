@@ -1,3 +1,18 @@
+"""
+    LongwaveRadiation{FT<:AbstractFloat}
+
+Structure representing longwave radiation components in an urban canyon.
+
+# Fields
+- `GroundImp`: Longwave radiation for impervious ground surface [W/m²]
+- `GroundBare`: Longwave radiation for bare ground surface [W/m²]
+- `GroundVeg`: Longwave radiation for vegetated ground surface [W/m²]
+- `Tree`: Longwave radiation for tree surface [W/m²]
+- `WallSun`: Longwave radiation for sunlit wall surface [W/m²]
+- `WallShade`: Longwave radiation for shaded wall surface [W/m²]
+- `TotalGround`: Total longwave radiation for all ground surfaces [W/m²]
+- `TotalCanyon`: Total longwave radiation for entire canyon [W/m²]
+"""
 Base.@kwdef struct LongwaveRadiation{FT<:AbstractFloat}
     GroundImp::FT
     GroundBare::FT
@@ -24,6 +39,19 @@ function Base.:-(
     )
 end
 
+"""
+    combine(tree::LongwaveRadiation{FT}, notree::LongwaveRadiation{FT}, tree_fraction::FT) where {FT<:AbstractFloat}
+
+Combines longwave radiation components from scenarios with and without trees based on the tree fraction.
+
+# Arguments
+- `tree`: LongwaveRadiation instance representing scenario with trees
+- `notree`: LongwaveRadiation instance representing scenario without trees
+- `tree_fraction`: Fraction of area covered by trees [0-1]
+
+# Returns
+- `LongwaveRadiation{FT}`: Combined longwave radiation components
+"""
 function combine(
     tree::LongwaveRadiation{FT}, notree::LongwaveRadiation{FT}, tree_fraction::FT
 ) where {FT<:AbstractFloat}

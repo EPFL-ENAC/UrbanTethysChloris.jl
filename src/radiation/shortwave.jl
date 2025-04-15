@@ -580,10 +580,11 @@ end
 
 """
     total_shortwave_absorbed(
-        temperature_c::AbstractVector{FT},
         geometry::UrbanGeometryParameters{FT},
         SWR_dir::FT,
         SWR_diff::FT,
+        theta_n::FT,
+        theta_Z::FT,
         fractions_ground::LocationSpecificSurfaceFractions{FT},
         prop_optical_ground::VegetatedOpticalProperties{FT},
         prop_optical_wall::SimpleOpticalProperties{FT},
@@ -597,10 +598,11 @@ end
 Calculate total shortwave radiation absorption for urban surfaces.
 
 # Arguments
-- `temperature_c`: Vector of temperatures for each surface [K]
 - `geometry`: Urban geometry parameters
 - `SWR_dir`: Direct shortwave radiation [W/m²]
 - `SWR_diff`: Diffuse shortwave radiation [W/m²]
+- `theta_n`: Solar zenith angle [rad]
+- `theta_Z`: Solar azimuth angle [rad]
 - `fractions_ground`: Ground surface fractions
 - `prop_optical_ground`: Ground optical properties
 - `prop_optical_wall`: Wall optical properties
