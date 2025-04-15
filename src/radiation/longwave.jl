@@ -338,7 +338,7 @@ end
         Cimp::Bool, Cbare::Bool, Cveg::Bool
     ) where {FT<:AbstractFloat}
 
-Helper function to create LongwaveRadiation objects
+Helper function to create RadiationFluxes objects
 """
 function create_longwave_radiation(
     A_i::Vector{FT},
@@ -357,7 +357,7 @@ function create_longwave_radiation(
     tree_value = isnothing(A_t) ? zero(FT) : A_i[6]
     tree_canyon_term = isnothing(A_t) ? zero(FT) : A_i[6]*A_t/w_can
 
-    return LongwaveRadiation{FT}(;
+    return RadiationFluxes{FT}(;
         GroundImp=A_i[3]*Cimp,
         GroundBare=A_i[2]*Cbare,
         GroundVeg=A_i[1]*Cveg,

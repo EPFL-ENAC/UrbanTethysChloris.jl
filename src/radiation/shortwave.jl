@@ -291,8 +291,7 @@ function shortwave_absorbed_no_trees(
     canyon_albedo = TotalSWRref_to_atm/SWRin_atm
 
     # Create SWR output structure
-    # Checked and correct
-    SWRin_nT = LongwaveRadiation{FT}(;
+    SWRin_nT = RadiationFluxes{FT}(;
         GroundImp=A_i[3]*Cimp,
         GroundBare=A_i[2]*Cbare,
         GroundVeg=A_i[1]*Cveg,
@@ -308,7 +307,7 @@ function shortwave_absorbed_no_trees(
     )
 
     # Create additional radiation components using the same structure
-    SWRout_nT = LongwaveRadiation{FT}(;
+    SWRout_nT = RadiationFluxes{FT}(;
         GroundImp=B_i[3]*Cimp,
         GroundBare=B_i[2]*Cbare,
         GroundVeg=B_i[1]*Cveg,
@@ -323,7 +322,7 @@ function shortwave_absorbed_no_trees(
                     B_i[5]*h_can/w_can,
     )
 
-    SWRabs_nT = LongwaveRadiation{FT}(;
+    SWRabs_nT = RadiationFluxes{FT}(;
         GroundImp=Q_net[3]*Cimp,
         GroundBare=Q_net[2]*Cbare,
         GroundVeg=Q_net[1]*Cveg,
@@ -339,7 +338,7 @@ function shortwave_absorbed_no_trees(
     )
 
     # Direct absorbed shortwave radiation
-    SWRabsDir_nT = LongwaveRadiation{FT}(;
+    SWRabsDir_nT = RadiationFluxes{FT}(;
         GroundImp=(1-agimp)*SWRdir_ground*Cimp,
         GroundBare=(1-agbare)*SWRdir_ground*Cbare,
         GroundVeg=(1-agveg)*SWRdir_ground*Cveg,
@@ -357,7 +356,7 @@ function shortwave_absorbed_no_trees(
     )
 
     # Diffuse absorbed shortwave radiation
-    SWRabsDiff_nT = LongwaveRadiation{FT}(;
+    SWRabsDiff_nT = RadiationFluxes{FT}(;
         GroundImp=(SWRabs_nT.GroundImp - SWRabsDir_nT.GroundImp)*Cimp,
         GroundBare=(SWRabs_nT.GroundBare - SWRabsDir_nT.GroundBare)*Cbare,
         GroundVeg=(SWRabs_nT.GroundVeg - SWRabsDir_nT.GroundVeg)*Cveg,
