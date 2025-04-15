@@ -1,7 +1,7 @@
 name = "UrbanTethysChloris"
 uuid = "8ae36e77-b357-5cab-a873-ceeadc1a5254"
 authors = ["Hugo Solleder <hugo.solleder@epfl.ch>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 Debugger = "31a5f54b-26ea-5ae9-a837-f05ce5417438"
