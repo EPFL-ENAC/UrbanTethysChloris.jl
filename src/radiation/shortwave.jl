@@ -703,12 +703,12 @@ function total_shortwave_absorbed(
         )
 
         # Combine results based on tree fraction
-        SWRin_t = combine(SWRin_T, SWRin_nT, ftree)
-        SWRout_t = combine(SWRout_T, SWRout_nT, ftree)
-        SWRabs_t = combine(SWRabs_T, SWRabs_nT, ftree)
-        SWRabsDir_t = combine(SWRabsDir_T, SWRabsDir_nT, ftree)
-        SWRabsDiff_t = combine(SWRabsDiff_T, SWRabsDiff_nT, ftree)
-        SWREB_t = combine(SWREB_T, SWREB_nT, ftree)
+        SWRin_t = interpolate(SWRin_T, SWRin_nT, ftree)
+        SWRout_t = interpolate(SWRout_T, SWRout_nT, ftree)
+        SWRabs_t = interpolate(SWRabs_T, SWRabs_nT, ftree)
+        SWRabsDir_t = interpolate(SWRabsDir_T, SWRabsDir_nT, ftree)
+        SWRabsDiff_t = interpolate(SWRabsDiff_T, SWRabsDiff_nT, ftree)
+        SWREB_t = interpolate(SWREB_T, SWREB_nT, ftree)
 
     else
         # Calculate radiation without trees

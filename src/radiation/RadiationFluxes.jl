@@ -38,7 +38,7 @@ function Base.:-(a::RadiationFluxes{FT}, b::RadiationFluxes{FT}) where {FT<:Abst
 end
 
 """
-    combine(tree::RadiationFluxes{FT}, notree::RadiationFluxes{FT}, tree_fraction::FT) where {FT<:AbstractFloat}
+    interpolate(tree::RadiationFluxes{FT}, notree::RadiationFluxes{FT}, tree_fraction::FT) where {FT<:AbstractFloat}
 
 Combines radiation components from scenarios with and without trees based on the tree fraction.
 
@@ -50,7 +50,7 @@ Combines radiation components from scenarios with and without trees based on the
 # Returns
 - `RadiationFluxes{FT}`: Combined radiation components
 """
-function combine(
+function interpolate(
     tree::RadiationFluxes{FT}, notree::RadiationFluxes{FT}, tree_fraction::FT
 ) where {FT<:AbstractFloat}
     RadiationFluxes{FT}(;

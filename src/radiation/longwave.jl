@@ -486,10 +486,10 @@ function total_longwave_absorbed(
         )
 
         # Average results based on tree fraction
-        LWRin_t = combine(LWRin_T, LWRin_nT, ftree)
-        LWRout_t = combine(LWRout_T, LWRout_nT, ftree)
-        LWRabs_t = combine(LWRabs_T, LWRabs_nT, ftree)
-        LWREB_t = combine(LWREB_T, LWREB_nT, ftree)
+        LWRin_t = interpolate(LWRin_T, LWRin_nT, ftree)
+        LWRout_t = interpolate(LWRout_T, LWRout_nT, ftree)
+        LWRabs_t = interpolate(LWRabs_T, LWRabs_nT, ftree)
+        LWREB_t = interpolate(LWREB_T, LWREB_nT, ftree)
 
     else
         # Calculate radiation without trees
