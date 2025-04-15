@@ -16,6 +16,18 @@ Pages = ["95-reference.md"]
 Modules = [UrbanTethysChloris]
 ```
 
+## Radiation
+
+```@autodocs
+Modules = [UrbanTethysChloris.Radiation]
+```
+
+## RayTracing
+
+```@autodocs
+Modules = [UrbanTethysChloris.RayTracing]
+```
+
 ## Model Components
 
 ### Parameters
