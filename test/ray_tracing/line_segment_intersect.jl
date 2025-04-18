@@ -1,9 +1,10 @@
 using Test
+using StaticArrays
 using UrbanTethysChloris.RayTracing: line_segment_intersect
 
 FT = Float64
 
-@testset "MATLAB" begin
+@testset "MATLAB - Matrix" begin
     XY1 = FT[0.1 0 2.3 0; 1.5 0 2.7 1.8]
     XY2 = FT[0 0 1.3 1.4; 0 1.6 1.7 0]
 
@@ -22,6 +23,21 @@ FT = Float64
     ]
     @test out.parAdjacencyMatrix == [false false; false false]
     @test out.coincAdjacencyMatrix == [false false; false false]
+end
+
+@testset "MATLAB - StaticArrays" begin
+    XY1 = @SVector FT[0.1, 0.0, 2.3, 0.0]
+    XY2 = @SVector FT[0.0, 0.0, 1.3, 1.4]
+
+    out = line_segment_intersect(XY1, XY2)
+
+    @test out.intAdjacencyMatrix == false
+    @test out.intMatrixX == 0
+    @test out.intMatrixY == 0
+    @test out.intNormalizedDistance1To2 ≈ -0.045454545454545
+    @test out.intNormalizedDistance2To1 == 0
+    @test out.parAdjacencyMatrix == false
+    @test out.coincAdjacencyMatrix == false
 end
 
 @testset "Wrong dimensions" begin
