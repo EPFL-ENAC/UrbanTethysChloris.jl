@@ -7,3 +7,7 @@ end
 @safetestset "view_factors_computation" begin
     include("view_factors_computation.jl")
 end
+
+@safetestset "view_factors_geometry" begin
+    include("view_factors_geometry.jl")
+end
