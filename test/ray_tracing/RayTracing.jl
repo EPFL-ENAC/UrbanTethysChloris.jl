@@ -11,3 +11,7 @@ end
 @safetestset "view_factors_geometry" begin
     include("view_factors_geometry.jl")
 end
+
+@safetestset "view_factors_ray_tracing" begin
+    include("view_factors_ray_tracing.jl")
+end
