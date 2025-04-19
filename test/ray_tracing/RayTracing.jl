@@ -1,5 +1,9 @@
 using SafeTestsets
 
+@safetestset "ViewFactor" begin
+    include("ViewFactor.jl")
+end
+
 @safetestset "line_segment_intersect" begin
     include("line_segment_intersect.jl")
 end
