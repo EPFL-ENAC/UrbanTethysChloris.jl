@@ -23,3 +23,7 @@ end
 @safetestset "view_factors_analytical" begin
     include("view_factors_analytical.jl")
 end
+
+@safetestset "view_factors_canyon" begin
+    include("view_factors_canyon.jl")
+end
