@@ -9,5 +9,6 @@ include("line_segment_intersect.jl")
 include("view_factors_computation.jl")
 include("view_factors_geometry.jl")
 include("view_factors_ray_tracing.jl")
+include("view_factors_analytical.jl")
 
 end
