@@ -37,21 +37,21 @@ function view_factors_ray_tracing(
     # View factor assignments
     a_mask = a > 0
 
-    vf = ViewFactor{FT}(;
-        F_gs_T=view_factor[3, 6],
-        F_gt_T=view_factor[3, 4] + view_factor[3, 5],
-        F_gw_T=(view_factor[3, 1] + view_factor[3, 2])/2,
-        F_ww_T=view_factor[1, 2],
-        F_wt_T=view_factor[1, 4] + view_factor[1, 5],
-        F_wg_T=view_factor[1, 3],
-        F_ws_T=view_factor[1, 6],
-        F_ts_T=view_factor[4, 6] * a_mask,
-        F_tw_T=(view_factor[4, 1] + view_factor[4, 2])/2 * a_mask,
-        F_tt_T=view_factor[4, 5] * a_mask,
-        F_tg_T=view_factor[4, 3] * a_mask,
-        F_sg_T=view_factor[6, 3],
-        F_sw_T=(view_factor[6, 1] + view_factor[6, 2])/2,
-        F_st_T=view_factor[6, 4] + view_factor[6, 5],
+    vf = ViewFactorWithTrees{FT}(;
+        F_gs=view_factor[3, 6],
+        F_gt=view_factor[3, 4] + view_factor[3, 5],
+        F_gw=(view_factor[3, 1] + view_factor[3, 2])/2,
+        F_ww=view_factor[1, 2],
+        F_wt=view_factor[1, 4] + view_factor[1, 5],
+        F_wg=view_factor[1, 3],
+        F_ws=view_factor[1, 6],
+        F_ts=view_factor[4, 6] * a_mask,
+        F_tw=(view_factor[4, 1] + view_factor[4, 2])/2 * a_mask,
+        F_tt=view_factor[4, 5] * a_mask,
+        F_tg=view_factor[4, 3] * a_mask,
+        F_sg=view_factor[6, 3],
+        F_sw=(view_factor[6, 1] + view_factor[6, 2])/2,
+        F_st=view_factor[6, 4] + view_factor[6, 5],
     )
 
     vfp = ViewFactorPoint{FT}(;
@@ -82,7 +82,7 @@ Compute reciprocal view factors for urban canyon geometry.
 - `n_rays`: number of rays emitted per point
 
 # Returns
-Tuple containing (ViewFactor, ViewFactorPoint, ViewFactorRaw)
+Tuple containing (ViewFactorWithTrees, ViewFactorPoint, ViewFactorWithTrees)
 """
 function view_factors_ray_tracing_reciprocity(
     H::FT,
@@ -96,7 +96,7 @@ function view_factors_ray_tracing_reciprocity(
 ) where {FT<:AbstractFloat}
 
     # Get raw view factors from ray tracing
-    F_raw, vf_point = view_factors_ray_tracing(
+    vf_raw, vf_point = view_factors_ray_tracing(
         H, W, a, ht, d, person, mc_sample_size, n_rays
     )
 
@@ -109,7 +109,7 @@ function view_factors_ray_tracing_reciprocity(
     # Compute reciprocal view factors
     if a == 0
         # Case without trees
-        F_gs_T = F_raw.F_gs_T
+        F_gs_T = vf_raw.F_gs
         F_gw_T = (1 - F_gs_T)/2  # factor 1/2 because there are 2 walls seen by ground
         F_gt_T = zero(FT)
 
@@ -139,17 +139,17 @@ function view_factors_ray_tracing_reciprocity(
         # Case with trees
         Atree = 2 * 2π * a
 
-        F_gs_T = F_raw.F_gs_T
-        F_gt_T = F_raw.F_gt_T
+        F_gs_T = vf_raw.F_gs
+        F_gt_T = vf_raw.F_gt
         F_gw_T = (1 - F_gs_T - F_gt_T)/2
 
         F_sg_T = F_gs_T * w/w
-        F_st_T = F_raw.F_st_T
+        F_st_T = vf_raw.F_st
         F_sw_T = (1 - F_sg_T - F_st_T)/2
 
         F_wg_T = F_gw_T * w/h
         F_ws_T = F_sw_T * w/h
-        F_wt_T = F_raw.F_wt_T
+        F_wt_T = vf_raw.F_wt
         F_ww_T = 1 - F_wg_T - F_ws_T - F_wt_T
 
         F_ts_T = F_st_T * w/Atree
@@ -185,23 +185,23 @@ function view_factors_ray_tracing_reciprocity(
         end
     end
 
-    # Create view factor struct
-    vf = ViewFactor{FT}(;
-        F_gs_T=F_gs_T,
-        F_gt_T=F_gt_T,
-        F_gw_T=F_gw_T,
-        F_ww_T=F_ww_T,
-        F_wt_T=F_wt_T,
-        F_wg_T=F_wg_T,
-        F_ws_T=F_ws_T,
-        F_sg_T=F_sg_T,
-        F_sw_T=F_sw_T,
-        F_st_T=F_st_T,
-        F_tg_T=F_tg_T,
-        F_tw_T=F_tw_T,
-        F_ts_T=F_ts_T,
-        F_tt_T=F_tt_T,
+    # Create view factor structs
+    vf = ViewFactorWithTrees{FT}(;
+        F_gs=F_gs_T,
+        F_gt=F_gt_T,
+        F_gw=F_gw_T,
+        F_ww=F_ww_T,
+        F_wt=F_wt_T,
+        F_wg=F_wg_T,
+        F_ws=F_ws_T,
+        F_sg=F_sg_T,
+        F_sw=F_sw_T,
+        F_st=F_st_T,
+        F_tg=F_tg_T,
+        F_tw=F_tw_T,
+        F_ts=F_ts_T,
+        F_tt=F_tt_T,
     )
 
-    return vf, vf_point, F_raw
+    return vf, vf_point, vf_raw
 end
