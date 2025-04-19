@@ -64,3 +64,144 @@ function view_factors_ray_tracing(
 
     return vf, vfp
 end
+
+"""
+    view_factors_ray_tracing_reciprocity(H::FT, W::FT, a::FT, ht::FT, d::FT, person::PersonParameters{FT},
+                           mc_sample_size::Int, n_rays::Int) where {FT<:AbstractFloat}
+
+Compute reciprocal view factors for urban canyon geometry.
+
+# Arguments
+- `H`: canyon height [m]
+- `W`: canyon width [m]
+- `a`: normalized tree radius [-]
+- `ht`: normalized tree height [-]
+- `d`: normalized tree distance from wall [-]
+- `person`: PersonParameters object containing position information
+- `mc_sample_size`: number of emitting points per surface
+- `n_rays`: number of rays emitted per point
+
+# Returns
+Tuple containing (ViewFactor, ViewFactorPoint, ViewFactorRaw)
+"""
+function view_factors_ray_tracing_reciprocity(
+    H::FT,
+    W::FT,
+    a::FT,
+    ht::FT,
+    d::FT,
+    person::ModelComponents.Parameters.PersonParameters{FT},
+    mc_sample_size::Int,
+    n_rays::Int,
+) where {FT<:AbstractFloat}
+
+    # Get raw view factors from ray tracing
+    F_raw, vf_point = view_factors_ray_tracing(
+        H, W, a, ht, d, person, mc_sample_size, n_rays
+    )
+
+    # Normalize dimensions
+    h = H/W
+    w = W/W
+
+    # Point view factors already correctly populated by view_factors_ray_tracing
+
+    # Compute reciprocal view factors
+    if a == 0
+        # Case without trees
+        F_gs_T = F_raw.F_gs_T
+        F_gw_T = (1 - F_gs_T)/2  # factor 1/2 because there are 2 walls seen by ground
+        F_gt_T = zero(FT)
+
+        F_sg_T = F_gs_T * w/w
+        F_sw_T = F_gw_T * w/w
+        F_st_T = zero(FT)
+
+        F_wg_T = F_gw_T * w/h
+        F_ws_T = F_sw_T * w/h
+        F_ww_T = 1 - F_wg_T - F_ws_T
+        F_wt_T = zero(FT)
+
+        F_tg_T = F_ts_T = F_tw_T = F_tt_T = zero(FT)
+
+        sum = zeros(FT, 4)
+        sum[1] = F_gs_T + 2*F_gw_T
+        sum[2] = F_ww_T + F_wg_T + F_ws_T
+        sum[3] = F_sg_T + 2*F_sw_T
+        sum[4] = zero(FT)
+
+        sum2 = zeros(FT, 4)
+        sum2[1] = F_sg_T*w/w + 2*F_wg_T*h/w
+        sum2[2] = F_ww_T*h/h + F_gw_T*w/h + F_sw_T*w/h
+        sum2[3] = F_gs_T*w/w + 2*F_ws_T*h/w
+        sum2[4] = zero(FT)
+    else
+        # Case with trees
+        Atree = 2 * 2π * a
+
+        F_gs_T = F_raw.F_gs_T
+        F_gt_T = F_raw.F_gt_T
+        F_gw_T = (1 - F_gs_T - F_gt_T)/2
+
+        F_sg_T = F_gs_T * w/w
+        F_st_T = F_raw.F_st_T
+        F_sw_T = (1 - F_sg_T - F_st_T)/2
+
+        F_wg_T = F_gw_T * w/h
+        F_ws_T = F_sw_T * w/h
+        F_wt_T = F_raw.F_wt_T
+        F_ww_T = 1 - F_wg_T - F_ws_T - F_wt_T
+
+        F_ts_T = F_st_T * w/Atree
+        F_tw_T = F_wt_T * h/Atree
+        F_tg_T = F_gt_T * w/Atree
+        F_tt_T = 1 - F_ts_T - 2*F_tw_T - F_tg_T
+
+        sum = zeros(FT, 4)
+        sum[1] = F_gs_T + 2*F_gw_T + F_gt_T
+        sum[2] = F_ww_T + F_wg_T + F_ws_T + F_wt_T
+        sum[3] = F_sg_T + 2*F_sw_T + F_st_T
+        sum[4] = F_tg_T + 2*F_tw_T + F_ts_T + F_tt_T
+
+        sum2 = zeros(FT, 4)
+        sum2[1] = F_sg_T*w/w + 2*F_wg_T*h/w + F_tg_T*Atree/w
+        sum2[2] = F_ww_T*h/h + F_gw_T*w/h + F_sw_T*w/h + F_tw_T*Atree/h
+        sum2[3] = F_gs_T*w/w + 2*F_ws_T*h/w + F_ts_T*Atree/w
+        sum2[4] = F_gt_T*w/Atree + 2*F_wt_T*h/Atree + F_st_T*w/Atree + F_tt_T*Atree/Atree
+    end
+
+    # Check reciprocity conditions
+    if a > 0
+        for sum_i in sum
+            if !(0.9999 ≤ sum_i ≤ 1.0001)
+                @warn "View factors do not sum to 1 (sum = $sum_i)"
+            end
+        end
+    else
+        for sum_i in view(sum, 1:3)
+            if !(0.9999 ≤ sum_i ≤ 1.0001)
+                @warn "View factors do not sum to 1 (sum = $sum_i)"
+            end
+        end
+    end
+
+    # Create view factor struct
+    vf = ViewFactor{FT}(;
+        F_gs_T=F_gs_T,
+        F_gt_T=F_gt_T,
+        F_gw_T=F_gw_T,
+        F_ww_T=F_ww_T,
+        F_wt_T=F_wt_T,
+        F_wg_T=F_wg_T,
+        F_ws_T=F_ws_T,
+        F_sg_T=F_sg_T,
+        F_sw_T=F_sw_T,
+        F_st_T=F_st_T,
+        F_tg_T=F_tg_T,
+        F_tw_T=F_tw_T,
+        F_ts_T=F_ts_T,
+        F_tt_T=F_tt_T,
+    )
+
+    return vf, vf_point, F_raw
+end
