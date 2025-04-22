@@ -1,4 +1,5 @@
 using SafeTestsets
+using Random
 
 @safetestset "ViewFactor" begin
     include("ViewFactor.jl")
