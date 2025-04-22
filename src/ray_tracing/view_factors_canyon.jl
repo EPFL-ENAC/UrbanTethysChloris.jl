@@ -30,7 +30,8 @@ function view_factors_canyon(
         htree = geometry.htree
         distance_tree = geometry.distance_tree
     else
-        radius_tree = zero(FT), htree = - geometry.Height_canyon / 10000
+        radius_tree = zero(FT)
+        htree = - geometry.Height_canyon / 10000
         distance_tree = zero(FT)
     end
 
