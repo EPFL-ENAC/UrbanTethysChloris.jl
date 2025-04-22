@@ -69,30 +69,56 @@ function view_factors_geometry(
     stc = FT(1e-10)  # Offset from surface
 
     # Generate emission points and angles based on surface
-    XSv, YSv, dthe = if option_surface == 1 # Wall 1
-        (fill(1+stc, mc_sample_size), h .* rand_sz, ray_angle .- π/2)
+    if option_surface == 1 # Wall 1
+        XSv = fill(1+stc, mc_sample_size)
+        YSv = h .* rand_sz
+        dthe = ray_angle .- π/2
     elseif option_surface == 2 # Wall 2
-        (fill(1+w-stc, mc_sample_size), h .* rand_sz, ray_angle .+ π/2)
+        XSv = fill(1+w-stc, mc_sample_size)
+        YSv = h .* rand_sz
+        dthe = ray_angle .+ π/2
     elseif option_surface == 3 # Ground
-        (1 .+ w .* rand_sz, fill(stc, mc_sample_size), ray_angle)
+        XSv = 1 .+ w .* rand_sz
+        YSv = fill(stc, mc_sample_size)
+        dthe = ray_angle
     elseif option_surface == 4 # Tree 1
         ang = 2π .* rand_sz
         xt = (r+stc) .* cos.(ang)
         yt = (r+stc) .* sin.(ang)
-        (xc .+ xt, yc .+ yt, (ones(mc_sample_size) .* (ray_angle .- π/2)') .+ ang)
+        XSv = xc .+ xt
+        YSv = yc .+ yt
+
+        if r == 0
+            XSv = [0.0]
+            YSv = [0.0]
+        end
+
+        dthe = (ones(mc_sample_size) .* (ray_angle .- π/2)') .+ ang
     elseif option_surface == 5 # Tree 2
         ang = 2π .* rand_sz
         xt = (r+stc) .* cos.(ang)
         yt = (r+stc) .* sin.(ang)
-        (xc2 .+ xt, yc .+ yt, (ones(mc_sample_size) .* (ray_angle .- π/2)') .+ ang)
+        XSv = xc2 .+ xt
+        YSv = yc .+ yt
+
+        if r == 0
+            XSv = [0.0]
+            YSv = [0.0]
+        end
+
+        dthe = (ones(mc_sample_size) .* (ray_angle .- π/2)') .+ ang
     elseif option_surface == 6 # Sky
-        (1 .+ w .* rand_sz, fill(h-stc, mc_sample_size), ray_angle .+ π)
+        XSv = 1 .+ w .* rand_sz
+        YSv = fill(h-stc, mc_sample_size)
+        dthe = ray_angle .+ π
     else # Point
         rp6 = FT(1/1000)
         ang = 2π .* rand_sz
         xp6 = (rp6+stc) .* cos.(ang)
         yp6 = (rp6+stc) .* sin.(ang)
-        (1+px .+ xp6, pz .+ yp6, (ones(mc_sample_size) .* (ray_angle .- π/2)') .+ ang)
+        XSv = 1+px .+ xp6
+        YSv = pz .+ yp6
+        dthe = (ones(mc_sample_size) .* (ray_angle .- π/2)') .+ ang
     end
 
     # Parameters for ray tracing
