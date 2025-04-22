@@ -35,6 +35,158 @@ function view_factors_computation(
     YSv::Vector{FT},
     dmax::FT,
     sz::FT,
+    dthe::Vector{FT},
+    x2::Vector{FT},
+    z2::Vector{FT},
+    x3::Vector{FT},
+    z3::Vector{FT},
+    x4::Vector{FT},
+    z4::Vector{FT},
+    xc::FT,
+    yc::FT,
+    r::FT,
+    xc2::FT,
+    x5::Vector{FT},
+    z5::Vector{FT},
+) where {FT<:AbstractFloat}
+    # Initialize parameters
+    spass = sqrt(FT(2)) * sz  # Pass of search
+    SD = collect(range(spass, dmax; step=spass))  # Search distance
+    cos_dthe = cos.(dthe)
+    sin_dthe = sin.(dthe)
+
+    nrays = length(dthe)
+    np = length(XSv)
+    VGv = zeros(FT, np)
+    VW1v = zeros(FT, np)
+    VW2v = zeros(FT, np)
+    VSv = zeros(FT, np)
+    VT1v = zeros(FT, np)
+    VT2v = zeros(FT, np)
+
+    # For each emitting point
+    for ii in 1:np
+        XS = XSv[ii]
+        YS = YSv[ii]
+        VG = VW1 = VW2 = VS = VT1 = VT2 = zero(FT)
+
+        # For each ray from emitting point
+        for k in eachindex(dthe)
+            # Convert polar to cartesian coordinates for ray path
+            xp = cos_dthe[k] .* SD
+            yp = sin_dthe[k] .* SD
+
+            # Check intersections with surfaces
+            # Ground
+            l1 = @SVector [x2[1], z2[1], x2[2], z2[2]]
+            l2 = @SVector [XS, YS, XS + xp[end], YS + yp[end]]
+            out = RayTracing.line_segment_intersect(l1, l2)
+            if out.intAdjacencyMatrix
+                D2 = hypot(out.intMatrixX - XS, out.intMatrixY - YS)
+            else
+                D2 = FT(NaN)
+            end
+
+            # Wall-1
+            l1 = @SVector [x3[1], z3[1], x3[2], z3[2]]
+            out = RayTracing.line_segment_intersect(l1, l2)
+            if out.intAdjacencyMatrix
+                D3 = hypot(out.intMatrixX - XS, out.intMatrixY - YS)
+            else
+                D3 = FT(NaN)
+            end
+
+            # Wall-2
+            l1 = @SVector [x4[1], z4[1], x4[2], z4[2]]
+            out = RayTracing.line_segment_intersect(l1, l2)
+            if out.intAdjacencyMatrix
+                D4 = hypot(out.intMatrixX - XS, out.intMatrixY - YS)
+            else
+                D4 = FT(NaN)
+            end
+
+            # Sky
+            l1 = @SVector [x5[1], z5[1], x5[2], z5[2]]
+            out = RayTracing.line_segment_intersect(l1, l2)
+            if out.intAdjacencyMatrix
+                D5 = hypot(out.intMatrixX - XS, out.intMatrixY - YS)
+            else
+                D5 = FT(NaN)
+            end
+
+            # Tree 1
+            IC = @. (XS + xp - xc)^2 + (YS + yp - yc)^2 <= r^2
+            if sum(IC) > 1
+                sdi = findfirst(IC)
+                DT1 = hypot(XS + xp[sdi] - XS, YS + yp[sdi] - YS)
+            else
+                DT1 = FT(NaN)
+            end
+
+            # Tree 2
+            IC = @. (XS + xp - xc2)^2 + (YS + yp - yc)^2 <= r^2
+            if sum(IC) > 1
+                sdi = findfirst(IC)
+                DT2 = hypot(XS + xp[sdi] - XS, YS + yp[sdi] - YS)
+            else
+                DT2 = FT(NaN)
+            end
+
+            # Find closest intersection
+            dv = [D2, D3, D4, DT1, DT2, D5]
+            dv[isnan.(dv)] .= Inf  # Set NaN to Inf
+            md, pmin = findmin(dv)
+            if isfinite(md)
+                if pmin == 1
+                    VG += 1
+                elseif pmin == 2
+                    VW1 += 1
+                elseif pmin == 3
+                    VW2 += 1
+                elseif pmin == 4
+                    VT1 += 1
+                elseif pmin == 5
+                    VT2 += 1
+                elseif pmin == 6
+                    VS += 1
+                end
+            end
+        end
+
+        # Calculate view factors for this point
+        VG = VG / nrays
+        VW1 = VW1 / nrays
+        VW2 = VW2 / nrays
+        VS = VS / nrays
+        VT1 = VT1 / nrays
+        VT2 = VT2 / nrays
+
+        # Normalize by total
+        Sum_view = VG + VW1 + VW2 + VS + VT1 + VT2
+        VGv[ii] = VG / Sum_view
+        VW1v[ii] = VW1 / Sum_view
+        VW2v[ii] = VW2 / Sum_view
+        VSv[ii] = VS / Sum_view
+        VT1v[ii] = VT1 / Sum_view
+        VT2v[ii] = VT2 / Sum_view
+    end
+
+    # Calculate mean view factors
+    VG = mean(VGv)
+    VW1 = mean(VW1v)
+    VW2 = mean(VW2v)
+    VS = mean(VSv)
+    VT1 = mean(VT1v)
+    VT2 = mean(VT2v)
+
+    return VG, VW1, VW2, VS, VT1, VT2
+end
+
+function view_factors_computation(
+    XSv::Vector{FT},
+    YSv::Vector{FT},
+    dmax::FT,
+    sz::FT,
     dthe::Matrix{FT},
     x2::Vector{FT},
     z2::Vector{FT},
@@ -51,7 +203,7 @@ function view_factors_computation(
 ) where {FT<:AbstractFloat}
     # Initialize parameters
     spass = sqrt(FT(2)) * sz  # Pass of search
-    SD = range(spass, dmax; step=spass)  # Search distance
+    SD = collect(range(spass, dmax; step=spass))  # Search distance
 
     np = length(XSv)
     VGv = zeros(FT, np)
@@ -68,10 +220,14 @@ function view_factors_computation(
         YS = YSv[ii]
         VG = VW1 = VW2 = VS = VT1 = VT2 = zero(FT)
 
+        cos_Z = cos.(Z)
+        sin_Z = sin.(Z)
+
         # For each ray from emitting point
         for k in eachindex(Z)
             # Convert polar to cartesian coordinates for ray path
-            xp, yp = pol2cart(Z[k] * ones(FT, length(SD)), collect(SD))
+            xp = SD .* cos_Z[k]
+            yp = SD .* sin_Z[k]
 
             # Check intersections with surfaces
             # Ground
@@ -178,24 +334,4 @@ function view_factors_computation(
     VT2 = mean(VT2v)
 
     return VG, VW1, VW2, VS, VT1, VT2
-end
-
-"""
-    pol2cart(theta, r)
-
-Convert polar coordinates to Cartesian coordinates.
-
-# Arguments
-- `theta`: Angle(s) in radians
-- `r`: Radii
-
-# Returns
-Tuple of (x, y) coordinates where:
-- `x = r * cos(theta)`
-- `y = r * sin(theta)`
-"""
-function pol2cart(theta, r)
-    x = r .* cos.(theta)
-    y = r .* sin.(theta)
-    return (x, y)
 end
