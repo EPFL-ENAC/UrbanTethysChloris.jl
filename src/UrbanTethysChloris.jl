@@ -11,4 +11,6 @@ using .RayTracing
 include(joinpath("radiation", "Radiation.jl"))
 using .Radiation
 
+include("incoming_longwave.jl")
+
 end
