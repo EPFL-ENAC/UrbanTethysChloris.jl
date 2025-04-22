@@ -13,3 +13,7 @@ end
 @safetestset "incoming_longwave" begin
     include("incoming_longwave.jl")
 end
+
+@safetestset "set_sun_variables" begin
+    include("set_sun_variables.jl")
+end
