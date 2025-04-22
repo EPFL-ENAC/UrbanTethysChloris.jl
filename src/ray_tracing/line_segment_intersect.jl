@@ -1,12 +1,12 @@
 """
-    line_segment_intersect(XY1::Matrix{<:Real}, XY2::Matrix{<:Real})
+    line_segment_intersect(XY1::AbstractMatrix{FT}, XY2::AbstractMatrix{FT})
     line_segment_intersect(XY1::SVector{4, FT}, SVector{4, FT})
 
 Find intersections between two sets of line segments in 2D space.
 
 # Arguments
-- `XY1`: N1×4 matrix where each row is [x1 y1 x2 y2] representing a line segment
-- `XY2`: N2×4 matrix where each row is [x1 y1 x2 y2] representing a line segment
+- `XY1`: vector/matrix where each row is [x1 y1 x2 y2] representing a line segment
+- `XY2`: vector/matrix where each row is [x1 y1 x2 y2] representing a line segment
 
 # Returns
 A NamedTuple with fields:

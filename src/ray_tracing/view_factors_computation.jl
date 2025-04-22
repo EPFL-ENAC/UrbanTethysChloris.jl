@@ -5,6 +5,12 @@
         x4::Vector{FT}, z4::Vector{FT}, xc::FT, yc::FT, r::FT, xc2::FT,
         x5::Vector{FT}, z5::Vector{FT}
     ) where {FT<:AbstractFloat}
+    view_factors_computation(
+        XSv::Vector{FT}, YSv::Vector{FT}, dmax::FT, sz::FT, dthe::Matrix{FT},
+        x2::Vector{FT}, z2::Vector{FT}, x3::Vector{FT}, z3::Vector{FT},
+        x4::Vector{FT}, z4::Vector{FT}, xc::FT, yc::FT, r::FT, xc2::FT,
+        x5::Vector{FT}, z5::Vector{FT}
+    ) where {FT<:AbstractFloat}
 
 Compute view factors for urban canyon surfaces including trees.
 

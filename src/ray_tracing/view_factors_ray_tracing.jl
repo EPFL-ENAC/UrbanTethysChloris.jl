@@ -1,3 +1,32 @@
+"""
+    view_factors_ray_tracing(
+        H::FT,
+        W::FT,
+        a::FT,
+        ht::FT,
+        d::FT,
+        person::ModelComponents.Parameters.PersonParameters{FT},
+        mc_sample_size::Int,
+        n_rays::Int,
+    ) where {FT<:AbstractFloat}
+
+Calculate view factors for urban canyon surfaces using ray tracing method.
+
+# Arguments
+- `H`: canyon height [m]
+- `W`: canyon width [m]
+- `a`: normalized tree radius [-]
+- `ht`: normalized tree height [-]
+- `d`: normalized tree distance from wall [-]
+- `person`: PersonParameters object containing position information
+- `mc_sample_size`: number of Monte Carlo samples for ray tracing
+- `n_rays`: number of rays to emit per sample point
+
+# Returns
+Tuple containing:
+- `vf`: ViewFactorWithTrees object containing view factors between surfaces
+- `vfp`: ViewFactorPoint object containing point-specific view factors
+"""
 function view_factors_ray_tracing(
     H::FT,
     W::FT,
