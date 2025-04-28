@@ -1,13 +1,15 @@
 name = "UrbanTethysChloris"
 uuid = "8ae36e77-b357-5cab-a873-ceeadc1a5254"
 authors = ["Hugo Solleder <hugo.solleder@epfl.ch>"]
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 Debugger = "31a5f54b-26ea-5ae9-a837-f05ce5417438"
 MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
 NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 TethysChlorisCore = "c22758e7-e854-5bdb-8df2-7602c47a9d98"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
@@ -17,6 +19,8 @@ TethysChlorisCore = {rev = "v0.1.2", url = "https://github.com/EPFL-ENAC/TethysC
 [compat]
 MAT = "0.10"
 NCDatasets = "0.14"
+StaticArrays = "1.9.13"
+Statistics = "1.11.1"
 TethysChlorisCore = "0.1.2"
 YAML = "0.4"
 julia = "1.11"
