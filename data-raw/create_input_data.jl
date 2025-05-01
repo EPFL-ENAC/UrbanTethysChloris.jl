@@ -256,3 +256,40 @@ data["person"] = Dict{String,Any}(
 
 YAML.write_file(joinpath(@__DIR__, "..", "data", "parameters.yaml"), data)
 YAML.write_file(joinpath(@__DIR__, "..", "test", "data", "parameters.yaml"), data)
+
+## NetCDF section
+input_data = matread(joinpath(@__DIR__, "..", "data", "ForcingData_ZH2010_struct.mat"))
+input_data["Time"] = [
+    DateTime(
+        input_data["Time"][i, 1],
+        input_data["Time"][i, 2],
+        input_data["Time"][i, 3],
+        input_data["Time"][i, 4],
+        input_data["Time"][i, 5],
+    ) for i in axes(input_data["Time"], 1)
+]
+input_data["RelativeHumidity"] ./= 100.0
+
+filename = "input_data.nc"
+filepath = joinpath(@__DIR__, "..", "data", filename)
+
+isfile(filepath) && rm(filepath)
+
+ds = NCDataset(filepath, "c")
+defDim(ds, "hours", length(input_data["Time"]))
+defVar(ds, "datetime", input_data["Time"], ("hours",))
+
+# Meteorological inputs
+defVar(ds, "LWR_in", input_data["LWRin"], ("hours",))
+defVar(ds, "SAB1_in", input_data["SAB1"], ("hours",))
+defVar(ds, "SAB2_in", input_data["SAB2"], ("hours",))
+defVar(ds, "SAD1_in", input_data["SAD1"], ("hours",))
+defVar(ds, "SAD2_in", input_data["SAD2"], ("hours",))
+defVar(ds, "T_atm", input_data["Tatm"], ("hours",))
+defVar(ds, "windspeed_u", input_data["Windspeed"], ("hours",))
+defVar(ds, "pressure_atm", input_data["Pressure_Pa"], ("hours",))
+defVar(ds, "rain", input_data["Precipitation"], ("hours",))
+defVar(ds, "rel_humidity", input_data["RelativeHumidity"], ("hours",))
+
+close(ds)
+cp(filepath, joinpath(@__DIR__, "..", "test", "data", filename); force=true)
