@@ -255,6 +255,10 @@ data["person"] = Dict{String,Any}(
     "HeightWind" => 1.1,
 )
 
+data["location"] = Dict{String,Any}(
+    "phi" => 47.38, "lambda" => 8.56, "theta_canyon" => deg2rad(180), "DeltaGMT" => 1
+)
+
 YAML.write_file(joinpath(@__DIR__, "..", "data", "parameters.yaml"), data)
 YAML.write_file(joinpath(@__DIR__, "..", "test", "data", "parameters.yaml"), data)
 

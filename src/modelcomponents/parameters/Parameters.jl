@@ -10,6 +10,7 @@ include("ThermalProperties.jl")
 include("UrbanGeometryParameters.jl")
 include("VegetationParameters.jl")
 include("BuildingEnergyModelParameters.jl")
+include("LocationProperties.jl")
 
 # Depends on SurfaceFractions
 include("OpticalProperties.jl")
