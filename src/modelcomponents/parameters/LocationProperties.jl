@@ -2,7 +2,7 @@ Base.@kwdef struct LocationProperties{FT<:AbstractFloat} <: AbstractParameters{F
     phi::FT
     lambda::FT
     theta_canyon::FT
-    DeltaGMT::Int
+    DeltaGMT::FT
 end
 
 function initialize_locationproperties(
