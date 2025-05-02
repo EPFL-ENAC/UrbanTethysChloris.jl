@@ -23,6 +23,8 @@ Base.@kwdef struct MeteorologicalInputs{FT<:AbstractFloat} <:
     Catm_CO2::FT
     Catm_O2::FT
     SunDSM_MRT::FT
+    cp_atm::Vector{FT}
+    rho_atm::Vector{FT}
 end
 
 function get_scalar_fields(::Type{MeteorologicalInputs})
@@ -30,7 +32,7 @@ function get_scalar_fields(::Type{MeteorologicalInputs})
 end
 
 function TethysChlorisCore.get_calculated_fields(::Type{MeteorologicalInputs})
-    return [:esat_Tatm, :ea, :q_atm, :qSat_atm, :SW_dir, :SW_diff]
+    return [:esat_Tatm, :ea, :q_atm, :qSat_atm, :SW_dir, :SW_diff, :cp_atm, :rho_atm]
 end
 
 function initialize_meteorological_inputs(
@@ -74,6 +76,12 @@ function TethysChlorisCore.preprocess_fields(
     update_SW = abs.(cos.(theta_Z)) .< 0.1
     processed["SW_diff"][update_SW] += processed["SW_dir"][update_SW]
     processed["SW_dir"][update_SW] .= 0.0
+
+    processed["cp_atm"] =
+        1005.0 .+ (((processed["Tatm"] .- 273.15) .+ 23.15) .^ 2) .+ 3364.0
+    processed["rho_atm"] =
+        (processed["Pre"] ./ (287.04 .* processed["Tatm"])) .*
+        (1.0 .- (processed["ea"] ./ processed["Pre"]) .* (1.0 - 0.622))
 
     return processed
 end
