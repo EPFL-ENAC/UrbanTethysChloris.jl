@@ -12,7 +12,7 @@ location:
   theta_canyon: 3.141592653589793
   phi: 47.38
   lambda: 8.56
-  DeltaGMT: 1
+  DeltaGMT: 1.0
 optical:
   roof:
     aveg: 0.2

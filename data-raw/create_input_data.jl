@@ -256,7 +256,7 @@ data["person"] = Dict{String,Any}(
 )
 
 data["location"] = Dict{String,Any}(
-    "phi" => 47.38, "lambda" => 8.56, "theta_canyon" => deg2rad(180), "DeltaGMT" => 1
+    "phi" => 47.38, "lambda" => 8.56, "theta_canyon" => deg2rad(180), "DeltaGMT" => 1.0
 )
 
 YAML.write_file(joinpath(@__DIR__, "..", "data", "parameters.yaml"), data)
@@ -300,6 +300,10 @@ defVar(ds, "rel_humidity", input_data["RelativeHumidity"], ("hours",))
 defVar(ds, "Tbmin", 18.0, ())
 defVar(ds, "Tbmax", 30.0, ())
 defVar(ds, "Qf_canyon", fill(10.0, length(input_data["Time"])), ("hours",))
+
+# Sun position inputs
+defVar(ds, "t_bef", 0.5, ())
+defVar(ds, "t_aft", 0.5, ())
 
 close(ds)
 cp(filepath, joinpath(@__DIR__, "..", "test", "data", filename); force=true)
