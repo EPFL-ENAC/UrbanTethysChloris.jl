@@ -10,12 +10,12 @@ Returns tuple of (h_S, zeta_S, T_sunrise, T_sunset) where:
 - T_sunset: sunset time [h]
 """
 function set_sun_variables(
-    datam::Vector{Int}, deltagmt::FT, lon::FT, lat::FT, t_bef::FT, t_aft::FT
+    datam::DateTime, deltagmt::FT, lon::FT, lat::FT, t_bef::FT, t_aft::FT
 ) where {FT<:AbstractFloat}
 
     # Calculate Julian day
-    jday = dayofyear(datam[1], datam[2], datam[3])
-    nowhr = datam[4] + datam[5]/60 + datam[6]/3600
+    jday = dayofyear(datam)
+    nowhr = hour(datam) + minute(datam)/60 + second(datam)/3600
 
     # Solar declination
     delta_s = 23.45 * π/180 * cos(2π/365 * (172 - jday))
