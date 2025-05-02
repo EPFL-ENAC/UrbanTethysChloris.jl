@@ -7,11 +7,11 @@ Base.@kwdef struct MeteorologicalInputs{FT<:AbstractFloat} <:
     SAB2_in::Vector{FT}
     SAD1_in::Vector{FT}
     SAD2_in::Vector{FT}
-    T_atm::Vector{FT}
-    windspeed_u::Vector{FT}
-    pressure_atm::Vector{FT}
-    rain::Vector{FT}
-    rel_humidity::Vector{FT}
+    Tatm::Vector{FT}
+    Uatm::Vector{FT}
+    Pre::Vector{FT}
+    Rain::Vector{FT}
+    rel_hum::Vector{FT}
     datetime::Vector{DateTime}
     esat_Tatm::Vector{FT}
     ea::Vector{FT}
@@ -44,17 +44,17 @@ function TethysChlorisCore.preprocess_fields(
     ]
 
     for field in fields
-        processed[String(field)] = data[field][:]
+        processed[String(field)] = Array(data[field])
     end
+
+    processed["Uatm"][processed["Uatm"] .== 0] .= 0.01
 
     # Calculate ea and q_atm
     processed["esat_Tatm"], processed["ea"] = vapor_pressure(
-        processed["T_atm"], processed["rel_humidity"]
+        processed["Tatm"], processed["rel_hum"]
     )
-    processed["q_atm"] = specific_humidity(processed["ea"], processed["pressure_atm"])
-    processed["qSat_atm"] = specific_humidity(
-        processed["esat_Tatm"], processed["pressure_atm"]
-    )
+    processed["q_atm"] = specific_humidity(processed["ea"], processed["Pre"])
+    processed["qSat_atm"] = specific_humidity(processed["esat_Tatm"], processed["Pre"])
 
     processed["SW_dir"] = processed["SAB1_in"] + processed["SAD1_in"]
     processed["SW_diff"] = processed["SAB2_in"] + processed["SAD2_in"]
@@ -66,18 +66,14 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function vapor_pressure(
-    Tatm::Vector{<:AbstractFloat}, rel_humidity::Vector{<:AbstractFloat}
-)
+function vapor_pressure(Tatm::Vector{<:AbstractFloat}, rel_hum::Vector{<:AbstractFloat})
     esat_Tatm = @. 611.0 * exp(17.27 * (Tatm - 273.16) / (237.3 + Tatm - 273.16))
-    ea = esat_Tatm .* rel_humidity
+    ea = esat_Tatm .* rel_hum
     return esat_Tatm, ea
 end
 
-function specific_humidity(
-    ea::Vector{<:AbstractFloat}, pressure_atm::Vector{<:AbstractFloat}
-)
-    return 0.622 * ea ./ (pressure_atm .- 0.378 .* ea)
+function specific_humidity(ea::Vector{<:AbstractFloat}, Pre::Vector{<:AbstractFloat})
+    return 0.622 * ea ./ (Pre .- 0.378 .* ea)
 end
 
 function TethysChlorisCore.validate_fields(::Type{MeteorologicalInputs}, data::NCDataset) end

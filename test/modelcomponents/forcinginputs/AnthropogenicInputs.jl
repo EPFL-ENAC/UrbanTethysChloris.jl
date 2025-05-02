@@ -25,5 +25,5 @@ end
 
 @testset "Test file" begin
     test_ds = load_test_netcdf()
-    @test_nowarn initialize_anthropogenic_inputs(FT, test_ds, Array(test_ds["T_atm"]))
+    @test_nowarn initialize_anthropogenic_inputs(FT, test_ds, Array(test_ds["Tatm"]))
 end
