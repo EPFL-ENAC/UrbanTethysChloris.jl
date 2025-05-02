@@ -295,6 +295,10 @@ defVar(ds, "Uatm", input_data["Windspeed"], ("hours",))
 defVar(ds, "Pre", input_data["Pressure_Pa"], ("hours",))
 defVar(ds, "Rain", input_data["Precipitation"], ("hours",))
 defVar(ds, "rel_hum", input_data["RelativeHumidity"], ("hours",))
+defVar(ds, "Zatm", 30.0, ())
+defVar(ds, "Catm_CO2", 400.0, ())
+defVar(ds, "Catm_O2", 210000.0, ())
+defVar(ds, "SunDSM_MRT", NaN, ())
 
 # Anthropogenic inputs
 defVar(ds, "Tbmin", 18.0, ())

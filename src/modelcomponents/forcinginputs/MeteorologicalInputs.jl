@@ -19,6 +19,14 @@ Base.@kwdef struct MeteorologicalInputs{FT<:AbstractFloat} <:
     qSat_atm::Vector{FT}
     SW_dir::Vector{FT}
     SW_diff::Vector{FT}
+    Zatm::FT
+    Catm_CO2::FT
+    Catm_O2::FT
+    SunDSM_MRT::FT
+end
+
+function get_scalar_fields(::Type{MeteorologicalInputs})
+    return [:Zatm, :Catm_CO2, :Catm_O2, :SunDSM_MRT]
 end
 
 function TethysChlorisCore.get_calculated_fields(::Type{MeteorologicalInputs})
@@ -44,7 +52,11 @@ function TethysChlorisCore.preprocess_fields(
     ]
 
     for field in fields
-        processed[String(field)] = Array(data[field])
+        if field ∈ get_scalar_fields(MeteorologicalInputs)
+            processed[String(field)] = data[field][]
+        else
+            processed[String(field)] = Array(data[field])
+        end
     end
 
     processed["Uatm"][processed["Uatm"] .== 0] .= 0.01
