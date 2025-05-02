@@ -11,5 +11,6 @@ import ...UrbanTethysChloris
 include("MeteorologicalInputs.jl")
 include("AnthropogenicInputs.jl")
 include("SunPositionInputs.jl")
+include("HVACSchedule.jl")
 
 end

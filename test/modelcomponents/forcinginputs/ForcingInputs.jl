@@ -4,6 +4,10 @@ using SafeTestsets
     include("AnthropogenicInputs.jl")
 end
 
+@safetestset "HVACSchedule" begin
+    include("HVACSchedule.jl")
+end
+
 @safetestset "MeteorologicalInputs" begin
     include("MeteorologicalInputs.jl")
 end
