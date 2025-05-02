@@ -292,5 +292,10 @@ defVar(ds, "pressure_atm", input_data["Pressure_Pa"], ("hours",))
 defVar(ds, "rain", input_data["Precipitation"], ("hours",))
 defVar(ds, "rel_humidity", input_data["RelativeHumidity"], ("hours",))
 
+# Anthropogenic inputs
+defVar(ds, "Tbmin", 18.0, ())
+defVar(ds, "Tbmax", 30.0, ())
+defVar(ds, "Qf_canyon", fill(10.0, length(input_data["Time"])), ("hours",))
+
 close(ds)
 cp(filepath, joinpath(@__DIR__, "..", "test", "data", filename); force=true)

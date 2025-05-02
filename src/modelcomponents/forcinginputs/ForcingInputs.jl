@@ -6,5 +6,6 @@ using Dates
 using NCDatasets
 
 include("MeteorologicalInputs.jl")
+include("AnthropogenicInputs.jl")
 
 end
