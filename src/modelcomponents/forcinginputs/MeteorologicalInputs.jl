@@ -1,5 +1,35 @@
 abstract type AbstractMeteorologicalInputs{FT<:AbstractFloat} <: AbstractForcingInputs{FT} end
 
+"""
+    MeteorologicalInputs{FT<:AbstractFloat}
+
+Meteorological inputs and derived atmospheric properties.
+
+# Fields
+- `LWR_in::Vector{FT}`: Atmospheric longwave radiation [W/m² horizontal surface]
+- `SAB1_in::Vector{FT}`: Component of direct incoming shortwave radiation [W/m² horizontal surface]
+- `SAB2_in::Vector{FT}`: Component of direct incoming shortwave radiation [W/m² horizontal surface]
+- `SAD1_in::Vector{FT}`: Component of diffuse incoming shortwave radiation [W/m² horizontal surface]
+- `SAD2_in::Vector{FT}`: Component of diffuse incoming shortwave radiation [W/m² horizontal surface]
+- `Tatm::Vector{FT}`: Air Temperature at atmospheric reference level [K]
+- `Uatm::Vector{FT}`: Wind speed at atmospheric reference level [m/s]
+- `Pre::Vector{FT}`: Air pressure [Pa]
+- `Rain::Vector{FT}`: Precipitation [mm]
+- `rel_hum::Vector{FT}`: Relative humidity [-]
+- `datetime::Vector{DateTime}`: Timestamps for the data
+- `esat_Tatm::Vector{FT}`: Vapor pressure saturation at Tatm [Pa]
+- `ea::Vector{FT}`: Vapor pressure [Pa]
+- `q_atm::Vector{FT}`: Specific humidity of air at reference height [-]
+- `qSat_atm::Vector{FT}`: Saturation specific humidity [-]
+- `SW_dir::Vector{FT}`: Direct incoming shortwave radiation [W/m² horizontal surface]
+- `SW_diff::Vector{FT}`: Diffuse incoming shortwave radiation [W/m² horizontal surface]
+- `Zatm::FT`: Atmospheric reference height [m]
+- `Catm_CO2::FT`: Atmospheric CO2 concentration [ppm]
+- `Catm_O2::FT`: Intercellular Partial Pressure Oxygen [ppm]
+- `SunDSM_MRT::FT`: Mean radiant temperature from sun [K]
+- `cp_atm::Vector{FT}`: Specific heat of air [J/kg K]
+- `rho_atm::Vector{FT}`: Dry air density at atmosphere [kg/m³]
+"""
 Base.@kwdef struct MeteorologicalInputs{FT<:AbstractFloat} <:
                    AbstractMeteorologicalInputs{FT}
     LWR_in::Vector{FT}

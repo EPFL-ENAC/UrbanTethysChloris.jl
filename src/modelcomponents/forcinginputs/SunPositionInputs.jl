@@ -1,5 +1,18 @@
 abstract type AbstractSunPositionInputs{FT<:AbstractFloat} <: AbstractForcingInputs{FT} end
 
+"""
+    SunPositionInputs{FT<:AbstractFloat}
+
+Solar position and timing parameters.
+
+# Fields
+- `t_bef::FT`: Time before solar noon [h]
+- `t_aft::FT`: Time after solar noon [h]
+- `theta_Z::Vector{FT}`: Solar zenith angle [rad]
+- `theta_n::Vector{FT}`: Difference between solar azimuth angle and canyon orientation [rad]
+- `zeta_S::Vector{FT}`: Solar azimuth angle [rad]
+- `TimeOfMaxSolAlt::Vector{FT}`: Time of maximum solar altitude [h]
+"""
 Base.@kwdef struct SunPositionInputs{FT<:AbstractFloat} <: AbstractSunPositionInputs{FT}
     t_bef::FT
     t_aft::FT

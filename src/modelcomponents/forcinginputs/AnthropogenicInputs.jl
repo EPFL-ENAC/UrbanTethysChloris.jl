@@ -1,5 +1,18 @@
 abstract type AbstractAnthropogenicInputs{FT<:AbstractFloat} <: AbstractForcingInputs{FT} end
 
+"""
+    AnthropogenicInputs{FT<:AbstractFloat}
+
+Building and anthropogenic inputs affecting the urban environment.
+
+# Fields
+- `Tb::Vector{FT}`: Interior building temperature [K]
+- `Qf_canyon::Vector{FT}`: Anthropogenic heat input into the canyon air [W/m²]
+- `Qf_roof::Vector{FT}`: Anthropogenic heat input above the roof [W/m²]
+- `Waterf_canyonVeg::Vector{FT}`: Water applied on vegetated ground surface area [mm/time step]
+- `Waterf_canyonBare::Vector{FT}`: Water applied on bare ground surface area [mm/time step]
+- `Waterf_roof::Vector{FT}`: Water applied on roof surface area [mm/time step]
+"""
 Base.@kwdef struct AnthropogenicInputs{FT<:AbstractFloat} <: AbstractAnthropogenicInputs{FT}
     Tb::Vector{FT}
     Qf_canyon::Vector{FT}
