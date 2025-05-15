@@ -7,3 +7,7 @@ end
 @safetestset "soil_parameters" begin
     include("soil_parameters.jl")
 end
+
+@safetestset "soil_parameters2" begin
+    include("soil_parameters2.jl")
+end
