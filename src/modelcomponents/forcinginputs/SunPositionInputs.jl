@@ -60,7 +60,7 @@ function TethysChlorisCore.preprocess_fields(
 
     h_S = getindex.(results, 1)
     theta_Z = pi/2 .- h_S
-    theta_Z[abs.(theta_Z) .≥ -π / 2] .= π/2
+    theta_Z[abs.(theta_Z) .≥ π / 2] .= π/2
     processed["theta_Z"] = theta_Z
 
     zeta_S = getindex.(results, 2)
