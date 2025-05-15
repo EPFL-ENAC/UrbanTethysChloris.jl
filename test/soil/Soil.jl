@@ -4,6 +4,10 @@ using SafeTestsets
     include("evaporation_layers.jl")
 end
 
+@safetestset "root_fraction_general" begin
+    include("root_fraction_general.jl")
+end
+
 @safetestset "soil_parameters" begin
     include("soil_parameters.jl")
 end
