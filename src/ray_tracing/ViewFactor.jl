@@ -1,9 +1,71 @@
 abstract type AbstractViewFactor{FT<:AbstractFloat} end
 
 """
+    ViewFactorNoTrees{FT<:AbstractFloat} <: AbstractViewFactor{FT}
+
+View factors for radiation exchange between urban surfaces without trees.
+
+# Fields
+- `F_gs`: Ground to sky view factor
+- `F_gw`: Ground to wall view factor
+- `F_ww`: Wall to wall view factor
+- `F_wg`: Wall to ground view factor
+- `F_ws`: Wall to sky view factor
+- `F_sg`: Sky to ground view factor
+- `F_sw`: Sky to wall view factor
+"""
+Base.@kwdef struct ViewFactorNoTrees{FT<:AbstractFloat} <: AbstractViewFactor{FT}
+    F_gs::FT = FT(0)
+    F_gw::FT = FT(0)
+    F_ww::FT = FT(0)
+    F_wg::FT = FT(0)
+    F_ws::FT = FT(0)
+    F_sg::FT = FT(0)
+    F_sw::FT = FT(0)
+end
+
+"""
+    ViewFactorWithTrees{FT<:AbstractFloat} <: AbstractViewFactor{FT}
+
+View factors for radiation exchange between urban surfaces with trees.
+
+# Fields
+- `F_gs`: Ground to sky view factor
+- `F_gt`: Ground to tree view factor
+- `F_gw`: Ground to wall view factor
+- `F_ww`: Wall to wall view factor
+- `F_wt`: Wall to tree view factor
+- `F_wg`: Wall to ground view factor
+- `F_ws`: Wall to sky view factor
+- `F_sg`: Sky to ground view factor
+- `F_sw`: Sky to wall view factor
+- `F_st`: Sky to tree view factor
+- `F_tg`: Tree to ground view factor
+- `F_tw`: Tree to wall view factor
+- `F_ts`: Tree to sky view factor
+- `F_tt`: Tree to tree view factor
+"""
+Base.@kwdef struct ViewFactorWithTrees{FT<:AbstractFloat} <: AbstractViewFactor{FT}
+    F_gs::FT = FT(0)
+    F_gt::FT = FT(0)
+    F_gw::FT = FT(0)
+    F_ww::FT = FT(0)
+    F_wt::FT = FT(0)
+    F_wg::FT = FT(0)
+    F_ws::FT = FT(0)
+    F_sg::FT = FT(0)
+    F_sw::FT = FT(0)
+    F_st::FT = FT(0)
+    F_tg::FT = FT(0)
+    F_tw::FT = FT(0)
+    F_ts::FT = FT(0)
+    F_tt::FT = FT(0)
+end
+
+"""
     ViewFactor{FT<:AbstractFloat} <: AbstractViewFactor{FT}
 
-View factors for radiation exchange between urban surfaces, with and without trees.
+View factors for radiation exchange between urban surfaces, combining cases with and without trees.
 
 # Fields
 ## Without trees (nT)
@@ -53,6 +115,34 @@ Base.@kwdef struct ViewFactor{FT<:AbstractFloat} <: AbstractViewFactor{FT}
     F_tw_T::FT = FT(0)
     F_ts_T::FT = FT(0)
     F_tt_T::FT = FT(0)
+end
+
+function ViewFactor(
+    no_trees::ViewFactorNoTrees{FT}, with_trees::ViewFactorWithTrees{FT}
+) where {FT<:AbstractFloat}
+    ViewFactor{FT}(;
+        F_gs_nT=no_trees.F_gs,
+        F_gw_nT=no_trees.F_gw,
+        F_ww_nT=no_trees.F_ww,
+        F_wg_nT=no_trees.F_wg,
+        F_ws_nT=no_trees.F_ws,
+        F_sg_nT=no_trees.F_sg,
+        F_sw_nT=no_trees.F_sw,
+        F_gs_T=with_trees.F_gs,
+        F_gt_T=with_trees.F_gt,
+        F_gw_T=with_trees.F_gw,
+        F_ww_T=with_trees.F_ww,
+        F_wt_T=with_trees.F_wt,
+        F_wg_T=with_trees.F_wg,
+        F_ws_T=with_trees.F_ws,
+        F_sg_T=with_trees.F_sg,
+        F_sw_T=with_trees.F_sw,
+        F_st_T=with_trees.F_st,
+        F_tg_T=with_trees.F_tg,
+        F_tw_T=with_trees.F_tw,
+        F_ts_T=with_trees.F_ts,
+        F_tt_T=with_trees.F_tt,
+    )
 end
 
 """

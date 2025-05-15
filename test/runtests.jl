@@ -10,6 +10,10 @@ end
     include(joinpath("radiation", "Radiation.jl"))
 end
 
+@safetestset "RayTracing" begin
+    include(joinpath("ray_tracing", "RayTracing.jl"))
+end
+
 @safetestset "incoming_longwave" begin
     include("incoming_longwave.jl")
 end
