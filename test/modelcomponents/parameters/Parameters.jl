@@ -28,6 +28,10 @@ end
     include("PersonParameters.jl")
 end
 
+@safetestset "LocationProperties" begin
+    include("LocationProperties.jl")
+end
+
 @testset "Parameters" begin
     include("BuildingEnergyModelParameters.jl")
 end

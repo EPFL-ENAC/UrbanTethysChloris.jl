@@ -1,6 +1,3 @@
-abstract type AbstractParameterSet{FT<:AbstractFloat} <: AbstractModelComponentSet{FT} end
-const APS = AbstractParameterSet
-
 """
     ParameterSet{FT<:AbstractFloat} <: AbstractParameterSet{FT}
 
@@ -16,7 +13,7 @@ Parameters for the Urban Tethys-Chloris model.
 - `urbangeometry::UrbanGeometryParameters{FT}`: Parameters for the urban geometry.
 - `vegetation::VegetationParameters{FT}`: Parameters for the vegetation.
 """
-Base.@kwdef struct ParameterSet{FT<:AbstractFloat} <: APS{FT}
+Base.@kwdef struct ParameterSet{FT<:AbstractFloat} <: AbstractParameterSet{FT}
     building_energy::BuildingEnergyModelParameters{FT}
     person::PersonParameters{FT}
     soil::SoilParameters{FT}
@@ -25,6 +22,7 @@ Base.@kwdef struct ParameterSet{FT<:AbstractFloat} <: APS{FT}
     optical::OpticalProperties{FT}
     urbangeometry::UrbanGeometryParameters{FT}
     vegetation::VegetationParameters{FT}
+    location::LocationProperties{FT}
 end
 
 function initialize_parameter_set(
@@ -56,6 +54,7 @@ function TethysChlorisCore.preprocess_fields(
         FT, data["urbangeometry"]
     )
     processed["vegetation"] = initialize_vegetationparameters(FT, data["vegetation"])
+    processed["location"] = initialize_locationproperties(FT, data["location"])
 
     return processed
 end

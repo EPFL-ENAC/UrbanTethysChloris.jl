@@ -8,6 +8,11 @@ surfacefractions:
     fbare: 0.0
     Per_runoff: 0.9
     fveg: 0.545
+location:
+  theta_canyon: 3.141592653589793
+  phi: 47.38
+  lambda: 8.56
+  DeltaGMT: 1.0
 optical:
   roof:
     aveg: 0.2

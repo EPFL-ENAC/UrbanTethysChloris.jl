@@ -30,6 +30,16 @@ Modules = [UrbanTethysChloris.RayTracing]
 
 ## Model Components
 
+### Forcing Inputs
+
+```@docs
+UrbanTethysChloris.ModelComponents.ForcingInputs.AnthropogenicInputs
+UrbanTethysChloris.ModelComponents.ForcingInputs.ForcingInputSet
+UrbanTethysChloris.ModelComponents.ForcingInputs.HVACSchedule
+UrbanTethysChloris.ModelComponents.ForcingInputs.MeteorologicalInputs
+UrbanTethysChloris.ModelComponents.ForcingInputs.SunPositionInputs
+```
+
 ### Parameters
 
 ```@docs

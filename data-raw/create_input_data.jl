@@ -1,4 +1,5 @@
 using NCDatasets
+using Dates
 using YAML
 using MAT
 
@@ -254,5 +255,59 @@ data["person"] = Dict{String,Any}(
     "HeightWind" => 1.1,
 )
 
+data["location"] = Dict{String,Any}(
+    "phi" => 47.38, "lambda" => 8.56, "theta_canyon" => deg2rad(180), "DeltaGMT" => 1.0
+)
+
 YAML.write_file(joinpath(@__DIR__, "..", "data", "parameters.yaml"), data)
 YAML.write_file(joinpath(@__DIR__, "..", "test", "data", "parameters.yaml"), data)
+
+## NetCDF section
+input_data = matread(joinpath(@__DIR__, "..", "data", "ForcingData_ZH2010_struct.mat"))
+input_data["Time"] = [
+    DateTime(
+        input_data["Time"][i, 1],
+        input_data["Time"][i, 2],
+        input_data["Time"][i, 3],
+        input_data["Time"][i, 4],
+        input_data["Time"][i, 5],
+    ) for i in axes(input_data["Time"], 1)
+]
+input_data["RelativeHumidity"] ./= 100.0
+
+filename = "input_data.nc"
+filepath = joinpath(@__DIR__, "..", "data", filename)
+
+isfile(filepath) && rm(filepath)
+
+ds = NCDataset(filepath, "c")
+defDim(ds, "hours", length(input_data["Time"]))
+defVar(ds, "datetime", input_data["Time"], ("hours",))
+
+# Meteorological inputs
+defVar(ds, "LWR_in", input_data["LWRin"], ("hours",))
+defVar(ds, "SAB1_in", input_data["SAB1"], ("hours",))
+defVar(ds, "SAB2_in", input_data["SAB2"], ("hours",))
+defVar(ds, "SAD1_in", input_data["SAD1"], ("hours",))
+defVar(ds, "SAD2_in", input_data["SAD2"], ("hours",))
+defVar(ds, "Tatm", input_data["Tatm"], ("hours",))
+defVar(ds, "Uatm", input_data["Windspeed"], ("hours",))
+defVar(ds, "Pre", input_data["Pressure_Pa"], ("hours",))
+defVar(ds, "Rain", input_data["Precipitation"], ("hours",))
+defVar(ds, "rel_hum", input_data["RelativeHumidity"], ("hours",))
+defVar(ds, "Zatm", 30.0, ())
+defVar(ds, "Catm_CO2", 400.0, ())
+defVar(ds, "Catm_O2", 210000.0, ())
+defVar(ds, "SunDSM_MRT", NaN, ())
+
+# Anthropogenic inputs
+defVar(ds, "Tbmin", 18.0, ())
+defVar(ds, "Tbmax", 30.0, ())
+defVar(ds, "Qf_canyon", 10.0, ())
+
+# Sun position inputs
+defVar(ds, "t_bef", 0.5, ())
+defVar(ds, "t_aft", 0.5, ())
+
+close(ds)
+cp(filepath, joinpath(@__DIR__, "..", "test", "data", filename); force=true)
