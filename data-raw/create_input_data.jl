@@ -303,7 +303,7 @@ defVar(ds, "SunDSM_MRT", NaN, ())
 # Anthropogenic inputs
 defVar(ds, "Tbmin", 18.0, ())
 defVar(ds, "Tbmax", 30.0, ())
-defVar(ds, "Qf_canyon", fill(10.0, length(input_data["Time"])), ("hours",))
+defVar(ds, "Qf_canyon", 10.0, ())
 
 # Sun position inputs
 defVar(ds, "t_bef", 0.5, ())

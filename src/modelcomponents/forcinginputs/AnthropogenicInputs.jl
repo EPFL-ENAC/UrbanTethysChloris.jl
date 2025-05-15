@@ -38,7 +38,11 @@ function TethysChlorisCore.preprocess_fields(
 
     for field in TethysChlorisCore.get_optional_fields(AnthropogenicInputs)
         if haskey(data, field)
-            processed[String(field)] = Array(data[field])
+            if dimnames(data[field]) == ()
+                processed[String(field)] = fill(FT(data[field][]), data.dim["hours"])
+            else
+                processed[String(field)] = Array(data[field])
+            end
         else
             processed[String(field)] = zeros(FT, data.dim["hours"])
         end
