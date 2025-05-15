@@ -48,6 +48,7 @@ person = PersonParameters{FT}(;
 end
 
 @testset "view_factors_ray_tracing_reciprocity" begin
+    Random.seed!(123)
     vf, vfp, vf_raw = view_factors_ray_tracing_reciprocity(
         H, W, a, ht, d, person, mc_sample_size, n_rays
     )
