@@ -15,3 +15,7 @@ end
 @safetestset "SunPositionInputs" begin
     include("SunPositionInputs.jl")
 end
+
+@safetestset "ForcingInputSet" begin
+    include("ForcingInputSet.jl")
+end
