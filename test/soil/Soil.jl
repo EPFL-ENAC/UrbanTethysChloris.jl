@@ -15,3 +15,7 @@ end
 @safetestset "soil_parameters2" begin
     include("soil_parameters2.jl")
 end
+
+@safetestset "soil_parameters_total" begin
+    include("soil_parameters_total.jl")
+end
