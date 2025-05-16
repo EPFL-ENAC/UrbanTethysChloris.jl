@@ -65,3 +65,51 @@ function conductivity_suction(
 
     return Ko, Po
 end
+
+function conductivity_suction(
+    SPAR::Int,
+    Ks::FT,
+    Osat::FT,
+    Ohy::FT,
+    L::FT,
+    Pe::FT,
+    O33::FT,
+    alpVG::FT,
+    nVG::FT,
+    O::Vector{FT},
+) where {FT<:AbstractFloat}
+    Ko = zeros(FT, length(O))
+    Po = zeros(FT, length(O))
+
+    for i in 1:length(O)
+        Ko[i], Po[i] = conductivity_suction(
+            SPAR, Ks, Osat, Ohy, L, Pe, O33, alpVG, nVG, O[i]
+        )
+    end
+
+    return Ko, Po
+end
+
+function conductivity_suction(
+    SPAR::Int,
+    Ks::Vector{FT},
+    Osat::Vector{FT},
+    Ohy::Vector{FT},
+    L::Vector{FT},
+    Pe::Vector{FT},
+    O33::Vector{FT},
+    alpVG::Vector{FT},
+    nVG::Vector{FT},
+    O::Vector{FT},
+) where {FT<:AbstractFloat}
+    Ko = zeros(FT, length(O))
+    Po = zeros(FT, length(O))
+
+    for i in 1:length(O)
+        Ko[i], Po[i] = conductivity_suction(
+            SPAR, Ks[i], Osat[i], Ohy[i], L[i], Pe[i], O33[i], alpVG[i], nVG[i], O[i]
+        )
+    end
+
+    return Ko, Po
+end

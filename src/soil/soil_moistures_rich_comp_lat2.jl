@@ -72,9 +72,7 @@ function soil_moistures_rich_comp_lat2(
     Olat[I2] .= Ohy + 1e-5
 
     # Get conductivity and suction using existing function
-    results = conductivity_suction.(SPAR, Ks, Osat, Ohy, L, Pe, O33, alpVG, nVG, Olat)
-    Ko = [x[1] for x in results]
-    Po = [x[2] for x in results]
+    Ko, Po = conductivity_suction(SPAR, Ks, Osat, Ohy, L, Pe, O33, alpVG, nVG, Olat)
 
     # Lateral water redistribution parameters
     a = 15.0        # Same conductivity in horizontal and vertical
