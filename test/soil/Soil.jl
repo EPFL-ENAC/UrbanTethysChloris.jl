@@ -20,6 +20,10 @@ end
     include("root_fraction_general.jl")
 end
 
+@safetestset "root_soil_conductance" begin
+    include("root_soil_conductance.jl")
+end
+
 @safetestset "soil_moistures_rich_comp" begin
     include("soil_moistures_rich_comp.jl")
 end
