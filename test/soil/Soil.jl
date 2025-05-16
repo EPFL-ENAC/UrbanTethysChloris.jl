@@ -28,6 +28,10 @@ end
     include("soil_moistures_rich_comp_lat2.jl")
 end
 
+@safetestset "soil_moistures_rich_comp_lat3" begin
+    include("soil_moistures_rich_comp_lat3.jl")
+end
+
 @safetestset "soil_parameters" begin
     include("soil_parameters.jl")
 end
