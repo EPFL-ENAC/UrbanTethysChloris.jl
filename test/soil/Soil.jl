@@ -20,6 +20,10 @@ end
     include("root_fraction_general.jl")
 end
 
+@safetestset "soil_moistures_rich_comp" begin
+    include("soil_moistures_rich_comp.jl")
+end
+
 @safetestset "soil_parameters" begin
     include("soil_parameters.jl")
 end
