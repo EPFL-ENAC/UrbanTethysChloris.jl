@@ -8,6 +8,10 @@ end
     include("evaporation_layers.jl")
 end
 
+@safetestset "infiltration" begin
+    include("infiltration.jl")
+end
+
 @safetestset "root_fraction_general" begin
     include("root_fraction_general.jl")
 end
