@@ -1,5 +1,6 @@
 module Soil
 
+include("conductivity_suction.jl")
 include("evaporation_layers.jl")
 include("root_fraction_general.jl")
 include("soil_parameters.jl")

@@ -1,5 +1,9 @@
 using SafeTestsets
 
+@safetestset "conductivity_suction" begin
+    include("conductivity_suction.jl")
+end
+
 @safetestset "evaporation_layers" begin
     include("evaporation_layers.jl")
 end
