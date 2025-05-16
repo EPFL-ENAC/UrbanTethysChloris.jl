@@ -12,5 +12,6 @@ include("soil_moistures_rich_comp_lat3.jl")
 include("soil_parameters.jl")
 include("soil_parameters2.jl")
 include("soil_parameters_total.jl")
+include("soil_water_multilayer.jl")
 
 end

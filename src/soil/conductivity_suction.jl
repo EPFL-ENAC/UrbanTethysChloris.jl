@@ -113,3 +113,39 @@ function conductivity_suction(
 
     return Ko, Po
 end
+
+function weighted_conductivity_suction(
+    SPAR::Int,
+    Ks::Vector{FT},
+    Osat::Vector{FT},
+    Ohy::Vector{FT},
+    L::Vector{FT},
+    Pe::Vector{FT},
+    O33::Vector{FT},
+    alpVG::Vector{FT},
+    nVG::Vector{FT},
+    O::FT,
+    weights::Vector{FT},
+) where {FT<:AbstractFloat}
+    Ks_weighted = sum(Ks .* weights)
+    Osat_weighted = sum(Osat .* weights)
+    Ohy_weighted = sum(Ohy .* weights)
+    L_weighted = sum(L .* weights)
+    Pe_weighted = sum(Pe .* weights)
+    O33_weighted = sum(O33 .* weights)
+    alpVG_weighted = sum(alpVG .* weights)
+    nVG_weighted = sum(nVG .* weights)
+
+    return conductivity_suction(
+        SPAR,
+        Ks_weighted,
+        Osat_weighted,
+        Ohy_weighted,
+        L_weighted,
+        Pe_weighted,
+        O33_weighted,
+        alpVG_weighted,
+        nVG_weighted,
+        O,
+    )
+end

@@ -47,3 +47,7 @@ end
 @safetestset "soil_parameters_total" begin
     include("soil_parameters_total.jl")
 end
+
+@safetestset "soil_water_multilayer" begin
+    include("soil_water_multilayer.jl")
+end
