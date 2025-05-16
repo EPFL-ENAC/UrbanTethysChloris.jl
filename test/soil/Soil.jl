@@ -12,6 +12,10 @@ end
     include("infiltration.jl")
 end
 
+@safetestset "leakage_bottom" begin
+    include("leakage_bottom.jl")
+end
+
 @safetestset "root_fraction_general" begin
     include("root_fraction_general.jl")
 end
