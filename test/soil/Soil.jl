@@ -48,6 +48,10 @@ end
     include("soil_parameters_total.jl")
 end
 
+@safetestset "soil_thermal_properties" begin
+    include("soil_thermal_properties.jl")
+end
+
 @safetestset "soil_water_multilayer" begin
     include("soil_water_multilayer.jl")
 end
