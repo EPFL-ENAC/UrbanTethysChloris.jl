@@ -1,21 +1,75 @@
 """
-    soil_water_multilayer!(hav, hsv, vav, ps, af, timestep, day)
+    soil_water_multilayer(
+        V::Vector{FT},
+        Zs::Vector{FT},
+        dz::Vector{FT},
+        n::Int,
+        Osat::Vector{FT},
+        Ohy::Vector{FT},
+        nVG::Vector{FT},
+        alpVG::Vector{FT},
+        Ks_Zs::Vector{FT},
+        L::Vector{FT},
+        Pe::Vector{FT},
+        O33::Vector{FT},
+        SPAR::Int,
+        EvL_Zs::Vector{FT},
+        Inf_Zs::Vector{FT},
+        RfH_Zs::Matrix{FT},
+        RfL_Zs::Matrix{FT},
+        Rrootl_H::Vector{FT},
+        Rrootl_L::Vector{FT},
+        PsiL50_H::Vector{FT},
+        PsiL50_L::Vector{FT},
+        PsiX50_H::Vector{FT},
+        PsiX50_L::Vector{FT}
+    ) where {FT<:AbstractFloat}
 
 Calculate soil water dynamics and potential water extraction rates.
 
 # Arguments
-- `hav`: Hydrologic auxiliary variables
-- `hsv`: Hydrologic state variables
-- `vav`: Vegetation auxiliary variables
-- `ps`: Model parameter set
-- `af`: Anthropogenic forcing inputs
-- `timestep`: Current simulation timestep
-- `day`: Current simulation day
+- `V`: Soil water volume per unit area [mm]
+- `Zs`: Soil layer depths [mm]
+- `dz`: Layer thicknesses [mm]
+- `n`: Number of soil layers [-]
+- `Osat`: Saturated water content [m³/m³]
+- `Ohy`: Hygroscopic water content [m³/m³]
+- `nVG`: van Genuchten n parameter [-]
+- `alpVG`: van Genuchten α parameter [1/mm]
+- `Ks_Zs`: Saturated hydraulic conductivity [mm/h]
+- `L`: Pore size distribution index [-]
+- `Pe`: Air entry pressure [kPa]
+- `O33`: Water content at -33 kPa [m³/m³]
+- `SPAR`: Soil parameterization choice:
+    1. van Genuchten (1980)
+    2. Saxton-Rawls (1986)
+- `EvL_Zs`: Evaporation layer fractions [-]
+- `Inf_Zs`: Infiltration layer fractions [-]
+- `RfH_Zs`: Root fraction distribution for high vegetation [-]
+- `RfL_Zs`: Root fraction distribution for low vegetation [-]
+- `Rrootl_H`: Root length density for high vegetation [mm/mm³]
+- `Rrootl_L`: Root length density for low vegetation [mm/mm³]
+- `PsiL50_H`: Leaf water potential at 50% loss for high vegetation [MPa]
+- `PsiL50_L`: Leaf water potential at 50% loss for low vegetation [MPa]
+- `PsiX50_H`: Xylem water potential at 50% loss for high vegetation [MPa]
+- `PsiX50_L`: Xylem water potential at 50% loss for low vegetation [MPa]
 
-Returns a tuple (Exwat_H, Exwat_L) where:
-- Exwat_H: Matrix [cc × n] of potential water extraction rates for high vegetation [mm/h]
-- Exwat_L: Matrix [cc × n] of potential water extraction rates for low vegetation [mm/h]
-where cc is the number of crown areas and n is the number of soil layers.
+# Returns
+- `O`: Volumetric soil moisture content [m³/m³]
+- `ZWT`: Water table depth [mm]
+- `OF`: Infiltration water content [-]
+- `OS`: Surface soil moisture [-]
+- `Psi_s_H`: Soil water potential for high vegetation [MPa]
+- `Psi_s_L`: Soil water potential for low vegetation [MPa]
+- `gsr_H`: Root-soil conductance for high vegetation [mmol/m²/s/MPa]
+- `gsr_L`: Root-soil conductance for low vegetation [mmol/m²/s/MPa]
+- `Exwat_H`: Water extraction rate for high vegetation [mm/h]
+- `Exwat_L`: Water extraction rate for low vegetation [mm/h]
+- `Rd`: Surface runoff [mm]
+- `WTR`: Water table rise [mm]
+- `POT`: Soil water potential [mm]
+- `OH`: Average soil moisture for high vegetation [-]
+- `OL`: Average soil moisture for low vegetation [-]
 """
 function soil_water_multilayer(
     V::Vector{FT},

@@ -1,22 +1,44 @@
 """
-    infiltration(Osat, Ohy, L, alpVG, nVG, lVG, Pe, Ks_Zs, O33, Ks_mac, Omac, alpVGM, nVGM, lVGM, Phy, s_SVG, bVG, SPAR, O, Dz, WIS, cosalp, Pond)
+    infiltration(
+        Osat::FT,
+        Ohy::FT,
+        L::FT,
+        alpVG::FT,
+        nVG::FT,
+        Pe::FT,
+        Ks_Zs::FT,
+        O33::FT,
+        SPAR::Int,
+        O::FT,
+        Dz::FT,
+        WIS::FT,
+        cosalp::FT,
+        Pond::FT
+    ) where {FT<:AbstractFloat}
 
 Calculate infiltration rates based on soil parameters and conditions.
 
 # Arguments
-- All input parameters should be of the same floating-point type
-- `Osat`: Saturation moisture at 0 kPa
-- `O`: Water Content Soil Active Layer for Infiltration
-- `L`: Slope of logarithmic tension-moisture curve
-- `Pe`: Tension at air entry (bubbling pressure) [kPa]
-- `Ks_Zs`: Saturation conductivity [mm/h]
-- `WIS`: Water Incoming to Soil Layer [mm/h]
+- `Osat`: Saturated water content [m³/m³]
+- `Ohy`: Hygroscopic water content [m³/m³]
+- `L`: Pore size distribution index [-]
+- `alpVG`: van Genuchten α parameter [1/mm]
+- `nVG`: van Genuchten n parameter [-]
+- `Pe`: Air entry pressure [kPa]
+- `Ks_Zs`: Saturated hydraulic conductivity [mm/h]
+- `O33`: Water content at -33 kPa [m³/m³]
+- `SPAR`: Soil parameterization choice:
+    1. van Genuchten (1980)
+    2. Saxton-Rawls (1986)
+- `O`: Current soil water content [m³/m³]
 - `Dz`: Distance from surface to half-layer [mm]
+- `WIS`: Water incoming to soil layer [mm/h]
+- `cosalp`: Cosine of slope angle [-]
 - `Pond`: Ponding depth [mm]
 
 # Returns
-- `f`: Infiltration rate [mm/h]
-- `fpot`: Potential Infiltration rate [mm/h]
+- `f`: Actual infiltration rate [mm/h]
+- `fpot`: Potential infiltration rate [mm/h]
 """
 function infiltration(
     Osat::FT,

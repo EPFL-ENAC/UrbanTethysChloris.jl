@@ -1,25 +1,29 @@
 """
-    soil_parameters(Psan::FT, Pcla::FT, Porg::FT) where {FT<:AbstractFloat}
+    soil_parameters(
+        Psan::FT,
+        Pcla::FT,
+        Porg::FT
+    ) where {FT<:AbstractFloat}
 
 Calculate soil hydraulic and thermal parameters based on soil texture composition.
 
 # Arguments
-- `Psan::AbstractFloat`: Sand fraction in soil [0-1]
-- `Pcla::AbstractFloat`: Clay fraction in soil [0-1]
-- `Porg::AbstractFloat`: Organic matter fraction in soil [0-1]
+- `Psan`: Sand fraction in soil [0-1]
+- `Pcla`: Clay fraction in soil [0-1]
+- `Porg`: Organic matter fraction in soil [0-1]
 
 # Returns
-A tuple containing:
-- `Osat`: Saturated soil water content [-]
-- `L`: Slope of logarithmic tension-moisture curve [-]
-- `Pe`: Air entry tension [kPa]
-- `Ks`: Saturated hydraulic conductivity [mm/h]
-- `O33`: Soil water content at 33 kPa [-]
-- `rsd`: Soil bulk density [kg/m³]
-- `lan_dry`: Thermal conductivity of dry soil [W/m K]
-- `lan_s`: Thermal conductivity of solid soil components [W/m K]
-- `cv_s`: Volumetric heat capacity of solid soil components [J/m³ K]
-- `K_usle`: USLE K factor for soil erodibility [kg*h/J*mm]
+- `Osat::FT`: Saturated soil water content [-]
+- `L::FT`: Slope of logarithmic tension-moisture curve [-]
+- `Pe::FT`: Air entry tension [kPa]
+- `Ks::FT`: Saturated hydraulic conductivity [mm/h]
+- `O33::FT`: Soil water content at 33 kPa [-]
+- `rsd::FT`: Soil bulk density [kg/m³]
+- `lan_dry::FT`: Thermal conductivity of dry soil [W/m K]
+- `lan_s::FT`: Thermal conductivity of solid soil components [W/m K]
+- `cv_s::FT`: Volumetric heat capacity of solid soil components [J/m³ K]
+- `K_usle::FT`: USLE K factor for soil erodibility [kg*h/J*mm]
+
 """
 function soil_parameters(Psan::FT, Pcla::FT, Porg::FT) where {FT<:AbstractFloat}
     # Check if the fractions are within the valid range

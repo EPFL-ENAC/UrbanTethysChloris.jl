@@ -1,50 +1,72 @@
 """
     soil_parameters_total(
-        Pcla::FT,      # Fraction of clay in the soil [-]
-        Psan::FT,      # Fraction of sand in the soil [-]
-        Porg::FT,      # Fraction of organic material in the soil [-]
-        Kfc::FT,       # Conductivity at field capacity [mm/h]
-        Phy::FT,       # Suction at the residual/hygroscopic water content [kPa]
-        SPAR::Int,     # SOIL PARAMETER TYPE 1-VanGenuchten 2-Saxton-Rawls
-        Kbot::FT,      # Conductivity at the bedrock layer [mm/h]
-        CASE_ROOT_H::Int,  # Type of Root Profile for high vegetation
-        CASE_ROOT_L::Int,  # Type of Root Profile for low vegetation
-        ZR95_H::Vector{FT},  # Root depth 95 percentile for high vegetation [mm]
-        ZR95_L::Vector{FT},  # Root depth 95 percentile for low vegetation [mm]
-        ZR50_H::Vector{FT},  # Root depth 50 percentile for high vegetation [mm]
-        ZR50_L::Vector{FT},  # Root depth 50 percentile for low vegetation [mm]
-        ZRmax_H::Vector{FT}, # Maximum Root depth for high vegetation [mm]
-        ZRmax_L::Vector{FT}, # Maximum Root depth for low vegetation [mm]
-        Zs::Vector{FT}       # soil layer discretization [mm]
+        Pcla::FT,
+        Psan::FT,
+        Porg::FT,
+        Kfc::FT,
+        Phy::FT,
+        SPAR::Int,
+        Kbot::FT,
+        CASE_ROOT_H::Int,
+        CASE_ROOT_L::Int,
+        ZR95_H::Vector{FT},
+        ZR95_L::Vector{FT},
+        ZR50_H::Vector{FT},
+        ZR50_L::Vector{FT},
+        ZRmax_H::Vector{FT},
+        ZRmax_L::Vector{FT},
+        Zs::Vector{FT}
     ) where {FT<:AbstractFloat}
 
-Returns:
-- `Zs::Vector{FT}`: soil layer discretization [mm]
-- `dz::Vector{FT}`: Thickness of soil layers [mm]
-- `ms::Int`: Number of soil layers [-]
-- `Osat::Vector{FT}`: Saturation moisture 0 kPa [-]
-- `Ohy::Vector{FT}`: Hygroscopic Moisture at 10000 kPa [-]
-- `nVG::Vector{FT}`: n parameter Van-Genuchten curve [1/mm]
-- `alpVG::Vector{FT}`: Alpha parameter Van-Genuchten curve [1/mm]
-- `Ks_Zs::Vector{FT}`: Hydraulic conductivity at saturation [mm/h]
-- `L::Vector{FT}`: Slope of logaritimc tension-moisture curve [-]
-- `Pe::Vector{FT}`: Tension at air entry (bubbling pressure) [kPa]
-- `O33::Vector{FT}`: 33 kPa Moisture [-]
-- `SPAR::Int`: SOIL PARAMETER TYPE 1-VanGenuchten 2-Saxton-Rawls
-- `EvL_Zs::Vector{FT}`: Fraction of evaporation depth per layer [-]
-- `Inf_Zs::Vector{FT}`: Fraction of infiltration depth per layer [-]
-- `RfH_Zs::Matrix{FT}`: Root Fraction for high vegetation [-]
-- `RfL_Zs::Matrix{FT}`: Root Fraction for low vegetation [-]
-- `Zinf::FT`: Depth of infiltration layer [mm]
-- `Kbot::FT`: Conductivity at bedrock layer [mm/h]
-- `Slo_pot::Vector{FT}`: Fraction dy/dx [-]
-- `Dz::Vector{FT}`: Delta depth between layers [mm]
-- `aR::FT`: anisotropy ratio [-]
-- `aTop::FT`: Ratio Area/ContourLength [mm]
-- `rsd::Vector{FT}`: Normal density dry soil [kg/m^3]
-- `lan_dry::Vector{FT}`: Thermal conductivity dry soil [W/m K]
-- `lan_s::Vector{FT}`: Thermal conductivity solid soil [W/m K]
-- `cv_s::Vector{FT}`: Volumetric heat capacity solid soil [J/m^3 K]
+Calculate total soil parameters based on composition and root distribution.
+
+# Arguments
+- `Pcla`: Clay fraction in soil [-]
+- `Psan`: Sand fraction in soil [-]
+- `Porg`: Organic matter fraction in soil [-]
+- `Kfc`: Hydraulic conductivity at field capacity [mm/h]
+- `Phy`: Soil water potential at hygroscopic point [kPa]
+- `SPAR`: Soil parameterization choice:
+    1. van Genuchten (1980)
+    2. Saxton-Rawls (1986)
+- `Kbot`: Hydraulic conductivity at bottom boundary [mm/h]
+- `CASE_ROOT_H`: Root distribution type for high vegetation [-]
+- `CASE_ROOT_L`: Root distribution type for low vegetation [-]
+- `ZR95_H`: 95th percentile root depth for high vegetation [mm]
+- `ZR95_L`: 95th percentile root depth for low vegetation [mm]
+- `ZR50_H`: 50th percentile root depth for high vegetation [mm]
+- `ZR50_L`: 50th percentile root depth for low vegetation [mm]
+- `ZRmax_H`: Maximum root depth for high vegetation [mm]
+- `ZRmax_L`: Maximum root depth for low vegetation [mm]
+- `Zs`: Soil layer depths [mm]
+
+# Returns
+- `Zs`: Soil layer depths [mm]
+- `dz`: Layer thicknesses [mm]
+- `ms`: Number of soil layers [-]
+- `Osat`: Saturated water content [m³/m³]
+- `Ohy`: Hygroscopic water content [m³/m³]
+- `nVG`: van Genuchten n parameter [-]
+- `alpVG`: van Genuchten α parameter [1/mm]
+- `Ks_Zs`: Saturated hydraulic conductivity [mm/h]
+- `L`: Pore size distribution index [-]
+- `Pe`: Air entry pressure [kPa]
+- `O33`: Water content at -33 kPa [m³/m³]
+- `SPAR`: Soil parameterization type [-]
+- `EvL_Zs`: Evaporation layer fractions [-]
+- `Inf_Zs`: Infiltration layer fractions [-]
+- `RfH_Zs`: Root fraction distribution for high vegetation [-]
+- `RfL_Zs`: Root fraction distribution for low vegetation [-]
+- `Zinf`: Infiltration depth [mm]
+- `Kbot`: Bottom boundary conductivity [mm/h]
+- `Slo_pot`: Slope fractions [-]
+- `Dz`: Layer center distances [mm]
+- `aR`: Horizontal length scale [-]
+- `aTop`: Area to contour length ratio [mm]
+- `rsd`: Dry soil density [kg/m³]
+- `lan_dry`: Dry soil thermal conductivity [W/m K]
+- `lan_s`: Solid soil thermal conductivity [W/m K]
+- `cv_s`: Solid soil volumetric heat capacity [J/m³ K]
 """
 function soil_parameters_total(
     Pcla::FT,

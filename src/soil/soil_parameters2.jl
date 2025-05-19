@@ -11,31 +11,34 @@
         Pss::FT,
         Pwp::FT,
         Phy::FT,
-        SPAR::Int = 2
+        Ohy::Vector{FT}=zeros(FT, length(Osat)),
+        SPAR::Int=2
     ) where {FT<:AbstractFloat}
 
 Calculate soil moisture retention points based on soil hydraulic parameters.
 
 # Arguments
-- `Osat::Vector{FT}`: Saturated soil water content
-- `L::Vector{FT}`: Pore size distribution index
-- `Pe::Vector{FT}`: Air entry pressure
-- `Ks::Vector{FT}`: Saturated hydraulic conductivity
-- `O33::Vector{FT}`: Soil water content at -33 kPa
-- `nVG::Vector{FT}`: van Genuchten n parameter
-- `alpVG::Vector{FT}`: van Genuchten α parameter
-- `Kfc::FT`: Hydraulic conductivity at field capacity
-- `Pss::FT`: Soil water potential at steady state
-- `Pwp::FT`: Permanent wilting point potential
-- `Phy::FT`: Hygroscopic point potential
-- `SPAR::Int=2`: Soil parameter set (1: van Genuchten, 2: Brooks-Corey)
+- `Osat::Vector{FT}`: Saturated soil water content [-]
+- `L::Vector{FT}`: Pore size distribution index [-]
+- `Pe::Vector{FT}`: Air entry pressure [kPa]
+- `Ks::Vector{FT}`: Saturated hydraulic conductivity [mm/h]
+- `O33::Vector{FT}`: Soil water content at -33 kPa [-]
+- `nVG::Vector{FT}`: van Genuchten n parameter [-]
+- `alpVG::Vector{FT}`: van Genuchten α parameter [1/mm]
+- `Kfc::FT`: Hydraulic conductivity at field capacity [mm/h]
+- `Pss::FT`: Soil water potential at steady state [kPa]
+- `Pwp::FT`: Permanent wilting point potential [kPa]
+- `Phy::FT`: Hygroscopic point potential [kPa]
+- `Ohy::Vector{FT}`: Initial hygroscopic water content [-]
+- `SPAR::Int`: Soil parameter set:
+    1. van Genuchten (1980)
+    2. Brooks-Corey (default)
 
 # Returns
-A tuple of four vectors:
-- `Ofc`: Soil water content at field capacity
-- `Oss`: Soil water content at steady state
-- `Owp`: Soil water content at wilting point
-- `Ohy`: Soil water content at hygroscopic point
+- `Ofc::Vector{FT}`: Soil water content at field capacity [-]
+- `Oss::Vector{FT}`: Soil water content at steady state [-]
+- `Owp::Vector{FT}`: Soil water content at wilting point [-]
+- `Ohy::Vector{FT}`: Soil water content at hygroscopic point [-]
 """
 function soil_parameters2(
     Osat::Vector{FT},

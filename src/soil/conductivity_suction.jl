@@ -12,6 +12,46 @@
         O::FT
     ) where {FT<:AbstractFloat}
 
+    conductivity_suction(
+        SPAR::Int,
+        Ks::FT,
+        Osat::FT,
+        Ohy::FT,
+        L::FT,
+        Pe::FT,
+        O33::FT,
+        alpVG::FT,
+        nVG::FT,
+        O::Vector{FT},
+    ) where {FT<:AbstractFloat}
+
+    conductivity_suction(
+        SPAR::Int,
+        Ks::Vector{FT},
+        Osat::Vector{FT},
+        Ohy::Vector{FT},
+        L::Vector{FT},
+        Pe::Vector{FT},
+        O33::Vector{FT},
+        alpVG::Vector{FT},
+        nVG::Vector{FT},
+        O::Vector{FT},
+    ) where {FT<:AbstractFloat}
+
+    weighted_conductivity_suction(
+        SPAR::Int,
+        Ks::Vector{FT},
+        Osat::Vector{FT},
+        Ohy::Vector{FT},
+        L::Vector{FT},
+        Pe::Vector{FT},
+        O33::Vector{FT},
+        alpVG::Vector{FT},
+        nVG::Vector{FT},
+        O::FT,
+        weights::Vector{FT},
+    ) where {FT<:AbstractFloat}
+
 Calculate soil hydraulic conductivity and matric suction using specified model.
 
 # Arguments
@@ -27,15 +67,11 @@ Calculate soil hydraulic conductivity and matric suction using specified model.
 - `alpVG`: Van Genuchten α parameter [1/mm]
 - `nVG`: Van Genuchten n parameter [-]
 - `O`: Current water content [m³/m³]
+- `weights`: Weights for each soil layer [dimensionless]
 
 # Returns
-Tuple containing:
 - `Ko`: Unsaturated hydraulic conductivity [mm/h]
 - `Po`: Matric potential [mm]
-
-# References
-- van Genuchten (1980): Soil Science Society of America Journal, 44(5), 892-898
-- Saxton & Rawls (1986): Soil Science Society of America Journal, 50(4), 1031-1036
 """
 function conductivity_suction(
     SPAR::Int, Ks::FT, Osat::FT, Ohy::FT, L::FT, Pe::FT, O33::FT, alpVG::FT, nVG::FT, O::FT

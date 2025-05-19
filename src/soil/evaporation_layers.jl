@@ -1,5 +1,5 @@
 """
-    evaporation_layers(Zs, Zdes)
+    evaporation_layers(Zs::Vector{FT}, Zdes::FT)
 
 Calculate the evaporation layer fraction for each soil layer based on the desorption depth.
 

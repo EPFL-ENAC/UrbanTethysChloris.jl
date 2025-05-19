@@ -1,9 +1,35 @@
 """
-    root_fraction_general(Zs, CASE_ROOT, ZR95_H, ZR50_H, ZR95_L, ZR50_L, ZRmax_H, ZRmax_L)
+    root_fraction_general(
+        Zs::Vector{FT},
+        CASE_ROOT::Int,
+        ZR95_H::Vector{FT},
+        ZR50_H::Vector{FT},
+        ZR95_L::Vector{FT},
+        ZR50_L::Vector{FT},
+        ZRmax_H::Vector{FT},
+        ZRmax_L::Vector{FT}
+    ) where {FT<:AbstractFloat}
 
-Compute root fraction distributions for high and low vegetation.
+Compute root fraction distributions for high and low vegetation using different root profile models.
 
-Returns (RfH_Zs, RfL_Zs) - Root fractions for high and low vegetation
+# Arguments
+- `Zs`: Soil layer depths [mm]
+- `CASE_ROOT`: Root profile type:
+    1. Exponential (Arora and Boer 2005)
+    2. Linear Dose Response (Schenk and Jackson 2002)
+    3. Constant Profile
+    4. Deep (Tap) Root Profile
+- `ZR95_H`: 95th percentile root depth for high vegetation [mm]
+- `ZR50_H`: 50th percentile root depth for high vegetation [mm]
+- `ZR95_L`: 95th percentile root depth for low vegetation [mm]
+- `ZR50_L`: 50th percentile root depth for low vegetation [mm]
+- `ZRmax_H`: Maximum root depth for high vegetation [mm]
+- `ZRmax_L`: Maximum root depth for low vegetation [mm]
+
+# Returns
+- `RfH_Zs`: Root fraction distribution for high vegetation [dimensionless]
+- `RfL_Zs`: Root fraction distribution for low vegetation [dimensionless]
+
 """
 function root_fraction_general(
     Zs::Vector{FT},

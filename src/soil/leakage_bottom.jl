@@ -1,21 +1,33 @@
 """
-    leakage_bottom(O, Ks_Zs, Osat, Ohy, L, nVG, Kbot, ms, SPAR)
+    leakage_bottom(
+        O::Vector{FT},
+        Ks_Zs::Vector{FT},
+        Osat::Vector{FT},
+        Ohy::Vector{FT},
+        L::Vector{FT},
+        nVG::Vector{FT},
+        Kbot::FT,
+        ms::Int,
+        SPAR::Int
+    ) where {FT<:AbstractFloat}
 
 Calculate bottom leakage for soil water movement.
 
 # Arguments
-- `O`: Soil water content
+- `O`: Soil water content [m³/m³]
 - `Ks_Zs`: Saturated hydraulic conductivity [mm/h]
-- `Osat`: Saturated water content
-- `Ohy`: Residual water content
-- `L`: Lambda parameter
-- `nVG`: van Genuchten n parameter
-- `Kbot`: Bottom hydraulic conductivity [mm/h]
-- `ms`: Layer index
-- `SPAR`: Soil parameter set selector
+- `Osat`: Saturated water content [m³/m³]
+- `Ohy`: Hygroscopic water content [m³/m³]
+- `L`: Pore size distribution index [-]
+- `nVG`: van Genuchten n parameter [-]
+- `Kbot`: Bottom boundary hydraulic conductivity [mm/h]
+- `ms`: Index of bottom soil layer [-]
+- `SPAR`: Soil parameterization choice:
+    1. van Genuchten (1980)
+    2. Saxton-Rawls (1986)
 
 # Returns
-- `Lk`: Bottom leakage [mm/h]
+- `Lk`: Bottom boundary leakage flux [mm/h]
 """
 function leakage_bottom(
     O::Vector{FT},

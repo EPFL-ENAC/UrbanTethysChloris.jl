@@ -20,10 +20,35 @@
         Wcan::FT
     ) where {FT<:AbstractFloat}
 
-Calculate lateral soil moisture redistribution between three soil columns (impervious, bare, vegetated).
+Calculate lateral soil moisture redistribution between three soil columns.
+
+# Arguments
+- `Vlat`: Soil water volume per unit area for each column [mm]
+- `dz`: Soil layer thickness [mm]
+- `SPAR`: Soil parameterization choice:
+    1. van Genuchten (1980)
+    2. Saxton-Rawls (1986)
+- `Ks`: Saturated hydraulic conductivity [mm/h]
+- `Osat`: Saturated water content [m³/m³]
+- `Ohy`: Hygroscopic water content [m³/m³]
+- `L`: Pore size distribution index [-]
+- `Pe`: Air entry pressure [kPa]
+- `O33`: Water content at -33 kPa [m³/m³]
+- `alpVG`: van Genuchten α parameter [1/mm]
+- `nVG`: van Genuchten n parameter [-]
+- `Cimp`: Contact length of impervious column [mm]
+- `Cbare`: Contact length of bare soil column [mm]
+- `Cveg`: Contact length of vegetated column [mm]
+- `fimp`: Fraction of impervious area [-]
+- `fbare`: Fraction of bare soil area [-]
+- `fveg`: Fraction of vegetated area [-]
+- `Wcan`: Canyon width [mm]
 
 # Returns
-- `dVlat`: Change rates of soil water volume per unit area for the three columns [mm/h]
+- `dVlat::Vector{FT}`: Change rates of soil water volume [mm/h] for:
+    1. Impervious column
+    2. Bare soil column
+    3. Vegetated column
 """
 function soil_moistures_rich_comp_lat3(
     Vlat::Vector{FT},
