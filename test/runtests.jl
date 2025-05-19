@@ -18,6 +18,10 @@ end
     include(joinpath("soil", "Soil.jl"))
 end
 
+@safetestset "Water" begin
+    include(joinpath("water", "Water.jl"))
+end
+
 @safetestset "incoming_longwave" begin
     include("incoming_longwave.jl")
 end
