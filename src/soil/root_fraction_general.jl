@@ -66,27 +66,35 @@ function root_fraction_general(
         for j in 1:cc
             if ZR95_H[j] != 0
                 i = 1
-                while i <= n
-                    if ZR95_H[j] > Zs[i + 1]
-                        RfH_Zs[j, i] = exp(-eta_H[j] * Zs[i]) - exp(-eta_H[j] * Zs[i + 1])
-                    else
-                        RfH_Zs[j, i] = exp(-eta_H[j] * Zs[i]) - exp(-eta_H[j] * ZR95_H[j])
-                        break
+                if ZR95_H[j] ≠ 0.0
+                    while i <= n
+                        if ZR95_H[j] > Zs[i + 1]
+                            RfH_Zs[j, i] =
+                                exp(-eta_H[j] * Zs[i]) - exp(-eta_H[j] * Zs[i + 1])
+                        else
+                            RfH_Zs[j, i] =
+                                exp(-eta_H[j] * Zs[i]) - exp(-eta_H[j] * ZR95_H[j])
+                            break
+                        end
+                        i += 1
                     end
-                    i += 1
                 end
             end
 
             if ZR95_L[j] != 0
                 i = 1
-                while i <= n
-                    if ZR95_L[j] > Zs[i + 1]
-                        RfL_Zs[j, i] = exp(-eta_L[j] * Zs[i]) - exp(-eta_L[j] * Zs[i + 1])
-                    else
-                        RfL_Zs[j, i] = exp(-eta_L[j] * Zs[i]) - exp(-eta_L[j] * ZR95_L[j])
-                        break
+                if ZR95_L[j] ≠ 0.0
+                    while i <= n
+                        if ZR95_L[j] > Zs[i + 1]
+                            RfL_Zs[j, i] =
+                                exp(-eta_L[j] * Zs[i]) - exp(-eta_L[j] * Zs[i + 1])
+                        else
+                            RfL_Zs[j, i] =
+                                exp(-eta_L[j] * Zs[i]) - exp(-eta_L[j] * ZR95_L[j])
+                            break
+                        end
+                        i += 1
                     end
-                    i += 1
                 end
             end
 
@@ -238,16 +246,6 @@ function root_fraction_general(
                     i += 1
                 end
             end
-        end
-    end
-
-    # Handle unspecified roots
-    for j in 1:cc
-        if sum(RfH_Zs[j, :]) == 0
-            RfH_Zs[j, 1] = 1
-        end
-        if sum(RfL_Zs[j, :]) == 0
-            RfL_Zs[j, 1] = 1
         end
     end
 
