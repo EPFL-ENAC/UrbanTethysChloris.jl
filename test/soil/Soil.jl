@@ -51,3 +51,7 @@ end
 @safetestset "soil_water_multilayer" begin
     include("soil_water_multilayer.jl")
 end
+
+@safetestset "volume_correction" begin
+    include("volume_correction.jl")
+end
