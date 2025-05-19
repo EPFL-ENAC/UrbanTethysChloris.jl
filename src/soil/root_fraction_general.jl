@@ -53,7 +53,7 @@ function root_fraction_general(
             ZR95_L[j] > Zs[n + 1] ||
             ZRmax_H[j] > Zs[n + 1] ||
             ZRmax_L[j] > Zs[n + 1]
-            println("ERROR: LAST LAYER TOO SHALLOW FOR ACCOMODATING ROOTS")
+            @warn "ERROR: LAST LAYER TOO SHALLOW FOR ACCOMODATING ROOTS"
             return RfH_Zs, RfL_Zs
         end
     end

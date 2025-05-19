@@ -22,12 +22,12 @@ function evaporation_layers(Zs::Vector{FT}, Zdes::FT) where {FT<:AbstractFloat}
     EvL_Zs = zeros(n)
 
     if Zdes < Zs[1]
-        println("ERROR FIRST LAYER TOO DEEP")
+        @warn "ERROR FIRST LAYER TOO DEEP"
         return EvL_Zs
     end
 
     if Zdes > Zs[n + 1]
-        println("ERROR LAST LAYER TOO SHALLOW")
+        @warn "ERROR LAST LAYER TOO SHALLOW"
         return EvL_Zs
     end
 
