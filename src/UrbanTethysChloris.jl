@@ -13,6 +13,9 @@ using .RayTracing
 include(joinpath("radiation", "Radiation.jl"))
 using .Radiation
 
+include(joinpath("soil", "Soil.jl"))
+using .Soil
+
 include("incoming_longwave.jl")
 include("set_sun_variables.jl")
 
