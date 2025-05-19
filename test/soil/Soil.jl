@@ -24,6 +24,10 @@ end
     include("root_soil_conductance.jl")
 end
 
+@safetestset "soil_moisture_conductivity_update" begin
+    include("soil_moisture_conductivity_update.jl")
+end
+
 @safetestset "soil_moistures_rich_comp" begin
     include("soil_moistures_rich_comp.jl")
 end

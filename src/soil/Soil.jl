@@ -15,5 +15,6 @@ include("soil_parameters_total.jl")
 include("soil_thermal_properties.jl")
 include("soil_water_multilayer.jl")
 include("volume_correction.jl")
+include("soil_moisture_conductivity_update.jl")
 
 end
