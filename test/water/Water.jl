@@ -11,3 +11,7 @@ end
 @safetestset "water_soil" begin
     include("water_soil.jl")
 end
+
+@safetestset "water_vegetation" begin
+    include("water_vegetation.jl")
+end
