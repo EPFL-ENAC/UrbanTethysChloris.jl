@@ -65,6 +65,24 @@ Calculate soil water dynamics and hydrological fluxes.
 - `PsiX50_L`: Xylem water potential at 50% loss for low vegetation [MPa]
 - `Zs`: Soil layer depths [mm]
 - `row`: Water density [kg/m³]
+
+# Returns
+- `V`: Water volume in each soil layer [mm]
+- `O`: Soil moisture in each soil layer [-]
+- `OS`: Surface soil moisture [-]
+- `Lk`: Leakage at bedrock [mm/h]
+- `Psi_s_H`: Soil water potential for high vegetation [MPa]
+- `Psi_s_L`: Soil water potential for low vegetation [MPa]
+- `Exwat_H`: Maximum extractable water for high vegetation [mm]
+- `Exwat_L`: Maximum extractable water for low vegetation [mm]
+- `Rd`: Saturation excess runoff [mm/dth]
+- `TE_L`: Updated low vegetation transpiration [kg/m²s]
+- `TE_H`: Updated high vegetation transpiration [kg/m²s]
+- `E_soil`: Updated soil evaporation [kg/m²s]
+- `dV_dt`: Change in water volume [mm/dth]
+- `WBalance_soil`: Water balance check [mm/dth]
+- `Psi_soil`: Soil water potential profile [mm]
+- `Ko`: Hydraulic conductivity profile [mm/h]
 """
 function water_soil(
     Otm1::Vector{FT},

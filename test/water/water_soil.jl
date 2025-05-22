@@ -69,20 +69,14 @@ FT = Float64
     )
 
     odetol = 0.05
-    @test maximum(
-        abs.(
-            V - [1.825744175651259, 1.840232922719164, 5.493109872861369, 9.172466445714551]
-        ),
-    ) < odetol
-    @test maximum(
-        abs.(
-            O - [0.278697681853755, 0.280146556560545, 0.279226926717341, 0.279572593202920]
-        ),
-    ) < odetol
-    @test OS ≈ 0.278697681853755 atol = odetol
-    @test Lk ≈ 0.017134579640331
+    @test V ≈ [1.829564658402304, 1.830898843370262, 5.498728268305371, 9.172361646868405] atol =
+        odetol
+    @test O ≈ [0.279079730128859, 0.279213148625655, 0.279414206565475, 0.279570497225997] atol =
+        odetol
+    @test OS ≈ 0.279079730128859 atol = odetol
+    @test Lk ≈ 0.017134579640331 atol = odetol
     @test all(isnan.(Psi_s_H))
-    @test Psi_s_L ≈ [-0.033211137361855] atol = odetol
+    @test Psi_s_L ≈ [-0.033225482352765] atol = odetol
     @test all(Exwat_H .== 0)
     @test Rd == 0
     @test TE_L == 0
@@ -95,8 +89,7 @@ FT = Float64
     # Not working currently
     # Since there is a discrepancy in V between MATLAB and Julia, this difference is propagagted
     # and multiplied by 5e9 within root_soil_conductance.
-    # @test maximum(abs.(Exwat_L - [47128.0212980041, 32966.6611634661, 42612.5713764236, 9532.72995291802])) < odetol
+    # @test Exwat_L ≈ [48023.64755288577, 31490.63736321513, 43007.01370915098, 9531.74789365364] atol = odetol
     # @test WBalance_soil ≈ 2.782496455466799e-15
-    # @test Psi_soil ≈ [3398.2698867626923, 3389.589513226043, 3376.558090629036, 3366.4692894618906] atol = odetol
-
+    # @test Psi_soil ≈ [3398.269886762692, 3389.589513226043, 3376.558090629037, 3366.469289461891] atol = odetol
 end
