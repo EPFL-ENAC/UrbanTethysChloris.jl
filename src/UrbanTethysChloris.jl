@@ -16,6 +16,9 @@ using .Radiation
 include(joinpath("soil", "Soil.jl"))
 using .Soil
 
+include(joinpath("water", "Water.jl"))
+using .Water
+
 include("incoming_longwave.jl")
 include("set_sun_variables.jl")
 

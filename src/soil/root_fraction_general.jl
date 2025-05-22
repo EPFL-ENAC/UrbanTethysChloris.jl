@@ -64,8 +64,8 @@ function root_fraction_general(
         eta_L = 3 ./ ZR95_L
 
         for j in 1:cc
-            if ZR95_H[j] != 0
-                i = 1
+            i = 1
+            if ZR95_H[j] ≠ 0.0
                 while i <= n
                     if ZR95_H[j] > Zs[i + 1]
                         RfH_Zs[j, i] = exp(-eta_H[j] * Zs[i]) - exp(-eta_H[j] * Zs[i + 1])
@@ -77,8 +77,8 @@ function root_fraction_general(
                 end
             end
 
-            if ZR95_L[j] != 0
-                i = 1
+            i = 1
+            if ZR95_L[j] ≠ 0.0
                 while i <= n
                     if ZR95_L[j] > Zs[i + 1]
                         RfL_Zs[j, i] = exp(-eta_L[j] * Zs[i]) - exp(-eta_L[j] * Zs[i + 1])
@@ -238,16 +238,6 @@ function root_fraction_general(
                     i += 1
                 end
             end
-        end
-    end
-
-    # Handle unspecified roots
-    for j in 1:cc
-        if sum(RfH_Zs[j, :]) == 0
-            RfH_Zs[j, 1] = 1
-        end
-        if sum(RfL_Zs[j, :]) == 0
-            RfL_Zs[j, 1] = 1
         end
     end
 

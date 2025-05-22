@@ -83,7 +83,7 @@ FT = Float64
     @test all(cv_s .≈ 2.226788982559455e6)
 
     # Test root fractions against known values
-    expected_RfH_Zs = [[1.0]; zeros(15)]
+    expected_RfH_Zs = zeros(16)
     expected_RfL_Zs = [
         [
             0.119006065336605,

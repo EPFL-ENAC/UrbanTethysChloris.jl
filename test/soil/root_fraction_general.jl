@@ -20,8 +20,6 @@ FT = Float64
         Zs, CASE_ROOT, ZR95_H, ZR50_H, ZR95_L, ZR50_L, ZRmax_H, ZRmax_L
     )
 
-    expected_RfH_Zs = [[1.0]; zeros(15)]
-
     expected_RfL_Zs = [
         [
             0.119006065336605,
@@ -35,6 +33,6 @@ FT = Float64
         zeros(9)
     ]
 
-    @test all(vec(RfH_Zs) .≈ expected_RfH_Zs)
+    @test all(vec(RfH_Zs) .== 0)
     @test all(vec(RfL_Zs) .≈ expected_RfL_Zs)
 end

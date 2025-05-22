@@ -34,6 +34,12 @@ Modules = [UrbanTethysChloris.RayTracing]
 Modules = [UrbanTethysChloris.Soil]
 ```
 
+## Water
+
+```@autodocs
+Modules = [UrbanTethysChloris.Water]
+```
+
 ## Model Components
 
 ### Forcing Inputs
