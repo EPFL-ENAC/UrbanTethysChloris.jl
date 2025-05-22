@@ -18,7 +18,7 @@ FT = Float64
     )
 
     @test q_runon_imp ≈ 0
-    @test In_imp ≈ 00.016000816275649
+    @test In_imp ≈ 0.016000816275649
     @test dIn_imp_dt ≈ 0.008213627171287
     @test Lk_imp ≈ 0.0
     @test WBalance_In_imp ≈ 0.0 atol=eps(FT)
