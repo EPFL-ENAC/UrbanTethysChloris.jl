@@ -64,37 +64,29 @@ function root_fraction_general(
         eta_L = 3 ./ ZR95_L
 
         for j in 1:cc
-            if ZR95_H[j] != 0
-                i = 1
-                if ZR95_H[j] ≠ 0.0
-                    while i <= n
-                        if ZR95_H[j] > Zs[i + 1]
-                            RfH_Zs[j, i] =
-                                exp(-eta_H[j] * Zs[i]) - exp(-eta_H[j] * Zs[i + 1])
-                        else
-                            RfH_Zs[j, i] =
-                                exp(-eta_H[j] * Zs[i]) - exp(-eta_H[j] * ZR95_H[j])
-                            break
-                        end
-                        i += 1
+            i = 1
+            if ZR95_H[j] ≠ 0.0
+                while i <= n
+                    if ZR95_H[j] > Zs[i + 1]
+                        RfH_Zs[j, i] = exp(-eta_H[j] * Zs[i]) - exp(-eta_H[j] * Zs[i + 1])
+                    else
+                        RfH_Zs[j, i] = exp(-eta_H[j] * Zs[i]) - exp(-eta_H[j] * ZR95_H[j])
+                        break
                     end
+                    i += 1
                 end
             end
 
-            if ZR95_L[j] != 0
-                i = 1
-                if ZR95_L[j] ≠ 0.0
-                    while i <= n
-                        if ZR95_L[j] > Zs[i + 1]
-                            RfL_Zs[j, i] =
-                                exp(-eta_L[j] * Zs[i]) - exp(-eta_L[j] * Zs[i + 1])
-                        else
-                            RfL_Zs[j, i] =
-                                exp(-eta_L[j] * Zs[i]) - exp(-eta_L[j] * ZR95_L[j])
-                            break
-                        end
-                        i += 1
+            i = 1
+            if ZR95_L[j] ≠ 0.0
+                while i <= n
+                    if ZR95_L[j] > Zs[i + 1]
+                        RfL_Zs[j, i] = exp(-eta_L[j] * Zs[i]) - exp(-eta_L[j] * Zs[i + 1])
+                    else
+                        RfL_Zs[j, i] = exp(-eta_L[j] * Zs[i]) - exp(-eta_L[j] * ZR95_L[j])
+                        break
                     end
+                    i += 1
                 end
             end
 
