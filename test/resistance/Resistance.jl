@@ -27,3 +27,7 @@ end
 @safetestset "soil_resistance" begin
     include("soil_resistance.jl")
 end
+
+@safetestset "enhancement_factor_ra_pleim" begin
+    include("enhancement_factor_ra_pleim.jl")
+end
