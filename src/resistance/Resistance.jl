@@ -1,8 +1,10 @@
 module Resistance
 
+using Roots
 using ..Soil
 
 include("aerodynamic_resistance.jl")
+include("canopy_resistance_an_evolution.jl")
 include("co2_concentration.jl")
 include("leaf_boundary_resistance.jl")
 include("photosynthesis_biochemical.jl")

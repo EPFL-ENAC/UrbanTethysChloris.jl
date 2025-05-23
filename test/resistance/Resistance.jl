@@ -4,6 +4,10 @@ using SafeTestsets
     include("aerodynamic_resistance.jl")
 end
 
+@safetestset "canopy_resistance_an_evolution" begin
+    include("canopy_resistance_an_evolution.jl")
+end
+
 @safetestset "co2_concentration" begin
     include("co2_concentration.jl")
 end
