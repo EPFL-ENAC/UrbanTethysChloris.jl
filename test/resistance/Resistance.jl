@@ -39,3 +39,7 @@ end
 @safetestset "urban_roughness" begin
     include("urban_roughness.jl")
 end
+
+@safetestset "wind_profile_canyon" begin
+    include("wind_profile_canyon.jl")
+end
