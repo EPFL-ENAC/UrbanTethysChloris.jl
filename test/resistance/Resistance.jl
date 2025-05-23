@@ -4,6 +4,10 @@ using SafeTestsets
     include("aerodynamic_resistance.jl")
 end
 
+@safetestset "backcalculate_obhukov_length" begin
+    include("backcalculate_obhukov_length.jl")
+end
+
 @safetestset "canopy_resistance_an_evolution" begin
     include("canopy_resistance_an_evolution.jl")
 end
