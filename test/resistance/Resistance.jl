@@ -16,6 +16,14 @@ end
     include("co2_concentration.jl")
 end
 
+@safetestset "enhancement_factor_ra_pleim" begin
+    include("enhancement_factor_ra_pleim.jl")
+end
+
+@safetestset "in_canyon_aerodynamic_resistance" begin
+    include("in_canyon_aerodynamic_resistance.jl")
+end
+
 @safetestset "leaf_boundary_resistance" begin
     include("leaf_boundary_resistance.jl")
 end
@@ -26,8 +34,4 @@ end
 
 @safetestset "soil_resistance" begin
     include("soil_resistance.jl")
-end
-
-@safetestset "enhancement_factor_ra_pleim" begin
-    include("enhancement_factor_ra_pleim.jl")
 end
