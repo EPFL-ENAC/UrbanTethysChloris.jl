@@ -12,5 +12,6 @@ include("in_canyon_aerodynamic_resistance.jl")
 include("leaf_boundary_resistance.jl")
 include("photosynthesis_biochemical.jl")
 include("soil_resistance.jl")
+include("urban_roughness.jl")
 
 end

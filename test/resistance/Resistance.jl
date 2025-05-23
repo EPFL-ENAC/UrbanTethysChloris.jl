@@ -35,3 +35,7 @@ end
 @safetestset "soil_resistance" begin
     include("soil_resistance.jl")
 end
+
+@safetestset "urban_roughness" begin
+    include("urban_roughness.jl")
+end
