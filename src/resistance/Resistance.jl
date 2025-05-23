@@ -15,5 +15,6 @@ include("soil_resistance.jl")
 include("urban_roughness.jl")
 include("wind_profile_canyon.jl")
 include("wind_profile_point_output.jl")
+include("wind_profile_roof.jl")
 
 end
