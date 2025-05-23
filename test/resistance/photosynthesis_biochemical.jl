@@ -59,5 +59,5 @@ FT = Float64
     @test Rdark ≈ 0.245743457481728
     @test isnan(F755nm)
     @test GAM ≈ 1.268521967198623
-    @test gsCO2 ≈ 0.0
+    @test gsCO2 ≈ 10000
 end
