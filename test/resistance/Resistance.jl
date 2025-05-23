@@ -4,6 +4,10 @@ using SafeTestsets
     include("aerodynamic_resistance.jl")
 end
 
+@safetestset "co2_concentration" begin
+    include("co2_concentration.jl")
+end
+
 @safetestset "leaf_boundary_resistance" begin
     include("leaf_boundary_resistance.jl")
 end
