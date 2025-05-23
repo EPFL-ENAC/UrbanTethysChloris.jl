@@ -13,11 +13,11 @@ using .RayTracing
 include(joinpath("radiation", "Radiation.jl"))
 using .Radiation
 
-include(joinpath("resistance", "Resistance.jl"))
-using .Resistance
-
 include(joinpath("soil", "Soil.jl"))
 using .Soil
+
+include(joinpath("resistance", "Resistance.jl"))
+using .Resistance
 
 include(joinpath("water", "Water.jl"))
 using .Water

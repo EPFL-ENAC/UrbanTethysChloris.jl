@@ -11,3 +11,7 @@ end
 @safetestset "photosynthesis_biochemical" begin
     include("photosynthesis_biochemical.jl")
 end
+
+@safetestset "soil_resistance" begin
+    include("soil_resistance.jl")
+end
