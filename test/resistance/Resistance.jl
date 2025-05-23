@@ -47,3 +47,7 @@ end
 @safetestset "wind_profile_point_output" begin
     include("wind_profile_point_output.jl")
 end
+
+@safetestset "wind_profile_roof" begin
+    include("wind_profile_roof.jl")
+end
