@@ -1,0 +1,3 @@
+[submodule "test/translation/matlab"]
+	path = test/translation/matlab
+	url = https://github.com/EPFL-ENAC/URBES-utc-test-data
