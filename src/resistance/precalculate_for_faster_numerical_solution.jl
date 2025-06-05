@@ -4,42 +4,78 @@
         ittm::Int,
         TempVec_ittm::NamedTuple,
         Humidity_ittm::NamedTuple,
-        ParVegGround::NamedTuple,
+        ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
         SoilPotW_ittm::NamedTuple,
         CiCO2Leaf_ittm::NamedTuple,
         MeteoData::NamedTuple,
         HumidityAtm::NamedTuple,
         geometry::ModelComponents.Parameters.UrbanGeometryParameters{FT},
-        FractionsGround::NamedTuple,
-        ParTree::NamedTuple,
-        PropOpticalGround::NamedTuple,
-        PropOpticalWall::NamedTuple,
-        PropOpticalTree::NamedTuple,
-        ParVegTree::NamedTuple,
+        FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+        PropOpticalGround::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
+        PropOpticalWall::ModelComponents.Parameters.SimpleOpticalProperties{FT},
+        PropOpticalTree::ModelComponents.Parameters.SimpleOpticalProperties{FT},
+        ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
         SunPosition::NamedTuple,
         ViewFactor::RayTracing.ViewFactor{FT},
         ParWindows::ModelComponents.Parameters.WindowParameters{FT},
         BEM_on::Bool,
-        ParVegRoof::NamedTuple,
-        PropOpticalRoof::NamedTuple,
-        FractionsRoof::NamedTuple,
+        ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
+        FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
         RES::NamedTuple,
     ) where {FT<:AbstractFloat}
 
 Calculate enhancement factor and precalculate stomatal resistances for faster numerical solution.
 
+# Arguments
+- `ittn::Int`: Current Newton iteration index
+- `ittm::Int`: Current time step index
+- `TempVec_ittm`: Temperature vector containing surface temperatures
+- `Humidity_ittm`: Humidity data structure
+- `ParVegGround`: Ground vegetation parameters
+- `SoilPotW_ittm`: Soil water potential data
+- `CiCO2Leaf_ittm`: Leaf CO2 concentration data
+- `MeteoData`: Meteorological data structure
+- `HumidityAtm`: Atmospheric humidity data structure
+- `geometry`: Urban geometry parameters
+- `FractionsGround`: Ground surface fractions
+- `PropOpticalGround`: Ground optical properties
+- `PropOpticalWall`: Wall optical properties
+- `PropOpticalTree`: Tree optical properties
+- `ParVegTree`: Tree vegetation parameters
+- `SunPosition`: Sun position parameters
+- `ViewFactor`: View factors between urban surfaces
+- `ParWindows`: Window parameters
+- `BEM_on`: Building energy model flag
+- `ParVegRoof`: Roof vegetation parameters
+- `PropOpticalRoof`: Roof optical properties
+- `FractionsRoof`: Roof surface fractions
+- `RES`: Resistance values from previous iterations
+
 # Returns
-- `fconv`: Fraction of convective transport [-]
-- `rsRoofPreCalc`: Roof vegetation stomatal resistance
-- `rsGroundPreCalc`: Ground vegetation stomatal resistance
-- `rsTreePreCalc`: Tree stomatal resistance
+- `fconv`: Enhancement factor for convective resistance [-]
+- `rsRoofPreCalc`: Named tuple with roof vegetation stomatal resistance parameters:
+  - `rs_sun`: Stomatal resistance for sunlit leaves [s/m]
+  - `rs_shd`: Stomatal resistance for shaded leaves [s/m]
+  - `Ci_sun`: Internal CO2 concentration for sunlit leaves [ppm]
+  - `Ci_shd`: Internal CO2 concentration for shaded leaves [ppm]
+- `rsGroundPreCalc`: Named tuple with ground vegetation stomatal resistance parameters:
+  - `rs_sun_L`: Stomatal resistance for sunlit leaves [s/m]
+  - `rs_shd_L`: Stomatal resistance for shaded leaves [s/m]
+  - `Ci_sun_L`: Internal CO2 concentration for sunlit leaves [ppm]
+  - `Ci_shd_L`: Internal CO2 concentration for shaded leaves [ppm]
+- `rsTreePreCalc`: Named tuple with tree stomatal resistance parameters:
+  - `rs_sun_H`: Stomatal resistance for sunlit leaves [s/m]
+  - `rs_shd_H`: Stomatal resistance for shaded leaves [s/m]
+  - `Ci_sun_H`: Internal CO2 concentration for sunlit leaves [ppm]
+  - `Ci_shd_H`: Internal CO2 concentration for shaded leaves [ppm]
 """
 function precalculate_for_faster_numerical_solution(
     ittn::Int,
     ittm::Int,
     TempVec_ittm::NamedTuple,
     Humidity_ittm::NamedTuple,
-    ParVegGround::NamedTuple,
+    ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
     SoilPotW_ittm::NamedTuple,
     CiCO2Leaf_ittm::NamedTuple,
     MeteoData::NamedTuple,
@@ -54,9 +90,9 @@ function precalculate_for_faster_numerical_solution(
     ViewFactor::RayTracing.ViewFactor{FT},
     ParWindows::ModelComponents.Parameters.WindowParameters{FT},
     BEM_on::Bool,
-    ParVegRoof::NamedTuple,
-    PropOpticalRoof::NamedTuple,
-    FractionsRoof::NamedTuple,
+    ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+    PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
+    FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
     RES::NamedTuple,
 ) where {FT<:AbstractFloat}
 

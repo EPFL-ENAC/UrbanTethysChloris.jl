@@ -11,9 +11,7 @@ using UrbanTethysChloris.ModelComponents.Parameters:
 using UrbanTethysChloris.ModelComponents.ForcingInputs: SunPositionInputs
 using UrbanTethysChloris.RayTracing: ViewFactor
 
-cd("test/translation/julia/resistance")
-include("../../../test_utils.jl")
-using .TestUtils:
+using ....TestUtils:
     create_urban_geometry_parameters,
     create_location_specific_surface_fractions,
     create_vegetated_optical_properties,
@@ -40,7 +38,8 @@ Humidity_ittm = (; CanyonSpecific=input_vars["Humidity_ittm"]["CanyonSpecific"])
 
 HumidityAtm = (; AtmVapourPreSat=input_vars["HumidityAtm"]["AtmVapourPreSat"])
 
-ParVegGround = (;
+ParVegGround = create_height_dependent_vegetation_parameters(
+    FT;
     LAI=input_vars["ParVegGround"]["LAI"],
     Kopt=input_vars["ParVegGround"]["Kopt"],
     Knit=input_vars["ParVegGround"]["Knit"],
@@ -62,7 +61,8 @@ ParVegGround = (;
     Sl=input_vars["ParVegGround"]["Sl"],
 )
 
-ParVegRoof = (;
+ParVegRoof = create_height_dependent_vegetation_parameters(
+    FT;
     LAI=input_vars["ParVegRoof"]["LAI"],
     Kopt=input_vars["ParVegRoof"]["Kopt"],
     Knit=input_vars["ParVegRoof"]["Knit"],
@@ -136,8 +136,8 @@ FractionsGround = create_location_specific_surface_fractions(
     fimp=input_vars["FractionsGround"]["fimp"],
 )
 
-FractionsRoof = (;
-    fveg=input_vars["FractionsRoof"]["fveg"], fimp=input_vars["FractionsRoof"]["fimp"]
+FractionsRoof = create_location_specific_surface_fractions(
+    FT; fveg=input_vars["FractionsRoof"]["fveg"], fimp=input_vars["FractionsRoof"]["fimp"]
 )
 
 PropOpticalGround = create_vegetated_optical_properties(
@@ -147,8 +147,10 @@ PropOpticalGround = create_vegetated_optical_properties(
     aimp=input_vars["PropOpticalGround"]["aimp"],
 )
 
-PropOpticalRoof = (;
-    aveg=input_vars["PropOpticalRoof"]["aveg"], aimp=input_vars["PropOpticalRoof"]["aimp"]
+PropOpticalRoof = create_vegetated_optical_properties(
+    FT;
+    aveg=input_vars["PropOpticalRoof"]["aveg"],
+    aimp=input_vars["PropOpticalRoof"]["aimp"],
 )
 
 PropOpticalWall = create_simple_optical_properties(
@@ -180,10 +182,6 @@ ParVegTree = create_height_dependent_vegetation_parameters(
     rjv=input_vars["ParVegTree"]["rjv"],
     mSl=input_vars["ParVegTree"]["mSl"],
     Sl=input_vars["ParVegTree"]["Sl"],
-)
-
-ParTree = (;
-    trees=Bool(input_vars["ParTree"]["trees"]), ftree=input_vars["ParTree"]["ftree"]
 )
 
 SunPosition = (;

@@ -11,7 +11,7 @@ using UrbanTethysChloris.ModelComponents.Parameters:
 using UrbanTethysChloris.ModelComponents.ForcingInputs:
     SunPositionInputs, MeteorologicalInputs
 using UrbanTethysChloris.RayTracing: ViewFactor
-using .TestUtils:
+using ....TestUtils:
     create_urban_geometry_parameters,
     create_location_specific_surface_fractions,
     create_vegetated_optical_properties,
@@ -34,7 +34,8 @@ TempVec_ittm = (;
 
 Humidity_ittm = (; CanyonSpecific=input_vars["Humidity_ittm"]["CanyonSpecific"])
 
-ParVegGround = (;
+ParVegGround = create_height_dependent_vegetation_parameters(
+    FT;
     LAI=input_vars["ParVegGround"]["LAI"],
     Kopt=input_vars["ParVegGround"]["Kopt"],
     Knit=input_vars["ParVegGround"]["Knit"],

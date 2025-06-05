@@ -1,6 +1,8 @@
 using Test
 using MAT
 using UrbanTethysChloris.Resistance: precalculate_stomatal_resistance_roof
+using ....TestUtils:
+    create_vegetated_optical_properties, create_height_dependent_vegetation_parameters
 
 FT = Float64
 dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
@@ -22,7 +24,8 @@ MeteoData = (;
 
 HumidityAtm = (; AtmVapourPreSat=input_vars["HumidityAtm"]["AtmVapourPreSat"])
 
-ParVegRoof = (;
+ParVegRoof = create_height_dependent_vegetation_parameters(
+    FT;
     LAI=input_vars["ParVegRoof"]["LAI"],
     Kopt=input_vars["ParVegRoof"]["Kopt"],
     Knit=input_vars["ParVegRoof"]["Knit"],
@@ -51,7 +54,9 @@ CiCO2Leaf_ittm = (;
     CiCO2LeafRoofVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegShd"],
 )
 
-PropOpticalRoof = (; aveg=input_vars["PropOpticalRoof"]["aveg"],)
+PropOpticalRoof = create_vegetated_optical_properties(
+    FT; aveg=input_vars["PropOpticalRoof"]["aveg"]
+)
 
 @testset "Zurich" begin
     rs_sun, rs_shd, Ci_sun, Ci_shd = precalculate_stomatal_resistance_roof(

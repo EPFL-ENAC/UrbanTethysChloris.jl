@@ -1,27 +1,43 @@
 """
-    precalculate_stomatal_resistance_roof(TempVec_ittm, MeteoData, HumidityAtm, ParVegRoof, SoilPotW_ittm, CiCO2Leaf_ittm, PropOpticalRoof, ra, rb)
+    precalculate_stomatal_resistance_roof(
+        TempVec_ittm::NamedTuple,
+        MeteoData::NamedTuple,
+        HumidityAtm::NamedTuple,
+        ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        SoilPotW_ittm::NamedTuple,
+        CiCO2Leaf_ittm::NamedTuple,
+        PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
+        ra::FT,
+        rb::FT
+    ) where {FT<:AbstractFloat}
 
 Calculate stomatal resistance for sunlit and shaded portions of the roof vegetation.
 
 # Arguments
-- `TempVec_ittm`: Temperature vector containing TRoofVeg
-- `MeteoData`: Meteorological data structure
-- `HumidityAtm`: Atmospheric humidity data structure
-- `ParVegRoof`: Roof vegetation parameters
-- `SoilPotW_ittm`: Soil water potential data
-- `CiCO2Leaf_ittm`: Leaf CO2 concentration data
-- `PropOpticalRoof`: Roof optical properties
-- `ra`: Aerodynamic resistance
-- `rb`: Boundary layer resistance
+- `TempVec_ittm`: Temperature vector containing roof vegetation temperature
+- `MeteoData`: Meteorological data including atmospheric temperature, pressure, CO2 concentration
+- `HumidityAtm`: Atmospheric humidity data structure with vapor pressure
+- `ParVegRoof`: Roof vegetation parameters including LAI, photosynthesis properties
+- `SoilPotW_ittm`: Soil water potential data for roof vegetation
+- `CiCO2Leaf_ittm`: Previous iteration leaf CO2 concentration data
+- `PropOpticalRoof`: Roof optical properties for radiation absorption
+- `ra`: Aerodynamic resistance between roof and atmosphere [s/m]
+- `rb`: Boundary layer resistance for roof vegetation [s/m]
+
+# Returns
+- `rs_sun`: Stomatal resistance for sunlit roof vegetation leaves [s/m]
+- `rs_shd`: Stomatal resistance for shaded roof vegetation leaves [s/m]
+- `Ci_sun`: Internal CO2 concentration for sunlit roof vegetation leaves [ppm]
+- `Ci_shd`: Internal CO2 concentration for shaded roof vegetation leaves [ppm]
 """
 function precalculate_stomatal_resistance_roof(
     TempVec_ittm::NamedTuple,
     MeteoData::NamedTuple,
     HumidityAtm::NamedTuple,
-    ParVegRoof::NamedTuple,
+    ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
     SoilPotW_ittm::NamedTuple,
     CiCO2Leaf_ittm::NamedTuple,
-    PropOpticalRoof::NamedTuple,
+    PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
     ra::FT,
     rb::FT,
 ) where {FT<:AbstractFloat}

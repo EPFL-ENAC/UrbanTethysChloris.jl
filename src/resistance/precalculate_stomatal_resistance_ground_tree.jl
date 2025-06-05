@@ -1,12 +1,66 @@
 """
-    precalculate_stomatal_resistance_ground_tree(TempVec_ittm, Humidity_ittm, ParVegGround, SoilPotW_ittm, CiCO2Leaf_ittm, MeteoData, geometry, FractionsGround, ParTree, PropOpticalGround, PropOpticalWall, PropOpticalTree, ParVegTree, SunPosition, ViewFactor, ParWindows, BEM_on, rb_L, rb_H, rap_can, rap_Htree_In)
+    precalculate_stomatal_resistance_ground_tree(
+        TempVec_ittm::NamedTuple,
+        Humidity_ittm::NamedTuple,
+        ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        SoilPotW_ittm::NamedTuple,
+        CiCO2Leaf_ittm::NamedTuple,
+        MeteoData::NamedTuple,
+        geometry::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+        FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+        PropOpticalGround::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
+        PropOpticalWall::ModelComponents.Parameters.SimpleOpticalProperties{FT},
+        PropOpticalTree::ModelComponents.Parameters.SimpleOpticalProperties{FT},
+        ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        SunPosition::NamedTuple,
+        ViewFactor::RayTracing.ViewFactor{FT},
+        ParWindows::ModelComponents.Parameters.WindowParameters{FT},
+        BEM_on::Bool,
+        rb_L::FT,
+        rb_H::FT,
+        rap_can::FT,
+        rap_Htree_In::FT,
+    ) where {FT<:AbstractFloat}
 
 Calculate stomatal resistance for ground vegetation and trees.
+
+# Arguments
+- `TempVec_ittm`: Temperature vector containing canyon, ground vegetation and tree temperatures
+- `Humidity_ittm`: Humidity data structure with canyon specific humidity
+- `ParVegGround`: Ground vegetation parameters including LAI, photosynthesis properties
+- `SoilPotW_ittm`: Soil water potential data for ground vegetation and trees
+- `CiCO2Leaf_ittm`: Leaf CO2 concentration data for previous iteration
+- `MeteoData`: Meteorological data including atmospheric pressure and CO2 concentration
+- `geometry`: Urban geometry parameters
+- `FractionsGround`: Ground surface fractions (vegetated, bare, impervious)
+- `PropOpticalGround`: Ground optical properties
+- `PropOpticalWall`: Wall optical properties
+- `PropOpticalTree`: Tree optical properties
+- `ParVegTree`: Tree vegetation parameters
+- `SunPosition`: Sun position parameters (solar zenith and azimuth angles)
+- `ViewFactor`: View factors between urban surfaces
+- `ParWindows`: Window parameters
+- `BEM_on`: Building energy model flag
+- `rb_L`: Boundary layer resistance for ground vegetation [s/m]
+- `rb_H`: Boundary layer resistance for trees [s/m]
+- `rap_can`: Within-canyon aerodynamic resistance [s/m]
+- `rap_Htree_In`: Aerodynamic resistance within tree canopy [s/m]
+
+# Returns
+- `rs_sun_H`: Stomatal resistance for sunlit tree leaves [s/m]
+- `rs_shd_H`: Stomatal resistance for shaded tree leaves [s/m]
+- `Ci_sun_H`: Internal CO2 concentration for sunlit tree leaves [ppm]
+- `Ci_shd_H`: Internal CO2 concentration for shaded tree leaves [ppm]
+- `rs_sun_L`: Stomatal resistance for sunlit ground vegetation leaves [s/m]
+- `rs_shd_L`: Stomatal resistance for shaded ground vegetation leaves [s/m]
+- `Ci_sun_L`: Internal CO2 concentration for sunlit ground vegetation leaves [ppm]
+- `Ci_shd_L`: Internal CO2 concentration for shaded ground vegetation leaves [ppm]
 """
+
 function precalculate_stomatal_resistance_ground_tree(
     TempVec_ittm::NamedTuple,
     Humidity_ittm::NamedTuple,
-    ParVegGround::NamedTuple,
+    ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
     SoilPotW_ittm::NamedTuple,
     CiCO2Leaf_ittm::NamedTuple,
     MeteoData::NamedTuple,
