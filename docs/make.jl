@@ -18,7 +18,10 @@ makedocs(;
     authors="Hugo Solleder <hugo.solleder@epfl.ch>",
     repo=Remotes.GitHub("EPFL-ENAC", "UrbanTethysChloris.jl"),
     sitename="UrbanTethysChloris.jl",
-    format=Documenter.HTML(; canonical="https://EPFL-ENAC.github.io/UrbanTethysChloris.jl"),
+    format=Documenter.HTML(;
+        canonical="https://EPFL-ENAC.github.io/UrbanTethysChloris.jl",
+        size_threshold_ignore=["95-reference.md"],
+    ),
     pages=["index.md"; numbered_pages],
 )
 

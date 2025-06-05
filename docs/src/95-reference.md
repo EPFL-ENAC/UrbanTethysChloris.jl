@@ -28,6 +28,12 @@ Modules = [UrbanTethysChloris.Radiation]
 Modules = [UrbanTethysChloris.RayTracing]
 ```
 
+## Resistance
+
+```@autodocs
+Modules = [UrbanTethysChloris.Resistance]
+```
+
 ## Soil
 
 ```@autodocs
