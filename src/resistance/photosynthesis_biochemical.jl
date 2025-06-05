@@ -10,7 +10,7 @@
         Ds::FT,
         Psi_L::FT,
         Psi_sto_50::FT,
-        Psi_sto_99::FT,
+        Psi_sto_00::FT,
         CT::Int,
         Vmax::FT,
         DSE::FT,
@@ -37,7 +37,7 @@ Calculate biochemical photosynthesis parameters and internal CO₂ concentration
 - `Ds`: Leaf-to-air vapor pressure deficit [Pa]
 - `Psi_L`: Leaf water potential [MPa]
 - `Psi_sto_50`: Leaf water potential at 50% stomatal closure [MPa]
-- `Psi_sto_99`: Leaf water potential at 99% stomatal closure [MPa]
+- `Psi_sto_00`: Leaf water potential at 99% stomatal closure [MPa]
 - `CT`: Photosynthesis model type (0 = C3, 1 = C4)
 - `Vmax`: Maximum carboxylation rate [μmolCO₂/m²s]
 - `DSE`: Entropy term [J/mol/K]
@@ -72,7 +72,7 @@ function photosynthesis_biochemical(
     Ds::FT,
     Psi_L::FT,
     Psi_sto_50::FT,
-    Psi_sto_99::FT,
+    Psi_sto_00::FT,
     CT::Int,
     Vmax::FT,
     DSE::FT,
