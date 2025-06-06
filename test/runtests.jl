@@ -14,6 +14,10 @@ end
     include(joinpath("ray_tracing", "RayTracing.jl"))
 end
 
+@safetestset "Resistance" begin
+    include(joinpath("resistance", "Resistance.jl"))
+end
+
 @safetestset "Soil" begin
     include(joinpath("soil", "Soil.jl"))
 end
