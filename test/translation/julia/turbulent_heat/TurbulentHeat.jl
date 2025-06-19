@@ -15,3 +15,7 @@ end
 @safetestset "HeatFluxCanyon" begin
     include("heat_flux_canyon.jl")
 end
+
+@safetestset "HeatFluxWall" begin
+    include("heat_flux_wall.jl")
+end
