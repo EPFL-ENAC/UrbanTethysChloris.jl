@@ -11,3 +11,7 @@ end
 @safetestset "CalculateT2m" begin
     include("calculate_t2m.jl")
 end
+
+@safetestset "HeatFluxCanyon" begin
+    include("heat_flux_canyon.jl")
+end
