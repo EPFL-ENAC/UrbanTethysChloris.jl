@@ -12,8 +12,7 @@
         rb_L::FT,
         RES_w1::FT,
         FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
-        Gemeotry_m::NamedTuple,
-        geometry::NamedTuple,
+        Gemeotry_m::::ModelComponents.Parameters.UrbanGeometryParameters{FT},
         ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
         TempVec_ittm,
         cp_atm::FT,
@@ -39,7 +38,6 @@ Calculate the air temperature at 2m level and compute sensible heat fluxes.
 - `RES_w1`: wall resistance [s/m]
 - `FractionsGround`: ground cover fractions
 - `Gemeotry_m`: urban geometry parameters
-- `geometry`: urban geometry parameters
 - `ParVegGround`: vegetation parameters
 - `TempVec_ittm`: temperature variables from previous timestep
 - `cp_atm`: specific heat capacity of air [J/kg/K]
@@ -71,8 +69,7 @@ function calculate_t2m(
     rb_L::FT,
     RES_w1::FT,
     FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
-    Gemeotry_m::NamedTuple,
-    geometry::NamedTuple,
+    Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
     ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
     TempVec_ittm,
     cp_atm::FT,
@@ -100,8 +97,8 @@ function calculate_t2m(
     Rveg_H =
         FractionsGround.fveg /
         (rb_L / (2 * (ParVegGround.LAI + ParVegGround.SAI)) + rap_can2m)
-    Rwsun_H = min(2 * Zp1 / Gemeotry_m.Height_canyon, 1) * geometry.hcanyon / RES_w1
-    Rwshd_H = min(2 * Zp1 / Gemeotry_m.Height_canyon, 1) * geometry.hcanyon / RES_w1
+    Rwsun_H = min(2 * Zp1 / Gemeotry_m.Height_canyon, 1) * Gemeotry_m.hcanyon / RES_w1
+    Rwshd_H = min(2 * Zp1 / Gemeotry_m.Height_canyon, 1) * Gemeotry_m.hcanyon / RES_w1
     Rcan2m_H = 1 / ra_enhanced
     RdS_H = Vcanyon / ParCalculation.dts
 
@@ -127,13 +124,13 @@ function calculate_t2m(
         ((Tveg - T2m) / (rb_L / (2 * (ParVegGround.LAI + ParVegGround.SAI)) + rap_can2m))
     Hwsun_2m =
         min(2 * Zp1 / Gemeotry_m.Height_canyon, 1) *
-        geometry.hcanyon *
+        Gemeotry_m.hcanyon *
         cp_atm *
         rho_atm *
         ((Twsun - T2m) / RES_w1)
     Hwshade_2m =
         min(2 * Zp1 / Gemeotry_m.Height_canyon, 1) *
-        geometry.hcanyon *
+        Gemeotry_m.hcanyon *
         cp_atm *
         rho_atm *
         ((Twshade - T2m) / RES_w1)

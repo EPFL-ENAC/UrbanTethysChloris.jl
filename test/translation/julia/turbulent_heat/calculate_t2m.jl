@@ -3,7 +3,8 @@ using MAT
 using UrbanTethysChloris.TurbulentHeat: calculate_t2m
 using ....TestUtils:
     create_location_specific_surface_fractions,
-    create_height_dependent_vegetation_parameters
+    create_height_dependent_vegetation_parameters,
+    create_urban_geometry_parameters
 
 FT = Float64
 dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
@@ -22,12 +23,13 @@ ParVegGround = create_height_dependent_vegetation_parameters(
     FT; LAI=input_vars["ParVegGround"]["LAI"], SAI=input_vars["ParVegGround"]["SAI"]
 )
 
-geometry = (; hcanyon=input_vars["geometry"]["hcanyon"])
 TempVec_ittm = (; T2m=input_vars["TempVec_ittm"]["T2m"])
 MeteoData = (; Tatm=input_vars["MeteoData"]["Tatm"])
-Gemeotry_m = (;
+Gemeotry_m = create_urban_geometry_parameters(
+    FT;
     Width_canyon=input_vars["Gemeotry_m"]["Width_canyon"],
     Height_canyon=input_vars["Gemeotry_m"]["Height_canyon"],
+    hcanyon=input_vars["geometry"]["hcanyon"],
 )
 ParCalculation = (; dts=input_vars["ParCalculation"]["dts"])
 

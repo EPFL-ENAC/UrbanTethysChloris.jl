@@ -3,7 +3,8 @@ using MAT
 using UrbanTethysChloris.TurbulentHeat: air_humidity_2m
 using ....TestUtils:
     create_location_specific_surface_fractions,
-    create_height_dependent_vegetation_parameters
+    create_height_dependent_vegetation_parameters,
+    create_urban_geometry_parameters
 
 FT = Float64
 dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
@@ -24,7 +25,8 @@ ParVegGround = create_height_dependent_vegetation_parameters(
 
 Humidity_ittm = (; q2m=input_vars["Humidity_ittm"]["q2m"])
 MeteoData = (; Tatm=input_vars["MeteoData"]["Tatm"])
-Gemeotry_m = (;
+Gemeotry_m = create_urban_geometry_parameters(
+    FT;
     Width_canyon=input_vars["Gemeotry_m"]["Width_canyon"],
     Height_canyon=input_vars["Gemeotry_m"]["Height_canyon"],
 )

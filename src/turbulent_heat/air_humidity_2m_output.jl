@@ -31,7 +31,7 @@
         Humidity_ittm::NamedTuple,
         fconv::FT,
         MeteoData::NamedTuple,
-        Gemeotry_m::NamedTuple,
+        Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
         rho_atm::FT,
         Zp1::FT,
         ParCalculation::NamedTuple
@@ -124,7 +124,7 @@ function air_humidity_2m_output(
     Humidity_ittm::NamedTuple,
     fconv::FT,
     MeteoData::NamedTuple,
-    Gemeotry_m::NamedTuple,
+    Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
     rho_atm::FT,
     Zp1::FT,
     ParCalculation::NamedTuple,
