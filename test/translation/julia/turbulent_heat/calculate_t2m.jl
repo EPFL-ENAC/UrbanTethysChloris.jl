@@ -23,9 +23,6 @@ ParVegGround = create_height_dependent_vegetation_parameters(
 )
 
 geometry = (; hcanyon=input_vars["geometry"]["hcanyon"])
-ParVegGround = (;
-    LAI=input_vars["ParVegGround"]["LAI"], SAI=input_vars["ParVegGround"]["SAI"]
-)
 TempVec_ittm = (; T2m=input_vars["TempVec_ittm"]["T2m"])
 MeteoData = (; Tatm=input_vars["MeteoData"]["Tatm"])
 Gemeotry_m = (;
