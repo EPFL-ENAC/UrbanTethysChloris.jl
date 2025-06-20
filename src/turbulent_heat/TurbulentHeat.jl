@@ -11,11 +11,13 @@ using ..Resistance:
     leaf_boundary_resistance,
     soil_resistance
 using ..Soil: soil_parameters_total
+using NaNMath: NaNMath
 
 include("air_humidity_2m.jl")
 include("air_humidity_2m_output.jl")
 include("calculate_t2m.jl")
 include("heat_flux_canyon.jl")
+include("heat_flux_ground.jl")
 include("heat_flux_wall.jl")
 include("heat_flux_roof.jl")
 

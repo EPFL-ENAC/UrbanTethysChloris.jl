@@ -16,11 +16,11 @@ using .Radiation
 include(joinpath("soil", "Soil.jl"))
 using .Soil
 
-include(joinpath("turbulent_heat", "TurbulentHeat.jl"))
-using .TurbulentHeat
-
 include(joinpath("resistance", "Resistance.jl"))
 using .Resistance
+
+include(joinpath("turbulent_heat", "TurbulentHeat.jl"))
+using .TurbulentHeat
 
 include(joinpath("water", "Water.jl"))
 using .Water
