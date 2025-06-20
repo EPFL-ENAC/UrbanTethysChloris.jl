@@ -1,50 +1,73 @@
 """
     heat_flux_ground(
         TemperatureC::AbstractVector{FT},
-        Gemeotry_m,
-        MeteoData,
-        ParVegGround,
-        ParSoilGround,
-        ParVegTree,
-        ParTree,
-        FractionsGround,
-        ParCalculation,
-        SoilPotW_ittm,
-        Owater_ittm,
-        Vwater_ittm,
-        ExWater_ittm,
-        Int_ittm,
-        CiCO2Leaf_ittm,
-        SWRabs_dir::FT,
-        SWRabs_diff::FT,
+        TempVec_ittm::NamedTuple,
+        MeteoData::NamedTuple,
+        Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+        FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+        ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        ParSoilGround::ModelComponents.Parameters.VegetatedSoilParameters{FT},
+        SoilPotW_ittm::NamedTuple,
+        Owater_ittm::NamedTuple,
+        Vwater_ittm::NamedTuple,
+        ExWater_ittm::NamedTuple,
+        Int_ittm::NamedTuple,
+        CiCO2Leaf_ittm::NamedTuple,
+        ParInterceptionTree::NamedTuple,
+        ParCalculation::NamedTuple,
+        SWRdir_abs_tree::FT,
+        SWRdiff_abs_tree::FT,
+        SWRdir_abs_groundveg::FT,
+        SWRdiff_abs_groundveg::FT,
         RESPreCalc::Bool,
-        rsGroundPreCalc,
-        Zs::Vector{FT}
+        rsGroundPreCalc::NamedTuple,
+        rsTreePreCalc::NamedTuple
     ) where {FT<:AbstractFloat}
 
 Calculate sensible and latent heat fluxes for ground surfaces.
 
 # Arguments
 - `TemperatureC`: Temperature vector [K]
-- `Gemeotry_m`: Urban geometry parameters
+- `TempVec_ittm`: Temperature from previous timestep
 - `MeteoData`: Meteorological data
-- `ParVegGround`: Ground vegetation parameters
-- `ParSoilGround`: Ground soil parameters
-- `ParVegTree`: Tree vegetation parameters
-- `ParTree`: Tree parameters
+- `Gemeotry_m`: Urban geometry parameters
 - `FractionsGround`: Ground surface fractions
-- `ParCalculation`: Calculation parameters
+- `ParVegGround`: Ground vegetation parameters
+- `ParVegTree`: Tree vegetation parameters
+- `ParSoilGround`: Ground soil parameters
 - `SoilPotW_ittm`: Soil water potential from previous timestep
 - `Owater_ittm`: Soil water content from previous timestep
 - `Vwater_ittm`: Soil water volume from previous timestep
 - `ExWater_ittm`: Extractable water from previous timestep
 - `Int_ittm`: Interception from previous timestep
 - `CiCO2Leaf_ittm`: Leaf CO2 concentration from previous timestep
-- `SWRabs_dir`: Direct shortwave radiation [W/m²]
-- `SWRabs_diff`: Diffuse shortwave radiation [W/m²]
+- `ParInterceptionTree`: Tree interception parameters
+- `ParCalculation`: Calculation parameters
+- `SWRdir_abs_tree`: Direct shortwave radiation absorbed by trees [W/m²]
+- `SWRdiff_abs_tree`: Diffuse shortwave radiation absorbed by trees [W/m²]
+- `SWRdir_abs_groundveg`: Direct shortwave radiation absorbed by ground vegetation [W/m²]
+- `SWRdiff_abs_groundveg`: Diffuse shortwave radiation absorbed by ground vegetation [W/m²]
 - `RESPreCalc`: Use pre-calculated resistances
-- `rsGroundPreCalc`: Pre-calculated resistance parameters
-- `Zs`: Soil layer depths [mm]
+- `rsGroundPreCalc`: Pre-calculated ground resistance parameters
+- `rsTreePreCalc`: Pre-calculated tree resistance parameters
+
+# Returns
+A NamedTuple containing:
+- `Himp::FT`: Sensible heat flux from impervious ground [W/m²]
+- `Hbare::FT`: Sensible heat flux from bare ground [W/m²]
+- `Hveg::FT`: Sensible heat flux from vegetated ground [W/m²]
+- `Htree::FT`: Sensible heat flux from trees [W/m²]
+- `Eimp::FT`: Water vapor flux from impervious ground [kg/m²s]
+- `Ebare_pond::FT`: Ponded water vapor flux from bare ground [kg/m²s]
+- `Ebare_soil::FT`: Soil water vapor flux from bare ground [kg/m²s]
+- `Eveg_int::FT`: Intercepted water vapor flux from vegetation [kg/m²s]
+- `Eveg_pond::FT`: Ponded water vapor flux from vegetated ground [kg/m²s]
+- `Eveg_soil::FT`: Soil water vapor flux from vegetated ground [kg/m²s]
+- `TEveg::FT`: Transpiration flux from ground vegetation [kg/m²s]
+- `Etree_int::FT`: Intercepted water vapor flux from trees [kg/m²s]
+- `TEtree::FT`: Transpiration flux from trees [kg/m²s]
+- And many more components including latent heat fluxes and resistances...
 """
 function heat_flux_ground(
     TemperatureC::AbstractVector{FT},

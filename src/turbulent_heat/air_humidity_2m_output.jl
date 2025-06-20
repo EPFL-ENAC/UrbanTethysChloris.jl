@@ -1,11 +1,40 @@
 """
     air_humidity_2m_output(
-        q2m::FT, T2m::FT, Timp::FT, Tbare::FT, Tveg::FT, Tcan::FT, qcan::FT,
-        rap_can2m::FT, rap_can2m_Inv::FT, rb_L::FT, alp_soil_bare::FT, r_soil_bare::FT,
-        alp_soil_veg::FT, r_soil_veg::FT, rs_sun_L::FT, rs_shd_L::FT,
-        dw_L::FT, Fsun_L::FT, Fshd_L::FT, FractionsGround, ParVegGround,
-        Eimp::FT, Ebare::FT, Eveg_int::FT, Eveg_pond::FT, Eveg_soil::FT, TEveg::FT, Pre::FT,
-        Humidity_ittm, fconv::FT, MeteoData, Gemeotry_m, rho_atm::FT, Zp1::FT, ParCalculation
+        q2m::FT,
+        T2m::FT,
+        Timp::FT,
+        Tbare::FT,
+        Tveg::FT,
+        Tcan::FT,
+        qcan::FT,
+        rap_can2m::FT,
+        rap_can2m_Inv::FT,
+        rb_L::FT,
+        alp_soil_bare::FT,
+        r_soil_bare::FT,
+        alp_soil_veg::FT,
+        r_soil_veg::FT,
+        rs_sun_L::FT,
+        rs_shd_L::FT,
+        dw_L::FT,
+        Fsun_L::FT,
+        Fshd_L::FT,
+        FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+        ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        Eimp::FT,
+        Ebare::FT,
+        Eveg_int::FT,
+        Eveg_pond::FT,
+        Eveg_soil::FT,
+        TEveg::FT,
+        Pre::FT,
+        Humidity_ittm::NamedTuple,
+        fconv::FT,
+        MeteoData::NamedTuple,
+        Gemeotry_m::NamedTuple,
+        rho_atm::FT,
+        Zp1::FT,
+        ParCalculation::NamedTuple
     ) where {FT<:AbstractFloat}
 
 Calculate the air humidity at 2m level and compute vapor flux differences with additional outputs.
@@ -18,24 +47,51 @@ Calculate the air humidity at 2m level and compute vapor flux differences with a
 - `Tveg`: vegetation temperature [K]
 - `Tcan`: canyon air temperature [K]
 - `qcan`: canyon specific humidity [kg/kg]
-[...remaining arguments same as air_humidity_2m...]
+- `rap_can2m`: resistance between canyon and 2m height [s/m]
+- `rap_can2m_Inv`: inverse resistance between canyon and 2m height [m/s]
+- `rb_L`: leaf boundary layer resistance [s/m]
+- `alp_soil_bare`: bare soil water stress factor [-]
+- `r_soil_bare`: bare soil resistance [s/m]
+- `alp_soil_veg`: vegetated soil water stress factor [-]
+- `r_soil_veg`: vegetated soil resistance [s/m]
+- `rs_sun_L`: sunlit leaf stomatal resistance [s/m]
+- `rs_shd_L`: shaded leaf stomatal resistance [s/m]
+- `dw_L`: wet leaf fraction [-]
+- `Fsun_L`: sunlit leaf fraction [-]
+- `Fshd_L`: shaded leaf fraction [-]
+- `FractionsGround`: ground cover fractions
+- `ParVegGround`: vegetation parameters
+- `Eimp`: impervious surface vapor flux [kg/m²s]
+- `Ebare`: bare soil vapor flux [kg/m²s]
+- `Eveg_int`: intercepted water vapor flux [kg/m²s]
+- `Eveg_pond`: ponded water vapor flux [kg/m²s]
+- `Eveg_soil`: soil under vegetation vapor flux [kg/m²s]
+- `TEveg`: vegetation transpiration [kg/m²s]
+- `Pre`: air pressure [Pa]
+- `Humidity_ittm`: humidity variables from previous timestep
+- `fconv`: convection factor [-]
+- `MeteoData`: meteorological data
+- `Gemeotry_m`: urban geometry parameters
+- `rho_atm`: air density [kg/m³]
+- `Zp1`: reference height [m]
+- `ParCalculation`: calculation parameters
 
 # Returns
-Parameters related to vapor flux and humidity:
-- `DEi`: vapor flux difference [kg/m²s]
-- `Eimp_2m`: impervious surface vapor flux at 2m [kg/m²s]
-- `Ebare_soil_2m`: bare soil vapor flux at 2m [kg/m²s]
-- `Eveg_int_2m`: intercepted water vapor flux at 2m [kg/m²s]
-- `Eveg_soil_2m`: soil under vegetation vapor flux at 2m [kg/m²s]
-- `TEveg_2m`: vegetation transpiration at 2m [kg/m²s]
-- `Ecan_2m`: canyon vapor flux at 2m [kg/m²s]
-- `q2m`: specific humidity at 2m [kg/kg]
-- `e_T2m`: vapor pressure at 2m [Pa]
-- `RH_T2m`: relative humidity at 2m [-]
-- `qcan`: canyon specific humidity [kg/kg]
-- `e_Tcan`: canyon vapor pressure [Pa]
-- `RH_Tcan`: canyon relative humidity [-]
+- `DEi::FT`: vapor flux difference [kg/m²s]
+- `Eimp_2m::FT`: impervious surface vapor flux at 2m [kg/m²s]
+- `Ebare_soil_2m::FT`: bare soil vapor flux at 2m [kg/m²s]
+- `Eveg_int_2m::FT`: intercepted water vapor flux at 2m [kg/m²s]
+- `Eveg_soil_2m::FT`: soil under vegetation vapor flux at 2m [kg/m²s]
+- `TEveg_2m::FT`: vegetation transpiration at 2m [kg/m²s]
+- `Ecan_2m::FT`: canyon vapor flux at 2m [kg/m²s]
+- `q2m::FT`: specific humidity at 2m [kg/kg]
+- `e_T2m::FT`: vapor pressure at 2m [Pa]
+- `RH_T2m::FT`: relative humidity at 2m [-]
+- `qcan::FT`: canyon specific humidity [kg/kg]
+- `e_Tcan::FT`: canyon vapor pressure [Pa]
+- `RH_Tcan::FT`: canyon relative humidity [-]
 """
+
 function air_humidity_2m_output(
     q2m::FT,
     T2m::FT,
@@ -56,8 +112,8 @@ function air_humidity_2m_output(
     dw_L::FT,
     Fsun_L::FT,
     Fshd_L::FT,
-    FractionsGround,
-    ParVegGround,
+    FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+    ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
     Eimp::FT,
     Ebare::FT,
     Eveg_int::FT,
@@ -65,13 +121,13 @@ function air_humidity_2m_output(
     Eveg_soil::FT,
     TEveg::FT,
     Pre::FT,
-    Humidity_ittm,
+    Humidity_ittm::NamedTuple,
     fconv::FT,
-    MeteoData,
-    Gemeotry_m,
+    MeteoData::NamedTuple,
+    Gemeotry_m::NamedTuple,
     rho_atm::FT,
     Zp1::FT,
-    ParCalculation,
+    ParCalculation::NamedTuple,
 ) where {FT<:AbstractFloat}
     # Vapor pressure and specific humidity calculations
     esat_Timp = 611 * exp(17.27 * (Timp - 273.16) / (237.3 + (Timp - 273.16)))

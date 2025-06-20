@@ -1,10 +1,9 @@
 """
     heat_flux_canyon(
         TemperatureC::AbstractVector{FT},
-        Gemeotry_m,
-        MeteoData,
-        ParVegTree,
-        ParTree,
+        Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+        MeteoData::NamedTuple,
+        ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
         fconvPreCalc::FT,
         fconv::FT
     ) where {FT<:AbstractFloat}
@@ -18,6 +17,14 @@ Calculate sensible and latent heat fluxes in the urban canyon.
 - `ParVegTree`: Tree vegetation parameters
 - `fconvPreCalc`: Pre-calculated convection flag [-]
 - `fconv`: Convection factor [-]
+
+# Returns
+- `Hcanyon::FT`: Sensible heat flux in canyon [W/m²]
+- `LEcanyon::FT`: Latent heat flux in canyon [W/m²]
+- `ra_canyon::FT`: Aerodynamic resistance in canyon [s/m]
+- `ra_orig::FT`: Original aerodynamic resistance [s/m]
+- `fconv::FT`: Convection enhancement factor [-]
+- `HumidityCan::NamedTuple`: Canyon humidity parameters
 """
 function heat_flux_canyon(
     TemperatureC::AbstractVector{FT},

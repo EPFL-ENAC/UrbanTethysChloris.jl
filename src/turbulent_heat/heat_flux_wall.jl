@@ -1,12 +1,11 @@
 """
     heat_flux_wall(
         TemperatureC::AbstractVector{FT},
-        Gemeotry_m,
-        MeteoData,
-        ParVegTree,
-        ParTree,
-        ParVegGround,
-        FractionsGround
+        Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+        MeteoData::NamedTuple,
+        ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT}
     ) where {FT<:AbstractFloat}
 
 Calculate sensible and latent heat fluxes for sunlit and shaded walls.
@@ -16,9 +15,31 @@ Calculate sensible and latent heat fluxes for sunlit and shaded walls.
 - `Gemeotry_m`: Urban geometry parameters
 - `MeteoData`: Meteorological data
 - `ParVegTree`: Tree vegetation parameters
-- `ParTree`: Tree presence parameters
 - `ParVegGround`: Ground vegetation parameters
 - `FractionsGround`: Ground cover fractions
+
+# Returns
+- `Hwsun::FT`: Sensible heat flux from sunlit wall [W/m²]
+- `Hwshade::FT`: Sensible heat flux from shaded wall [W/m²]
+- `Ewsun::FT`: Latent heat flux from sunlit wall [kg/m²s]
+- `Ewshade::FT`: Latent heat flux from shaded wall [kg/m²s]
+- `LEwsun::FT`: Latent heat from sunlit wall [W/m²]
+- `LEwshade::FT`: Latent heat from shaded wall [W/m²]
+- `RES_w1::FT`: Wall resistance at level 1 [s/m]
+- `RES_w2::FT`: Wall resistance at level 2 [s/m]
+- `rap_Zp1_In::FT`: In-canyon aerodynamic resistance at level 1 [s/m]
+- `rap_Zp2_In::FT`: In-canyon aerodynamic resistance at level 2 [s/m]
+- `Hwsun1::FT`: Sensible heat flux from sunlit wall at level 1 [W/m²]
+- `Hwshade1::FT`: Sensible heat flux from shaded wall at level 1 [W/m²]
+- `Hwsun2::FT`: Sensible heat flux from sunlit wall at level 2 [W/m²]
+- `Hwshade2::FT`: Sensible heat flux from shaded wall at level 2 [W/m²]
+- `cp_atm::FT`: Specific heat capacity of air [J/kg/K]
+- `rho_atm::FT`: Air density [kg/m³]
+- `L_heat::FT`: Latent heat of vaporization [J/kg]
+- `Zp1::FT`: Height of level 1 [m]
+- `Zp2::FT`: Height of level 2 [m]
+- `rap_Zp1::FT`: Aerodynamic resistance at level 1 [s/m]
+- `rap_Zp2::FT`: Aerodynamic resistance at level 2 [s/m]
 """
 function heat_flux_wall(
     TemperatureC::AbstractVector{FT},

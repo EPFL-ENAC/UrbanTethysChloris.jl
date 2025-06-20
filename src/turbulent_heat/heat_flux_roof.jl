@@ -1,24 +1,24 @@
 """
     heat_flux_roof(
         TemperatureR::AbstractVector{FT},
-        TempVec_ittm,
-        MeteoData,
-        HumidityAtm,
-        ParVegRoof,
-        FractionsRoof,
-        Gemeotry_m,
-        ParSoilRoof,
-        ParCalculation,
-        SoilPotW_ittm,
-        Owater_ittm,
-        Vwater_ittm,
-        ExWater_ittm,
-        Int_ittm,
-        CiCO2Leaf_ittm,
+        TempVec_ittm::NamedTuple,
+        MeteoData::NamedTuple,
+        HumidityAtm::NamedTuple,
+        ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+        FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+        Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+        ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
+        ParCalculation::NamedTuple,
+        SoilPotW_ittm::NamedTuple,
+        Owater_ittm::NamedTuple,
+        Vwater_ittm::NamedTuple,
+        ExWater_ittm::NamedTuple,
+        Int_ittm::NamedTuple,
+        CiCO2Leaf_ittm::NamedTuple,
         SWRabs_dir::FT,
         SWRabs_diff::FT,
         RESPreCalc::Bool,
-        rsRoofPreCalc
+        rsRoofPreCalc::NamedTuple
     ) where {FT<:AbstractFloat}
 
 Calculate sensible and latent heat fluxes for roof surfaces.
@@ -43,6 +43,28 @@ Calculate sensible and latent heat fluxes for roof surfaces.
 - `SWRabs_diff`: Diffuse shortwave radiation [W/m²]
 - `RESPreCalc`: Use pre-calculated resistances
 - `rsRoofPreCalc`: Pre-calculated resistance parameters
+
+# Returns
+- `Hroof_imp::FT`: Sensible heat flux from impervious roof [W/m²]
+- `Hroof_veg::FT`: Sensible heat flux from vegetated roof [W/m²]
+- `Eroof_imp::FT`: Water vapor flux from impervious roof [kg/m²s]
+- `Eroof_veg::FT`: Water vapor flux from vegetated roof [kg/m²s]
+- `Eroof_ground::FT`: Ground water vapor flux from vegetated roof [kg/m²s]
+- `Eroof_soil::FT`: Soil water vapor flux from vegetated roof [kg/m²s]
+- `TEroof_veg::FT`: Transpiration flux from vegetated roof [kg/m²s]
+- `LEroof_imp::FT`: Latent heat flux from impervious roof [W/m²]
+- `LEroof_veg::FT`: Latent heat flux from vegetated roof [W/m²]
+- `LEroof_ground::FT`: Ground latent heat flux from vegetated roof [W/m²]
+- `LEroof_soil::FT`: Soil latent heat flux from vegetated roof [W/m²]
+- `LTEroof_veg::FT`: Latent heat of transpiration from vegetated roof [W/m²]
+- `Ci_sun_roof::FT`: Sunlit leaf internal CO2 concentration [μmol/mol]
+- `Ci_shd_roof::FT`: Shaded leaf internal CO2 concentration [μmol/mol]
+- `ra::FT`: Atmospheric resistance [s/m]
+- `rb::FT`: Boundary layer resistance [s/m]
+- `rap_L::FT`: Roof aerodynamic resistance [s/m]
+- `r_soil::FT`: Soil resistance [s/m]
+- `rs_sun::FT`: Sunlit stomatal resistance [s/m]
+- `rs_shd::FT`: Shaded stomatal resistance [s/m]
 """
 function heat_flux_roof(
     TemperatureR::AbstractVector{FT},

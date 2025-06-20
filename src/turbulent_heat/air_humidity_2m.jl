@@ -19,8 +19,8 @@
         dw_L::FT,
         Fsun_L::FT,
         Fshd_L::FT,
-        FractionsGround,
-        ParVegGround,
+        FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+        ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
         Eimp::FT,
         Ebare::FT,
         Eveg_int::FT,
@@ -28,13 +28,13 @@
         Eveg_soil::FT,
         TEveg::FT,
         Pre::FT,
-        Humidity_ittm,
+        Humidity_ittm::NamedTuple,
         fconv::FT,
-        MeteoData,
-        Gemeotry_m,
+        MeteoData::NamedTuple,
+        Gemeotry_m::NamedTuple,
         rho_atm::FT,
         Zp1::FT,
-        ParCalculation
+        ParCalculation::NamedTuple
     ) where {FT<:AbstractFloat}
 
 Calculate the air humidity at 2m level and compute the vapor flux difference.
@@ -77,8 +77,9 @@ Calculate the air humidity at 2m level and compute the vapor flux difference.
 - `ParCalculation`: calculation parameters
 
 # Returns
-- `DEi`: vapor flux difference [kg/m²s]
+- `DEi::FT`: vapor flux difference [kg/m²s]
 """
+
 function air_humidity_2m(
     q2m::FT,
     T2m::FT,

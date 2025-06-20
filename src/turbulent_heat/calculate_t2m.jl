@@ -11,16 +11,16 @@
         rap_can2m_Inv::FT,
         rb_L::FT,
         RES_w1::FT,
-        FractionsGround,
-        Gemeotry_m,
-        geometry,
-        ParVegGround,
+        FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+        Gemeotry_m::NamedTuple,
+        geometry::NamedTuple,
+        ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
         TempVec_ittm,
         cp_atm::FT,
         rho_atm::FT,
-        ParCalculation,
+        ParCalculation::NamedTuple,
         fconv::FT,
-        MeteoData
+        MeteoData::NamedTuple
     ) where {FT<:AbstractFloat}
 
 Calculate the air temperature at 2m level and compute sensible heat fluxes.
@@ -49,14 +49,14 @@ Calculate the air temperature at 2m level and compute sensible heat fluxes.
 - `MeteoData`: meteorological data
 
 # Returns
-- `T2m`: air temperature at 2m [K]
-- `DHi`: sensible heat flux difference [W/m²]
-- `Himp_2m`: impervious surface sensible heat flux at 2m [W/m²]
-- `Hbare_2m`: bare soil sensible heat flux at 2m [W/m²]
-- `Hveg_2m`: vegetated surface sensible heat flux at 2m [W/m²]
-- `Hwsun_2m`: sunlit wall sensible heat flux at 2m [W/m²]
-- `Hwshade_2m`: shaded wall sensible heat flux at 2m [W/m²]
-- `Hcan_2m`: canyon sensible heat flux at 2m [W/m²]
+- `T2m::FT`: air temperature at 2m [K]
+- `DHi::FT`: sensible heat flux difference [W/m²]
+- `Himp_2m::FT`: impervious surface sensible heat flux at 2m [W/m²]
+- `Hbare_2m::FT`: bare soil sensible heat flux at 2m [W/m²]
+- `Hveg_2m::FT`: vegetated surface sensible heat flux at 2m [W/m²]
+- `Hwsun_2m::FT`: sunlit wall sensible heat flux at 2m [W/m²]
+- `Hwshade_2m::FT`: shaded wall sensible heat flux at 2m [W/m²]
+- `Hcan_2m::FT`: canyon sensible heat flux at 2m [W/m²]
 """
 function calculate_t2m(
     Timp::FT,
