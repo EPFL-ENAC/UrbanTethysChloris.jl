@@ -16,6 +16,9 @@ using .Radiation
 include(joinpath("soil", "Soil.jl"))
 using .Soil
 
+include(joinpath("conductive_heat", "ConductiveHeat.jl"))
+using .ConductiveHeat
+
 include(joinpath("resistance", "Resistance.jl"))
 using .Resistance
 
