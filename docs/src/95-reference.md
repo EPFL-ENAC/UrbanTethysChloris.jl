@@ -16,6 +16,12 @@ Pages = ["95-reference.md"]
 Modules = [UrbanTethysChloris]
 ```
 
+## Conductive Heat
+
+```@autodocs
+Modules = [UrbanTethysChloris.ConductiveHeat]
+```
+
 ## Radiation
 
 ```@autodocs

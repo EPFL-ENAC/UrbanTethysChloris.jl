@@ -1,7 +1,15 @@
 using SafeTestsets
 
+@safetestset "conductive_heat" begin
+    include(joinpath("conductive_heat", "ConductiveHeat.jl"))
+end
+
 @safetestset "resistance" begin
     include(joinpath("resistance", "Resistance.jl"))
+end
+
+@safetestset "soil" begin
+    include(joinpath("soil", "Soil.jl"))
 end
 
 @safetestset "turbulent_heat" begin
