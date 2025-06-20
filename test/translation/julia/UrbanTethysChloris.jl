@@ -1,5 +1,9 @@
 using SafeTestsets
 
+@safetestset "conductive_heat" begin
+    include(joinpath("conductive_heat", "ConductiveHeat.jl"))
+end
+
 @safetestset "resistance" begin
     include(joinpath("resistance", "Resistance.jl"))
 end

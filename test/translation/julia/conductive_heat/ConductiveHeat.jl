@@ -11,3 +11,11 @@ end
 @safetestset "ConductiveHeatFlux_Walls" begin
     include("conductive_heat_flux_walls.jl")
 end
+
+@safetestset "ConductiveHeatFluxFR_GroundImp" begin
+    include("conductive_heat_flux_ground_fr.jl")
+end
+
+@safetestset "Soil_Heat" begin
+    include("soil_heat.jl")
+end
