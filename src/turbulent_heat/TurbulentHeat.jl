@@ -11,7 +11,7 @@ using ..Resistance:
     leaf_boundary_resistance,
     soil_resistance
 using ..Soil: soil_parameters_total
-using NaNMath: NaNMath
+using NaNMath
 
 include("air_humidity_2m.jl")
 include("air_humidity_2m_output.jl")
