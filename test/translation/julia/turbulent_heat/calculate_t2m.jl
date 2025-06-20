@@ -48,7 +48,6 @@ ParCalculation = (; dts=input_vars["ParCalculation"]["dts"])
         input_vars["RES_w1"],
         FractionsGround,
         Gemeotry_m,
-        geometry,
         ParVegGround,
         TempVec_ittm,
         input_vars["cp_atm"],
