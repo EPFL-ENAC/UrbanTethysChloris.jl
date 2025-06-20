@@ -16,6 +16,10 @@ end
     include("conductive_heat_flux_ground_fr.jl")
 end
 
+@safetestset "ConductiveHeatFluxFR_GroundVegBare" begin
+    include("conductive_heat_flux_ground_vb.jl")
+end
+
 @safetestset "Soil_Heat" begin
     include("soil_heat.jl")
 end
