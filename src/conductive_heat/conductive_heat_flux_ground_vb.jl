@@ -27,8 +27,8 @@ Calculate conductive heat flux for bare/vegetated ground fractions.
 - `type`: 0 for bare ground, 1 for vegetated ground
 
 # Returns
-- `G`: Ground heat flux [W/m²]
-- `Tdp`: Damping temperature [K]
+- `G::FT`: Ground heat flux [W/m²]
+- `Tdp::FT`: Damping temperature [K]
 """
 function conductive_heat_flux_ground_vb(
     TemperatureC::Vector{FT},

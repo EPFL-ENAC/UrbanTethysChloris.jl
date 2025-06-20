@@ -27,8 +27,8 @@ Calculate conductive heat flux for ground with fraction-resolved temperature.
 - `ParVegGround`: Ground vegetation parameters
 
 # Returns
-- `G`: Ground heat flux [W/m²]
-- `Tdp`: Damping temperature [K]
+- `G::FT`: Ground heat flux [W/m²]
+- `Tdp::FT`: Damping temperature [K]
 """
 function conductive_heat_flux_ground_fr(
     TemperatureC::Vector{FT},

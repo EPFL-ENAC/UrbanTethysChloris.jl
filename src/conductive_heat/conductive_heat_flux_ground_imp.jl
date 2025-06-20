@@ -17,9 +17,9 @@ Calculate conductive heat flux through impervious ground.
 - `ParCalculation`: Calculation parameters
 
 # Returns
-- `G1`: Heat flux from surface to concrete interior
-- `G2`: Heat flux from concrete interior to deep soil
-- `dS`: Energy storage in the ground
+- `G1::FT`: Heat flux from surface to concrete interior [W/m²]
+- `G2::FT`: Heat flux from concrete interior to deep soil [W/m²]
+- `dS::FT`: Energy storage in the ground [J/m²]
 """
 function conductive_heat_flux_ground_imp(
     TemperatureC::Vector{FT},

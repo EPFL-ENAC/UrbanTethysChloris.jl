@@ -29,9 +29,9 @@ Calculate conductive heat flux through walls.
 - `BEM_on`: Building Energy Model switch
 
 # Returns
-- `G1`: Heat flux from surface to concrete interior
-- `G2`: Heat flux from concrete interior to building interior
-- `dS`: Energy storage in the wall
+- `G1::FT`: Heat flux from surface to concrete interior [W/m²]
+- `G2::FT`: Heat flux from concrete interior to building interior [W/m²]
+- `dS::FT`: Energy storage in the wall [J/m²]
 """
 function conductive_heat_flux_walls(
     TemperatureC::Vector{FT},

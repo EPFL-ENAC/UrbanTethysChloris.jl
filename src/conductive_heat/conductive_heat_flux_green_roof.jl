@@ -7,7 +7,7 @@
         Owater::NamedTuple,
         ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
         ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
-        ParThermalRoof::NamedTuple,
+        ParThermalRoof::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
         ParCalculation::NamedTuple,
         BEM_on::Int
     ) where {FT<:AbstractFloat}
@@ -27,9 +27,9 @@ Calculate conductive heat flux through a green roof.
 - `bem_on`: Building Energy Model switch (0/1)
 
 # Returns
-- `g1`: Heat flux from surface to concrete interior [W/m²]
-- `g2`: Heat flux from concrete interior to building interior [W/m²]
-- `ds`: Energy storage in the roof [J/m²]
+- `G1::FT`: Heat flux from surface to concrete interior [W/m²]
+- `G2::FT`: Heat flux from concrete interior to building interior [W/m²]
+- `dS::FT`: Energy storage in the roof [J/m²]
 """
 function conductive_heat_flux_green_roof(
     TemperatureR::Vector{FT},
