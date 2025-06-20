@@ -7,3 +7,7 @@ end
 @safetestset "ConductiveHeatFlux_RoofImp" begin
     include("conductive_heat_flux_roof_imp.jl")
 end
+
+@safetestset "ConductiveHeatFlux_Walls" begin
+    include("conductive_heat_flux_walls.jl")
+end
