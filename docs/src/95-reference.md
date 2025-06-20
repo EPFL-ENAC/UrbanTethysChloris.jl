@@ -40,6 +40,12 @@ Modules = [UrbanTethysChloris.Resistance]
 Modules = [UrbanTethysChloris.Soil]
 ```
 
+## Turbulent Heat
+
+```@autodocs
+Modules = [UrbanTethysChloris.TurbulentHeat]
+```
+
 ## Water
 
 ```@autodocs
