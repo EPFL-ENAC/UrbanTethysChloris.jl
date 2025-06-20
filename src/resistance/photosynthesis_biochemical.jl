@@ -205,7 +205,7 @@ function photosynthesis_biochemical(
     # Calculate assimilation rates
     if CT == 3
         JC = Vm * (Cc - GAM) / (Cc + Kc * (1 + Oa / Ko))
-        JL = J * (Cc - GAM) / (4 * (Cc + FT(2) * GAM))
+        JL = J * (Cc - GAM) / (Cc + FT(2) * GAM)
         JE = TPU * FT(3)
     elseif CT == 4
         JC = Vm

@@ -4,6 +4,10 @@ using SafeTestsets
     include(joinpath("resistance", "Resistance.jl"))
 end
 
+@safetestset "turbulent_heat" begin
+    include(joinpath("turbulent_heat", "TurbulentHeat.jl"))
+end
+
 @safetestset "water" begin
     include(joinpath("water", "Water.jl"))
 end
