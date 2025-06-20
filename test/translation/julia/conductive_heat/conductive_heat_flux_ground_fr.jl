@@ -1,7 +1,7 @@
 using Test
 using MAT
 using UrbanTethysChloris.ConductiveHeat: conductive_heat_flux_ground_fr
-using .TestUtils:
+using ....TestUtils:
     create_location_specific_thermal_properties,
     create_location_specific_surface_fractions,
     create_vegetated_soil_parameters,
