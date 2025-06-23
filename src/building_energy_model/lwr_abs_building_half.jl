@@ -112,12 +112,18 @@ function lwr_abs_building_half(
         end
     end
 
+    LWRout_i = B_i
+    LWRemit_i = Omega_i
+    LWRin_i = A_i
+    LWRnet_i = Qnet_i
+
     # Energy balance check
     TotalLWRSurface_in =
         (LWRin_i[1]*A_c + LWRin_i[2]*A_h + LWRin_i[3]*A_h + LWRin_i[4]*A_g) / A_g
     TotalLWRSurface_abs =
-        (Qnet_i[1]*A_c + Qnet_i[2]*A_h + Qnet_i[3]*A_h + Qnet_i[4]*A_g) / A_g
-    TotalLWRSurface_out = (B_i[1]*A_c + B_i[2]*A_h + B_i[3]*A_h + B_i[4]*A_g) / A_g
+        (LWRnet_i[1]*A_c + LWRnet_i[2]*A_h + LWRnet_i[3]*A_h + LWRnet_i[4]*A_g) / A_g
+    TotalLWRSurface_out =
+        (LWRout_i[1]*A_c + LWRout_i[2]*A_h + LWRout_i[3]*A_h + LWRout_i[4]*A_g) / A_g
 
     EBSurface = TotalLWRSurface_in - TotalLWRSurface_abs - TotalLWRSurface_out
     if abs(EBSurface) >= FT(1e-6)
@@ -126,21 +132,24 @@ function lwr_abs_building_half(
 
     # Create return structs
     LWRinB = (
-        LWRinCeiling=A_i[1], LWRinWall=A_i[2], LWRinInternalMass=A_i[3], LWRinGround=A_i[4]
+        LWRinCeiling=LWRin_i[1],
+        LWRinWall=LWRin_i[2],
+        LWRinInternalMass=LWRin_i[3],
+        LWRinGround=LWRin_i[4],
     )
 
     LWRoutB = (
-        LWRoutCeiling=B_i[1],
-        LWRoutWall=B_i[2],
-        LWRoutInternalMass=B_i[3],
-        LWRoutGround=B_i[4],
+        LWRoutCeiling=LWRout_i[1],
+        LWRoutWall=LWRout_i[2],
+        LWRoutInternalMass=LWRout_i[3],
+        LWRoutGround=LWRout_i[4],
     )
 
     LWRabsB = (
-        LWRabsCeiling=Qnet_i[1],
-        LWRabsWall=Qnet_i[2],
-        LWRabsInternalMass=Qnet_i[3],
-        LWRabsGround=Qnet_i[4],
+        LWRabsCeiling=LWRnet_i[1],
+        LWRabsWall=LWRnet_i[2],
+        LWRabsInternalMass=LWRnet_i[3],
+        LWRabsGround=LWRnet_i[4],
     )
 
     return LWRinB, LWRoutB, LWRabsB
