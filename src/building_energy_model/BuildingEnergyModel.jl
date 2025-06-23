@@ -11,5 +11,6 @@ include("ac_heating_turn_on_off.jl")
 include("conductive_heat_flux_building_floor.jl")
 include("lwr_abs_building_half.jl")
 include("lwr_abs_indoors.jl")
+include("lwr_abs_indoors_no_int_mass.jl")
 
 end

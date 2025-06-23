@@ -19,3 +19,7 @@ end
 @safetestset "LWRabsIndoors" begin
     include("lwr_abs_indoors.jl")
 end
+
+@safetestset "LWRabsIndoorsNoIntMass" begin
+    include("lwr_abs_indoors_no_int_mass.jl")
+end
