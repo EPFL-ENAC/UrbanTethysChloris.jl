@@ -12,7 +12,10 @@ end
     include("conductive_heat_flux_building_floor.jl")
 end
 
-# TODO: manually create test data
-# @safetestset "LWRabsBuildingHalf" begin
-#     include("lwr_abs_building_half.jl")
-# end
+@safetestset "LWRabsBuildingHalf" begin
+    include("lwr_abs_building_half.jl")
+end
+
+@safetestset "LWRabsIndoors" begin
+    include("lwr_abs_indoors.jl")
+end
