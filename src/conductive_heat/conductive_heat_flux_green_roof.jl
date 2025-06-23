@@ -9,7 +9,7 @@
         ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
         ParThermalRoof::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
         ParCalculation::NamedTuple,
-        BEM_on::Int
+        BEM_on::Bool
     ) where {FT<:AbstractFloat}
 
 Calculate conductive heat flux through a green roof.
