@@ -33,6 +33,10 @@ end
     include("sensible_heat_flux_building_interior.jl")
 end
 
+# @safetestset "SWRabsBuildingHalf" begin
+#     include("swr_abs_building_half.jl")
+# end
+
 # @safetestset "HeatStorageChangeInternalMass" begin
 #     include("heat_storage_change_internal_mass.jl")
 # end
