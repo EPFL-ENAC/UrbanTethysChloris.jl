@@ -48,3 +48,7 @@ end
 @safetestset "EBSolver_Building" begin
     include("eb_solver_building.jl")
 end
+
+@safetestset "EBSolver_BuildingOutput" begin
+    include("eb_solver_building_output.jl")
+end

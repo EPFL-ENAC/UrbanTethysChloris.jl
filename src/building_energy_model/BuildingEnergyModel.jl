@@ -18,5 +18,6 @@ include("sensible_heat_flux_building_interior.jl")
 include("heat_storage_change_internal_mass.jl")
 include("swr_abs_building_half.jl")
 include("eb_solver_building.jl")
+include("eb_solver_building_output.jl")
 
 end
