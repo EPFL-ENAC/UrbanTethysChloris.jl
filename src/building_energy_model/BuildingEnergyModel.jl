@@ -14,5 +14,6 @@ include("lwr_abs_indoors.jl")
 include("lwr_abs_indoors_no_int_mass.jl")
 include("swr_abs_indoors_no_int_mass.jl")
 include("sensible_heat_flux_building_interior.jl")
+include("heat_storage_change_internal_mass.jl")
 
 end
