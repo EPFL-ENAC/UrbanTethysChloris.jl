@@ -44,3 +44,7 @@ end
 # @safetestset "HeatStorageChangeInternalMass" begin
 #     include("heat_storage_change_internal_mass.jl")
 # end
+
+@safetestset "EBSolver_Building" begin
+    include("eb_solver_building.jl")
+end
