@@ -55,7 +55,11 @@ function conductive_heat_flux_ground_vb(
         Tstm1 = TempVec_ittm.TGroundVeg
         Csoil = FractionsGround.fveg > 0
     else
-        error("Please enter a valid specification of ground type. 0 = bare, 1 = vegetated")
+        throw(
+            ArgumentError(
+                "Please enter a valid specification of ground type. 0 = bare, 1 = vegetated"
+            ),
+        )
     end
 
     dts = ParCalculation.dts
