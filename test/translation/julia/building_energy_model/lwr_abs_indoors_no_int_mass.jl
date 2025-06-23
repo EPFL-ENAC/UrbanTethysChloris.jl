@@ -9,7 +9,7 @@ input_vars = matread(joinpath(dir, "inputs", filename))
 output_vars = matread(joinpath(dir, "outputs", filename))
 
 @testset "MATLAB" begin
-    LWRinB, LWRoutB, LWRabsB = lwr_abs_indoors_no_int_mass(
+    LWRinB, LWRoutB, LWRabsB, LWREBB = lwr_abs_indoors_no_int_mass(
         input_vars["Tinwallsun"],
         input_vars["Tinwallshd"],
         input_vars["Tceiling"],
@@ -38,4 +38,10 @@ output_vars = matread(joinpath(dir, "outputs", filename))
     @test LWRabsB.LWRabsWallsun ≈ output_vars["LWRabsB"]["LWRabsWallsun"] atol=1e-11
     @test LWRabsB.LWRabsWallshd ≈ output_vars["LWRabsB"]["LWRabsWallshd"] atol=1e-11
     @test LWRabsB.LWRabsGround ≈ output_vars["LWRabsB"]["LWRabsGround"] atol=1e-11
+
+    # Test energy balance
+    @test LWREBB.LWREBCeiling ≈ output_vars["LWREBB"]["LWREBCeiling"] atol=1e-11
+    @test LWREBB.LWREBWallsun ≈ output_vars["LWREBB"]["LWREBWallsun"] atol=1e-11
+    @test LWREBB.LWREBWallshd ≈ output_vars["LWREBB"]["LWREBWallshd"] atol=1e-11
+    @test LWREBB.LWREBGround ≈ output_vars["LWREBB"]["LWREBGround"] atol=1e-11
 end

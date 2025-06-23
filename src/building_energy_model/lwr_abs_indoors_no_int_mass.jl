@@ -142,5 +142,20 @@ function lwr_abs_indoors_no_int_mass(
         LWRabsGround=LWRnet_i[4],
     )
 
-    return LWRinB, LWRoutB, LWRabsB
+    # Add LWREBB calculation
+    LWREBB = (
+        LWREBCeiling=LWRinB.LWRinCeiling - LWRoutB.LWRoutCeiling - LWRabsB.LWRabsCeiling,
+        LWREBWallsun=LWRinB.LWRinWallsun - LWRoutB.LWRoutWallsun - LWRabsB.LWRabsWallsun,
+        LWREBWallshd=LWRinB.LWRinWallshd - LWRoutB.LWRoutWallshd - LWRabsB.LWRabsWallshd,
+        LWREBGround=LWRinB.LWRinGround - LWRoutB.LWRoutGround - LWRabsB.LWRabsGround,
+    )
+
+    # Check energy balance for each surface
+    for (component, val) in pairs(LWREBB)
+        if abs(val) >= FT(1e-6)
+            @warn "$(component) is not 0. Please check lwr_abs_indoors_no_int_mass.jl"
+        end
+    end
+
+    return LWRinB, LWRoutB, LWRabsB, LWREBB
 end
