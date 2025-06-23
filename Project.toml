@@ -5,6 +5,7 @@ version = "0.7.0"
 
 [deps]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
+ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Debugger = "31a5f54b-26ea-5ae9-a837-f05ce5417438"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -24,6 +25,7 @@ TethysChlorisCore = {rev = "v0.1.2", url = "https://github.com/EPFL-ENAC/TethysC
 
 [compat]
 ADTypes = "1.14.0"
+ConstructionBase = "1.6.0"
 Dates = "1.11.0"
 LinearAlgebra = "1.11.0"
 MAT = "0.10"
