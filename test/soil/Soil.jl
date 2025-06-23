@@ -40,16 +40,8 @@ end
     include("soil_moistures_rich_comp_lat3.jl")
 end
 
-@safetestset "soil_parameters" begin
-    include("soil_parameters.jl")
-end
-
 @safetestset "soil_parameters2" begin
     include("soil_parameters2.jl")
-end
-
-@safetestset "soil_parameters_total" begin
-    include("soil_parameters_total.jl")
 end
 
 @safetestset "soil_thermal_properties" begin

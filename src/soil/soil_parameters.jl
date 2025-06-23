@@ -108,23 +108,11 @@ function soil_parameters(Psan::FT, Pcla::FT, Porg::FT) where {FT<:AbstractFloat}
         error("Soil parameters are inconsistent")
     end
 
-    # Thermal characteristics
-    Osat_min = 0.489 - 0.1267 * Psan
-    fom = (Osat - Osat_min) / (0.9 - Osat_min)
-    fom = clamp(fom, 0, 1)
-
-    lan_s_om = 0.25    # Thermal conductivity Organic matter [W/m K]
-    lan_dry_om = 0.05    # Thermal conductivity Organic matter dry [W/m K]
-    cv_s_om = 2.5e6    # Volumetric heat capacity Organic matter [J/m^3 K]
-
+    # Thermal characteristics of soil [Farouki 1981] [Williams 1963] [Oleson et al. 2004]
     rsd_s = 2700 * (1 - Osat)
-    lan_dry_min = (0.135 * rsd_s + 64.7) / (2700 - 0.947 * rsd_s)
-    lan_s_min = (8.8 * Psan + 2.92 * Pcla) / (Psan + Pcla)
-
-    lan_dry = (1 - fom) * lan_dry_min + fom * lan_dry_om
-    lan_s = (1 - fom) * lan_s_min + fom * lan_s_om
-    cv_s_min = 1e6 * (2.128 * Psan + 2.385 * Pcla) / (Psan + Pcla)
-    cv_s = (1 - fom) * cv_s_min + fom * cv_s_om
+    lan_dry = (0.135 * rsd_s + 64.7) / (2700 - 0.947 * rsd_s)
+    lan_s = (8.8 * Psan + 2.92 * Pcla) / (Psan + Pcla)
+    cv_s = 1e6 * (2.128 * Psan + 2.385 * Pcla) / (Psan + Pcla)
 
     # K USLE Parameter [Williams 1995]
     Porg_c = Porg / 1.72
