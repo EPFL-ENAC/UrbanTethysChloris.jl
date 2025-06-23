@@ -164,3 +164,27 @@ Base.@kwdef struct ViewFactorPoint{FT<:AbstractFloat} <: AbstractViewFactor{FT}
     F_pwLeft::FT
     F_pwRight::FT
 end
+
+"""
+    ViewFactorInternal{FT<:AbstractFloat} <: AbstractViewFactor{FT}
+
+View factors for internal surfaces in a building.
+
+# Fields
+- `F_gc`: Internal ground to ceiling view factor
+- `F_gw`: Internal ground to wall view factor
+- `F_ww`: Internal wall to wall view factor
+- `F_wg`: Internal wall to ground view factor
+- `F_wc`: Internal wall to ceiling view factor
+- `F_cg`: Internal ceiling to ground view factor
+- `F_cw`: Internal ceiling to wall view factor
+"""
+Base.@kwdef struct ViewFactorInternal{FT<:AbstractFloat} <: AbstractViewFactor{FT}
+    F_gc::FT = FT(0)
+    F_gw::FT = FT(0)
+    F_ww::FT = FT(0)
+    F_wg::FT = FT(0)
+    F_wc::FT = FT(0)
+    F_cg::FT = FT(0)
+    F_cw::FT = FT(0)
+end

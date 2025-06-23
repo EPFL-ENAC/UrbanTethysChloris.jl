@@ -8,6 +8,10 @@ end
     include(joinpath("conductive_heat", "ConductiveHeat.jl"))
 end
 
+@safetestset "ray_tracing" begin
+    include(joinpath("ray_tracing", "RayTracing.jl"))
+end
+
 @safetestset "resistance" begin
     include(joinpath("resistance", "Resistance.jl"))
 end
