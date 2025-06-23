@@ -7,6 +7,9 @@ using Statistics
 include(joinpath("modelcomponents", "ModelComponents.jl"))
 using .ModelComponents
 
+include(joinpath("building_energy_model", "BuildingEnergyModel.jl"))
+using .BuildingEnergyModel
+
 include(joinpath("ray_tracing", "RayTracing.jl"))
 using .RayTracing
 
