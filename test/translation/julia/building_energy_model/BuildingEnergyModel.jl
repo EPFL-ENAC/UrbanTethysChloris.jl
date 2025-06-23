@@ -27,3 +27,7 @@ end
 @safetestset "SWRabsIndoorsNoIntMass" begin
     include("swr_abs_indoors_no_int_mass.jl")
 end
+
+@safetestset "SensibleHeatFluxBuildingInterior" begin
+    include("sensible_heat_flux_building_interior.jl")
+end
