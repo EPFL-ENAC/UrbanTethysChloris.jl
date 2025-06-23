@@ -48,7 +48,7 @@ Parameters specifying thermal properties and dimensions of building internal mas
 - `cv_wall_IntMass::FT`: Internal mass wall volumetric heat capacity (J/m³ K)
 """
 Base.@kwdef struct ThermalBuilding{FT<:AbstractFloat} <: AbstractParameters{FT}
-    IntMassOn::Int
+    IntMassOn::Bool
     FloorHeight::FT
     dzFloor::FT
     dzWall::FT

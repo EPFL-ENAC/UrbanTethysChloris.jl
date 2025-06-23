@@ -291,7 +291,7 @@ end
 
 function create_thermal_building(
     ::Type{FT};
-    IntMassOn::Int=0,
+    IntMassOn::Bool=false,
     FloorHeight::FT=FT(0.0),
     dzFloor::FT=FT(0.0),
     dzWall::FT=FT(0.0),
