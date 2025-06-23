@@ -7,9 +7,6 @@ using Statistics
 include(joinpath("modelcomponents", "ModelComponents.jl"))
 using .ModelComponents
 
-include(joinpath("building_energy_model", "BuildingEnergyModel.jl"))
-using .BuildingEnergyModel
-
 include(joinpath("ray_tracing", "RayTracing.jl"))
 using .RayTracing
 
@@ -21,6 +18,9 @@ using .Soil
 
 include(joinpath("conductive_heat", "ConductiveHeat.jl"))
 using .ConductiveHeat
+
+include(joinpath("building_energy_model", "BuildingEnergyModel.jl"))
+using .BuildingEnergyModel
 
 include(joinpath("resistance", "Resistance.jl"))
 using .Resistance
