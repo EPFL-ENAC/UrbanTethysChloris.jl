@@ -25,6 +25,10 @@ end
     include("lwr_abs_indoors_no_int_mass.jl")
 end
 
+# @safetestset "SWRabsIndoors" begin
+#     include("swr_abs_indoors.jl")
+# end
+
 @safetestset "SWRabsIndoorsNoIntMass" begin
     include("swr_abs_indoors_no_int_mass.jl")
 end
