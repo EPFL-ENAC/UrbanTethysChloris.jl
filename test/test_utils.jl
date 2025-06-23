@@ -65,8 +65,11 @@ end
 
 function create_hvac_parameters(
     ::Type{FT};
-    ACon::Int=0,
-    Heatingon::Int=0,
+    ACon::Bool=false,
+    AC_onCool::Bool=false,
+    AC_onDehum::Bool=false,
+    MasterOn::Bool=true,
+    Heatingon::Bool=false,
     TsetpointCooling::FT=FT(0.0),
     TsetpointHeating::FT=FT(0.0),
     RHsetpointCooling::FT=FT(0.0),
@@ -75,9 +78,13 @@ function create_hvac_parameters(
     COPAC::FT=FT(0.0),
     COPHeat::FT=FT(0.0),
     f_ACLatentToQ::FT=FT(0.0),
+    q_RHspCooling::FT=FT(0.0),
 ) where {FT<:AbstractFloat}
     return HVACParameters{FT}(;
         ACon=ACon,
+        AC_onCool=AC_onCool,
+        AC_onDehum=AC_onDehum,
+        MasterOn=MasterOn,
         Heatingon=Heatingon,
         TsetpointCooling=TsetpointCooling,
         TsetpointHeating=TsetpointHeating,
@@ -87,6 +94,7 @@ function create_hvac_parameters(
         COPAC=COPAC,
         COPHeat=COPHeat,
         f_ACLatentToQ=f_ACLatentToQ,
+        q_RHspCooling=q_RHspCooling,
     )
 end
 
