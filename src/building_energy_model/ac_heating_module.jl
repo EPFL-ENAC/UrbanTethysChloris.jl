@@ -48,7 +48,7 @@ function ac_heating_module(
     Heat_on::Bool,
     AC_onCool::Bool,
     AC_onDehum::Bool,
-    ParHVAC::NamedTuple,
+    ParHVAC::ModelComponents.Parameters.HVACParameters{FT},
     HbuildIn::FT,
     Hvent::FT,
     Hequip::FT,
