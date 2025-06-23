@@ -1,16 +1,15 @@
 """
-    soil_heat(dt, Ts, Tstm1, Tdptm1, CTt) -> (G, Tdp)
+    soil_heat(dt::Int, Ts::FT, Tstm1::FT, Tdptm1::FT, CTt::FT)
 
 
 Compute soil heat flux and depth temperature using force-restore method.
 
 # Arguments
-- `dt::FT`: time step [s]
-- `Ts::FT`: surface temperature [°C]
-- `Tstm1::FT`: surface temperature at previous step [°C]
-
-- `Tdptm1::FT`: depth temperature at previous step [°C]
-- `CTt::FT`: total thermal capacity of soil or water [K m²/J]
+- `dt`: time step [s]
+- `Ts`: surface temperature [°C]
+- `Tstm1`: surface temperature at previous step [°C]
+- `Tdptm1`: depth temperature at previous step [°C]
+- `CTt`: total thermal capacity of soil or water [K m²/J]
 
 # Returns
 - `G::FT`: soil heat flux [W/m²]
