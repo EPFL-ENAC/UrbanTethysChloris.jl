@@ -26,6 +26,7 @@ function heat_storage_change_internal_mass(
     Geometry_m::NamedTuple,
     ParCalculation::NamedTuple,
 ) where {FT<:AbstractFloat}
+    @warn "Using untested heat_storage_change_internal_mass function."
     # Extract parameters
     Ts = Tintmass
     Ts_tm1 = Tintmasstm1

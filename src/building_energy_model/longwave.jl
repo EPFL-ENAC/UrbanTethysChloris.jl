@@ -365,7 +365,7 @@ function lwr_abs_indoors(
     em::FT,
     ew::FT,
 ) where {FT<:AbstractFloat}
-    @warn "Using untested lwr_abs_building_half function."
+    @warn "Using untested lwr_abs_indoors function."
     # Half roof width for internal calculations
     Wroofint = Wroof / 2
 

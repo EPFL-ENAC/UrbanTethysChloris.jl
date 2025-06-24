@@ -58,6 +58,7 @@ function swr_abs_building_half(
     abm::FT,
     abg::FT,
 ) where {FT<:AbstractFloat}
+    @warn "Using untested swr_abs_building_half function."
     # Set up albedo vector
     ai = [abc, abw, abm, abg]
 
@@ -355,6 +356,7 @@ Calculate shortwave radiation absorption inside building.
 function swr_abs_indoors(
     SWRinWsun::FT, SWRinWshd::FT, Hbuild::FT, Wroof::FT, abc::FT, abw::FT, abg::FT, abm::FT
 ) where {FT<:AbstractFloat}
+    @warn "Using untested swr_abs_indoors function."
     # Half roof width for internal calculations
     Wroofint = Wroof / 2
 
