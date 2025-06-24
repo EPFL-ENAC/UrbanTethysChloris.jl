@@ -6,17 +6,12 @@ using ..ConductiveHeat: soil_heat
 using ..RayTracing: view_factor_internal
 using LinearAlgebra
 
-include("ac_heating_module.jl")
-include("ac_heating_turn_on_off.jl")
+include("ac_heating.jl")
 include("conductive_heat_flux_building_floor.jl")
-include("lwr_abs_building_half.jl")
-include("lwr_abs_indoors.jl")
-include("lwr_abs_indoors_no_int_mass.jl")
-include("swr_abs_indoors.jl")
-include("swr_abs_indoors_no_int_mass.jl")
+include("longwave.jl")
+include("shortwave.jl")
 include("sensible_heat_flux_building_interior.jl")
 include("heat_storage_change_internal_mass.jl")
-include("swr_abs_building_half.jl")
 include("eb_solver_building.jl")
 include("eb_solver_building_output.jl")
 
