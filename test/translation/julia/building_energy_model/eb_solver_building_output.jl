@@ -1,7 +1,7 @@
 using Test
 using MAT
 using UrbanTethysChloris.BuildingEnergyModel: eb_solver_building_output
-using ....TestUtils:
+using .TestUtils:
     create_urban_geometry_parameters,
     create_hvac_parameters,
     create_indoor_optical_properties,
@@ -151,6 +151,34 @@ HVACSchedule = (
     @test GbuildInt.Gfloor ≈ output_vars["GbuildInt"]["Gfloor"]
     @test GbuildInt.dSinternalMass ≈ output_vars["GbuildInt"]["dSinternalMass"]
 
+    @test SWRabsB.SWRabsCeiling ≈ output_vars["SWRabsB"]["SWRabsCeiling"]
+    @test SWRabsB.SWRabsWallsun ≈ output_vars["SWRabsB"]["SWRabsWallsun"]
+    @test SWRabsB.SWRabsWallshd ≈ output_vars["SWRabsB"]["SWRabsWallshd"]
+    @test SWRabsB.SWRabsGround ≈ output_vars["SWRabsB"]["SWRabsGround"]
+    @test SWRabsB.SWRabsInternalMass ≈ output_vars["SWRabsB"]["SWRabsInternalMass"]
+
+    @test LWRabsB.LWRabsCeiling ≈ output_vars["LWRabsB"]["LWRabsCeiling"]
+    @test LWRabsB.LWRabsWallsun ≈ output_vars["LWRabsB"]["LWRabsWallsun"]
+    @test LWRabsB.LWRabsWallshd ≈ output_vars["LWRabsB"]["LWRabsWallshd"]
+    @test LWRabsB.LWRabsGround ≈ output_vars["LWRabsB"]["LWRabsGround"]
+    @test LWRabsB.LWRabsInternalMass ≈ output_vars["LWRabsB"]["LWRabsInternalMass"]
+
+    @test Tdpfloor ≈ output_vars["Tdpfloor"]
+
+    @test WasteHeat.SensibleFromAC_Can ≈ output_vars["WasteHeat"]["SensibleFromAC_Can"]
+    @test WasteHeat.LatentFromAC_Can ≈ output_vars["WasteHeat"]["LatentFromAC_Can"]
+    @test WasteHeat.WaterFromAC_Can ≈ output_vars["WasteHeat"]["WaterFromAC_Can"]
+    @test WasteHeat.SensibleFromHeat_Can ≈ output_vars["WasteHeat"]["SensibleFromHeat_Can"]
+    @test WasteHeat.LatentFromHeat_Can ≈ output_vars["WasteHeat"]["LatentFromHeat_Can"]
+    @test WasteHeat.SensibleFromVent_Can ≈ output_vars["WasteHeat"]["SensibleFromVent_Can"]
+    @test WasteHeat.LatentFromVent_Can ≈ output_vars["WasteHeat"]["LatentFromVent_Can"]
+    @test WasteHeat.TotAnthInput_URB ≈ output_vars["WasteHeat"]["TotAnthInput_URB"]
+
+    @test EnergyUse.EnergyForAC ≈ output_vars["EnergyUse"]["EnergyForAC"]
+    @test EnergyUse.EnergyForAC_H ≈ output_vars["EnergyUse"]["EnergyForAC_H"]
+    @test EnergyUse.EnergyForAC_LE ≈ output_vars["EnergyUse"]["EnergyForAC_LE"]
+    @test EnergyUse.EnergyForHeating ≈ output_vars["EnergyUse"]["EnergyForHeating"]
+
     # Test building humidity
     @test HumidityBuilding.qbin ≈ output_vars["HumidityBuilding"]["qbin"]
     @test HumidityBuilding.esatbin ≈ output_vars["HumidityBuilding"]["esatbin"]
@@ -162,4 +190,6 @@ HVACSchedule = (
     @test ParACHeat.AC_onCool == Bool(output_vars["ParACHeat"]["AC_onCool"])
     @test ParACHeat.AC_onDehum == Bool(output_vars["ParACHeat"]["AC_onDehum"])
     @test ParACHeat.Heat_on == Bool(output_vars["ParACHeat"]["Heat_on"])
+
+    @test all(isapprox.(YBuildInt, vec(output_vars["YBuildInt"]), atol=1e-11))
 end

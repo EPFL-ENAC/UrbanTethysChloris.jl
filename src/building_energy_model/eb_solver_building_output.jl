@@ -49,8 +49,17 @@ Simple Building energy model.
 - `HVACSchedule`: HVAC operation schedule
 
 # Returns
-- `YBuildInt`: Building internal energy balance residuals
-- `WasteHeat`: Waste heat emissions from AC and ventilation
+- `HbuildInt::NamedTuple`: Internal sensible heat fluxes [W/m²]
+- `LEbuildInt::NamedTuple`: Internal latent heat fluxes [W/m²]
+- `GbuildInt::NamedTuple`: Internal conductive heat fluxes [W/m²]
+- `SWRabsB::NamedTuple`: Absorbed shortwave radiation [W/m²]
+- `LWRabsB::NamedTuple`: Absorbed longwave radiation [W/m²]
+- `Tdpfloor`: Floor dampening temperature [K]
+- `WasteHeat`: Waste heat emissions [W/m²]
+- `EnergyUse`: Energy consumption [W*h]
+- `HumidityBuilding`: Building humidity parameters
+- `ParACHeat`: HVAC system operation parameters
+- `YBuildInt::Vector{FT}`: Building internal energy balance residuals [W/m²]
 """
 function eb_solver_building_output(
     TemperatureC::Vector{FT},
