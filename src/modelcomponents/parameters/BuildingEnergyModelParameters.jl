@@ -121,9 +121,9 @@ Parameters for HVAC system.
 """
 Base.@kwdef struct HVACParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
     ACon::Bool
-    AC_onCool::Bool
-    AC_onDehum::Bool
-    MasterOn::Bool
+    AC_onCool::Bool=false
+    AC_onDehum::Bool=false
+    MasterOn::Bool=false
     Heatingon::Bool
     TsetpointCooling::FT
     TsetpointHeating::FT
@@ -133,7 +133,13 @@ Base.@kwdef struct HVACParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
     COPAC::FT
     COPHeat::FT
     f_ACLatentToQ::FT
-    q_RHspCooling::FT
+    q_RHspCooling::FT=zero(FT)
+end
+
+function TethysChlorisCore.get_optional_fields(
+    ::Type{HVACParameters}
+) where {FT<:AbstractFloat}
+    return [:AC_onCool, :AC_onDehum, :MasterOn, :q_RHspCooling]
 end
 
 function initialize_hvacparameters(

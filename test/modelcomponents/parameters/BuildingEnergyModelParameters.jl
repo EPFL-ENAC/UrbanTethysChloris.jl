@@ -18,7 +18,7 @@ data = Dict{String,Any}(
         "em" => 0.95,
     ),
     "thermal" => Dict{String,Any}(
-        "IntMassOn" => 0,
+        "IntMassOn" => false,
         "FloorHeight" => 3.0,
         "dzFloor" => 0.2,
         "dzWall" => 0.2,
@@ -42,8 +42,8 @@ data = Dict{String,Any}(
         "SolarAlbedo" => 0.4,
     ),
     "hvac" => Dict{String,Any}(
-        "ACon" => 1,
-        "Heatingon" => 1,
+        "ACon" => true,
+        "Heatingon" => true,
         "TsetpointCooling" => 298.15,
         "TsetpointHeating" => 293.15,
         "RHsetpointCooling" => 60.0,
@@ -107,8 +107,8 @@ end
     hvac_input = data["hvac"]
     hvac_parameters = initialize_hvacparameters(FT, hvac_input)
 
-    @test hvac_parameters.ACon == 1
-    @test hvac_parameters.Heatingon == 1
+    @test hvac_parameters.ACon == true
+    @test hvac_parameters.Heatingon == true
     @test hvac_parameters.TsetpointCooling ≈ 298.15
     @test hvac_parameters.TsetpointHeating ≈ 293.15
     @test hvac_parameters.RHsetpointCooling ≈ 60.0
@@ -117,6 +117,12 @@ end
     @test hvac_parameters.COPAC ≈ 3.26
     @test hvac_parameters.COPHeat ≈ 0.9
     @test hvac_parameters.f_ACLatentToQ ≈ 1.0
+
+    #optional parameters
+    @test hvac_parameters.AC_onCool == false
+    @test hvac_parameters.AC_onDehum == false
+    @test hvac_parameters.MasterOn == false
+    @test hvac_parameters.q_RHspCooling == 0
 end
 
 @testset "BuildingEnergyModelParameters initialization" begin
