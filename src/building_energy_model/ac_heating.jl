@@ -92,7 +92,7 @@ end
 
 """
     ac_heating_turn_on_off(
-        ParHVAC::NamedTuple,
+        ParHVAC::ModelComponents.Parameters.HVACParameters{FT},
         TempVecB_ittm::NamedTuple,
         TempVec_ittm::NamedTuple,
         Humidity_ittm::NamedTuple,
@@ -113,8 +113,8 @@ Turn AC and heating on/off based on temperature and humidity conditions.
 - `BEM_on`: Building Energy Model switch
 
 # Returns
-- `ParHVAC`: Updated HVAC parameters
-- `ParHVACorig`: Original HVAC parameters
+- `ParHVAC::ModelComponents.Parameters.HVACParameters{FT}`: Updated HVAC parameters
+- `ParHVACorig::ModelComponents.Parameters.HVACParameters{FT}`: Original HVAC parameters
 """
 function ac_heating_turn_on_off(
     ParHVAC::ModelComponents.Parameters.HVACParameters{FT},
