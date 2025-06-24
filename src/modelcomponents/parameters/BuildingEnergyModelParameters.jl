@@ -108,8 +108,11 @@ end
 Parameters for HVAC system.
 
 # Fields
-- `ACon::Bool`: Enable air conditioning (0/1)
-- `Heatingon::Bool`: Enable heating (0/1)
+- `ACon::Bool`: Enable air conditioning (true/false)
+- `AC_onCool::Bool`: Enable cooling mode (true/false)
+- `AC_onDehum::Bool`: Enable dehumidification mode (true/false)
+- `MasterOn::Bool`: Enable master control (true/false)
+- `Heatingon::Bool`: Enable heating (true/false)
 - `TsetpointCooling::FT`: Cooling setpoint temperature (K)
 - `TsetpointHeating::FT`: Heating setpoint temperature (K)
 - `RHsetpointCooling::FT`: Cooling setpoint relative humidity (%)
@@ -118,6 +121,7 @@ Parameters for HVAC system.
 - `COPAC::FT`: Coefficient of performance for AC (-)
 - `COPHeat::FT`: Coefficient of performance for heating (-)
 - `f_ACLatentToQ::FT`: Fraction of latent heat removed by AC that is condensed (-)
+- `q_RHspCooling::FT`: Latent heat for cooling relative humidity setpoint (W/m²)
 """
 Base.@kwdef struct HVACParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
     ACon::Bool
