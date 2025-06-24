@@ -13,14 +13,14 @@
         G2WallShade::FT,
         TempDamp_ittm::NamedTuple,
         SWRabs_t::NamedTuple,
-        Geometry_m::NamedTuple,
-        PropOpticalIndoors::NamedTuple,
-        ParHVAC::NamedTuple,
+        Geometry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+        PropOpticalIndoors::ModelComponents.Parameters.IndoorOpticalProperties{FT},
+        ParHVAC::ModelComponents.Parameters.HVACParameters{FT},
         ParCalculation::NamedTuple,
-        ParThermalBuildingInt::NamedTuple,
-        ParWindows::NamedTuple,
+        ParThermalBuildingInt::ModelComponents.Parameters.ThermalBuilding{FT},
+        ParWindows::ModelComponents.Parameters.WindowParameters{FT},
         BEM_on::Bool,
-        HVACSchedule::NamedTuple
+        HVACSchedule::NamedTuple,
     ) where {FT<:AbstractFloat}
 
 Simple Building energy model.
@@ -49,8 +49,8 @@ Simple Building energy model.
 - `HVACSchedule`: HVAC operation schedule
 
 # Returns
-- `YBuildInt`: Building internal energy balance residuals
-- `WasteHeat`: Waste heat emissions from AC and ventilation
+- `YBuildInt::Vector{FT}`: Building internal energy balance residuals
+- `WasteHeat::NamedTuple`: Waste heat emissions from AC and ventilation
 """
 function eb_solver_building(
     TemperatureC::Vector{FT},

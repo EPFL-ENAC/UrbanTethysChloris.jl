@@ -13,14 +13,14 @@
         G2WallShade::FT,
         TempDamp_ittm::NamedTuple,
         SWRabs_t::NamedTuple,
-        Geometry_m::NamedTuple,
-        PropOpticalIndoors::NamedTuple,
-        ParHVAC::NamedTuple,
+        Geometry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+        PropOpticalIndoors::ModelComponents.Parameters.IndoorOpticalProperties{FT},
+        ParHVAC::ModelComponents.Parameters.HVACParameters{FT},
         ParCalculation::NamedTuple,
-        ParThermalBuildingInt::NamedTuple,
-        ParWindows::NamedTuple,
+        ParThermalBuildingInt::ModelComponents.Parameters.ThermalBuilding{FT},
+        ParWindows::ModelComponents.Parameters.WindowParameters{FT},
         BEM_on::Bool,
-        HVACSchedule::NamedTuple
+        HVACSchedule::NamedTuple,
     ) where {FT<:AbstractFloat}
 
 Simple Building energy model.

@@ -37,9 +37,9 @@ Calculate shortwave radiation absorption in building for half of the building.
 - `abg`: Ground albedo
 
 # Returns
-- `SWRinB`: Incoming shortwave radiation for each surface [W/m²]
-- `SWRoutB`: Outgoing shortwave radiation for each surface [W/m²]
-- `SWRabsB`: Absorbed shortwave radiation for each surface [W/m²]
+- `SWRinB::NamedTuple`: Incoming shortwave radiation for each surface [W/m²]
+- `SWRoutB::NamedTuple`: Outgoing shortwave radiation for each surface [W/m²]
+- `SWRabsB::NamedTuple`: Absorbed shortwave radiation for each surface [W/m²]
 """
 function swr_abs_building_half(
     A_c::FT,
@@ -183,10 +183,10 @@ Calculate shortwave radiation absorption inside building without internal mass.
 - `abg`: Ground albedo [-]
 
 # Returns
-- `SWRinB::FT`: Incoming shortwave radiation for each surface [W/m²]
-- `SWRoutB::FT`: Outgoing shortwave radiation for each surface [W/m²]
-- `SWRabsB::FT`: Absorbed shortwave radiation for each surface [W/m²]
-- `SWREBB::FT`: Energy balance for each surface [W/m²]
+- `SWRinB::NamedTuple`: Incoming shortwave radiation for each surface [W/m²]
+- `SWRoutB::NamedTuple`: Outgoing shortwave radiation for each surface [W/m²]
+- `SWRabsB::NamedTuple`: Absorbed shortwave radiation for each surface [W/m²]
+- `SWREBB::NamedTuple`: Energy balance for each surface [W/m²]
 """
 function swr_abs_indoors_no_int_mass(
     SWRinWsun::FT, SWRinWshd::FT, Hbuild::FT, Wroof::FT, abc::FT, abw::FT, abg::FT
@@ -348,9 +348,9 @@ Calculate shortwave radiation absorption inside building.
 - `abm`: Internal mass albedo
 
 # Returns
-- `SWRinB`: Incoming shortwave radiation for each surface [W/m²]
-- `SWRoutB`: Outgoing shortwave radiation for each surface [W/m²]
-- `SWRabsB`: Absorbed shortwave radiation for each surface [W/m²]
+- `SWRinB::NamedTuple`: Incoming shortwave radiation for each surface [W/m²]
+- `SWRoutB::NamedTuple`: Outgoing shortwave radiation for each surface [W/m²]
+- `SWRabsB::NamedTuple`: Absorbed shortwave radiation for each surface [W/m²]
 """
 function swr_abs_indoors(
     SWRinWsun::FT, SWRinWshd::FT, Hbuild::FT, Wroof::FT, abc::FT, abw::FT, abg::FT, abm::FT

@@ -43,9 +43,9 @@ Calculate longwave radiation absorption in building for half of the building.
 - `em`: Internal mass emissivity
 
 # Returns
-- `LWRinB`: Incoming longwave radiation for each surface [W/m²]
-- `LWRoutB`: Outgoing longwave radiation for each surface [W/m²]
-- `LWRabsB`: Absorbed longwave radiation for each surface [W/m²]
+- `LWRinB::NamedTuple`: Incoming longwave radiation for each surface [W/m²]
+- `LWRoutB::NamedTuple`: Outgoing longwave radiation for each surface [W/m²]
+- `LWRabsB::NamedTuple`: Absorbed longwave radiation for each surface [W/m²]
 """
 function lwr_abs_building_half(
     Tceiling::FT,
@@ -182,9 +182,9 @@ Calculate longwave radiation absorption inside building without internal mass.
 - `ew`: Wall emissivity
 
 # Returns
-- `LWRinB`: Incoming longwave radiation for each surface [W/m²]
-- `LWRoutB`: Outgoing longwave radiation for each surface [W/m²]
-- `LWRabsB`: Absorbed longwave radiation for each surface [W/m²]
+- `LWRinB::NamedTuple`: Incoming longwave radiation for each surface [W/m²]
+- `LWRoutB::NamedTuple`: Outgoing longwave radiation for each surface [W/m²]
+- `LWRabsB::NamedTuple`: Absorbed longwave radiation for each surface [W/m²]
 """
 function lwr_abs_indoors_no_int_mass(
     Tinwallsun::FT,
@@ -348,9 +348,9 @@ Calculate longwave radiation absorption inside building considering both sunlit 
 - `ew`: Wall emissivity
 
 # Returns
-- `LWRinB`: Incoming longwave radiation for each surface [W/m²]
-- `LWRoutB`: Outgoing longwave radiation for each surface [W/m²]
-- `LWRabsB`: Absorbed longwave radiation for each surface [W/m²]
+- `LWRinB::NamedTuple`: Incoming longwave radiation for each surface [W/m²]
+- `LWRoutB::NamedTuple`: Outgoing longwave radiation for each surface [W/m²]
+- `LWRabsB::NamedTuple`: Absorbed longwave radiation for each surface [W/m²]
 """
 function lwr_abs_indoors(
     Tinwallsun::FT,

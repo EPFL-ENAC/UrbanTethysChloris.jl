@@ -17,7 +17,7 @@ Calculate heat storage change in building internal mass.
 - `ParCalculation`: Calculation parameters
 
 # Returns
-- `dS`: Energy storage change in internal mass [W/m²]
+- `dS::Vector{FT}`: Energy storage change in internal mass [W/m²]
 """
 function heat_storage_change_internal_mass(
     Tintmass::FT,
