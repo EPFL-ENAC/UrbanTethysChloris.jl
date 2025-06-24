@@ -1,7 +1,7 @@
 using Test
 using MAT
 using UrbanTethysChloris.BuildingEnergyModel: eb_solver_building_output
-using .TestUtils:
+using ....TestUtils:
     create_urban_geometry_parameters,
     create_hvac_parameters,
     create_indoor_optical_properties,
