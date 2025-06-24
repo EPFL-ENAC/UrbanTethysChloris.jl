@@ -7,3 +7,7 @@ end
 @safetestset "SWRDirPerson" begin
     include("swr_dir_person.jl")
 end
+
+@safetestset "PersonInShade" begin
+    include("person_in_shade.jl")
+end
