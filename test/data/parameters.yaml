@@ -153,7 +153,7 @@ building_energy:
     ec: 0.95
   thermal:
     lan_ground_floor: 1.2
-    IntMassOn: 0
+    IntMassOn: false
     dzWall: 0.2
     cv_ground_floor: 1.5e6
     FloorHeight: 3.0
@@ -177,11 +177,11 @@ building_energy:
     ACH: 0.5
     RHsetpointHeating: .NaN
     TsetpointHeating: 293.15
-    Heatingon: 1
+    Heatingon: true
     TsetpointCooling: 298.15
     f_ACLatentToQ: 1.0
     COPHeat: 0.9
-    ACon: 1
+    ACon: true
     COPAC: 3.26
     RHsetpointCooling: 60.0
 person:

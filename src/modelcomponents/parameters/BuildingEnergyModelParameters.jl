@@ -48,7 +48,7 @@ Parameters specifying thermal properties and dimensions of building internal mas
 - `cv_wall_IntMass::FT`: Internal mass wall volumetric heat capacity (J/m³ K)
 """
 Base.@kwdef struct ThermalBuilding{FT<:AbstractFloat} <: AbstractParameters{FT}
-    IntMassOn::Int
+    IntMassOn::Bool
     FloorHeight::FT
     dzFloor::FT
     dzWall::FT
@@ -108,8 +108,11 @@ end
 Parameters for HVAC system.
 
 # Fields
-- `ACon::Int`: Enable air conditioning (0/1)
-- `Heatingon::Int`: Enable heating (0/1)
+- `ACon::Bool`: Enable air conditioning (true/false)
+- `AC_onCool::Bool`: Enable cooling mode (true/false)
+- `AC_onDehum::Bool`: Enable dehumidification mode (true/false)
+- `MasterOn::Bool`: Enable master control (true/false)
+- `Heatingon::Bool`: Enable heating (true/false)
 - `TsetpointCooling::FT`: Cooling setpoint temperature (K)
 - `TsetpointHeating::FT`: Heating setpoint temperature (K)
 - `RHsetpointCooling::FT`: Cooling setpoint relative humidity (%)
@@ -118,10 +121,14 @@ Parameters for HVAC system.
 - `COPAC::FT`: Coefficient of performance for AC (-)
 - `COPHeat::FT`: Coefficient of performance for heating (-)
 - `f_ACLatentToQ::FT`: Fraction of latent heat removed by AC that is condensed (-)
+- `q_RHspCooling::FT`: Latent heat for cooling relative humidity setpoint (W/m²)
 """
 Base.@kwdef struct HVACParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
-    ACon::Int
-    Heatingon::Int
+    ACon::Bool
+    AC_onCool::Bool=false
+    AC_onDehum::Bool=false
+    MasterOn::Bool=false
+    Heatingon::Bool
     TsetpointCooling::FT
     TsetpointHeating::FT
     RHsetpointCooling::FT
@@ -130,6 +137,13 @@ Base.@kwdef struct HVACParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
     COPAC::FT
     COPHeat::FT
     f_ACLatentToQ::FT
+    q_RHspCooling::FT=zero(FT)
+end
+
+function TethysChlorisCore.get_optional_fields(
+    ::Type{HVACParameters}
+) where {FT<:AbstractFloat}
+    return [:AC_onCool, :AC_onDehum, :MasterOn, :q_RHspCooling]
 end
 
 function initialize_hvacparameters(

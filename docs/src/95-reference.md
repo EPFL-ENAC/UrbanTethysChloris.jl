@@ -16,6 +16,12 @@ Pages = ["95-reference.md"]
 Modules = [UrbanTethysChloris]
 ```
 
+## Building Energy Model
+
+```@autodocs
+Modules = [UrbanTethysChloris.BuildingEnergyModel]
+```
+
 ## Conductive Heat
 
 ```@autodocs

@@ -210,7 +210,7 @@ data["building_energy"]["indoor_optical"] = Dict{String,Any}(
     "em" => 0.95,
 )
 data["building_energy"]["thermal"] = Dict{String,Any}(
-    "IntMassOn" => 0,
+    "IntMassOn" => false,
     "FloorHeight" => 3.0,
     "dzFloor" => 0.2,
     "dzWall" => 0.2,
@@ -234,8 +234,8 @@ data["building_energy"]["windows"] = Dict{String,Any}(
     "SolarAlbedo" => 0.4,
 )
 data["building_energy"]["hvac"] = Dict{String,Any}(
-    "ACon" => 1,
-    "Heatingon" => 1,
+    "ACon" => true,
+    "Heatingon" => true,
     "TsetpointCooling" => 298.15,
     "TsetpointHeating" => 293.15,
     "RHsetpointCooling" => 60.0,

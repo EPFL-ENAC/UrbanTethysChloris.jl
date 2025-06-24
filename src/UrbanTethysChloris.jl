@@ -19,6 +19,9 @@ using .Soil
 include(joinpath("conductive_heat", "ConductiveHeat.jl"))
 using .ConductiveHeat
 
+include(joinpath("building_energy_model", "BuildingEnergyModel.jl"))
+using .BuildingEnergyModel
+
 include(joinpath("resistance", "Resistance.jl"))
 using .Resistance
 
