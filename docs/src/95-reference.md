@@ -28,6 +28,12 @@ Modules = [UrbanTethysChloris.BuildingEnergyModel]
 Modules = [UrbanTethysChloris.ConductiveHeat]
 ```
 
+## Mean Radiant Temperature
+
+```@autodocs
+Modules = [UrbanTethysChloris.MeanRadiantTemperature]
+```
+
 ## Radiation
 
 ```@autodocs
