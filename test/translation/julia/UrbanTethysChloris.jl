@@ -12,6 +12,10 @@ end
     include(joinpath("mean_radiant_temperature", "MeanRadiantTemperature.jl"))
 end
 
+@safetestset "outdoor_thermal_comfort" begin
+    include(joinpath("outdoor_thermal_comfort", "OutdoorThermalComfort.jl"))
+end
+
 @safetestset "ray_tracing" begin
     include(joinpath("ray_tracing", "RayTracing.jl"))
 end

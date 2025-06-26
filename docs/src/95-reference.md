@@ -34,6 +34,12 @@ Modules = [UrbanTethysChloris.ConductiveHeat]
 Modules = [UrbanTethysChloris.MeanRadiantTemperature]
 ```
 
+## Outdoor Thermal Comfort
+
+```@autodocs
+Modules = [UrbanTethysChloris.OutdoorThermalComfort]
+```
+
 ## Radiation
 
 ```@autodocs
