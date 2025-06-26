@@ -35,7 +35,7 @@ Determine if a person is in shade.
 - `TimeHr`: Current time [h]
 
 # Returns
-- `BooleanInSun`: Factor indicating if person is in sun (0=shade, 1=sun, 0-1=partial)
+- `BooleanInSun::FT`: Factor indicating if person is in sun (0=shade, 1=sun, 0-1=partial)
 """
 function person_in_shade(
     trees::Bool,

@@ -24,11 +24,17 @@ Calculate mean radiant temperature for a person in an urban canyon.
 - `Person`: Person position parameters
 
 # Returns
-- `Tmrt`: Mean radiant temperature [°C]
-- `BooleanInSun`: Factor indicating if person is in sun
-- `SWRdir_Person`: Direct shortwave radiation on person [W/m²]
-- `SWRdiff_Person`: Diffuse shortwave radiation on person [W/m²]
-- `LWR_Person`: Longwave radiation on person [W/m²]
+- `Tmrt::FT`: Mean radiant temperature [°C]
+- `BooleanInSun::FT`: Factor indicating if person is in sun [0-1]
+- `SWRdir_Person::FT`: Direct shortwave radiation on person [W/m²]
+- `SWRdir_in_top::FT`: Direct radiation on top surface [W/m²]
+- `SWRdir_in_bottom::FT`: Direct radiation on bottom surface [W/m²]
+- `SWRdir_in_east::FT`: Direct radiation on east surface [W/m²]
+- `SWRdir_in_south::FT`: Direct radiation on south surface [W/m²]
+- `SWRdir_in_west::FT`: Direct radiation on west surface [W/m²]
+- `SWRdir_in_north::FT`: Direct radiation on north surface [W/m²]
+- `SWRdiff_Person::FT`: Diffuse shortwave radiation on person [W/m²]
+- `LWR_Person::FT`: Longwave radiation on person [W/m²]
 """
 function mean_radiant_temperature(
     SWRout_t::NamedTuple,
