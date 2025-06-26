@@ -10,6 +10,9 @@ using .ModelComponents
 include(joinpath("ray_tracing", "RayTracing.jl"))
 using .RayTracing
 
+include(joinpath("mean_radiant_temperature", "MeanRadiantTemperature.jl"))
+using .MeanRadiantTemperature
+
 include(joinpath("radiation", "Radiation.jl"))
 using .Radiation
 

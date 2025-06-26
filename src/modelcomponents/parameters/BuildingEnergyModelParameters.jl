@@ -140,9 +140,7 @@ Base.@kwdef struct HVACParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
     q_RHspCooling::FT=zero(FT)
 end
 
-function TethysChlorisCore.get_optional_fields(
-    ::Type{HVACParameters}
-) where {FT<:AbstractFloat}
+function TethysChlorisCore.get_optional_fields(::Type{HVACParameters})
     return [:AC_onCool, :AC_onDehum, :MasterOn, :q_RHspCooling]
 end
 
