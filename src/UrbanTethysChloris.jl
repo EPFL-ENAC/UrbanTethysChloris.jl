@@ -13,6 +13,9 @@ using .RayTracing
 include(joinpath("mean_radiant_temperature", "MeanRadiantTemperature.jl"))
 using .MeanRadiantTemperature
 
+include(joinpath("outdoor_thermal_comfort", "OutdoorThermalComfort.jl"))
+using .OutdoorThermalComfort
+
 include(joinpath("radiation", "Radiation.jl"))
 using .Radiation
 
