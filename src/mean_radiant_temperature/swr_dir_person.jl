@@ -3,7 +3,7 @@
         SWR_dir::FT,
         zeta_S::FT,
         theta_Z::FT,
-        BooleanInSun::Bool,
+        BooleanInSun::FT,
     ) where {FT<:AbstractFloat}
 
 Calculate direct shortwave radiation onto person.
@@ -12,7 +12,7 @@ Calculate direct shortwave radiation onto person.
 - `SWR_dir`: Direct shortwave radiation [W/m²]
 - `zeta_S`: Solar azimuth angle [rad]
 - `theta_Z`: Solar zenith angle [rad]
-- `BooleanInSun`: Person is in sun
+- `BooleanInSun`: Person is in sun, partially, or in shade (0=shade, 1=sun, 0-1=partial)
 
 # Returns
 - `SWRdir_Person::FT`: Direct shortwave radiation on person [W/m²]
@@ -24,7 +24,7 @@ Calculate direct shortwave radiation onto person.
 - `SWRdir_in_north::FT`: Direct radiation on north surface [W/m²]
 """
 function swr_dir_person(
-    SWR_dir::FT, zeta_S::FT, theta_Z::FT, BooleanInSun::Bool
+    SWR_dir::FT, zeta_S::FT, theta_Z::FT, BooleanInSun::FT
 ) where {FT<:AbstractFloat}
     if zeta_S < 0
         @warn "Solar azimuth angle smaller than 0 which is not possible in this formulation. Please change to 0 to 2pi"

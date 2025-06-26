@@ -13,7 +13,7 @@ output_vars = matread(joinpath(dir, "outputs", filename))
         input_vars["SWR_dir"],
         input_vars["zeta_S"],
         input_vars["theta_Z"],
-        Bool(input_vars["BoleanInSun"]),
+        input_vars["BoleanInSun"],
     )
 
     @test SWRdir_Person ≈ output_vars["SWRdir_Person"]

@@ -6,5 +6,6 @@ using ..RayTracing: ViewFactorPoint
 include("swr_diff_person.jl")
 include("swr_dir_person.jl")
 include("person_in_shade.jl")
+include("mean_radiant_temperature.jl")
 
 end

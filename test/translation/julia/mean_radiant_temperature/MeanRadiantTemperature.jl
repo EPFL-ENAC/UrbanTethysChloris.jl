@@ -11,3 +11,7 @@ end
 @safetestset "PersonInShade" begin
     include("person_in_shade.jl")
 end
+
+@safetestset "MeanRadiantTemperature" begin
+    include("mean_radiant_temperature.jl")
+end
