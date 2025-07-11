@@ -40,6 +40,7 @@ using .Water
 include("incoming_longwave.jl")
 include("set_sun_variables.jl")
 
+include("eb_solver_roof.jl")
 include("eb_wb_roof.jl")
 
 end
