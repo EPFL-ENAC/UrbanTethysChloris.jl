@@ -35,3 +35,7 @@ end
 @safetestset "water" begin
     include(joinpath("water", "Water.jl"))
 end
+
+@safetestset "eb_wb_roof" begin
+    include("eb_wb_roof.jl")
+end
