@@ -1,5 +1,9 @@
 using SafeTestsets
 
+@safetestset "water_roof" begin
+    include("water_roof.jl")
+end
+
 @safetestset "water_vegetation" begin
     include("water_vegetation.jl")
 end

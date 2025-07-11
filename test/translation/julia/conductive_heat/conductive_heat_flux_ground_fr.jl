@@ -42,17 +42,17 @@ ParSoilGround = create_vegetated_soil_parameters(
 ParVegTree = create_height_dependent_vegetation_parameters(
     FT;
     CASE_ROOT=Int(input_vars["ParVegTree"]["CASE_ROOT"]),
-    ZR95=input_vars["ParVegTree"]["ZR95"],
-    ZR50=input_vars["ParVegTree"]["ZR50"],
-    ZRmax=input_vars["ParVegTree"]["ZRmax"],
+    ZR95=[input_vars["ParVegTree"]["ZR95"]],
+    ZR50=[input_vars["ParVegTree"]["ZR50"]],
+    ZRmax=[input_vars["ParVegTree"]["ZRmax"]],
 )
 
 ParVegGround = create_height_dependent_vegetation_parameters(
     FT;
     CASE_ROOT=Int(input_vars["ParVegGround"]["CASE_ROOT"]),
-    ZR95=input_vars["ParVegGround"]["ZR95"],
-    ZR50=input_vars["ParVegGround"]["ZR50"],
-    ZRmax=input_vars["ParVegGround"]["ZRmax"],
+    ZR95=[input_vars["ParVegGround"]["ZR95"]],
+    ZR50=[input_vars["ParVegGround"]["ZR50"]],
+    ZRmax=[input_vars["ParVegGround"]["ZRmax"]],
 )
 
 TempDamp_ittm = (; TDampGroundImp=input_vars["TempDamp_ittm"]["TDampGroundImp"])

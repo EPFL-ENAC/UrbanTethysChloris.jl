@@ -34,18 +34,22 @@ optical:
     albedo: 0.4
 vegetation:
   roof:
-    ZRmax: .NaN
+    ZRmax:
+      - .NaN
     Psi_sto_50: -3.0
     SPARTREE: 2
-    ZR95: 1000.0
+    ZR95:
+      - 1000.0
     rjv: 2.4
     e_relN: 1.0
     a1: 9.0
-    ZR50: .NaN
+    ZR50:
+      - .NaN
     d_leaf: 0.8
     Vmax: 68.0
     CASE_ROOT: 1
-    Rrootl: 4000.0
+    Rrootl:
+      - 4000.0
     FI: 0.081
     Knit: 0.15
     mSl: 0.0
@@ -54,30 +58,36 @@ vegetation:
     Ha: 76.0
     Kopt: 0.5
     Sl: 0.024
-    PsiL50: -3.0
+    PsiL50:
+      - -3.0
     hc: .NaN
     e_rel: 1.0
     SAI: 0.2
     CT: 3
     DSE: 0.649
-    PsiX50: -4.5
+    PsiX50:
+      - -4.5
     Psi_sto_00: -0.5
     h_disp: 0.09999999999999999
     LAI: 5.0
     gmes: .inf
   ground:
-    ZRmax: .NaN
+    ZRmax:
+      - .NaN
     Psi_sto_50: -3.0
     SPARTREE: 2
-    ZR95: 1000.0
+    ZR95:
+      - 1000.0
     rjv: 2.4
     e_relN: 1.0
     a1: 9.0
-    ZR50: .NaN
+    ZR50:
+      - .NaN
     d_leaf: 0.8
     Vmax: 68.0
     CASE_ROOT: 1
-    Rrootl: 4000.0
+    Rrootl:
+      - 4000.0
     FI: 0.081
     Knit: 0.15
     mSl: 0.0
@@ -86,30 +96,36 @@ vegetation:
     Ha: 76.0
     Kopt: 0.5
     Sl: 0.024
-    PsiL50: -3.0
+    PsiL50:
+      - -3.0
     hc: .NaN
     e_rel: 1.0
     SAI: 0.2
     CT: 3
     DSE: 0.649
-    PsiX50: -4.5
+    PsiX50:
+      - -4.5
     Psi_sto_00: -0.5
     h_disp: 0.09999999999999999
     LAI: 5.0
     gmes: .inf
   tree:
-    ZRmax: .NaN
+    ZRmax:
+      - .NaN
     Psi_sto_50: -3.0
     SPARTREE: 2
-    ZR95: 1000.0
+    ZR95:
+      - 1000.0
     rjv: 2.4
     e_relN: 1.0
     a1: 9.0
-    ZR50: .NaN
+    ZR50:
+      - .NaN
     d_leaf: 0.8
     Vmax: 68.0
     CASE_ROOT: 1
-    Rrootl: 4000.0
+    Rrootl:
+      - 4000.0
     FI: 0.081
     Knit: 0.15
     mSl: 0.0
@@ -118,13 +134,15 @@ vegetation:
     Ha: 76.0
     Kopt: 0.5
     Sl: 0.024
-    PsiL50: -3.0
+    PsiL50:
+      - -3.0
     hc: .NaN
     e_rel: 1.0
     SAI: 0.2
     CT: 3
     DSE: 0.649
-    PsiX50: -4.5
+    PsiX50:
+      - -4.5
     Psi_sto_00: -0.5
     h_disp: 0.09999999999999999
     LAI: 5.0

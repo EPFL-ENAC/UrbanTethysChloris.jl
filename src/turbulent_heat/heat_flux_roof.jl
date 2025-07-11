@@ -298,12 +298,12 @@ function heat_flux_roof(
         Kbot,
         CASE_ROOT,
         CASE_ROOT,
-        [ZR95],
-        [ZR95],
-        [ZR50],
-        [ZR50],
-        [ZRmax],
-        [ZRmax],
+        ZR95,
+        ZR95,
+        ZR50,
+        ZR50,
+        ZRmax,
+        ZRmax,
         Zs,
     )
 

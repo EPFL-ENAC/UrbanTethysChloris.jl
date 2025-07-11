@@ -15,13 +15,13 @@ output_vars = matread(joinpath(dir, "outputs", filename))
 # Create parameter structs from input data
 ParVegRoof = create_height_dependent_vegetation_parameters(
     FT;
-    Rrootl=input_vars["ParVegRoof"]["Rrootl"],
-    PsiL50=input_vars["ParVegRoof"]["PsiL50"],
-    PsiX50=input_vars["ParVegRoof"]["PsiX50"],
+    Rrootl=[input_vars["ParVegRoof"]["Rrootl"]],
+    PsiL50=[input_vars["ParVegRoof"]["PsiL50"]],
+    PsiX50=[input_vars["ParVegRoof"]["PsiX50"]],
     CASE_ROOT=Int(input_vars["ParVegRoof"]["CASE_ROOT"]),
-    ZR95=input_vars["ParVegRoof"]["ZR95"],
-    ZR50=input_vars["ParVegRoof"]["ZR50"],
-    ZRmax=input_vars["ParVegRoof"]["ZRmax"],
+    ZR95=[input_vars["ParVegRoof"]["ZR95"]],
+    ZR50=[input_vars["ParVegRoof"]["ZR50"]],
+    ZRmax=[input_vars["ParVegRoof"]["ZRmax"]],
 )
 
 ParSoilRoof = create_vegetated_soil_parameters(

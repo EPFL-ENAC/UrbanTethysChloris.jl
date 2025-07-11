@@ -43,9 +43,9 @@ ParVegRoof = create_height_dependent_vegetation_parameters(
     mSl=input_vars["ParVegRoof"]["mSl"],
     Sl=input_vars["ParVegRoof"]["Sl"],
     CASE_ROOT=Int(input_vars["ParVegRoof"]["CASE_ROOT"]),
-    ZR95=input_vars["ParVegRoof"]["ZR95"],
-    ZR50=input_vars["ParVegRoof"]["ZR50"],
-    ZRmax=input_vars["ParVegRoof"]["ZRmax"],
+    ZR95=[input_vars["ParVegRoof"]["ZR95"]],
+    ZR50=[input_vars["ParVegRoof"]["ZR50"]],
+    ZRmax=[input_vars["ParVegRoof"]["ZRmax"]],
 )
 
 ParSoilRoof = create_vegetated_soil_parameters(

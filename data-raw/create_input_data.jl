@@ -58,12 +58,12 @@ data["vegetation"]["roof"] = Dict{String,Any}(
     "hc" => 0.15,
     "d_leaf" => 0.8,
     "CASE_ROOT" => 1,
-    "ZR95" => 70.0,
-    "ZR50" => NaN,
-    "ZRmax" => NaN,
-    "Rrootl" => 3800.0,
-    "PsiL50" => -4.0,
-    "PsiX50" => -4.5,
+    "ZR95" => [70.0],
+    "ZR50" => [NaN],
+    "ZRmax" => [NaN],
+    "Rrootl" => [3800.0],
+    "PsiL50" => [-4.0],
+    "PsiX50" => [-4.5],
     "FI" => 0.081,
     "Do" => 1000.0,
     "a1" => 6.0,
@@ -88,16 +88,16 @@ data["vegetation"]["roof"]["h_disp"] = 2.0 / 3.0 * data["vegetation"]["roof"]["h
 
 ## Ground
 data["vegetation"]["ground"] = data["vegetation"]["roof"]
-data["vegetation"]["ground"]["ZR95"] = 250.0
+data["vegetation"]["ground"]["ZR95"] = [250.0]
 
 ## Tree
 data["vegetation"]["tree"] = data["vegetation"]["roof"]
 data["vegetation"]["tree"]["LAI"] = 5.0
 data["vegetation"]["tree"]["SAI"] = 0.2
 data["vegetation"]["tree"]["hc"] = NaN
-data["vegetation"]["tree"]["ZR95"] = 1000.0
-data["vegetation"]["tree"]["Rrootl"] = 4000.0
-data["vegetation"]["tree"]["PsiL50"] = -3.0
+data["vegetation"]["tree"]["ZR95"] = [1000.0]
+data["vegetation"]["tree"]["Rrootl"] = [4000.0]
+data["vegetation"]["tree"]["PsiL50"] = [-3.0]
 data["vegetation"]["tree"]["a1"] = 9.0
 data["vegetation"]["tree"]["DSE"] = 0.649
 data["vegetation"]["tree"]["Ha"] = 76.0

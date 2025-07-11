@@ -61,9 +61,9 @@ ParVegGround = create_height_dependent_vegetation_parameters(
     mSl=input_vars["ParVegGround"]["mSl"],
     Sl=input_vars["ParVegGround"]["Sl"],
     CASE_ROOT=Int(input_vars["ParVegGround"]["CASE_ROOT"]),
-    ZR95=input_vars["ParVegGround"]["ZR95"],
-    ZR50=input_vars["ParVegGround"]["ZR50"],
-    ZRmax=input_vars["ParVegGround"]["ZRmax"],
+    ZR95=[input_vars["ParVegGround"]["ZR95"]],
+    ZR50=[input_vars["ParVegGround"]["ZR50"]],
+    ZRmax=[input_vars["ParVegGround"]["ZRmax"]],
 )
 
 ParVegTree = create_height_dependent_vegetation_parameters(
@@ -91,9 +91,9 @@ ParVegTree = create_height_dependent_vegetation_parameters(
     Sl=input_vars["ParVegTree"]["Sl"],
     SPARTREE=Int(input_vars["ParVegTree"]["SPARTREE"]),
     CASE_ROOT=Int(input_vars["ParVegTree"]["CASE_ROOT"]),
-    ZR95=input_vars["ParVegTree"]["ZR95"],
-    ZR50=input_vars["ParVegTree"]["ZR50"],
-    ZRmax=input_vars["ParVegTree"]["ZRmax"],
+    ZR95=[input_vars["ParVegTree"]["ZR95"]],
+    ZR50=[input_vars["ParVegTree"]["ZR50"]],
+    ZRmax=[input_vars["ParVegTree"]["ZRmax"]],
 )
 
 ParSoilGround = create_vegetated_soil_parameters(

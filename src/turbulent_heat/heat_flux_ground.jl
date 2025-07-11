@@ -197,12 +197,12 @@ function heat_flux_ground(
 
     CASE_ROOT_H = ParVegTree.CASE_ROOT;
     CASE_ROOT_L = ParVegGround.CASE_ROOT;
-    ZR95_H = [ParVegTree.ZR95];
-    ZR95_L = [ParVegGround.ZR95];
-    ZR50_H = [ParVegTree.ZR50];
-    ZR50_L = [ParVegGround.ZR50];
-    ZRmax_H = [ParVegTree.ZRmax];
-    ZRmax_L = [ParVegGround.ZRmax];
+    ZR95_H = ParVegTree.ZR95;
+    ZR95_L = ParVegGround.ZR95;
+    ZR50_H = ParVegTree.ZR50;
+    ZR50_L = ParVegGround.ZR50;
+    ZRmax_H = ParVegTree.ZRmax;
+    ZRmax_L = ParVegGround.ZRmax;
     Zs = ParSoilGround.Zs;
 
     Psi_L_tm1 = SoilPotW_ittm.SoilPotWGroundVeg_L;

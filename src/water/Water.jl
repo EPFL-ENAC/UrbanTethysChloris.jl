@@ -2,6 +2,7 @@ module Water
 
 using OrdinaryDiffEqRosenbrock
 using ADTypes
+using ..ModelComponents
 using ..Soil
 
 include("water_canyon.jl")

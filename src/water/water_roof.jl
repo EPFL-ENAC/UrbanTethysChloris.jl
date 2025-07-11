@@ -76,10 +76,10 @@ function water_roof(
     Int_ittm::NamedTuple,
     Owater_ittm::NamedTuple,
     Runon_ittm::NamedTuple,
-    FractionsRoof::NamedTuple,
-    ParSoilRoof::NamedTuple,
+    FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions,
+    ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     ParCalculation::NamedTuple,
-    ParVegRoof::NamedTuple,
+    ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
     Anthropogenic::NamedTuple,
 ) where {FT<:AbstractFloat}
     # Extract parameters from NamedTuples

@@ -90,12 +90,12 @@ function conductive_heat_flux_ground_vb(
         Kbot,
         CASE_ROOT_H,
         CASE_ROOT_L,
-        [ZR95_H],
-        [ZR95_L],
-        [ZR50_H],
-        [ZR50_L],
-        [ZRmax_H],
-        [ZRmax_L],
+        ZR95_H,
+        ZR95_L,
+        ZR50_H,
+        ZR50_L,
+        ZRmax_H,
+        ZRmax_L,
         Zs,
     )
 
