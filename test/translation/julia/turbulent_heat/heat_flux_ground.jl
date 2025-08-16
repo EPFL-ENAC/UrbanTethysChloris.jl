@@ -11,12 +11,6 @@ using ....TestUtils:
 FT = Float64
 input_vars, output_vars = load_matlab_data("turbulent_heat_function.HeatFlux_ground.mat")
 
-FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "turbulent_heat_function.HeatFlux_ground.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
-
 # Create structured inputs with correct types
 FractionsGround = create_location_specific_surface_fractions(
     FT;

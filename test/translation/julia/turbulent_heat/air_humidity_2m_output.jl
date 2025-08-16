@@ -12,12 +12,6 @@ input_vars, output_vars = load_matlab_data(
     "turbulent_heat_function.AirHumidity2mOutput.mat"
 )
 
-FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "turbulent_heat_function.AirHumidity2mOutput.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
-
 FractionsGround = create_location_specific_surface_fractions(
     FT;
     fveg=input_vars["FractionsGround"]["fveg"],

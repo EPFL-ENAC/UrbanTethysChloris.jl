@@ -9,12 +9,6 @@ using ....TestUtils:
 FT = Float64
 input_vars, output_vars = load_matlab_data("turbulent_heat_function.HeatFlux_canyon.mat")
 
-FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "turbulent_heat_function.HeatFlux_canyon.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
-
 Gemeotry_m = create_urban_geometry_parameters(
     FT;
     Height_canyon=input_vars["Gemeotry_m"]["Height_canyon"],
