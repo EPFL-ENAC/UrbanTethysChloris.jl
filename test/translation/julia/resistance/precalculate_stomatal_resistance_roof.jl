@@ -2,13 +2,14 @@ using Test
 using MAT
 using UrbanTethysChloris.Resistance: precalculate_stomatal_resistance_roof
 using ....TestUtils:
-    create_vegetated_optical_properties, create_height_dependent_vegetation_parameters
+    create_vegetated_optical_properties,
+    create_height_dependent_vegetation_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "resistance_functions.PrecalculateStomatalResistanceRoof.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data(
+    "resistance_functions.PrecalculateStomatalResistanceRoof.mat"
+)
 
 # convert Dict{String, Any} to a named tuple
 TempVec_ittm = (; TRoofVeg=input_vars["TempVec_ittm"]["TRoofVeg"])

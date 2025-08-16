@@ -1,13 +1,10 @@
 using Test
 using MAT
 using UrbanTethysChloris.BuildingEnergyModel: ac_heating_module
-using ....TestUtils: create_hvac_parameters
+using ....TestUtils: create_hvac_parameters, load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "BuildingEnergyModel.AC_HeatingModule.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.AC_HeatingModule.mat")
 
 ParHVAC = create_hvac_parameters(FT; MasterOn=Bool(input_vars["ParHVAC"]["MasterOn"]))
 

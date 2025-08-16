@@ -1,13 +1,10 @@
 using Test
 using MAT
 using UrbanTethysChloris.MeanRadiantTemperature: person_in_shade
-using ....TestUtils: create_height_dependent_vegetation_parameters
+using ....TestUtils: create_height_dependent_vegetation_parameters, load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "MRT.PersonInShadeYesOrNo.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("MRT.PersonInShadeYesOrNo.mat")
 
 # Create parameters
 ParVegTree = create_height_dependent_vegetation_parameters(

@@ -2,12 +2,10 @@ using Test
 using MAT
 using UrbanTethysChloris.MeanRadiantTemperature: swr_diff_person
 using UrbanTethysChloris.RayTracing: ViewFactorPoint
+using ....TestUtils: load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "MRT.SWRDiffPerson.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("MRT.SWRDiffPerson.mat")
 
 SWRout_t = (;
     SWRoutTotalGround=input_vars["SWRout_t"]["SWRoutTotalGround"],

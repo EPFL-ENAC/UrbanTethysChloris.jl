@@ -6,13 +6,13 @@ using ....TestUtils:
     create_hvac_parameters,
     create_indoor_optical_properties,
     create_thermal_building,
-    create_window_parameters
+    create_window_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "BuildingEnergyModel.EBSolver_BuildingOUTPUT.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data(
+    "BuildingEnergyModel.EBSolver_BuildingOUTPUT.mat"
+)
 
 # Create parameter structs from input data
 Geometry_m = create_urban_geometry_parameters(

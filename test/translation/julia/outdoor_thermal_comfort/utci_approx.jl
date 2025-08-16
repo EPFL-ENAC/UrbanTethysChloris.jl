@@ -1,12 +1,10 @@
 using Test
 using MAT
 using UrbanTethysChloris.OutdoorThermalComfort: utci_approx
+using ....TestUtils: load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "OTC.UTCI_approx.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("OTC.UTCI_approx.mat")
 
 @testset "MATLAB" begin
     UTCI = utci_approx(

@@ -1,12 +1,10 @@
 using Test
 using MAT
 using UrbanTethysChloris.BuildingEnergyModel: swr_abs_building_half
+using ....TestUtils: load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "building_energy_model.SWRabsBuildingHalf.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.SWRabsBuildingHalf.mat")
 
 @testset "MATLAB" begin
     SWRinB, SWRoutB, SWRabsB = swr_abs_building_half(

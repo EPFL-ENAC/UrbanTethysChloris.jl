@@ -20,6 +20,46 @@ using UrbanTethysChloris.ModelComponents.Parameters:
     VegetatedSoilParameters,
     WallSoilParameters,
     WindowParameters
+using MAT
+using Artifacts
+
+# using Pkg
+# using Artifacts
+
+# toml = Artifacts.find_artifacts_toml(@__DIR__)
+# const datadir = Pkg.Artifacts.ensure_artifact_installed("utcdata", toml)
+
+"""
+    load_matlab_data(path::String)
+
+Load MATLAB data from MAT files containing input and output variables.
+
+This function reads paired input/output MAT files that were generated from MATLAB data.
+It converts the file paths to point to corresponding MAT files and reads both input
+and output data, converting special values as needed.
+
+# Arguments
+- `path::String`: Base path to the MAT files. If path ends in ".jl", it will be converted to ".json"
+
+# Returns
+- `Tuple{Any,Any}`: A tuple containing:
+  - `inputVars`: Processed input variables from the input MAT file
+  - `outputVars`: Processed output variables from the output MAT file
+
+# Notes
+- Files are expected to be in "utcdata" artifact
+- Numbers are parsed as Float64
+
+"""
+function load_matlab_data(func_name::String)
+    FT = Float64
+
+    dir = artifact"utcdata"
+    inputVars = matread(joinpath(dir, "data", "inputs", func_name))
+    outputVars = matread(joinpath(dir, "data", "outputs", func_name))
+
+    return inputVars, outputVars
+end
 
 """
     load_test_netcdf(path::String = joinpath(@__DIR__, "data", "input_data.nc"))

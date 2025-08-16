@@ -5,7 +5,11 @@ using ....TestUtils:
     create_height_dependent_vegetation_parameters,
     create_location_specific_surface_fractions,
     create_urban_geometry_parameters,
-    create_vegetated_soil_parameters
+    create_vegetated_soil_parameters,
+    load_matlab_data
+
+FT = Float64
+input_vars, output_vars = load_matlab_data("turbulent_heat_function.HeatFlux_roof.mat")
 
 FT = Float64
 dir = joinpath(@__DIR__, "..", "..", "matlab", "data")

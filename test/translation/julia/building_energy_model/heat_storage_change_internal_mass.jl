@@ -1,13 +1,13 @@
 using Test
 using MAT
 using UrbanTethysChloris.BuildingEnergyModel: heat_storage_change_internal_mass
-using ....TestUtils: create_urban_geometry_parameters, create_thermal_building
+using ....TestUtils:
+    create_urban_geometry_parameters, create_thermal_building, load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "BuildingEnergyModel.HeatStorageChangeInternalMass.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data(
+    "BuildingEnergyModel.HeatStorageChangeInternalMass.mat"
+)
 
 ParThermalBuildFloor = create_thermal_building(
     FT;
