@@ -21,6 +21,7 @@ using UrbanTethysChloris.ModelComponents.Parameters:
     WallSoilParameters,
     WindowParameters
 using MAT
+using LazyArtifacts
 using Artifacts
 
 # using Pkg
