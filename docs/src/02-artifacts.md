@@ -14,3 +14,5 @@ filename = "path/to/your/file.tar.gz"
 println("sha256: ", bytes2hex(open(sha256, filename)))
 println("git-tree-sha1: ", Tar.tree_hash(IOBuffer(inflate_gzip(filename))))
 ```
+
+Then, copy the two hashes in the Artifacts.toml file located in the `test` folder.
