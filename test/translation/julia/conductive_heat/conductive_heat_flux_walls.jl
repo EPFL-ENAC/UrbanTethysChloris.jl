@@ -6,7 +6,7 @@ using ....TestUtils:
 
 FT = Float64
 input_vars, output_vars = load_matlab_data(
-    "conductive_heat_functions.ConductiveHeatFlux_Walls.mat"
+    "conductive_heat_functions.ConductiveHeatFlux_Walls.json"
 )
 
 # Create parameter structs from input data

@@ -5,7 +5,7 @@ using ....TestUtils: load_matlab_data
 
 FT = Float64
 input_vars, output_vars = load_matlab_data(
-    "BuildingEnergyModel.SensibleHeatFluxBuildingInterior.mat"
+    "BuildingEnergyModel.SensibleHeatFluxBuildingInterior.json"
 )
 
 @testset "MATLAB" begin

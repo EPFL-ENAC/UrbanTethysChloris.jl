@@ -4,7 +4,7 @@ using UrbanTethysChloris.BuildingEnergyModel: ac_heating_module
 using ....TestUtils: create_hvac_parameters, load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("BuildingEnergyModel.AC_HeatingModule.mat")
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.AC_HeatingModule.json")
 
 ParHVAC = create_hvac_parameters(FT; MasterOn=Bool(input_vars["ParHVAC"]["MasterOn"]))
 
@@ -15,15 +15,15 @@ ParHVAC = create_hvac_parameters(FT; MasterOn=Bool(input_vars["ParHVAC"]["Master
         Bool(input_vars["AC_onCool"]),
         Bool(input_vars["AC_onDehum"]),
         ParHVAC,
-        input_vars["HbuildIn"],
-        input_vars["Hvent"],
-        input_vars["Hequip"],
-        input_vars["Hpeople"],
-        input_vars["dSH_air"],
-        input_vars["LEvent"],
-        input_vars["LEequip"],
-        input_vars["LEpeople"],
-        input_vars["dSLE_air"],
+        FT(input_vars["HbuildIn"]),
+        FT(input_vars["Hvent"]),
+        FT(input_vars["Hequip"]),
+        FT(input_vars["Hpeople"]),
+        FT(input_vars["dSH_air"]),
+        FT(input_vars["LEvent"]),
+        FT(input_vars["LEequip"]),
+        FT(input_vars["LEpeople"]),
+        FT(input_vars["dSLE_air"]),
     )
 
     @test AC_on == Bool(output_vars["AC_on"])

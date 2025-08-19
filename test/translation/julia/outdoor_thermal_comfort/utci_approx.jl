@@ -4,7 +4,7 @@ using UrbanTethysChloris.OutdoorThermalComfort: utci_approx
 using ....TestUtils: load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("OTC.UTCI_approx.mat")
+input_vars, output_vars = load_matlab_data("OTC.UTCI_approx.json")
 
 @testset "MATLAB" begin
     UTCI = utci_approx(

@@ -4,7 +4,7 @@ using UrbanTethysChloris.RayTracing: view_factor_internal
 using ....TestUtils: load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("BuildingEnergyModel.ViewFactorInternal.mat")
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.ViewFactorInternal.json")
 
 @testset "MATLAB" begin
     F_gc, F_gw, F_ww, F_wg, F_wc, F_cg, F_cw, ViewFactor = view_factor_internal(

@@ -8,7 +8,7 @@ using ....TestUtils:
     load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("turbulent_heat_function.HeatFlux_wall.mat")
+input_vars, output_vars = load_matlab_data("turbulent_heat_function.HeatFlux_wall.json")
 
 Gemeotry_m = create_urban_geometry_parameters(
     FT;
@@ -23,7 +23,7 @@ Gemeotry_m = create_urban_geometry_parameters(
 )
 
 MeteoData = (;
-    Zatm=input_vars["MeteoData"]["Zatm"],
+    Zatm=FT(input_vars["MeteoData"]["Zatm"]),
     Tatm=input_vars["MeteoData"]["Tatm"],
     Uatm=input_vars["MeteoData"]["Uatm"],
     Pre=input_vars["MeteoData"]["Pre"],
@@ -31,7 +31,7 @@ MeteoData = (;
 )
 
 ParVegTree = create_height_dependent_vegetation_parameters(
-    FT; Kopt=input_vars["ParVegTree"]["Kopt"], LAI=input_vars["ParVegTree"]["LAI"]
+    FT; Kopt=input_vars["ParVegTree"]["Kopt"], LAI=FT(input_vars["ParVegTree"]["LAI"])
 )
 
 ParVegGround = create_height_dependent_vegetation_parameters(
@@ -41,7 +41,7 @@ ParVegGround = create_height_dependent_vegetation_parameters(
 FractionsGround = create_location_specific_surface_fractions(
     FT;
     fveg=input_vars["FractionsGround"]["fveg"],
-    fbare=input_vars["FractionsGround"]["fbare"],
+    fbare=FT(input_vars["FractionsGround"]["fbare"]),
     fimp=input_vars["FractionsGround"]["fimp"],
 )
 

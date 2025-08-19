@@ -5,7 +5,7 @@ using ....TestUtils: create_thermal_building, load_matlab_data
 
 FT = Float64
 input_vars, output_vars = load_matlab_data(
-    "BuildingEnergyModel.ConductiveHeatFluxFR_BuildingFloor.mat"
+    "BuildingEnergyModel.ConductiveHeatFluxFR_BuildingFloor.json"
 )
 
 ParCalculation = (dts=Int(input_vars["ParCalculation"]["dts"]),)
