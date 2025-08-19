@@ -4,13 +4,11 @@ using UrbanTethysChloris.TurbulentHeat: heat_flux_wall
 using ....TestUtils:
     create_height_dependent_vegetation_parameters,
     create_location_specific_surface_fractions,
-    create_urban_geometry_parameters
+    create_urban_geometry_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "turbulent_heat_function.HeatFlux_wall.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("turbulent_heat_function.HeatFlux_wall.mat")
 
 Gemeotry_m = create_urban_geometry_parameters(
     FT;

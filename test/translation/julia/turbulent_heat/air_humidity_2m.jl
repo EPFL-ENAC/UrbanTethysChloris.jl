@@ -4,13 +4,11 @@ using UrbanTethysChloris.TurbulentHeat: air_humidity_2m
 using ....TestUtils:
     create_location_specific_surface_fractions,
     create_height_dependent_vegetation_parameters,
-    create_urban_geometry_parameters
+    create_urban_geometry_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "turbulent_heat_function.AirHumidity2m.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("turbulent_heat_function.AirHumidity2m.mat")
 
 FractionsGround = create_location_specific_surface_fractions(
     FT;

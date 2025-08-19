@@ -1,15 +1,14 @@
 using Test
 using MAT
 using UrbanTethysChloris.MeanRadiantTemperature: mean_radiant_temperature
-using ....TestUtils:
-    create_urban_geometry_parameters, create_height_dependent_vegetation_parameters
 using UrbanTethysChloris.RayTracing: ViewFactorPoint
+using ....TestUtils:
+    create_urban_geometry_parameters,
+    create_height_dependent_vegetation_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "MRT.MeanRadiantTemperature.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("MRT.MeanRadiantTemperature.mat")
 
 # Create parameter structs
 ParVegTree = create_height_dependent_vegetation_parameters(

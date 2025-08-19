@@ -5,13 +5,13 @@ using ....TestUtils:
     create_location_specific_thermal_properties,
     create_location_specific_surface_fractions,
     create_vegetated_soil_parameters,
-    create_height_dependent_vegetation_parameters
+    create_height_dependent_vegetation_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "conductive_heat_functions.ConductiveHeatFluxFR_GroundImp.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data(
+    "conductive_heat_functions.ConductiveHeatFluxFR_GroundImp.mat"
+)
 
 # Create parameter structs from input data
 ParThermalGround = create_location_specific_thermal_properties(

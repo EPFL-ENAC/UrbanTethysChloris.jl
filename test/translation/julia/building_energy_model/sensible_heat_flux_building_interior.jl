@@ -1,12 +1,12 @@
 using Test
 using MAT
 using UrbanTethysChloris.BuildingEnergyModel: sensible_heat_flux_building_interior
+using ....TestUtils: load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "BuildingEnergyModel.SensibleHeatFluxBuildingInterior.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data(
+    "BuildingEnergyModel.SensibleHeatFluxBuildingInterior.mat"
+)
 
 @testset "MATLAB" begin
     HbinWallSun, HbinWallshd, HBinRoof, HBinGround, HbinIntMass, HbinWindow = sensible_heat_flux_building_interior(

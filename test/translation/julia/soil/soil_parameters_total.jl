@@ -1,12 +1,10 @@
 using Test
 using MAT
 using UrbanTethysChloris.Soil: soil_parameters_total
+using ....TestUtils: load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "soil_functions.SoilParametersTotal.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("soil_functions.SoilParametersTotal.mat")
 
 @testset "MATLAB" begin
     Zs, dz, ms, Osat, Ohy, nVG, alpVG, Ks_Zs, L, Pe, O33, SPAR, EvL_Zs, Inf_Zs, RfH_Zs, RfL_Zs, Zinf, Kbot, Slo_pot, Dz, aR, aTop, rsd, lan_dry, lan_s, cv_s = soil_parameters_total(

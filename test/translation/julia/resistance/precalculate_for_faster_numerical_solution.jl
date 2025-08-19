@@ -17,13 +17,13 @@ using ....TestUtils:
     create_vegetated_optical_properties,
     create_simple_optical_properties,
     create_height_dependent_vegetation_parameters,
-    create_window_parameters
+    create_window_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "resistance_functions.PrecalculateForFasterNumericalSolution.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data(
+    "resistance_functions.PrecalculateForFasterNumericalSolution.mat"
+)
 
 # Convert Dict{String, Any} to named tuples
 TempVec_ittm = (;

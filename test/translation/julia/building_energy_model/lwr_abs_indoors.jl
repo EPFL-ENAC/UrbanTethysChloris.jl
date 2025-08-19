@@ -1,12 +1,10 @@
 using Test
 using MAT
 using UrbanTethysChloris.BuildingEnergyModel: lwr_abs_indoors
+using ....TestUtils: load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "building_energy_model.LWRabsIndoors.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.LWRabsIndoors.mat")
 
 @testset "MATLAB" begin
     LWRinB, LWRoutB, LWRabsB = lwr_abs_indoors(

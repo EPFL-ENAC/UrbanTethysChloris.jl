@@ -1,12 +1,10 @@
 using Test
 using MAT
 using UrbanTethysChloris.Water: water_vegetation
+using ....TestUtils: load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "water_functions.Water_Vegetation.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("water_functions.Water_Vegetation.mat")
 
 @testset "Zurich" begin
     q_runon_veg, In_veg, dIn_veg_dt, WBalance_In_veg = water_vegetation(

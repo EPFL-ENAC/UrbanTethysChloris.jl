@@ -5,13 +5,11 @@ using ....TestUtils:
     create_height_dependent_vegetation_parameters,
     create_location_specific_surface_fractions,
     create_urban_geometry_parameters,
-    create_vegetated_soil_parameters
+    create_vegetated_soil_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "turbulent_heat_function.HeatFlux_ground.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("turbulent_heat_function.HeatFlux_ground.mat")
 
 # Create structured inputs with correct types
 FractionsGround = create_location_specific_surface_fractions(
