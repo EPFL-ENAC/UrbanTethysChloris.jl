@@ -4,7 +4,9 @@ using UrbanTethysChloris.BuildingEnergyModel: lwr_abs_indoors_no_int_mass
 using ....TestUtils: load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("BuildingEnergyModel.LWRabsIndoorsNoIntMass.mat")
+input_vars, output_vars = load_matlab_data(
+    "BuildingEnergyModel.LWRabsIndoorsNoIntMass.json"
+)
 
 @testset "MATLAB" begin
     LWRinB, LWRoutB, LWRabsB, LWREBB = lwr_abs_indoors_no_int_mass(

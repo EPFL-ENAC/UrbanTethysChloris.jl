@@ -4,12 +4,14 @@ using UrbanTethysChloris.BuildingEnergyModel: swr_abs_indoors_no_int_mass
 using ....TestUtils: load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("BuildingEnergyModel.SWRabsIndoorsNoIntMass.mat")
+input_vars, output_vars = load_matlab_data(
+    "BuildingEnergyModel.SWRabsIndoorsNoIntMass.json"
+)
 
 @testset "MATLAB" begin
     SWRinB, SWRoutB, SWRabsB, SWREBB = swr_abs_indoors_no_int_mass(
-        input_vars["SWRinWsun"],
-        input_vars["SWRinWshd"],
+        FT(input_vars["SWRinWsun"]),
+        FT(input_vars["SWRinWshd"]),
         input_vars["Hbuild"],
         input_vars["Wroof"],
         input_vars["abc"],

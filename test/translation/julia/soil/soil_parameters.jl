@@ -4,7 +4,7 @@ using UrbanTethysChloris.Soil: soil_parameters
 using ....TestUtils: load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("soil_functions.Soil_parameters.mat")
+input_vars, output_vars = load_matlab_data("soil_functions.Soil_parameters.json")
 
 @testset "MATLAB" begin
     Osat, L, Pe, Ks, O33, rsd, lan_dry, lan_s, cv_s, K_usle = soil_parameters(

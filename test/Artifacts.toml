@@ -1,7 +1,7 @@
 [utcdata]
-git-tree-sha1 = "487b43548c5faa083dce9d10a222c2b5f67b293a"
+git-tree-sha1 = "4f43862c5b68e0d4fd380cd9a5ec04bc3a61569a"
 lazy = true
 
     [[utcdata.download]]
-    url = "https://github.com/EPFL-ENAC/URBES-utc-test-data/raw/refs/heads/feat-add-tar/utcdata.tar.gz"
-    sha256 = "dbeb604faed0cc6bfc6990996d0ca3e69ad3ce8cb315d8329940a60e2589c19f"
+    url = "https://github.com/EPFL-ENAC/URBES-utc-test-data/raw/refs/heads/main/utcdata.tar.gz"
+    sha256 = "94c3019232966dc0d72cc766cafea78f20b766810ed6c225438a7d79bedb043f"

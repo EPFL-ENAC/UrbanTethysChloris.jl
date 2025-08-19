@@ -4,7 +4,7 @@ using UrbanTethysChloris.BuildingEnergyModel: lwr_abs_indoors
 using ....TestUtils: load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("BuildingEnergyModel.LWRabsIndoors.mat")
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.LWRabsIndoors.json")
 
 @testset "MATLAB" begin
     LWRinB, LWRoutB, LWRabsB = lwr_abs_indoors(

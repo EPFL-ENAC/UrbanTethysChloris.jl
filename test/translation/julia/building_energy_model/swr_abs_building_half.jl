@@ -4,7 +4,7 @@ using UrbanTethysChloris.BuildingEnergyModel: swr_abs_building_half
 using ....TestUtils: load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("BuildingEnergyModel.SWRabsBuildingHalf.mat")
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.SWRabsBuildingHalf.json")
 
 @testset "MATLAB" begin
     SWRinB, SWRoutB, SWRabsB = swr_abs_building_half(

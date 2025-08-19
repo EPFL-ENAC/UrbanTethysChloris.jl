@@ -10,7 +10,7 @@ using ....TestUtils:
     load_matlab_data
 
 FT = Float64
-input_vars, output_vars = load_matlab_data("BuildingEnergyModel.EBSolver_Building.mat")
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.EBSolver_Building.json")
 
 # Create parameter structs from input data
 Geometry_m = create_urban_geometry_parameters(
@@ -38,11 +38,11 @@ ParHVAC = create_hvac_parameters(
     Heatingon=Bool(input_vars["ParHVAC"]["Heatingon"]),
     TsetpointCooling=input_vars["ParHVAC"]["TsetpointCooling"],
     TsetpointHeating=input_vars["ParHVAC"]["TsetpointHeating"],
-    RHsetpointCooling=input_vars["ParHVAC"]["RHsetpointCooling"],
+    RHsetpointCooling=FT(input_vars["ParHVAC"]["RHsetpointCooling"]),
     COPAC=input_vars["ParHVAC"]["COPAC"],
     COPHeat=input_vars["ParHVAC"]["COPHeat"],
     ACH=input_vars["ParHVAC"]["ACH"],
-    f_ACLatentToQ=input_vars["ParHVAC"]["f_ACLatentToQ"],
+    f_ACLatentToQ=FT(input_vars["ParHVAC"]["f_ACLatentToQ"]),
     AC_onCool=Bool(input_vars["ParHVAC"]["AC_onCool"]),
     AC_onDehum=Bool(input_vars["ParHVAC"]["AC_onDehum"]),
 )
@@ -56,7 +56,7 @@ ParThermalBuildingInt = create_thermal_building(
     cv_wall_IntMass=input_vars["ParThermalBulidingInt"]["cv_wall_IntMass"],
     dzFloor=input_vars["ParThermalBulidingInt"]["dzFloor"],
     dzWall=input_vars["ParThermalBulidingInt"]["dzWall"],
-    FloorHeight=input_vars["ParThermalBulidingInt"]["FloorHeight"],
+    FloorHeight=FT(input_vars["ParThermalBulidingInt"]["FloorHeight"]),
 )
 
 ParWindows = create_window_parameters(
@@ -90,10 +90,10 @@ MeteoData = (
 )
 
 HVACSchedule = (
-    Hequip=input_vars["HVACSchedule"]["Hequip"],
-    Hpeople=input_vars["HVACSchedule"]["Hpeople"],
-    LEequip=input_vars["HVACSchedule"]["LEequip"],
-    LEpeople=input_vars["HVACSchedule"]["LEpeople"],
+    Hequip=FT(input_vars["HVACSchedule"]["Hequip"]),
+    Hpeople=FT(input_vars["HVACSchedule"]["Hpeople"]),
+    LEequip=FT(input_vars["HVACSchedule"]["LEequip"]),
+    LEpeople=FT(input_vars["HVACSchedule"]["LEpeople"]),
     AirConRoomFraction=input_vars["HVACSchedule"]["AirConRoomFraction"],
 )
 
@@ -105,11 +105,11 @@ HVACSchedule = (
         TempVec_ittm,
         Humidity_ittm,
         MeteoData,
-        input_vars["SWRinWsun"],
-        input_vars["SWRinWshd"],
-        input_vars["G2Roof"],
-        input_vars["G2WallSun"],
-        input_vars["G2WallShade"],
+        FT(input_vars["SWRinWsun"]),
+        FT(input_vars["SWRinWshd"]),
+        FT(input_vars["G2Roof"]),
+        FT(input_vars["G2WallSun"]),
+        FT(input_vars["G2WallShade"]),
         TempDamp_ittm,
         SWRabs_t,
         Geometry_m,

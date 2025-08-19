@@ -10,14 +10,14 @@ using ....TestUtils:
 
 FT = Float64
 input_vars, output_vars = load_matlab_data(
-    "conductive_heat_functions.ConductiveHeatFluxFR_GroundVegBare.mat"
+    "conductive_heat_functions.ConductiveHeatFluxFR_GroundVegBare.json"
 )
 
 # Create parameter structs from input data
 FractionsGround = create_location_specific_surface_fractions(
     FT;
     fveg=input_vars["FractionsGround"]["fveg"],
-    fbare=input_vars["FractionsGround"]["fbare"],
+    fbare=FT(input_vars["FractionsGround"]["fbare"]),
     fimp=input_vars["FractionsGround"]["fimp"],
 )
 
@@ -27,16 +27,16 @@ ParSoilGround = create_vegetated_soil_parameters(
     Psan=input_vars["ParSoilGround"]["Psan"],
     Porg=input_vars["ParSoilGround"]["Porg"],
     Kfc=input_vars["ParSoilGround"]["Kfc"],
-    Phy=input_vars["ParSoilGround"]["Phy"],
+    Phy=FT(input_vars["ParSoilGround"]["Phy"]),
     SPAR=Int(input_vars["ParSoilGround"]["SPAR"]),
     Kbot=input_vars["ParSoilGround"]["Kbot"],
-    Zs=vec(input_vars["ParSoilGround"]["Zs"]),
+    Zs=FT.(vec(input_vars["ParSoilGround"]["Zs"])),
 )
 
 ParVegTree = create_height_dependent_vegetation_parameters(
     FT;
     CASE_ROOT=Int(input_vars["ParVegTree"]["CASE_ROOT"]),
-    ZR95=input_vars["ParVegTree"]["ZR95"],
+    ZR95=FT(input_vars["ParVegTree"]["ZR95"]),
     ZR50=input_vars["ParVegTree"]["ZR50"],
     ZRmax=input_vars["ParVegTree"]["ZRmax"],
 )
@@ -44,7 +44,7 @@ ParVegTree = create_height_dependent_vegetation_parameters(
 ParVegGround = create_height_dependent_vegetation_parameters(
     FT;
     CASE_ROOT=Int(input_vars["ParVegGround"]["CASE_ROOT"]),
-    ZR95=input_vars["ParVegGround"]["ZR95"],
+    ZR95=FT(input_vars["ParVegGround"]["ZR95"]),
     ZR50=input_vars["ParVegGround"]["ZR50"],
     ZRmax=input_vars["ParVegGround"]["ZRmax"],
 )
