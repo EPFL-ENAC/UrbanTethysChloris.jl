@@ -11,6 +11,3 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 TethysChlorisCore = "c22758e7-e854-5bdb-8df2-7602c47a9d98"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
-
-[sources]
-TethysChlorisCore = {url = "https://github.com/EPFL-ENAC/TethysChlorisCore.jl"}
