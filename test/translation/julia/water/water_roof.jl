@@ -2,70 +2,68 @@ using Test
 using MAT
 using UrbanTethysChloris.Water: water_roof
 using ....TestUtils:
-    # using .TestUtils:
+    load_matlab_data,
     create_location_specific_surface_fractions,
     create_vegetated_soil_parameters,
     create_height_dependent_vegetation_parameters
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "water_functions.WaterRoof.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
-
+FT = Float64
+input_vars, output_vars = load_matlab_data("water_functions.WaterRoof.json")
 @testset "Zurich" begin
     Eroof_imp = input_vars["Eroof_imp"]
-    Eroof_veg = input_vars["Eroof_veg"]
-    Eroof_ground = input_vars["Eroof_ground"]
+    Eroof_veg = FT(input_vars["Eroof_veg"])
+    Eroof_ground = FT(input_vars["Eroof_ground"])
     Eroof_soil = input_vars["Eroof_soil"]
-    TEroof_veg = input_vars["TEroof_veg"]
+    TEroof_veg = FT(input_vars["TEroof_veg"])
 
-    MeteoData = (Rain=input_vars["MeteoData"]["Rain"],)
+    MeteoData = (Rain=FT(input_vars["MeteoData"]["Rain"]),)
     Int_ittm = (
-        IntRoofImp=input_vars["Int_ittm"]["IntRoofImp"],
-        IntRoofVegPlant=input_vars["Int_ittm"]["IntRoofVegPlant"],
-        IntRoofVegGround=input_vars["Int_ittm"]["IntRoofVegGround"],
+        IntRoofImp=FT(input_vars["Int_ittm"]["IntRoofImp"]),
+        IntRoofVegPlant=FT(input_vars["Int_ittm"]["IntRoofVegPlant"]),
+        IntRoofVegGround=FT(input_vars["Int_ittm"]["IntRoofVegGround"]),
     )
     Owater_ittm = (OwRoofSoilVeg=vec(input_vars["Owater_ittm"]["OwRoofSoilVeg"]),)
-    Runon_ittm = (RunonRoofTot=input_vars["Runon_ittm"]["RunonRoofTot"],)
+    Runon_ittm = (RunonRoofTot=FT(input_vars["Runon_ittm"]["RunonRoofTot"]),)
     FractionsRoof = create_location_specific_surface_fractions(
         FT;
         fveg=input_vars["FractionsRoof"]["fveg"],
         fimp=input_vars["FractionsRoof"]["fimp"],
-        Per_runoff=input_vars["FractionsRoof"]["Per_runoff"],
+        Per_runoff=FT(input_vars["FractionsRoof"]["Per_runoff"]),
     )
     ParSoilRoof = create_vegetated_soil_parameters(
         FT;
         In_max_imp=input_vars["ParSoilRoof"]["In_max_imp"],
-        In_max_ground=input_vars["ParSoilRoof"]["In_max_ground"],
-        Kimp=input_vars["ParSoilRoof"]["Kimp"],
+        In_max_ground=FT(input_vars["ParSoilRoof"]["In_max_ground"]),
+        Kimp=FT(input_vars["ParSoilRoof"]["Kimp"]),
         Pcla=input_vars["ParSoilRoof"]["Pcla"],
         Psan=input_vars["ParSoilRoof"]["Psan"],
         Porg=input_vars["ParSoilRoof"]["Porg"],
         Kfc=input_vars["ParSoilRoof"]["Kfc"],
-        Phy=input_vars["ParSoilRoof"]["Phy"],
+        Phy=FT(input_vars["ParSoilRoof"]["Phy"]),
         SPAR=Int(input_vars["ParSoilRoof"]["SPAR"]),
         Kbot=input_vars["ParSoilRoof"]["Kbot"],
         Sp_In=input_vars["ParSoilRoof"]["Sp_In"],
-        Zs=vec(input_vars["ParSoilRoof"]["Zs"]),
+        Zs=FT.(vec(input_vars["ParSoilRoof"]["Zs"])),
         dz1=input_vars["ParSoilRoof"]["dz1"],
         dz2=input_vars["ParSoilRoof"]["dz2"],
     )
     ParCalculation = (
-        dth=input_vars["ParCalculation"]["dth"], row=input_vars["ParCalculation"]["row"]
+        dth=FT(input_vars["ParCalculation"]["dth"]),
+        row=FT(input_vars["ParCalculation"]["row"]),
     )
 
     ParVegRoof = create_height_dependent_vegetation_parameters(
         FT;
         LAI=input_vars["ParVegRoof"]["LAI"],
         SAI=input_vars["ParVegRoof"]["SAI"],
-        Rrootl=[input_vars["ParVegRoof"]["Rrootl"]],
-        PsiL50=[input_vars["ParVegRoof"]["PsiL50"]],
-        PsiX50=[input_vars["ParVegRoof"]["PsiX50"]],
+        Rrootl=FT.([input_vars["ParVegRoof"]["Rrootl"]]),
+        PsiL50=FT.([input_vars["ParVegRoof"]["PsiL50"]]),
+        PsiX50=FT.([input_vars["ParVegRoof"]["PsiX50"]]),
         CASE_ROOT=Int(input_vars["ParVegRoof"]["CASE_ROOT"]),
-        ZR95=[input_vars["ParVegRoof"]["ZR95"]],
-        ZR50=[input_vars["ParVegRoof"]["ZR50"]],
-        ZRmax=[input_vars["ParVegRoof"]["ZRmax"]],
+        ZR95=FT.([input_vars["ParVegRoof"]["ZR95"]]),
+        ZR50=FT.([input_vars["ParVegRoof"]["ZR50"]]),
+        ZRmax=FT.([input_vars["ParVegRoof"]["ZRmax"]]),
     )
     Anthropogenic = (Waterf_roof=input_vars["Anthropogenic"]["Waterf_roof"],)
 

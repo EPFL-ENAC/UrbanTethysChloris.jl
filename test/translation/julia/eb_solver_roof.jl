@@ -2,6 +2,7 @@ using Test
 using MAT
 using UrbanTethysChloris: eb_solver_roof
 using ...TestUtils:
+    load_matlab_data,
     create_height_dependent_vegetation_parameters,
     create_location_specific_surface_fractions,
     create_vegetated_soil_parameters,
@@ -10,17 +11,14 @@ using ...TestUtils:
     create_urban_geometry_parameters
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "matlab", "data")
-filename = "EBSolver_roof.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("EBSolver_roof.json")
 
 # Create structured inputs with correct types
 FractionsRoof = create_location_specific_surface_fractions(
     FT;
     fveg=input_vars["FractionsRoof"]["fveg"],
     fimp=input_vars["FractionsRoof"]["fimp"],
-    Per_runoff=input_vars["FractionsRoof"]["Per_runoff"],
+    Per_runoff=FT(input_vars["FractionsRoof"]["Per_runoff"]),
 )
 
 PropOpticalRoof = create_vegetated_optical_properties(
@@ -39,35 +37,35 @@ ParThermalRoof = create_location_specific_thermal_properties(
 
 ParVegRoof = create_height_dependent_vegetation_parameters(
     FT;
-    LAI=input_vars["ParVegRoof"]["LAI"],
-    SAI=input_vars["ParVegRoof"]["SAI"],
-    hc=input_vars["ParVegRoof"]["hc"],
-    d_leaf=input_vars["ParVegRoof"]["d_leaf"],
-    Kopt=input_vars["ParVegRoof"]["Kopt"],
-    Knit=input_vars["ParVegRoof"]["Knit"],
-    Psi_sto_50=input_vars["ParVegRoof"]["Psi_sto_50"],
-    Psi_sto_00=input_vars["ParVegRoof"]["Psi_sto_00"],
+    LAI=FT(input_vars["ParVegRoof"]["LAI"]),
+    SAI=FT(input_vars["ParVegRoof"]["SAI"]),
+    hc=FT(input_vars["ParVegRoof"]["hc"]),
+    d_leaf=FT(input_vars["ParVegRoof"]["d_leaf"]),
+    Kopt=FT(input_vars["ParVegRoof"]["Kopt"]),
+    Knit=FT(input_vars["ParVegRoof"]["Knit"]),
+    Psi_sto_50=FT(input_vars["ParVegRoof"]["Psi_sto_50"]),
+    Psi_sto_00=FT(input_vars["ParVegRoof"]["Psi_sto_00"]),
     CT=Int(input_vars["ParVegRoof"]["CT"]),
-    Vmax=input_vars["ParVegRoof"]["Vmax"],
-    DSE=input_vars["ParVegRoof"]["DSE"],
-    Ha=input_vars["ParVegRoof"]["Ha"],
-    FI=input_vars["ParVegRoof"]["FI"],
-    Do=input_vars["ParVegRoof"]["Do"],
-    a1=input_vars["ParVegRoof"]["a1"],
-    go=input_vars["ParVegRoof"]["go"],
-    e_rel=input_vars["ParVegRoof"]["e_rel"],
-    e_relN=input_vars["ParVegRoof"]["e_relN"],
-    gmes=input_vars["ParVegRoof"]["gmes"],
-    rjv=input_vars["ParVegRoof"]["rjv"],
-    mSl=input_vars["ParVegRoof"]["mSl"],
-    Sl=input_vars["ParVegRoof"]["Sl"],
-    Rrootl=[input_vars["ParVegRoof"]["Rrootl"]],
-    PsiL50=[input_vars["ParVegRoof"]["PsiL50"]],
-    PsiX50=[input_vars["ParVegRoof"]["PsiX50"]],
+    Vmax=FT(input_vars["ParVegRoof"]["Vmax"]),
+    DSE=FT(input_vars["ParVegRoof"]["DSE"]),
+    Ha=FT(input_vars["ParVegRoof"]["Ha"]),
+    FI=FT(input_vars["ParVegRoof"]["FI"]),
+    Do=FT(input_vars["ParVegRoof"]["Do"]),
+    a1=FT(input_vars["ParVegRoof"]["a1"]),
+    go=FT(input_vars["ParVegRoof"]["go"]),
+    e_rel=FT(input_vars["ParVegRoof"]["e_rel"]),
+    e_relN=FT(input_vars["ParVegRoof"]["e_relN"]),
+    gmes=FT(input_vars["ParVegRoof"]["gmes"]),
+    rjv=FT(input_vars["ParVegRoof"]["rjv"]),
+    mSl=FT(input_vars["ParVegRoof"]["mSl"]),
+    Sl=FT(input_vars["ParVegRoof"]["Sl"]),
+    Rrootl=FT.([input_vars["ParVegRoof"]["Rrootl"]]),
+    PsiL50=FT.([input_vars["ParVegRoof"]["PsiL50"]]),
+    PsiX50=FT.([input_vars["ParVegRoof"]["PsiX50"]]),
     CASE_ROOT=Int(input_vars["ParVegRoof"]["CASE_ROOT"]),
-    ZR95=[input_vars["ParVegRoof"]["ZR95"]],
-    ZR50=[input_vars["ParVegRoof"]["ZR50"]],
-    ZRmax=[input_vars["ParVegRoof"]["ZRmax"]],
+    ZR95=FT.([input_vars["ParVegRoof"]["ZR95"]]),
+    ZR50=FT.([input_vars["ParVegRoof"]["ZR50"]]),
+    ZRmax=FT.([input_vars["ParVegRoof"]["ZRmax"]]),
 )
 
 ParSoilRoof = create_vegetated_soil_parameters(
@@ -76,11 +74,11 @@ ParSoilRoof = create_vegetated_soil_parameters(
     Psan=input_vars["ParSoilRoof"]["Psan"],
     Porg=input_vars["ParSoilRoof"]["Porg"],
     Kfc=input_vars["ParSoilRoof"]["Kfc"],
-    Phy=input_vars["ParSoilRoof"]["Phy"],
+    Phy=FT(input_vars["ParSoilRoof"]["Phy"]),
     SPAR=Int(input_vars["ParSoilRoof"]["SPAR"]),
     Kbot=input_vars["ParSoilRoof"]["Kbot"],
     Sp_In=input_vars["ParSoilRoof"]["Sp_In"],
-    Zs=vec(input_vars["ParSoilRoof"]["Zs"]),
+    Zs=FT.(vec(input_vars["ParSoilRoof"]["Zs"])),
     dz1=input_vars["ParSoilRoof"]["dz1"],
     dz2=input_vars["ParSoilRoof"]["dz2"],
 )
@@ -90,17 +88,17 @@ Gemeotry_m = create_urban_geometry_parameters(
 )
 
 MeteoData = (;
-    SW_dir=input_vars["MeteoData"]["SW_dir"],
-    SW_diff=input_vars["MeteoData"]["SW_diff"],
+    SW_dir=FT(input_vars["MeteoData"]["SW_dir"]),
+    SW_diff=FT(input_vars["MeteoData"]["SW_diff"]),
     LWR=input_vars["MeteoData"]["LWR"],
-    Rain=input_vars["MeteoData"]["Rain"],
+    Rain=FT(input_vars["MeteoData"]["Rain"]),
     Tatm=input_vars["MeteoData"]["Tatm"],
     Pre=input_vars["MeteoData"]["Pre"],
     ea=input_vars["MeteoData"]["ea"],
-    Zatm=input_vars["MeteoData"]["Zatm"],
+    Zatm=FT(input_vars["MeteoData"]["Zatm"]),
     Uatm=input_vars["MeteoData"]["Uatm"],
-    Catm_O2=input_vars["MeteoData"]["Catm_O2"],
-    Catm_CO2=input_vars["MeteoData"]["Catm_CO2"],
+    Catm_O2=FT(input_vars["MeteoData"]["Catm_O2"]),
+    Catm_CO2=FT(input_vars["MeteoData"]["Catm_CO2"]),
 )
 
 TempVec_ittm = (;

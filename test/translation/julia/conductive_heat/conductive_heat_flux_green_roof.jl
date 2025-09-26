@@ -15,13 +15,13 @@ input_vars, output_vars = load_matlab_data(
 # Create parameter structs from input data
 ParVegRoof = create_height_dependent_vegetation_parameters(
     FT;
-    Rrootl=FT(input_vars["ParVegRoof"]["Rrootl"]),
-    PsiL50=FT(input_vars["ParVegRoof"]["PsiL50"]),
-    PsiX50=input_vars["ParVegRoof"]["PsiX50"],
+    Rrootl=FT.([input_vars["ParVegRoof"]["Rrootl"]]),
+    PsiL50=FT.([input_vars["ParVegRoof"]["PsiL50"]]),
+    PsiX50=FT.([input_vars["ParVegRoof"]["PsiX50"]]),
     CASE_ROOT=Int(input_vars["ParVegRoof"]["CASE_ROOT"]),
-    ZR95=FT(input_vars["ParVegRoof"]["ZR95"]),
-    ZR50=input_vars["ParVegRoof"]["ZR50"],
-    ZRmax=input_vars["ParVegRoof"]["ZRmax"],
+    ZR95=FT.([input_vars["ParVegRoof"]["ZR95"]]),
+    ZR50=FT.([input_vars["ParVegRoof"]["ZR50"]]),
+    ZRmax=FT.([input_vars["ParVegRoof"]["ZRmax"]]),
 )
 
 ParSoilRoof = create_vegetated_soil_parameters(
