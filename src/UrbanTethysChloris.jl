@@ -3,6 +3,7 @@ module UrbanTethysChloris
 using TethysChlorisCore
 using Dates
 using Statistics
+using ConstructionBase
 
 include(joinpath("modelcomponents", "ModelComponents.jl"))
 using .ModelComponents

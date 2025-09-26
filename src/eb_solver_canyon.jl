@@ -12,7 +12,7 @@
         SoilPotW_ittm::NamedTuple,
         CiCO2Leaf_ittm::NamedTuple,
         TempDamp_ittm::NamedTuple,
-        ViewFactor::ViewFactor,
+        ViewFactor::RayTracing.ViewFactor{FT},
         Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
         FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
         WallLayers::NamedTuple,
@@ -20,7 +20,7 @@
         ParInterceptionTree::NamedTuple,
         PropOpticalGround::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
         PropOpticalWall::ModelComponents.Parameters.SimpleOpticalProperties{FT},
-        PropOpticalTree::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
+        PropOpticalTree::ModelComponents.Parameters.SimpleOpticalProperties{FT},
         ParThermalGround::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
         ParThermalWall::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
         ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
@@ -37,11 +37,11 @@
         ParWindows::ModelComponents.Parameters.WindowParameters{FT},
         BEM_on::Bool,
         RESPreCalc::Bool,
-        fconvPreCalc::NamedTuple,
-        fconv::NamedTuple,
+        fconvPreCalc::FT,
+        fconv::FT,
         rsGroundPreCalc::NamedTuple,
         rsTreePreCalc::NamedTuple,
-        HVACSchedule::NamedTuple
+        HVACSchedule::NamedTuple,
     ) where {FT<:AbstractFloat}
 
 Calculate energy balance for canyon surfaces.
@@ -60,8 +60,7 @@ Calculate energy balance for canyon surfaces.
 - `CiCO2Leaf_ittm`: Previous timestep leaf CO2 concentration values
 - `TempDamp_ittm`: Previous timestep ground dampening temperature
 - `ViewFactor`: View factors between surfaces
-- `Gemoetry_m`: Urban geometry parameters
-- `Gemoetry_m`: Canyon geometry parameters
+- `Gemeotry_m`: Urban geometry parameters
 - `FractionsGround`: Ground surface fractions
 - `WallLayers`: Wall layer parameters
 - `ParSoilGround`: Soil parameters for ground
@@ -92,10 +91,12 @@ Calculate energy balance for canyon surfaces.
 - `HVACSchedule`: HVAC operation schedule
 
 # Returns
-- `Ycanyon`: Canyon energy balance residuals
-- `G2WallSun`: Conductive heat flux through sunlit wall
-- `G2WallShade`: Conductive heat flux through shaded wall
-- `SWRabs_t`: Absorbed shortwave radiation
+- `Ycanyon::Vector{FT}`: Canyon energy balance residuals
+- `G2WallSun::FT`: Conductive heat flux through sunlit wall
+- `G2WallShade::FT`: Conductive heat flux through shaded wall
+- `SWRabs_t::Radiation.RadiationFluxes{FT}`: Absorbed shortwave radiation
+- `SWRabsWallSunTransmitted::FT`: Shortwave radiation absorbed by sunlit wall transmitted indoors
+- `SWRabsWallShadeTransmitted::FT`: Shortwave radiation absorbed by shaded wall transmitted indoors
 """
 function eb_solver_canyon(
     TemperatureC::Vector{FT},
@@ -111,14 +112,14 @@ function eb_solver_canyon(
     CiCO2Leaf_ittm::NamedTuple,
     TempDamp_ittm::NamedTuple,
     ViewFactor::RayTracing.ViewFactor{FT},
-    Gemoetry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+    Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
     FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
     WallLayers::NamedTuple,
     ParSoilGround::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     ParInterceptionTree::NamedTuple,
     PropOpticalGround::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
     PropOpticalWall::ModelComponents.Parameters.SimpleOpticalProperties{FT},
-    PropOpticalTree::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
+    PropOpticalTree::ModelComponents.Parameters.SimpleOpticalProperties{FT},
     ParThermalGround::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
     ParThermalWall::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
     ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
@@ -143,8 +144,8 @@ function eb_solver_canyon(
 ) where {FT<:AbstractFloat}
 
     # Calculate shortwave radiation
-    SWRin_t, SWRout_t, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, SWREB_t = Radiation.total_shortwave_absorbed(
-        Gemoetry_m,
+    _, _, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, _ = Radiation.total_shortwave_absorbed(
+        Gemeotry_m,
         MeteoData.SWR_dir,
         MeteoData.SWR_diff,
         SunPosition.theta_n,
@@ -160,66 +161,55 @@ function eb_solver_canyon(
     )
 
     # Tree absorbed: conversion from sphere to horizontal projected area
-    SWRabs_t = merge(
+    SWRabs_t = setproperties(
         SWRabs_t,
         (
-            SWRabsTree=SWRabs_t.SWRabsTree * 4 * Gemoetry_m.radius_tree * π /
-                       (4 * Gemoetry_m.radius_tree),
+            Tree=SWRabs_t.Tree * 4 * Gemeotry_m.radius_tree * π /
+                 (4 * Gemeotry_m.radius_tree),
         ),
     )
-    SWRabsDir_t = merge(
+    SWRabsDir_t = setproperties(
         SWRabsDir_t,
         (
-            SWRabsTree=SWRabsDir_t.SWRabsTree * 4 * Gemoetry_m.radius_tree * π /
-                       (4 * Gemoetry_m.radius_tree),
+            Tree=SWRabsDir_t.Tree * 4 * Gemeotry_m.radius_tree * π /
+                 (4 * Gemeotry_m.radius_tree),
         ),
     )
-    SWRabsDiff_t = merge(
+    SWRabsDiff_t = setproperties(
         SWRabsDiff_t,
         (
-            SWRabsTree=SWRabsDiff_t.SWRabsTree * 4 * Gemoetry_m.radius_tree * π /
-                       (4 * Gemoetry_m.radius_tree),
+            Tree=SWRabsDiff_t.Tree * 4 * Gemeotry_m.radius_tree * π /
+                 (4 * Gemeotry_m.radius_tree),
         ),
     )
 
     # Handle window adjustments
+    SWRabsWindowSun = zero(FT)
+    SWRtransWindowSun = zero(FT)
+    SWRabsWindowShade = zero(FT)
+    SWRtransWindowShade = zero(FT)
+    SWRabsWallShadeTransmitted = zero(FT)
+    SWRabsWallSunTransmitted = zero(FT)
     if BEM_on
-        GlazingRatio = ParWindows.WindowsOn ? ParWindows.GlazingRatio : zero(FT)
+        GlazingRatio = ParWindows.WindowsOn == 1 ? ParWindows.GlazingRatio : zero(FT)
 
-        SWRabs_t = merge(
-            SWRabs_t,
-            (
-                SWRabsWallSunExt=(1-GlazingRatio) * SWRabs_t.SWRabsWallSun,
-                SWRabsWindowSun=zero(FT),
-                SWRtransWindowSun=SWRabs_t.SWRabsWallSun,
-                SWRabsWallSunTransmitted=GlazingRatio * SWRabs_t.SWRabsWallSun,
-                SWRabsWallShadeExt=(1-GlazingRatio) * SWRabs_t.SWRabsWallShade,
-                SWRabsWindowShade=zero(FT),
-                SWRtransWindowShade=SWRabs_t.SWRabsWallShade,
-                SWRabsWallShadeTransmitted=GlazingRatio * SWRabs_t.SWRabsWallShade,
-            ),
-        )
+        SWRabsWallSunExt=(1-GlazingRatio) * SWRabs_t.WallSun
+        SWRtransWindowSun=SWRabs_t.WallSun
+        SWRabsWallSunTransmitted=GlazingRatio * SWRabs_t.WallSun
+        SWRabsWallShadeExt=(1-GlazingRatio) * SWRabs_t.WallShade
+        SWRtransWindowShade=SWRabs_t.WallShade
+        SWRabsWallShadeTransmitted=GlazingRatio * SWRabs_t.WallShade
+
     else
-        SWRabs_t = merge(
-            SWRabs_t,
-            (
-                SWRabsWallSunExt=SWRabs_t.SWRabsWallSun,
-                SWRabsWindowSun=zero(FT),
-                SWRtransWindowSun=zero(FT),
-                SWRabsWallSunTransmitted=zero(FT),
-                SWRabsWallShadeExt=SWRabs_t.SWRabsWallShade,
-                SWRabsWindowShade=zero(FT),
-                SWRtransWindowShade=zero(FT),
-                SWRabsWallShadeTransmitted=zero(FT),
-            ),
-        )
+        SWRabsWallSunExt=SWRabs_t.WallSun
+        SWRabsWallShadeExt=SWRabs_t.WallShade
     end
 
     # Calculate longwave radiation
-    LWRin_t, LWRout_t, LWRabs_t, LWREB_t = Radiation.total_lwr_absorbed(
+    _, _, LWRabs_t, _ = Radiation.total_longwave_absorbed(
         TemperatureC,
-        Gemoetry_m,
-        MeteoData,
+        Gemeotry_m,
+        MeteoData.LWR,
         FractionsGround,
         PropOpticalGround,
         PropOpticalWall,
@@ -228,11 +218,11 @@ function eb_solver_canyon(
     )
 
     # Tree absorbed: conversion from sphere to horizontal projected area
-    LWRabs_t = merge(
+    LWRabs_t = setproperties(
         LWRabs_t,
         (
-            LWRabsTree=LWRabs_t.LWRabsTree * 4 * Gemoetry_m.radius_tree * π /
-                       (4 * Gemoetry_m.radius_tree),
+            Tree=LWRabs_t.Tree * 4 * Gemeotry_m.radius_tree * π /
+                 (4 * Gemeotry_m.radius_tree),
         ),
     )
 
@@ -268,7 +258,7 @@ function eb_solver_canyon(
     )
 
     # Ground conductive heat fluxes
-    G1GroundImp, Tdp_ground_imp = ConductiveHeat.conductive_heat_flux_ground_fr(
+    G1GroundImp, _ = ConductiveHeat.conductive_heat_flux_ground_fr(
         TemperatureC,
         TempDamp_ittm,
         TempVec_ittm,
@@ -282,7 +272,7 @@ function eb_solver_canyon(
     )
 
     # Bare ground
-    G1GroundBare, Tdp_ground_bare = ConductiveHeat.conductive_heat_flux_ground_vb(
+    G1GroundBare, _ = ConductiveHeat.conductive_heat_flux_ground_vb(
         TemperatureC,
         TempDamp_ittm,
         Owater_ittm,
@@ -292,11 +282,11 @@ function eb_solver_canyon(
         ParVegGround,
         ParVegTree,
         FractionsGround,
-        false,
+        0,
     )
 
     # Vegetated ground
-    G1GroundVeg, Tdp_ground_veg = conductive_heat_flux_ground_vb(
+    G1GroundVeg, _ = ConductiveHeat.conductive_heat_flux_ground_vb(
         TemperatureC,
         TempDamp_ittm,
         Owater_ittm,
@@ -306,20 +296,20 @@ function eb_solver_canyon(
         ParVegGround,
         ParVegTree,
         FractionsGround,
-        true,
+        1,
     )
 
     # Calculate sensible and latent heat fluxes
-    HfluxCanyon, LEfluxCanyon, ra_canyon, ra_orig, fconv, HumidityCan = TurbulentHeat.heat_flux_canyon(
-        TemperatureC, Gemoetry_m, MeteoData, ParVegTree, fconvPreCalc, fconv
+    HfluxCanyon, LEfluxCanyon, _, _, _, _ = TurbulentHeat.heat_flux_canyon(
+        TemperatureC, Gemeotry_m, MeteoData, ParVegTree, fconvPreCalc, fconv
     )
 
     # Ground and tree heat fluxes
-    HfluxGroundImp, HfluxGroundBare, HfluxGroundVeg, HfluxTree, Eground_imp_pond, Eground_bare_pond, Eground_bare_soil, Eground_veg_int, Eground_veg_pond, Eground_veg_soil, TEground_veg, E_tree_int, TE_tree, Ebare, Eveg, Etree, LEfluxGroundImp, LEfluxGroundBarePond, LEfluxGroundBareSoil, LEfluxGroundVegInt, LEfluxGroundVegPond, LEfluxGroundVegSoil, LTEfluxGroundVeg, LEfluxTreeInt, LTEfluxTree, LEbare, LEveg, LEtree, Ci_sun_tree, Ci_shd_tree, Ci_sun_ground, Ci_shd_ground, rap_can, rap_Htree_In, rb_H, rb_L, r_soil_bare, r_soil_veg, alp_soil_bare, alp_soil_veg, rs_sun_L, rs_shd_L, rs_sun_H, rs_shd_H, u_Hcan, u_Zref_und, Fsun_L, Fshd_L, dw_L = TurbulentHeat.heat_flux_ground(
+    HfluxGroundImp, HfluxGroundBare, HfluxGroundVeg, HfluxTree, _, _, _, _, _, _, _, _, _, _, _, _, LEfluxGroundImp, LEfluxGroundBarePond, LEfluxGroundBareSoil, LEfluxGroundVegInt, LEfluxGroundVegPond, LEfluxGroundVegSoil, LTEfluxGroundVeg, LEfluxTreeInt, LTEfluxTree = TurbulentHeat.heat_flux_ground(
         TemperatureC,
         TempVec_ittm,
         MeteoData,
-        Gemoetry_m,
+        Gemeotry_m,
         FractionsGround,
         ParVegGround,
         ParVegTree,
@@ -332,24 +322,24 @@ function eb_solver_canyon(
         CiCO2Leaf_ittm,
         ParInterceptionTree,
         ParCalculation,
-        SWRabsDir_t.SWRabsTree,
-        SWRabsDiff_t.SWRabsTree,
-        SWRabsDir_t.SWRabsGroundVeg,
-        SWRabsDiff_t.SWRabsGroundVeg,
+        SWRabsDir_t.Tree,
+        SWRabsDiff_t.Tree,
+        SWRabsDir_t.GroundVeg,
+        SWRabsDiff_t.GroundVeg,
         RESPreCalc,
         rsGroundPreCalc,
         rsTreePreCalc,
     )
 
     # Wall heat fluxes
-    HfluxWallSun, HfluxWallShade, Ewsun, Ewshade, LEwsun, LEwshade = TurbulentHeat.heat_flux_wall(
-        TemperatureC, Gemoetry_m, MeteoData, ParVegTree, ParVegGround, FractionsGround
+    HfluxWallSun, HfluxWallShade, _, _, _, _, _, _, _, _, _, _, _, _, cp_atm, rho_atm, L_heat = TurbulentHeat.heat_flux_wall(
+        TemperatureC, Gemeotry_m, MeteoData, ParVegTree, ParVegGround, FractionsGround
     )
 
     # Building energy model contribution
     if BEM_on
-        SWRinWsun = SWRabs_t.SWRabsWallSunTransmitted
-        SWRinWshd = SWRabs_t.SWRabsWallShadeTransmitted
+        SWRinWsun = SWRabsWallSunTransmitted
+        SWRinWshd = SWRabsWallShadeTransmitted
 
         _, WasteHeat = BuildingEnergyModel.eb_solver_building(
             TemperatureC,
@@ -365,7 +355,7 @@ function eb_solver_canyon(
             G2WallShade,
             TempDamp_ittm,
             SWRabs_t,
-            Gemoetry_m,
+            Gemeotry_m,
             PropOpticalIndoors,
             ParHVAC,
             ParCalculation,
@@ -388,10 +378,10 @@ function eb_solver_canyon(
     end
 
     # Canyon air heat storage
-    Vcanyon = (Gemoetry_m.Width_canyon * Gemoetry_m.Height_canyon) / Gemoetry_m.Width_canyon
-    cp_atm = 1005 + ((Tatm - 273.15) + 23.15)^2 / 3364
-    rho_atm = Pre / (287.04 * Tatm) * (1 - (ea/Pre) * (1 - 0.622))
-    L_heat = 1000 * (2501.3 - 2.361 * (Tatm - 273.15))
+    Vcanyon = (Gemeotry_m.Width_canyon * Gemeotry_m.Height_canyon) / Gemeotry_m.Width_canyon
+    # cp_atm = 1005 + ((Tatm - 273.15) + 23.15)^2 / 3364
+    # rho_atm = Pre / (287.04 * Tatm) * (1 - (ea/Pre) * (1 - 0.622))
+    # L_heat = 1000 * (2501.3 - 2.361 * (Tatm - 273.15))
 
     dS_H_air =
         Vcanyon * cp_atm * rho_atm * (TemperatureC[9] - TempVec_ittm.TCanyon) /
@@ -405,8 +395,8 @@ function eb_solver_canyon(
 
     # Energy balance calculations
     if Gemeotry_m.trees == 0
-        SWRabs_t = merge(SWRabs_t, (SWRabsTree=zero(FT),))
-        LWRabs_t = merge(LWRabs_t, (LWRabsTree=zero(FT),))
+        SWRabs_t = merge(SWRabs_t, (Tree=zero(FT),))
+        LWRabs_t = merge(LWRabs_t, (Tree=zero(FT),))
     end
 
     Cimp = FractionsGround.fimp > 0
@@ -415,43 +405,39 @@ function eb_solver_canyon(
     Ctree = Gemeotry_m.trees == 1
 
     # Ground energy balances
-    if Cimp
+    if FractionsGround.fimp > 0
         Ycanyon[1] =
-            SWRabs_t.SWRabsGroundImp + LWRabs_t.LWRabsGroundImp - G1GroundImp -
-            HfluxGroundImp - LEfluxGroundImp
+            SWRabs_t.GroundImp + LWRabs_t.GroundImp - G1GroundImp - HfluxGroundImp -
+            LEfluxGroundImp
     else
         Ycanyon[1] = TemperatureC[1] - 273.15
     end
 
-    if Cbare
+    # This is correct because we take the fbare== 0 route
+    if FractionsGround.fbare > 0
         Ycanyon[2] =
-            SWRabs_t.SWRabsGroundBare + LWRabs_t.LWRabsGroundBare - G1GroundBare -
-            HfluxGroundBare - LEfluxGroundBarePond - LEfluxGroundBareSoil
+            SWRabs_t.GroundBare + LWRabs_t.GroundBare - G1GroundBare - HfluxGroundBare -
+            LEfluxGroundBarePond - LEfluxGroundBareSoil
     else
         Ycanyon[2] = TemperatureC[2] - 273.15
     end
 
-    if Cveg
+    if FractionsGround.fveg > 0
         Ycanyon[3] =
-            SWRabs_t.SWRabsGroundVeg + LWRabs_t.LWRabsGroundVeg - G1GroundVeg -
-            HfluxGroundVeg - LEfluxGroundVegInt - LEfluxGroundVegPond -
-            LEfluxGroundVegSoil - LTEfluxGroundVeg
+            SWRabs_t.GroundVeg + LWRabs_t.GroundVeg - G1GroundVeg - HfluxGroundVeg -
+            LEfluxGroundVegInt - LEfluxGroundVegPond - LEfluxGroundVegSoil -
+            LTEfluxGroundVeg
     else
         Ycanyon[3] = TemperatureC[3] - 273.15
     end
 
     # Wall energy balances
-    Ycanyon[4] =
-        SWRabs_t.SWRabsWallSunExt + LWRabs_t.LWRabsWallSun - G1WallSun - HfluxWallSun
-    Ycanyon[5] =
-        SWRabs_t.SWRabsWallShadeExt + LWRabs_t.LWRabsWallShade - G1WallShade -
-        HfluxWallShade
+    Ycanyon[4] = SWRabs_t.WallSun + LWRabs_t.WallSun - G1WallSun - HfluxWallSun
+    Ycanyon[5] = SWRabs_t.WallShade + LWRabs_t.WallShade - G1WallShade - HfluxWallShade
 
     # Tree energy balance
     if Gemeotry_m.trees > 0
-        Ycanyon[6] =
-            SWRabs_t.SWRabsTree + LWRabs_t.LWRabsTree - HfluxTree - LEfluxTreeInt -
-            LTEfluxTree
+        Ycanyon[6] = SWRabs_t.Tree + LWRabs_t.Tree - HfluxTree - LEfluxTreeInt - LTEfluxTree
     else
         Ycanyon[6] = TemperatureC[6] - 273.15
     end
@@ -466,8 +452,8 @@ function eb_solver_canyon(
         Cimp * FractionsGround.fimp * HfluxGroundImp +
         Cbare * FractionsGround.fbare * HfluxGroundBare +
         Cveg * FractionsGround.fveg * HfluxGroundVeg +
-        Gemoetry_m.hcanyon * (HfluxWallSun + HfluxWallShade) +
-        Ctree * 4 * Gemoetry_m.radius_tree * HfluxTree - HfluxCanyon - dS_H_air +
+        Gemeotry_m.hcanyon * (HfluxWallSun + HfluxWallShade) +
+        Ctree * 4 * Gemeotry_m.radius_tree * HfluxTree - HfluxCanyon - dS_H_air +
         WasteHeat.SensibleFromVent_Can +
         WasteHeat.SensibleFromAC_Can +
         WasteHeat.SensibleFromHeat_Can
@@ -478,11 +464,13 @@ function eb_solver_canyon(
         Cveg *
         FractionsGround.fveg *
         (LEfluxGroundVegInt + LEfluxGroundVegPond + LEfluxGroundVegSoil + LTEfluxGroundVeg) +
-        Ctree * 4 * Gemoetry_m.radius_tree * (LEfluxTreeInt + LTEfluxTree) - LEfluxCanyon -
+        Ctree * 4 * Gemeotry_m.radius_tree * (LEfluxTreeInt + LTEfluxTree) - LEfluxCanyon -
         dS_LE_air +
         WasteHeat.LatentFromVent_Can +
         WasteHeat.LatentFromAC_Can +
         WasteHeat.LatentFromHeat_Can
 
-    return Ycanyon, G2WallSun, G2WallShade, SWRabs_t
+    return Ycanyon,
+    G2WallSun, G2WallShade, SWRabs_t, SWRabsWallSunTransmitted,
+    SWRabsWallShadeTransmitted
 end

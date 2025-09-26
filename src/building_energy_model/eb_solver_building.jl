@@ -65,7 +65,7 @@ function eb_solver_building(
     G2WallSun::FT,
     G2WallShade::FT,
     TempDamp_ittm::NamedTuple,
-    SWRabs_t::NamedTuple,
+    SWRabs_t::Radiation.RadiationFluxes{FT},
     Geometry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
     PropOpticalIndoors::ModelComponents.Parameters.IndoorOpticalProperties{FT},
     ParHVAC::ModelComponents.Parameters.HVACParameters{FT},

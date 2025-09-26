@@ -4,6 +4,7 @@ using ConstructionBase
 using ..ModelComponents
 using ..ConductiveHeat: soil_heat
 using ..RayTracing: view_factor_internal
+using ..Radiation
 using LinearAlgebra
 
 include("ac_heating.jl")

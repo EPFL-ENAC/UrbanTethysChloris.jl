@@ -40,6 +40,10 @@ end
     include("eb_solver_roof.jl")
 end
 
+@safetestset "eb_solver_canyon" begin
+    include("eb_solver_canyon.jl")
+end
+
 @safetestset "eb_wb_roof" begin
     include("eb_wb_roof.jl")
 end
