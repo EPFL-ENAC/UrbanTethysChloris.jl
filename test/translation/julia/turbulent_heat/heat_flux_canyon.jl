@@ -2,13 +2,12 @@ using Test
 using MAT
 using UrbanTethysChloris.TurbulentHeat: heat_flux_canyon
 using ....TestUtils:
-    create_height_dependent_vegetation_parameters, create_urban_geometry_parameters
+    create_height_dependent_vegetation_parameters,
+    create_urban_geometry_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "turbulent_heat_function.HeatFlux_canyon.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("turbulent_heat_function.HeatFlux_canyon.json")
 
 Gemeotry_m = create_urban_geometry_parameters(
     FT;
@@ -23,16 +22,16 @@ Gemeotry_m = create_urban_geometry_parameters(
 )
 
 MeteoData = (;
-    Zatm=input_vars["MeteoData"]["Zatm"],
-    Tatm=input_vars["MeteoData"]["Tatm"],
-    Uatm=input_vars["MeteoData"]["Uatm"],
-    Pre=input_vars["MeteoData"]["Pre"],
-    q_atm=input_vars["MeteoData"]["q_atm"],
+    Zatm=FT(input_vars["MeteoData"]["Zatm"]),
+    Tatm=FT(input_vars["MeteoData"]["Tatm"]),
+    Uatm=FT(input_vars["MeteoData"]["Uatm"]),
+    Pre=FT(input_vars["MeteoData"]["Pre"]),
+    q_atm=FT(input_vars["MeteoData"]["q_atm"]),
     ea=input_vars["MeteoData"]["ea"],
 )
 
 ParVegTree = create_height_dependent_vegetation_parameters(
-    FT; Kopt=input_vars["ParVegTree"]["Kopt"], LAI=input_vars["ParVegTree"]["LAI"]
+    FT; Kopt=input_vars["ParVegTree"]["Kopt"], LAI=FT(input_vars["ParVegTree"]["LAI"])
 )
 
 @testset "HeatFluxCanyon" begin
@@ -41,8 +40,8 @@ ParVegTree = create_height_dependent_vegetation_parameters(
         Gemeotry_m,
         MeteoData,
         ParVegTree,
-        input_vars["fconvPreCalc"],
-        input_vars["fconv"],
+        FT(input_vars["fconvPreCalc"]),
+        FT(input_vars["fconv"]),
     )
 
     @test Hcanyon ≈ output_vars["Hcanyon"]

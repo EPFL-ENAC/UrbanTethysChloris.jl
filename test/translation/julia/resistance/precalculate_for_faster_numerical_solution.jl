@@ -17,13 +17,13 @@ using ....TestUtils:
     create_vegetated_optical_properties,
     create_simple_optical_properties,
     create_height_dependent_vegetation_parameters,
-    create_window_parameters
+    create_window_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "resistance_functions.PrecalculateForFasterNumericalSolution.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data(
+    "resistance_functions.PrecalculateForFasterNumericalSolution.json"
+)
 
 # Convert Dict{String, Any} to named tuples
 TempVec_ittm = (;
@@ -40,71 +40,71 @@ HumidityAtm = (; AtmVapourPreSat=input_vars["HumidityAtm"]["AtmVapourPreSat"])
 
 ParVegGround = create_height_dependent_vegetation_parameters(
     FT;
-    LAI=input_vars["ParVegGround"]["LAI"],
+    LAI=FT(input_vars["ParVegGround"]["LAI"]),
     Kopt=input_vars["ParVegGround"]["Kopt"],
     Knit=input_vars["ParVegGround"]["Knit"],
-    Psi_sto_50=input_vars["ParVegGround"]["Psi_sto_50"],
+    Psi_sto_50=FT(input_vars["ParVegGround"]["Psi_sto_50"]),
     Psi_sto_00=input_vars["ParVegGround"]["Psi_sto_00"],
     CT=Int64(input_vars["ParVegGround"]["CT"]),
-    Vmax=input_vars["ParVegGround"]["Vmax"],
+    Vmax=FT(input_vars["ParVegGround"]["Vmax"]),
     DSE=input_vars["ParVegGround"]["DSE"],
-    Ha=input_vars["ParVegGround"]["Ha"],
+    Ha=FT(input_vars["ParVegGround"]["Ha"]),
     FI=input_vars["ParVegGround"]["FI"],
-    Do=input_vars["ParVegGround"]["Do"],
-    a1=input_vars["ParVegGround"]["a1"],
+    Do=FT(input_vars["ParVegGround"]["Do"]),
+    a1=FT(input_vars["ParVegGround"]["a1"]),
     go=input_vars["ParVegGround"]["go"],
-    e_rel=input_vars["ParVegGround"]["e_rel"],
-    e_relN=input_vars["ParVegGround"]["e_relN"],
+    e_rel=FT(input_vars["ParVegGround"]["e_rel"]),
+    e_relN=FT(input_vars["ParVegGround"]["e_relN"]),
     gmes=input_vars["ParVegGround"]["gmes"],
     rjv=input_vars["ParVegGround"]["rjv"],
-    mSl=input_vars["ParVegGround"]["mSl"],
+    mSl=FT(input_vars["ParVegGround"]["mSl"]),
     Sl=input_vars["ParVegGround"]["Sl"],
 )
 
 ParVegRoof = create_height_dependent_vegetation_parameters(
     FT;
-    LAI=input_vars["ParVegRoof"]["LAI"],
+    LAI=FT(input_vars["ParVegRoof"]["LAI"]),
     Kopt=input_vars["ParVegRoof"]["Kopt"],
     Knit=input_vars["ParVegRoof"]["Knit"],
-    Psi_sto_50=input_vars["ParVegRoof"]["Psi_sto_50"],
+    Psi_sto_50=FT(input_vars["ParVegRoof"]["Psi_sto_50"]),
     Psi_sto_00=input_vars["ParVegRoof"]["Psi_sto_00"],
     CT=Int64(input_vars["ParVegRoof"]["CT"]),
-    Vmax=input_vars["ParVegRoof"]["Vmax"],
+    Vmax=FT(input_vars["ParVegRoof"]["Vmax"]),
     DSE=input_vars["ParVegRoof"]["DSE"],
-    Ha=input_vars["ParVegRoof"]["Ha"],
+    Ha=FT(input_vars["ParVegRoof"]["Ha"]),
     FI=input_vars["ParVegRoof"]["FI"],
-    Do=input_vars["ParVegRoof"]["Do"],
-    a1=input_vars["ParVegRoof"]["a1"],
+    Do=FT(input_vars["ParVegRoof"]["Do"]),
+    a1=FT(input_vars["ParVegRoof"]["a1"]),
     go=input_vars["ParVegRoof"]["go"],
-    e_rel=input_vars["ParVegRoof"]["e_rel"],
-    e_relN=input_vars["ParVegRoof"]["e_relN"],
+    e_rel=FT(input_vars["ParVegRoof"]["e_rel"]),
+    e_relN=FT(input_vars["ParVegRoof"]["e_relN"]),
     gmes=input_vars["ParVegRoof"]["gmes"],
     rjv=input_vars["ParVegRoof"]["rjv"],
-    mSl=input_vars["ParVegRoof"]["mSl"],
+    mSl=FT(input_vars["ParVegRoof"]["mSl"]),
     Sl=input_vars["ParVegRoof"]["Sl"],
 )
 
 SoilPotW_ittm = (;
-    SoilPotWGroundVeg_L=input_vars["SoilPotW_ittm"]["SoilPotWGroundVeg_L"],
-    SoilPotWGroundTot_H=input_vars["SoilPotW_ittm"]["SoilPotWGroundTot_H"],
-    SoilPotWRoofVeg_L=input_vars["SoilPotW_ittm"]["SoilPotWRoofVeg_L"],
+    SoilPotWGroundVeg_L=FT(input_vars["SoilPotW_ittm"]["SoilPotWGroundVeg_L"]),
+    SoilPotWGroundTot_H=FT(input_vars["SoilPotW_ittm"]["SoilPotWGroundTot_H"]),
+    SoilPotWRoofVeg_L=FT(input_vars["SoilPotW_ittm"]["SoilPotWRoofVeg_L"]),
 )
 
 CiCO2Leaf_ittm = (;
-    CiCO2LeafTreeSun=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafTreeSun"],
-    CiCO2LeafTreeShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafTreeShd"],
-    CiCO2LeafGroundVegSun=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafGroundVegSun"],
-    CiCO2LeafGroundVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafGroundVegShd"],
-    CiCO2LeafRoofVegSun=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegSun"],
-    CiCO2LeafRoofVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegShd"],
+    CiCO2LeafTreeSun=FT(input_vars["CiCO2Leaf_ittm"]["CiCO2LeafTreeSun"]),
+    CiCO2LeafTreeShd=FT(input_vars["CiCO2Leaf_ittm"]["CiCO2LeafTreeShd"]),
+    CiCO2LeafGroundVegSun=FT(input_vars["CiCO2Leaf_ittm"]["CiCO2LeafGroundVegSun"]),
+    CiCO2LeafGroundVegShd=FT(input_vars["CiCO2Leaf_ittm"]["CiCO2LeafGroundVegShd"]),
+    CiCO2LeafRoofVegSun=FT(input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegSun"]),
+    CiCO2LeafRoofVegShd=FT(input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegShd"]),
 )
 
 MeteoData = (;
     Pre=input_vars["MeteoData"]["Pre"],
-    Catm_O2=input_vars["MeteoData"]["Catm_O2"],
-    Catm_CO2=input_vars["MeteoData"]["Catm_CO2"],
-    SW_dir=input_vars["MeteoData"]["SW_dir"],
-    SW_diff=input_vars["MeteoData"]["SW_diff"],
+    Catm_O2=FT(input_vars["MeteoData"]["Catm_O2"]),
+    Catm_CO2=FT(input_vars["MeteoData"]["Catm_CO2"]),
+    SW_dir=FT(input_vars["MeteoData"]["SW_dir"]),
+    SW_diff=FT(input_vars["MeteoData"]["SW_diff"]),
     Zatm=input_vars["MeteoData"]["Zatm"],
     Uatm=input_vars["MeteoData"]["Uatm"],
     ea=input_vars["MeteoData"]["ea"],
@@ -114,12 +114,12 @@ MeteoData = (;
 geometry = create_urban_geometry_parameters(
     FT;
     hcanyon=input_vars["geometry"]["hcanyon"],
-    wcanyon=input_vars["geometry"]["wcanyon"],
+    wcanyon=FT(input_vars["geometry"]["wcanyon"]),
     htree=input_vars["geometry"]["htree"],
     radius_tree=input_vars["geometry"]["radius_tree"],
     distance_tree=input_vars["geometry"]["distance_tree"],
     trees=Bool(input_vars["ParTree"]["trees"]),
-    ftree=input_vars["ParTree"]["ftree"],
+    ftree=FT(input_vars["ParTree"]["ftree"]),
     Height_canyon=input_vars["Gemeotry_m"]["Height_canyon"],
     Width_canyon=input_vars["Gemeotry_m"]["Width_canyon"],
     Width_roof=input_vars["Gemeotry_m"]["Width_roof"],
@@ -132,7 +132,7 @@ geometry = create_urban_geometry_parameters(
 FractionsGround = create_location_specific_surface_fractions(
     FT;
     fveg=input_vars["FractionsGround"]["fveg"],
-    fbare=input_vars["FractionsGround"]["fbare"],
+    fbare=FT(input_vars["FractionsGround"]["fbare"]),
     fimp=input_vars["FractionsGround"]["fimp"],
 )
 
@@ -163,24 +163,24 @@ PropOpticalTree = create_simple_optical_properties(
 
 ParVegTree = create_height_dependent_vegetation_parameters(
     FT;
-    LAI=input_vars["ParVegTree"]["LAI"],
+    LAI=FT(input_vars["ParVegTree"]["LAI"]),
     Kopt=input_vars["ParVegTree"]["Kopt"],
     Knit=input_vars["ParVegTree"]["Knit"],
-    Psi_sto_50=input_vars["ParVegTree"]["Psi_sto_50"],
+    Psi_sto_50=FT(input_vars["ParVegTree"]["Psi_sto_50"]),
     Psi_sto_00=input_vars["ParVegTree"]["Psi_sto_00"],
     CT=Int64(input_vars["ParVegTree"]["CT"]),
-    Vmax=input_vars["ParVegTree"]["Vmax"],
+    Vmax=FT(input_vars["ParVegTree"]["Vmax"]),
     DSE=input_vars["ParVegTree"]["DSE"],
-    Ha=input_vars["ParVegTree"]["Ha"],
+    Ha=FT(input_vars["ParVegTree"]["Ha"]),
     FI=input_vars["ParVegTree"]["FI"],
-    Do=input_vars["ParVegTree"]["Do"],
-    a1=input_vars["ParVegTree"]["a1"],
+    Do=FT(input_vars["ParVegTree"]["Do"]),
+    a1=FT(input_vars["ParVegTree"]["a1"]),
     go=input_vars["ParVegTree"]["go"],
-    e_rel=input_vars["ParVegTree"]["e_rel"],
-    e_relN=input_vars["ParVegTree"]["e_relN"],
+    e_rel=FT(input_vars["ParVegTree"]["e_rel"]),
+    e_relN=FT(input_vars["ParVegTree"]["e_relN"]),
     gmes=input_vars["ParVegTree"]["gmes"],
     rjv=input_vars["ParVegTree"]["rjv"],
-    mSl=input_vars["ParVegTree"]["mSl"],
+    mSl=FT(input_vars["ParVegTree"]["mSl"]),
     Sl=input_vars["ParVegTree"]["Sl"],
 )
 

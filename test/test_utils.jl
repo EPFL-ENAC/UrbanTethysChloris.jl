@@ -20,6 +20,152 @@ using UrbanTethysChloris.ModelComponents.Parameters:
     VegetatedSoilParameters,
     WallSoilParameters,
     WindowParameters
+using MAT
+using LazyArtifacts
+using Artifacts
+using JSON
+
+"""
+    convert_special_values(data)
+
+Convert special string values in the input to their appropriate numerical representations.
+
+This function processes the input (typically from JSON data) and converts
+representations of special floating point values to their Julia equivalents.
+
+# Arguments
+- `data`: Input containing the data to convert
+
+# Returns
+- `data`: The processed input with special values converted
+
+# Special conversions:
+- Values above 1e308 (`realmax` in MATLAB) → `Inf` (positive infinity)
+- `nothing` → `NaN` (not a number)
+- Values below -1e308 (`realmin` in MATLAB) → `-Inf` (negative infinity)
+
+# Example
+```julia
+data = Dict("x" => 1.797693134862316e+308, "y" => nothing, "z" => -1.797693134862316e+308)
+result = convert_special_values(data)
+# Returns Dict("x" => Inf, "y" => NaN, "z" => -Inf)
+```
+"""
+function convert_special_values(data::Dict)
+    for (key, value) in data
+        data[key] = convert_special_values(value)
+    end
+    return data
+end
+
+function convert_special_values(data::Number)
+    if data > 1e308
+        return Inf
+    elseif data < -1e308
+        return -Inf
+    end
+    return data
+end
+
+function convert_special_values(data::Nothing)
+    return NaN
+end
+
+function convert_special_values(data::Vector)
+    return convert_special_values.(data)
+end
+
+function convert_special_values(data)
+    return data
+end
+
+"""
+    convert_to_float_type(x, T::Type)
+
+Recursively convert numerical values in nested structures to the specified float type.
+
+# Arguments
+- `x`: Value to convert
+- `T::Type`: Target float type (e.g., Float64)
+
+# Returns
+- Converted value of appropriate type
+
+# Notes
+- Integers and vectors of integers are kept as is
+- Other numbers are converted to the target float type
+- Arrays are converted element-wise unless they contain integers
+- Dictionaries are processed recursively
+- Other types are left unchanged
+"""
+function convert_to_float_type(x::Integer, T::Type)
+    return x
+end
+
+function convert_to_float_type(x::Vector{<:Integer}, T::Type)
+    return x
+end
+
+function convert_to_float_type(x::Number, T::Type)
+    return convert(T, x)
+end
+
+function convert_to_float_type(x::AbstractArray, T::Type)
+    eltype(x) <: Integer && return x
+    return convert.(T, x)
+end
+
+function convert_to_float_type(d::Dict, T::Type)
+    return Dict(k => convert_to_float_type(v, T) for (k, v) in d)
+end
+
+convert_to_float_type(x, T::Type) = x
+
+"""
+    load_matlab_data(path::String)
+
+Load MATLAB data from MAT files containing input and output variables.
+
+This function reads paired input/output MAT files that were generated from MATLAB data.
+It converts the file paths to point to corresponding MAT files and reads both input
+and output data, converting special values as needed.
+
+# Arguments
+- `path::String`: Base path to the MAT files. If path ends in ".jl", it will be converted to ".json"
+
+# Returns
+- `Tuple{Any,Any}`: A tuple containing:
+  - `inputVars`: Processed input variables from the input MAT file
+  - `outputVars`: Processed output variables from the output MAT file
+
+# Notes
+- Files are expected to be in "utcdata" artifact
+- Numbers are parsed as Float64
+
+"""
+function load_matlab_data(func_name::String)
+    FT = Float64
+
+    function json_parser(path::String)
+        json = open(path, "r") do f
+            JSON.parse(f)
+        end
+        return json
+    end
+
+    dir = artifact"utcdata"
+
+    input_path = joinpath(dir, "inputs", func_name)
+    output_path = joinpath(dir, "outputs", func_name)
+
+    input_json = json_parser(input_path)
+    output_json = json_parser(output_path)
+
+    inputVars = convert_special_values(input_json)
+    outputVars = convert_special_values(output_json)
+
+    return convert_to_float_type(inputVars, FT), convert_to_float_type(outputVars, FT)
+end
 
 """
     load_test_netcdf(path::String = joinpath(@__DIR__, "data", "input_data.nc"))

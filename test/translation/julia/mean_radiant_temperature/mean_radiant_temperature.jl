@@ -1,26 +1,25 @@
 using Test
 using MAT
 using UrbanTethysChloris.MeanRadiantTemperature: mean_radiant_temperature
-using ....TestUtils:
-    create_urban_geometry_parameters, create_height_dependent_vegetation_parameters
 using UrbanTethysChloris.RayTracing: ViewFactorPoint
+using ....TestUtils:
+    create_urban_geometry_parameters,
+    create_height_dependent_vegetation_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "MRT.MeanRadiantTemperature.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("MRT.MeanRadiantTemperature.json")
 
 # Create parameter structs
 ParVegTree = create_height_dependent_vegetation_parameters(
-    FT; LAI=input_vars["ParVegTree"]["LAI"], Kopt=input_vars["ParVegTree"]["Kopt"]
+    FT; LAI=FT(input_vars["ParVegTree"]["LAI"]), Kopt=input_vars["ParVegTree"]["Kopt"]
 )
 
 Geometry_m = create_urban_geometry_parameters(
     FT;
     trees=Bool(input_vars["ParTree"]["trees"]),
     hcanyon=input_vars["geometry"]["hcanyon"],
-    wcanyon=input_vars["geometry"]["wcanyon"],
+    wcanyon=FT(input_vars["geometry"]["wcanyon"]),
     htree=input_vars["geometry"]["htree"],
     radius_tree=input_vars["geometry"]["radius_tree"],
     distance_tree=input_vars["geometry"]["distance_tree"],
@@ -32,7 +31,7 @@ SunPosition = (;
     theta_n=input_vars["SunPosition"]["theta_n"],
     zeta_S=input_vars["SunPosition"]["zeta_S"],
     TimeOfMaxSolAlt=input_vars["SunPosition"]["TimeOfMaxSolAlt"],
-    Datam=vec(input_vars["SunPosition"]["Datam"]),
+    Datam=FT.(vec(input_vars["SunPosition"]["Datam"])),
 )
 
 Person = (;
@@ -55,7 +54,7 @@ LWRout_t = (;
 )
 
 MeteoData = (;
-    SW_dir=input_vars["MeteoData"]["SW_dir"],
+    SW_dir=FT(input_vars["MeteoData"]["SW_dir"]),
     SW_diff=input_vars["MeteoData"]["SW_diff"],
     LWR=input_vars["MeteoData"]["LWR"],
     SunDSM_MRT=input_vars["MeteoData"]["SunDSM_MRT"],

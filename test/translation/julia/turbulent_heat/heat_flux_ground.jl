@@ -5,19 +5,17 @@ using ....TestUtils:
     create_height_dependent_vegetation_parameters,
     create_location_specific_surface_fractions,
     create_urban_geometry_parameters,
-    create_vegetated_soil_parameters
+    create_vegetated_soil_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "turbulent_heat_function.HeatFlux_ground.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("turbulent_heat_function.HeatFlux_ground.json")
 
 # Create structured inputs with correct types
 FractionsGround = create_location_specific_surface_fractions(
     FT;
     fveg=input_vars["FractionsGround"]["fveg"],
-    fbare=input_vars["FractionsGround"]["fbare"],
+    fbare=FT(input_vars["FractionsGround"]["fbare"]),
     fimp=input_vars["FractionsGround"]["fimp"],
 )
 
@@ -30,7 +28,7 @@ Gemeotry_m = create_urban_geometry_parameters(
     Radius_tree=input_vars["Gemeotry_m"]["Radius_tree"],
     Hcan_max=input_vars["Gemeotry_m"]["Hcan_max"],
     Hcan_std=input_vars["Gemeotry_m"]["Hcan_std"],
-    wcanyon=input_vars["geometry"]["wcanyon"],
+    wcanyon=FT(input_vars["geometry"]["wcanyon"]),
     wroof_norm=input_vars["geometry"]["wroof_norm"],
     radius_tree=input_vars["geometry"]["radius_tree"],
     trees=Bool(input_vars["ParTree"]["trees"]),
@@ -38,62 +36,62 @@ Gemeotry_m = create_urban_geometry_parameters(
 
 ParVegGround = create_height_dependent_vegetation_parameters(
     FT;
-    LAI=input_vars["ParVegGround"]["LAI"],
+    LAI=FT(input_vars["ParVegGround"]["LAI"]),
     SAI=input_vars["ParVegGround"]["SAI"],
     hc=input_vars["ParVegGround"]["hc"],
     d_leaf=input_vars["ParVegGround"]["d_leaf"],
     Kopt=input_vars["ParVegGround"]["Kopt"],
     Knit=input_vars["ParVegGround"]["Knit"],
-    Psi_sto_50=input_vars["ParVegGround"]["Psi_sto_50"],
+    Psi_sto_50=FT(input_vars["ParVegGround"]["Psi_sto_50"]),
     Psi_sto_00=input_vars["ParVegGround"]["Psi_sto_00"],
     CT=Int(input_vars["ParVegGround"]["CT"]),
-    Vmax=input_vars["ParVegGround"]["Vmax"],
-    DSE=input_vars["ParVegGround"]["DSE"],
-    Ha=input_vars["ParVegGround"]["Ha"],
+    Vmax=FT(input_vars["ParVegGround"]["Vmax"]),
+    DSE=FT(input_vars["ParVegGround"]["DSE"]),
+    Ha=FT(input_vars["ParVegGround"]["Ha"]),
     FI=input_vars["ParVegGround"]["FI"],
-    Do=input_vars["ParVegGround"]["Do"],
-    a1=input_vars["ParVegGround"]["a1"],
+    Do=FT(input_vars["ParVegGround"]["Do"]),
+    a1=FT(input_vars["ParVegGround"]["a1"]),
     go=input_vars["ParVegGround"]["go"],
-    e_rel=input_vars["ParVegGround"]["e_rel"],
-    e_relN=input_vars["ParVegGround"]["e_relN"],
+    e_rel=FT(input_vars["ParVegGround"]["e_rel"]),
+    e_relN=FT(input_vars["ParVegGround"]["e_relN"]),
     gmes=input_vars["ParVegGround"]["gmes"],
     rjv=input_vars["ParVegGround"]["rjv"],
-    mSl=input_vars["ParVegGround"]["mSl"],
+    mSl=FT(input_vars["ParVegGround"]["mSl"]),
     Sl=input_vars["ParVegGround"]["Sl"],
     CASE_ROOT=Int(input_vars["ParVegGround"]["CASE_ROOT"]),
-    ZR95=[input_vars["ParVegGround"]["ZR95"]],
-    ZR50=[input_vars["ParVegGround"]["ZR50"]],
-    ZRmax=[input_vars["ParVegGround"]["ZRmax"]],
+    ZR95=FT(input_vars["ParVegGround"]["ZR95"]),
+    ZR50=input_vars["ParVegGround"]["ZR50"],
+    ZRmax=input_vars["ParVegGround"]["ZRmax"],
 )
 
 ParVegTree = create_height_dependent_vegetation_parameters(
     FT;
-    LAI=input_vars["ParVegTree"]["LAI"],
+    LAI=FT(input_vars["ParVegTree"]["LAI"]),
     SAI=input_vars["ParVegTree"]["SAI"],
-    d_leaf=input_vars["ParVegTree"]["d_leaf"],
+    d_leaf=FT(input_vars["ParVegTree"]["d_leaf"]),
     Kopt=input_vars["ParVegTree"]["Kopt"],
     Knit=input_vars["ParVegTree"]["Knit"],
     Psi_sto_50=input_vars["ParVegTree"]["Psi_sto_50"],
     Psi_sto_00=input_vars["ParVegTree"]["Psi_sto_00"],
     CT=Int(input_vars["ParVegTree"]["CT"]),
-    Vmax=input_vars["ParVegTree"]["Vmax"],
+    Vmax=FT(input_vars["ParVegTree"]["Vmax"]),
     DSE=input_vars["ParVegTree"]["DSE"],
-    Ha=input_vars["ParVegTree"]["Ha"],
+    Ha=FT(input_vars["ParVegTree"]["Ha"]),
     FI=input_vars["ParVegTree"]["FI"],
-    Do=input_vars["ParVegTree"]["Do"],
-    a1=input_vars["ParVegTree"]["a1"],
+    Do=FT(input_vars["ParVegTree"]["Do"]),
+    a1=FT(input_vars["ParVegTree"]["a1"]),
     go=input_vars["ParVegTree"]["go"],
-    e_rel=input_vars["ParVegTree"]["e_rel"],
-    e_relN=input_vars["ParVegTree"]["e_relN"],
+    e_rel=FT(input_vars["ParVegTree"]["e_rel"]),
+    e_relN=FT(input_vars["ParVegTree"]["e_relN"]),
     gmes=input_vars["ParVegTree"]["gmes"],
     rjv=input_vars["ParVegTree"]["rjv"],
-    mSl=input_vars["ParVegTree"]["mSl"],
+    mSl=FT(input_vars["ParVegTree"]["mSl"]),
     Sl=input_vars["ParVegTree"]["Sl"],
     SPARTREE=Int(input_vars["ParVegTree"]["SPARTREE"]),
     CASE_ROOT=Int(input_vars["ParVegTree"]["CASE_ROOT"]),
-    ZR95=[input_vars["ParVegTree"]["ZR95"]],
-    ZR50=[input_vars["ParVegTree"]["ZR50"]],
-    ZRmax=[input_vars["ParVegTree"]["ZRmax"]],
+    ZR95=FT(input_vars["ParVegTree"]["ZR95"]),
+    ZR50=input_vars["ParVegTree"]["ZR50"],
+    ZRmax=input_vars["ParVegTree"]["ZRmax"],
 )
 
 ParSoilGround = create_vegetated_soil_parameters(
@@ -102,11 +100,11 @@ ParSoilGround = create_vegetated_soil_parameters(
     Psan=input_vars["ParSoilGround"]["Psan"],
     Porg=input_vars["ParSoilGround"]["Porg"],
     Kfc=input_vars["ParSoilGround"]["Kfc"],
-    Phy=input_vars["ParSoilGround"]["Phy"],
+    Phy=FT(input_vars["ParSoilGround"]["Phy"]),
     SPAR=Int(input_vars["ParSoilGround"]["SPAR"]),
     Kbot=input_vars["ParSoilGround"]["Kbot"],
     Sp_In=input_vars["ParSoilGround"]["Sp_In"],
-    Zs=vec(input_vars["ParSoilGround"]["Zs"]),
+    Zs=FT.(vec(input_vars["ParSoilGround"]["Zs"])),
 )
 
 TempVec_ittm = (;
@@ -119,7 +117,7 @@ MeteoData = (;
     Tatm=input_vars["MeteoData"]["Tatm"],
     Pre=input_vars["MeteoData"]["Pre"],
     ea=input_vars["MeteoData"]["ea"],
-    Zatm=input_vars["MeteoData"]["Zatm"],
+    Zatm=FT(input_vars["MeteoData"]["Zatm"]),
     Uatm=input_vars["MeteoData"]["Uatm"],
     Catm_O2=input_vars["MeteoData"]["Catm_O2"],
     Catm_CO2=input_vars["MeteoData"]["Catm_CO2"],

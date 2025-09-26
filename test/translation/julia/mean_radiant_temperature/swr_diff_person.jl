@@ -2,12 +2,10 @@ using Test
 using MAT
 using UrbanTethysChloris.MeanRadiantTemperature: swr_diff_person
 using UrbanTethysChloris.RayTracing: ViewFactorPoint
+using ....TestUtils: load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "MRT.SWRDiffPerson.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("MRT.SWRDiffPerson.json")
 
 SWRout_t = (;
     SWRoutTotalGround=input_vars["SWRout_t"]["SWRoutTotalGround"],
@@ -33,7 +31,7 @@ vfp = ViewFactorPoint{FT}(;
     F_pwRight=input_vars["ViewFactorPoint"]["F_pwRight"],
 )
 TimeOfMaxSolAlt = input_vars["TimeOfMaxSolAlt"]
-TimeHr = input_vars["TimeHr"]
+TimeHr = FT(input_vars["TimeHr"])
 
 @testset "MATLAB" begin
     SWRdiff_Person, LWR_Person = swr_diff_person(

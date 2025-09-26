@@ -2,13 +2,14 @@ using Test
 using MAT
 using UrbanTethysChloris.ConductiveHeat: conductive_heat_flux_roof_imp
 using ....TestUtils:
-    create_vegetated_soil_parameters, create_location_specific_thermal_properties
+    create_vegetated_soil_parameters,
+    create_location_specific_thermal_properties,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "conductive_heat_functions.ConductiveHeatFlux_RoofImp.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data(
+    "conductive_heat_functions.ConductiveHeatFlux_RoofImp.json"
+)
 
 # Create parameter structs from input data
 ParThermalRoof = create_location_specific_thermal_properties(

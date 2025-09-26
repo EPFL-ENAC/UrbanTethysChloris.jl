@@ -4,18 +4,16 @@ using UrbanTethysChloris.TurbulentHeat: calculate_t2m
 using ....TestUtils:
     create_location_specific_surface_fractions,
     create_height_dependent_vegetation_parameters,
-    create_urban_geometry_parameters
+    create_urban_geometry_parameters,
+    load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "turbulent_heat_function.CalculateT2m.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("turbulent_heat_function.CalculateT2m.json")
 
 FractionsGround = create_location_specific_surface_fractions(
     FT;
     fveg=input_vars["FractionsGround"]["fveg"],
-    fbare=input_vars["FractionsGround"]["fbare"],
+    fbare=FT(input_vars["FractionsGround"]["fbare"]),
     fimp=input_vars["FractionsGround"]["fimp"],
 )
 
@@ -41,7 +39,7 @@ ParCalculation = (; dts=input_vars["ParCalculation"]["dts"])
         input_vars["Twsun"],
         input_vars["Twshade"],
         input_vars["Tcan"],
-        input_vars["Zp1"],
+        FT(input_vars["Zp1"]),
         input_vars["rap_can2m"],
         input_vars["rap_can2m_Inv"],
         input_vars["rb_L"],

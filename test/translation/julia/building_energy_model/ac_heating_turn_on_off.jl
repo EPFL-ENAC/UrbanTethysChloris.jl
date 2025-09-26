@@ -1,13 +1,11 @@
 using Test
 using MAT
 using UrbanTethysChloris.BuildingEnergyModel: ac_heating_turn_on_off
-using ....TestUtils: create_urban_geometry_parameters, create_hvac_parameters
+using ....TestUtils:
+    create_urban_geometry_parameters, create_hvac_parameters, load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "BuildingEnergyModel.AC_HeatingTurnOnOff.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.AC_HeatingTurnOnOff.json")
 
 # Create input NamedTuples from MATLAB data
 ParHVAC = create_hvac_parameters(
@@ -16,7 +14,7 @@ ParHVAC = create_hvac_parameters(
     Heatingon=Bool(input_vars["ParHVAC"]["Heatingon"]),
     TsetpointCooling=input_vars["ParHVAC"]["TsetpointCooling"],
     TsetpointHeating=input_vars["ParHVAC"]["TsetpointHeating"],
-    RHsetpointCooling=input_vars["ParHVAC"]["RHsetpointCooling"],
+    RHsetpointCooling=FT(input_vars["ParHVAC"]["RHsetpointCooling"]),
 )
 
 TempVecB_ittm = (

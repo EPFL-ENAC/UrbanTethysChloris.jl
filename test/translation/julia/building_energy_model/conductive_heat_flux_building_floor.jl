@@ -1,13 +1,12 @@
 using Test
 using MAT
 using UrbanTethysChloris.BuildingEnergyModel: conductive_heat_flux_building_floor
-using ....TestUtils: create_thermal_building
+using ....TestUtils: create_thermal_building, load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "BuildingEnergyModel.ConductiveHeatFluxFR_BuildingFloor.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data(
+    "BuildingEnergyModel.ConductiveHeatFluxFR_BuildingFloor.json"
+)
 
 ParCalculation = (dts=Int(input_vars["ParCalculation"]["dts"]),)
 ParThermalBuildFloor = create_thermal_building(

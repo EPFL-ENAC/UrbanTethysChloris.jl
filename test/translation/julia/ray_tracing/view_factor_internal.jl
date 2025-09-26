@@ -1,12 +1,10 @@
 using Test
 using MAT
 using UrbanTethysChloris.RayTracing: view_factor_internal
+using ....TestUtils: load_matlab_data
 
 FT = Float64
-dir = joinpath(@__DIR__, "..", "..", "matlab", "data")
-filename = "BuildingEnergyModel.ViewFactorInternal.mat"
-input_vars = matread(joinpath(dir, "inputs", filename))
-output_vars = matread(joinpath(dir, "outputs", filename))
+input_vars, output_vars = load_matlab_data("BuildingEnergyModel.ViewFactorInternal.json")
 
 @testset "MATLAB" begin
     F_gc, F_gw, F_ww, F_wg, F_wc, F_cg, F_cw, ViewFactor = view_factor_internal(
