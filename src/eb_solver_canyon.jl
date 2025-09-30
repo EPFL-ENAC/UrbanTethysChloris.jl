@@ -146,8 +146,8 @@ function eb_solver_canyon(
     # Calculate shortwave radiation
     _, _, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, _ = Radiation.total_shortwave_absorbed(
         Gemeotry_m,
-        MeteoData.SWR_dir,
-        MeteoData.SWR_diff,
+        MeteoData.SW_dir,
+        MeteoData.SW_diff,
         SunPosition.theta_n,
         SunPosition.theta_Z,
         FractionsGround,

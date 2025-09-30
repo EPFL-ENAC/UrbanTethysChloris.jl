@@ -231,8 +231,8 @@ TempVec_ittm = (;
 Humidity_ittm = (; CanyonSpecific=input_vars["Humidity_ittm"]["CanyonSpecific"])
 
 MeteoData = (;
-    SWR_dir=FT(input_vars["MeteoData"]["SW_dir"]),
-    SWR_diff=FT(input_vars["MeteoData"]["SW_diff"]),
+    SW_dir=FT(input_vars["MeteoData"]["SW_dir"]),
+    SW_diff=FT(input_vars["MeteoData"]["SW_diff"]),
     LWR=input_vars["MeteoData"]["LWR"],
     Rain=input_vars["MeteoData"]["Rain"],
     Tatm=input_vars["MeteoData"]["Tatm"],
