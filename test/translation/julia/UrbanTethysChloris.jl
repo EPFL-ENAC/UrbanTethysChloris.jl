@@ -51,3 +51,9 @@ end
 @safetestset "eb_solver_urban_climate_building_energy_model" begin
     include("eb_solver_urban_climate_building_energy_model.jl")
 end
+
+@safetestset "f_solver_tot" begin
+    include("f_solver_tot.jl")
+end
+
+# TODO: remove ./julia subdirectory level, go straigth for test/transation/UrbanTethysChloris.jl
