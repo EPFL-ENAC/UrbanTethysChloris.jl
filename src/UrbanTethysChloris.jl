@@ -44,5 +44,6 @@ include("set_sun_variables.jl")
 include("eb_solver_canyon.jl")
 include("eb_solver_roof.jl")
 include("eb_wb_roof.jl")
+include("eb_solver_urban_climate_building_energy_model.jl")
 
 end

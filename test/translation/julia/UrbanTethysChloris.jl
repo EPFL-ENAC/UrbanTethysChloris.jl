@@ -47,3 +47,7 @@ end
 @safetestset "eb_wb_roof" begin
     include("eb_wb_roof.jl")
 end
+
+@safetestset "eb_solver_urban_climate_building_energy_model" begin
+    include("eb_solver_urban_climate_building_energy_model.jl")
+end
