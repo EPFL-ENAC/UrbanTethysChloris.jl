@@ -8,7 +8,6 @@ using ....TestUtils:
     create_height_dependent_vegetation_parameters
 
 FT = Float64
-FT = Float64
 input_vars, output_vars = load_matlab_data("water_functions.WaterRoof.json")
 @testset "Zurich" begin
     Eroof_imp = input_vars["Eroof_imp"]

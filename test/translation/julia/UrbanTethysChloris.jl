@@ -60,4 +60,4 @@ end
     include("eb_wb_canyon.jl")
 end
 
-# TODO: remove ./julia subdirectory level, go straigth for test/transation/UrbanTethysChloris.jl
+# TODO: remove ./julia subdirectory level, go straight for test/transation/UrbanTethysChloris.jl

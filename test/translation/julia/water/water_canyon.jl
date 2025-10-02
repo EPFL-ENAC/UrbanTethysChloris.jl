@@ -10,8 +10,6 @@ using ....TestUtils:
 FT = Float64
 input_vars, output_vars = load_matlab_data("water_functions.WaterCanyon.json")
 
-FT = Float64
-
 @testset "MATLAB" begin
 
     # Create input NamedTuples

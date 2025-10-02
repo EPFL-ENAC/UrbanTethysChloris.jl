@@ -7,8 +7,6 @@ input_vars, output_vars = load_matlab_data(
     "soil_functions.SOIL_MOISTURES_RICH_COMP_LAT3.json"
 )
 
-FT = Float64
-
 @testset "MATLAB" begin
     alpVG = FT(input_vars["alpVG"])
     Cimp = FT(input_vars["Cimp"])
