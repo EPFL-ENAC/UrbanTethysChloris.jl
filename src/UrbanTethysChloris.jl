@@ -5,6 +5,7 @@ using Dates
 using Statistics
 using ConstructionBase
 using LeastSquaresOptim
+using Roots
 
 include(joinpath("modelcomponents", "ModelComponents.jl"))
 using .ModelComponents
@@ -47,5 +48,6 @@ include("eb_solver_roof.jl")
 include("eb_wb_roof.jl")
 include("eb_solver_urban_climate_building_energy_model.jl")
 include("f_solver_tot.jl")
+include("eb_wb_canyon.jl")
 
 end

@@ -56,4 +56,8 @@ end
     include("f_solver_tot.jl")
 end
 
+@safetestset "eb_wb_canyon" begin
+    include("eb_wb_canyon.jl")
+end
+
 # TODO: remove ./julia subdirectory level, go straigth for test/transation/UrbanTethysChloris.jl
