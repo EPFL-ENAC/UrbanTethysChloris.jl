@@ -20,8 +20,6 @@
         ParVegGround::NamedTuple,
         ParVegTree::NamedTuple,
         FractionsGround::NamedTuple,
-        geometry::NamedTuple,
-        ParTree::NamedTuple,
         Gemeotry_m::NamedTuple,
         Anthropogenic::NamedTuple
     ) where {FT<:AbstractFloat}
@@ -49,9 +47,7 @@ Calculate water balance for canyon surfaces including trees, vegetation, and imp
 - `ParVegGround`: Ground vegetation parameters
 - `ParVegTree`: Tree vegetation parameters
 - `FractionsGround`: Ground surface fractions
-- `geometry`: Geometry parameters
-- `ParTree`: Tree parameters
-- `Gemeotry_m`: Geometry parameters in meters
+- `Gemeotry_m`: Geometry parameters
 - `Anthropogenic`: Anthropogenic water inputs
 
 # Returns
@@ -164,15 +160,13 @@ function water_canyon(
     Egveg_soil::FT,
     TEgveg::FT,
     TEtree::FT,
-    ParSoilGround::NamedTuple,
+    ParSoilGround::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     ParInterceptionTree::NamedTuple,
     ParCalculation::NamedTuple,
-    ParVegGround::NamedTuple,
-    ParVegTree::NamedTuple,
-    FractionsGround::NamedTuple,
-    geometry::NamedTuple,
-    ParTree::NamedTuple,
-    Gemeotry_m::NamedTuple,
+    ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+    ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+    FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+    Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
     Anthropogenic::NamedTuple,
 ) where {FT<:AbstractFloat}
 
@@ -197,7 +191,7 @@ function water_canyon(
     SAI_g = ParVegGround.SAI
     LAI_t = ParVegTree.LAI
     SAI_t = ParVegTree.SAI
-    r_tree = geometry.radius_tree
+    r_tree = Gemeotry_m.radius_tree
 
     # Soil parameters
     Pcla = ParSoilGround.Pcla
@@ -246,7 +240,7 @@ function water_canyon(
     Cimp = FT(fimp > 0)
     Cbare = FT(fbare > 0)
     Cveg = FT(fveg > 0)
-    Ctree = FT(ParTree.trees == 1)
+    Ctree = FT(Gemeotry_m.trees == 1)
 
     # Trees: water intercepted
     q_tree_dwn, In_tree, dIn_tree_dt, WB_In_tree = water_vegetation(
