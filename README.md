@@ -22,7 +22,7 @@ If you want to make contributions of any kind, please first that a look into our
 
 ### Creating example input data
 
-To create example input data based on the Zurich example in the [original MATLAB code](https://github.com/NaikaMeili/UTC_ModelCode), run the `data-raw/create_input_data` script. The script will automatically create a `data` subfolder and download a MAT file, `ForcingData_ZH2010.mat`, as well as create an example NetCDF and YAML input for the model. Lastly, smaller files will also be created based on the Zurich example for testing purposes.
+To create example input data based on the Zurich example in the [original MATLAB code](https://github.com/NaikaMeili/UTC_BEM_ModelCode), run the `data-raw/create_input_data` script. The script will automatically create a `data` subfolder and download a MAT file, `ForcingData_ZH2010.mat`, as well as create an example NetCDF and YAML input for the model. Lastly, smaller files will also be created based on the Zurich example for testing purposes.
 
 First, instantiate the environment and manually add the MAT package:
 

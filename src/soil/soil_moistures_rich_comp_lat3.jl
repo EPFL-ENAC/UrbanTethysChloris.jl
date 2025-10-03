@@ -131,7 +131,7 @@ function soil_moistures_rich_comp_lat3(
     dVlat = [
         Qin_veg2imp + Qin_bare2imp,    # impervious
         Qin_veg2bare + Qin_imp2bare,   # bare
-        Qin_bare2veg + Qin_imp2veg,     # vegetated
+        Qin_bare2veg + Qin_imp2veg,    # vegetated
     ]
 
     if any(isnan.(dVlat))

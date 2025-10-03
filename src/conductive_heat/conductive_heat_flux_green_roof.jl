@@ -82,11 +82,11 @@ function conductive_heat_flux_green_roof(
         CASE_ROOT,
         CASE_ROOT,
         [FT(0)],
-        [ZR95],
+        ZR95,
         [FT(0)],
-        [ZR50],
+        ZR50,
         [FT(0)],
-        [ZRmax],
+        ZRmax,
         Zs,
     )
 

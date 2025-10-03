@@ -35,3 +35,29 @@ end
 @safetestset "water" begin
     include(joinpath("water", "Water.jl"))
 end
+
+@safetestset "eb_solver_roof" begin
+    include("eb_solver_roof.jl")
+end
+
+@safetestset "eb_solver_canyon" begin
+    include("eb_solver_canyon.jl")
+end
+
+@safetestset "eb_wb_roof" begin
+    include("eb_wb_roof.jl")
+end
+
+@safetestset "eb_solver_urban_climate_building_energy_model" begin
+    include("eb_solver_urban_climate_building_energy_model.jl")
+end
+
+@safetestset "f_solver_tot" begin
+    include("f_solver_tot.jl")
+end
+
+@safetestset "eb_wb_canyon" begin
+    include("eb_wb_canyon.jl")
+end
+
+# TODO: remove ./julia subdirectory level, go straight for test/transation/UrbanTethysChloris.jl

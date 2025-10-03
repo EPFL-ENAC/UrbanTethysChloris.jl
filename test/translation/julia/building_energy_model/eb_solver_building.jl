@@ -1,5 +1,6 @@
 using Test
 using MAT
+using UrbanTethysChloris.Radiation: RadiationFluxes
 using UrbanTethysChloris.BuildingEnergyModel: eb_solver_building
 using ....TestUtils:
     create_urban_geometry_parameters,
@@ -80,7 +81,16 @@ TempVecB_ittm = (
 
 TempVec_ittm = (TWallIntSun=input_vars["TempVec_ittm"]["TWallIntSun"],)
 Humidity_ittm = (;)
-SWRabs_t = (;)
+SWRabs_t = RadiationFluxes{FT}(;
+    GroundImp=input_vars["SWRabs_t"]["SWRabsGroundImp"],
+    GroundBare=input_vars["SWRabs_t"]["SWRabsGroundBare"],
+    GroundVeg=input_vars["SWRabs_t"]["SWRabsGroundVeg"],
+    Tree=input_vars["SWRabs_t"]["SWRabsTree"],
+    WallSun=input_vars["SWRabs_t"]["SWRabsWallSun"],
+    WallShade=input_vars["SWRabs_t"]["SWRabsWallShade"],
+    TotalGround=input_vars["SWRabs_t"]["SWRabsTotalGround"],
+    TotalCanyon=input_vars["SWRabs_t"]["SWRabsTotalCanyon"],
+)
 TempDamp_ittm = (; TDampGroundBuild=input_vars["TempDamp_ittm"]["TDampGroundBuild"])
 
 MeteoData = (

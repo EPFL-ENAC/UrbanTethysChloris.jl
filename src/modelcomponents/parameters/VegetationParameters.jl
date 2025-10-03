@@ -52,12 +52,12 @@ Base.@kwdef struct HeightDependentVegetationParameters{FT<:AbstractFloat} <:
 
     # Tree water uptake
     CASE_ROOT::Int
-    ZR95::FT
-    ZR50::FT
-    ZRmax::FT
-    Rrootl::FT
-    PsiL50::FT
-    PsiX50::FT
+    ZR95::Vector{FT}
+    ZR50::Vector{FT}
+    ZRmax::Vector{FT}
+    Rrootl::Vector{FT}
+    PsiL50::Vector{FT}
+    PsiX50::Vector{FT}
 
     # Photosynthesis and transpiration
     FI::FT
