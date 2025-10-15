@@ -63,10 +63,11 @@ function get_dimensions(
     return dimensions
 end
 
-include("SolverVariables.jl")
-include("EnvironmentalConditions.jl")
-include("TemperatureVariables.jl")
-include("HumidityVariables.jl")  # This now includes both Humidity and Results2m
 include("BuildingEnergyModelVariables.jl")
+include("EnvironmentalConditions.jl")
+include("HeatFluxVariables.jl")
+include("HumidityVariables.jl")
+include("SolverVariables.jl")
+include("TemperatureVariables.jl")
 
 end
