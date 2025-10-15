@@ -1,3 +1,5 @@
+abstract type AbstractSolverVariables{FT<:AbstractFloat} <: AbstractModelVariables{FT} end
+
 """
     SolverVariables{FT<:AbstractFloat, N, Np} <: AbstractModelVariables{FT}
 
@@ -9,15 +11,11 @@ Optical properties for indoor building surfaces.
 - `Tsolver`: Temperatures and humidity of different canyon faces and air [K], [kg/kg]
 - `YfunctionOutput`: Solver function outputs
 """
-Base.@kwdef struct SolverVariables{FT<:AbstractFloat,N,Np} <: AbstractModelVariables{FT}
+Base.@kwdef struct SolverVariables{FT<:AbstractFloat,N,Np} <: AbstractSolverVariables{FT}
     Success::Array{Bool,N}
     ValuesEB::Array{FT,Np}
     Tsolver::Array{FT,Np}
     YfunctionOutput::Array{FT,Np}
-end
-
-function TethysChlorisCore.get_required_fields(::Type{SolverVariables})
-    return []
 end
 
 function get_vector_fields(obj::SolverVariables{FT,0,1}) where {FT<:AbstractFloat}
@@ -42,7 +40,7 @@ end
 
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
-) where {FT<:AbstractFloat,T<:AbstractModelVariables}
+) where {FT<:AbstractFloat,T<:AbstractSolverVariables}
     processed = Dict{String,Any}()
 
     dimensions = get_dimensions(T, data, params, hours)
@@ -59,8 +57,8 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 function get_dimensions(
-    ::Type{SolverVariables}, data::Dict{String,Any}, params::Tuple, hours::Int
-)
+    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
+) where {T<:AbstractSolverVariables}
     if params[2] ∉ [0, 1]
         throw(ArgumentError("Only N=0 and N=1 are currently supported"))
     end

@@ -84,12 +84,6 @@ Base.@kwdef struct EnvironmentalConditions{FT<:AbstractFloat,N} <:
     rap_Zp1::Array{FT,N}
 end
 
-function TethysChlorisCore.get_required_fields(
-    ::Type{T}
-) where {T<:AbstractEnvironmentalConditions}
-    return []
-end
-
 function Base.getproperty(
     obj::EnvironmentalConditions{FT,0}, field::Symbol
 ) where {FT<:AbstractFloat}
@@ -100,32 +94,4 @@ function initialize_environmental_conditions(
     ::Type{FT}, N::Int, hours::Int=1
 ) where {FT<:AbstractFloat}
     return initialize(FT, EnvironmentalConditions, Dict{String,Any}(), (FT, N), hours)
-end
-
-function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
-) where {T<:AbstractEnvironmentalConditions}
-    if params[2] ∉ [0, 1]
-        throw(ArgumentError("Only N=0 and N=1 are currently supported"))
-    end
-
-    # Create a dictionary with all field names and their dimensions
-    dimensions = Dict{String,Tuple}()
-
-    # Get all field names from the struct
-    field_names = fieldnames(EnvironmentalConditions)
-
-    if params[2] == 0
-        # For scalar case (N=0), all fields are scalars
-        for field in field_names
-            dimensions[String(field)] = ()
-        end
-    else
-        # For time series case (N=1), all fields have hours dimension
-        for field in field_names
-            dimensions[String(field)] = (hours,)
-        end
-    end
-
-    return dimensions
 end

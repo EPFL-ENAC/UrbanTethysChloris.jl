@@ -87,12 +87,6 @@ Base.@kwdef struct TemperatureVariables{FT<:AbstractFloat,N} <:
     UTCI::Array{FT,N}
 end
 
-function TethysChlorisCore.get_required_fields(
-    ::Type{T}
-) where {T<:AbstractTemperatureVariables}
-    return []
-end
-
 function Base.getproperty(
     obj::TemperatureVariables{FT,0}, field::Symbol
 ) where {FT<:AbstractFloat}
@@ -103,32 +97,4 @@ function initialize_temperature_variables(
     ::Type{FT}, N::Int, hours::Int=1
 ) where {FT<:AbstractFloat}
     return initialize(FT, TemperatureVariables, Dict{String,Any}(), (FT, N), hours)
-end
-
-function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
-) where {T<:AbstractTemperatureVariables}
-    if params[2] ∉ [0, 1]
-        throw(ArgumentError("Only N=0 and N=1 are currently supported"))
-    end
-
-    # Create a dictionary with all field names and their dimensions
-    dimensions = Dict{String,Tuple}()
-
-    # Get all field names from the struct
-    field_names = fieldnames(TemperatureVariables)
-
-    if params[2] == 0
-        # For scalar case (N=0), all fields are scalars
-        for field in field_names
-            dimensions[String(field)] = ()
-        end
-    else
-        # For time series case (N=1), all fields have hours dimension
-        for field in field_names
-            dimensions[String(field)] = (hours,)
-        end
-    end
-
-    return dimensions
 end

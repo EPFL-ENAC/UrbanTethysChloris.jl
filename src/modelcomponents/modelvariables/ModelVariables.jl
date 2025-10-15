@@ -20,6 +20,45 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
+function TethysChlorisCore.get_required_fields(::Type{T}) where {T<:AbstractModelVariables}
+    return []
+end
+
+"""
+    get_dimensions(
+        ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType, Signed}, hours::Int
+    ) where {T<:AbstractModelVariables}
+
+Get the dimensions of each field in the model variables struct `T` based on the parameters and hours.
+"""
+function get_dimensions(
+    ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType,Signed}, hours::Int
+) where {T<:AbstractModelVariables}
+    if params[2] ∉ [0, 1]
+        throw(ArgumentError("Only N=0 and N=1 are currently supported"))
+    end
+
+    # Create a dictionary with all field names and their dimensions
+    dimensions = Dict{String,Tuple}()
+
+    # Get all field names from the struct
+    field_names = fieldnames(T)
+
+    if params[2] == 0
+        # For scalar case (N=0), all fields are scalars
+        for field in field_names
+            dimensions[String(field)] = ()
+        end
+    else
+        # For time series case (N=1), all fields have hours dimension
+        for field in field_names
+            dimensions[String(field)] = (hours,)
+        end
+    end
+
+    return dimensions
+end
+
 include("SolverVariables.jl")
 include("EnvironmentalConditions.jl")
 include("TemperatureVariables.jl")
