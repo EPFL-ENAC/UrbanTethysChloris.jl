@@ -6,6 +6,8 @@ using TethysChlorisCore.ModelComponents
 abstract type AbstractModelVariables{FT<:AbstractFloat} <:
               AbstractIndividualModelComponent{FT} end
 
+abstract type AbstractModelVariableSet{FT<:AbstractFloat} <: AbstractModelComponentSet{FT} end
+
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
 ) where {FT<:AbstractFloat,T<:AbstractModelVariables}
@@ -20,7 +22,9 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function TethysChlorisCore.get_required_fields(::Type{T}) where {T<:AbstractModelVariables}
+function TethysChlorisCore.get_required_fields(
+    ::Type{T}
+) where {T<:Union{AbstractModelVariables,AbstractModelVariableSet}}
     return []
 end
 
