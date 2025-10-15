@@ -22,5 +22,6 @@ end
 
 include("SolverVariables.jl")
 include("EnvironmentalConditions.jl")
+include("TemperatureVariables.jl")
 
 end
