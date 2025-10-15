@@ -21,7 +21,7 @@ end
 function initialize_forcinginputset(
     ::Type{FT}, data::NCDataset, location::LocationProperties{FT}
 ) where {FT<:AbstractFloat}
-    initialize(FT, ForcingInputSet, data, location)
+    initialize(FT, ForcingInputSet, data, (FT,), location)
 end
 
 function TethysChlorisCore.get_required_fields(::Type{ForcingInputSet})
@@ -29,7 +29,11 @@ function TethysChlorisCore.get_required_fields(::Type{ForcingInputSet})
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{ForcingInputSet}, data::NCDataset, location::LocationProperties{FT}
+    ::Type{FT},
+    ::Type{ForcingInputSet},
+    data::NCDataset,
+    params::Tuple,
+    location::LocationProperties{FT},
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 

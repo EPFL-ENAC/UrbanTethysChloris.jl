@@ -54,11 +54,11 @@ end
 function initialize_surfacefractions(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, SurfaceFractions, data)
+    return initialize(FT, SurfaceFractions, data, (FT,))
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{SurfaceFractions}, data::Dict{String,Any}
+    ::Type{FT}, ::Type{SurfaceFractions}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 

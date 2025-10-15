@@ -36,13 +36,14 @@ function initialize_sunposition_inputs(
     datetime::Vector{DateTime},
     location::LocationProperties{FT},
 ) where {FT<:AbstractFloat}
-    return initialize(FT, SunPositionInputs, data, datetime, location)
+    return initialize(FT, SunPositionInputs, data, (FT,), datetime, location)
 end
 
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT},
     ::Type{SunPositionInputs},
     data::NCDataset,
+    params::Tuple,
     datetime::Vector{DateTime},
     location::LocationProperties{FT},
 ) where {FT<:AbstractFloat}

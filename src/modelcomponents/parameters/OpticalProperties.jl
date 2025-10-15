@@ -48,7 +48,7 @@ end
 function initialize_vegetated_opticalproperties(
     ::Type{FT}, data::Dict{String,Any}, fractions::LocationSpecificSurfaceFractions{FT}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, VegetatedOpticalProperties, data, fractions)
+    return initialize(FT, VegetatedOpticalProperties, data, (FT,), fractions)
 end
 
 function TethysChlorisCore.get_optional_fields(::Type{VegetatedOpticalProperties})
@@ -63,6 +63,7 @@ function TethysChlorisCore.preprocess_fields(
     ::Type{FT},
     ::Type{VegetatedOpticalProperties},
     data::Dict{String,Any},
+    params::Tuple,
     fractions::LocationSpecificSurfaceFractions{FT},
 ) where {FT<:AbstractFloat}
     processed = copy(data)

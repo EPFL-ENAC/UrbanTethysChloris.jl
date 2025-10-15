@@ -28,11 +28,11 @@ end
 function initialize_parameter_set(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, ParameterSet, data)
+    return initialize(FT, ParameterSet, data, (FT,))
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{ParameterSet}, data::Dict{String,Any}
+    ::Type{FT}, ::Type{ParameterSet}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 

@@ -23,11 +23,11 @@ function TethysChlorisCore.get_optional_fields(::Type{HVACSchedule})
 end
 
 function initialize_hvacschedule(::Type{FT}, data::NCDataset) where {FT<:AbstractFloat}
-    return initialize(FT, HVACSchedule, data)
+    return initialize(FT, HVACSchedule, data, (FT,))
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{HVACSchedule}, data::NCDataset
+    ::Type{FT}, ::Type{HVACSchedule}, data::NCDataset, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 

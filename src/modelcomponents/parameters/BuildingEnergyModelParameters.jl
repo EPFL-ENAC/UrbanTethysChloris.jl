@@ -99,7 +99,7 @@ end
 function initialize_windowparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, WindowParameters, data)
+    return initialize(FT, WindowParameters, data, (FT,))
 end
 
 """
@@ -147,7 +147,7 @@ end
 function initialize_hvacparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, HVACParameters, data)
+    return initialize(FT, HVACParameters, data, (FT,))
 end
 
 """
@@ -181,5 +181,5 @@ function initialize_building_energy_model_parameters(
     processed["windows"] = initialize_windowparameters(FT, data["windows"])
     processed["hvac"] = initialize_hvacparameters(FT, data["hvac"])
 
-    return initialize(FT, BuildingEnergyModelParameters, processed)
+    return initialize(FT, BuildingEnergyModelParameters, processed, (FT,))
 end

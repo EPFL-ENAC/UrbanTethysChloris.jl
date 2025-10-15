@@ -8,7 +8,7 @@ end
 function initialize_locationproperties(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, LocationProperties, data)
+    return initialize(FT, LocationProperties, data, (FT,))
 end
 
 function TethysChlorisCore.get_required_fields(::Type{LocationProperties})
