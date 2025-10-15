@@ -63,5 +63,6 @@ include("SolverVariables.jl")
 include("EnvironmentalConditions.jl")
 include("TemperatureVariables.jl")
 include("HumidityVariables.jl")
+include("BuildingEnergyModelVariables.jl")
 
 end

@@ -15,3 +15,7 @@ end
 @safetestset "HumidityVariables" begin
     include("HumidityVariables.jl")
 end
+
+@safetestset "BuildingEnergyModelVariables" begin
+    include("BuildingEnergyModelVariables.jl")
+end
