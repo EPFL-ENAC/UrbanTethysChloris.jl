@@ -1,12 +1,15 @@
-abstract type AbstractHumidityVariables{FT<:AbstractFloat} <: AbstractModelVariables{FT} end
+abstract type AbstractHumidityVariables{FT<:AbstractFloat,N} <: AbstractModelVariables{FT} end
+abstract type AbstractHumidity{FT<:AbstractFloat} <: AbstractModelVariables{FT} end
+abstract type AbstractResults2m{FT<:AbstractFloat} <: AbstractModelVariables{FT} end
+# TODO: restructure into subcomponents, AbstractHumidity and AbstractResults2m should be
+# subtypes of something else than AbstractModelVariables, to allow efficient dispatch.
 
 """
-    HumidityVariables{FT<:AbstractFloat, N} <: AbstractModelVariables{FT}
+    Humidity{FT<:AbstractFloat, N} <: AbstractHumidity{FT}
 
-Humidity-related variables for the urban environment.
+Canyon and atmospheric humidity variables.
 
 # Fields
-## Canyon and Atmospheric Humidity Fields
 - `CanyonRelative`: Relative humidity at canyon calculation height [-]
 - `CanyonSpecific`: Specific humidity at canyon calculation height [kg/kg]
 - `CanyonVapourPre`: Vapour pressure at canyon calculation height [Pa]
@@ -19,17 +22,8 @@ Humidity-related variables for the urban environment.
 - `AtmRelativeSat`: Saturation relative humidity at atmospheric forcing height [-], is always 1
 - `AtmSpecificSat`: Specific humidity at saturation at atmospheric forcing height [kg/kg]
 - `AtmVapourPreSat`: Saturation vapour pressure at atmospheric forcing height [Pa]
-
-## 2-meter Height Results
-- `T2m`: 2m air temperature [K]
-- `q2m`: 2m specific humidity [kg/kg]
-- `e_T2m`: 2m vapor pressure [Pa]
-- `RH_T2m`: 2m relative humidity [-]
-- `qcan`: Canyon specific humidity [kg/kg]
-- `e_Tcan`: Canyon vapor pressure [Pa]
-- `RH_Tcan`: Canyon relative humidity [-]
 """
-Base.@kwdef struct HumidityVariables{FT<:AbstractFloat,N} <: AbstractHumidityVariables{FT}
+Base.@kwdef struct Humidity{FT<:AbstractFloat,N} <: AbstractHumidity{FT}
     # Canyon and Atmospheric Humidity Fields
     CanyonRelative::Array{FT,N}
     CanyonSpecific::Array{FT,N}
@@ -43,7 +37,23 @@ Base.@kwdef struct HumidityVariables{FT<:AbstractFloat,N} <: AbstractHumidityVar
     AtmRelativeSat::Array{FT,N}
     AtmSpecificSat::Array{FT,N}
     AtmVapourPreSat::Array{FT,N}
+end
 
+"""
+    Results2m{FT<:AbstractFloat, N} <: AbstractHumidityVariables{FT}
+
+Temperature and humidity results at 2-meter canyon height.
+
+# Fields
+- `T2m`: 2m air temperature [K]
+- `q2m`: 2m specific humidity [kg/kg]
+- `e_T2m`: 2m vapor pressure [Pa]
+- `RH_T2m`: 2m relative humidity [-]
+- `qcan`: Canyon specific humidity [kg/kg]
+- `e_Tcan`: Canyon vapor pressure [Pa]
+- `RH_Tcan`: Canyon relative humidity [-]
+"""
+Base.@kwdef struct Results2m{FT<:AbstractFloat,N} <: AbstractResults2m{FT}
     # 2-meter Height Results
     T2m::Array{FT,N}
     q2m::Array{FT,N}
@@ -55,9 +65,59 @@ Base.@kwdef struct HumidityVariables{FT<:AbstractFloat,N} <: AbstractHumidityVar
 end
 
 function Base.getproperty(
-    obj::HumidityVariables{FT,0}, field::Symbol
-) where {FT<:AbstractFloat}
+    obj::T, field::Symbol
+) where {FT<:AbstractFloat,T<:Results2m{FT,0}}
     return getfield(obj, field)[]
+end
+
+function Base.getproperty(obj::T, field::Symbol) where {FT<:AbstractFloat,T<:Humidity{FT,0}}
+    return getfield(obj, field)[]
+end
+
+function initialize_humidity(
+    ::Type{FT}, N::Int, hours::Int=1, AtmSpecific::FT=0.0
+) where {FT<:AbstractFloat}
+    return initialize(FT, Humidity, Dict{String,Any}(), (FT, N), hours, AtmSpecific)
+end
+
+function initialize_results2m(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
+    return initialize(FT, Results2m, Dict{String,Any}(), (FT, N), hours)
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT},
+    ::Type{T},
+    data::Dict{String,Any},
+    params::Tuple,
+    hours::Int,
+    AtmSpecific::FT,
+) where {FT<:AbstractFloat,T<:AbstractHumidity}
+    processed = Dict{String,Any}()
+    dimensions = get_dimensions(T, data, params, hours)
+
+    for (var, dims) in dimensions
+        processed[var] = zeros(FT, dims)
+    end
+
+    # Initialize with atmospheric specific humidity if provided
+    if params[2] == 1
+        processed["CanyonSpecific"][1] = AtmSpecific
+    end
+
+    return processed
+end
+
+"""
+    HumidityVariables{FT<:AbstractFloat, N} <: AbstractHumidityVariables{FT}
+
+    Combines Humidity and Results2m into a single model variables struct.
+# Fields
+- `Humidity`: Humidity variables at canyon and atmospheric heights
+- `Results2m`: Temperature and humidity results at 2-meter canyon height
+"""
+Base.@kwdef struct HumidityVariables{FT<:AbstractFloat,N} <: AbstractHumidityVariables{FT,N}
+    Humidity::Humidity{FT,N}
+    Results2m::Results2m{FT,N}
 end
 
 function initialize_humidity_variables(
@@ -75,18 +135,12 @@ function TethysChlorisCore.preprocess_fields(
     params::Tuple,
     hours::Int,
     AtmSpecific::FT,
-) where {FT<:AbstractFloat,T<:AbstractModelVariables}
+) where {FT<:AbstractFloat,T<:AbstractHumidityVariables}
     processed = Dict{String,Any}()
 
-    dimensions = get_dimensions(T, data, params, hours)
-
-    for (var, dims) in dimensions
-        processed[var] = zeros(FT, dims)
-    end
-
-    if params[2] == 1
-        processed["CanyonSpecific"][1] = AtmSpecific
-    end
+    # Preprocess each component separately
+    processed["Humidity"] = initialize_humidity(FT, params[2], hours, AtmSpecific)
+    processed["Results2m"] = initialize_results2m(FT, params[2], hours)
 
     return processed
 end

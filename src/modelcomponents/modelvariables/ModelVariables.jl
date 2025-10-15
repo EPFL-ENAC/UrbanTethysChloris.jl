@@ -62,7 +62,7 @@ end
 include("SolverVariables.jl")
 include("EnvironmentalConditions.jl")
 include("TemperatureVariables.jl")
-include("HumidityVariables.jl")
+include("HumidityVariables.jl")  # This now includes both Humidity and Results2m
 include("BuildingEnergyModelVariables.jl")
 
 end
