@@ -64,10 +64,10 @@ function get_dimensions(
 end
 
 include("BuildingEnergyModelVariables.jl")
+include("EnergyBalanceVariables.jl")
 include("EnvironmentalConditions.jl")
 include("HeatFluxVariables.jl")
 include("HumidityVariables.jl")
-include("SolverVariables.jl")
 include("TemperatureVariables.jl")
 
 end

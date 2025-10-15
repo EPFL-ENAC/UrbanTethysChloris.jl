@@ -4,6 +4,10 @@ using SafeTestsets
     include("BuildingEnergyModelVariables.jl")
 end
 
+@safetestset "EnergyBalanceVariables" begin
+    include("EnergyBalanceVariables.jl")
+end
+
 @safetestset "EnvironmentalConditions" begin
     include("EnvironmentalConditions.jl")
 end
@@ -14,10 +18,6 @@ end
 
 @safetestset "HumidityVariables" begin
     include("HumidityVariables.jl")
-end
-
-@safetestset "SolverVariables" begin
-    include("SolverVariables.jl")
 end
 
 @safetestset "TemperatureVariables" begin
