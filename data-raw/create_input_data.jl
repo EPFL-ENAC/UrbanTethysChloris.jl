@@ -87,11 +87,12 @@ data["vegetation"]["roof"] = Dict{String,Any}(
 data["vegetation"]["roof"]["h_disp"] = 2.0 / 3.0 * data["vegetation"]["roof"]["hc"]
 
 ## Ground
-data["vegetation"]["ground"] = data["vegetation"]["roof"]
+data["vegetation"]["ground"] = copy(data["vegetation"]["roof"])
 data["vegetation"]["ground"]["ZR95"] = [250.0]
 
 ## Tree
-data["vegetation"]["tree"] = data["vegetation"]["roof"]
+data["vegetation"]["tree"] = copy(data["vegetation"]["roof"])
+data["vegetation"]["tree"]["ZR95"] = [1000.0]
 data["vegetation"]["tree"]["LAI"] = 5.0
 data["vegetation"]["tree"]["SAI"] = 0.2
 data["vegetation"]["tree"]["hc"] = NaN
@@ -110,7 +111,7 @@ data["thermal"]["roof"] = Dict{String,Any}("lan_dry" => 0.67, "cv_s" => 1e6)
 
 data["thermal"]["ground"] = Dict{String,Any}("lan_dry" => 1.2, "cv_s" => 1.5e6)
 
-data["thermal"]["wall"] = data["thermal"]["roof"]
+data["thermal"]["wall"] = copy(data["thermal"]["roof"])
 data["thermal"]["tree"] = Dict{String,Any}("Cthermal_leaf" => 640.0)
 
 data["optical"] = Dict{String,Any}()
