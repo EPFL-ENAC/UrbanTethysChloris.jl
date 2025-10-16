@@ -2,6 +2,7 @@ module ModelVariables
 
 using TethysChlorisCore
 using TethysChlorisCore.ModelComponents
+using ..Parameters: SoilParameters
 
 abstract type AbstractModelVariables{FT<:AbstractFloat} <:
               AbstractIndividualModelComponent{FT} end
@@ -70,5 +71,6 @@ include("HeatFluxVariables.jl")
 include("HumidityVariables.jl")
 include("RadiationFluxVariables.jl")
 include("TemperatureVariables.jl")
+include("WaterFluxVariables.jl")
 
 end

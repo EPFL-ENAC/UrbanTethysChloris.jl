@@ -385,7 +385,7 @@ end
     @test isa(bem_vars.BEMEnergyUse, BEMEnergyUse{FT,1})
     @test isa(bem_vars.ParACHeat_ts, ParACHeat_ts{FT,1})
 
-    @test bem_vars.TempVecB.Tceiling[1] == Tatm
-    @test bem_vars.TempVecB.Tinwallsun[1] == Tatm
-    @test bem_vars.TempVecB.qbin[1] == AtmSpecific
+    @test bem_vars.TempVecB.Tceiling[1] == tatm
+    @test bem_vars.TempVecB.Tinwallsun[1] == tatm
+    @test bem_vars.TempVecB.qbin[1] == qatm
 end

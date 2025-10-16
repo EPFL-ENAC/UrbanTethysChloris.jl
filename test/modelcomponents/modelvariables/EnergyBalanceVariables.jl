@@ -148,8 +148,8 @@ FT = Float64
 
         # Test field access for scalar case
         @test sv.Success === false
-        @test sv.EBGroundVeg === 0.0
-        @test sv.EBCanyonQ === 0.0
+        @test all(sv.ValuesEB .== 0.0)
+        @test all(sv.Tsolver .== 0.0)
 
         # Test all fields are accessible
         for field in setdiff(fieldnames(SolverVariables), [:Success])
