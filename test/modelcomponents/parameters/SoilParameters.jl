@@ -7,8 +7,7 @@ using UrbanTethysChloris.ModelComponents.Parameters:
     initialize_soil_parameters,
     VegetationParameters
 
-include("test/test_utils.jl")
-using .TestUtils: create_height_dependent_vegetation_parameters
+using ....TestUtils: create_height_dependent_vegetation_parameters
 
 FT = Float64
 
