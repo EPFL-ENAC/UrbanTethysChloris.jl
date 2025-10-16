@@ -68,6 +68,7 @@ include("EnergyBalanceVariables.jl")
 include("EnvironmentalConditions.jl")
 include("HeatFluxVariables.jl")
 include("HumidityVariables.jl")
+include("RadiationFluxVariables.jl")
 include("TemperatureVariables.jl")
 
 end
