@@ -2,13 +2,14 @@ module Parameters
 
 using TethysChlorisCore
 using TethysChlorisCore.ModelComponents
+using ...Soil
 
 include("PersonParameters.jl")
-include("SoilParameters.jl")
 include("SurfaceFractions.jl")
 include("ThermalProperties.jl")
 include("UrbanGeometryParameters.jl")
 include("VegetationParameters.jl")
+include("SoilParameters.jl")
 include("BuildingEnergyModelParameters.jl")
 include("LocationProperties.jl")
 

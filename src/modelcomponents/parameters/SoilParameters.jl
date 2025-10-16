@@ -39,16 +39,23 @@ Base.@kwdef struct VegetatedSoilParameters{FT<:AbstractFloat} <: AbstractParamet
     FixSM::Bool
     FixSM_LayerStart::Int
     FixSM_LayerEnd::Int
+    Ohy::FT
+    Osat::FT
+    O33::FT
+    dz::Vector{FT}
 end
 
 function initialize_vegetated_soilparameters(
-    ::Type{FT}, data::Dict{String,Any}
+    ::Type{FT},
+    data::Dict{String,Any},
+    tree::HeightDependentVegetationParameters{FT},
+    ground::HeightDependentVegetationParameters{FT},
 ) where {FT<:AbstractFloat}
-    return initialize(FT, VegetatedSoilParameters, data, (FT,))
+    return initialize(FT, VegetatedSoilParameters, data, (FT,), tree, ground)
 end
 
 function TethysChlorisCore.get_calculated_fields(::Type{VegetatedSoilParameters})
-    return [:ms]
+    return [:ms, :Osat, :Ohy, :O33, :dz]
 end
 
 function TethysChlorisCore.get_optional_fields(::Type{VegetatedSoilParameters})
@@ -56,11 +63,47 @@ function TethysChlorisCore.get_optional_fields(::Type{VegetatedSoilParameters})
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{VegetatedSoilParameters}, data::Dict{String,Any}, params::Tuple
+    ::Type{FT},
+    ::Type{VegetatedSoilParameters},
+    data::Dict{String,Any},
+    params::Tuple,
+    tree::HeightDependentVegetationParameters{FT},
+    ground::HeightDependentVegetationParameters{FT},
 ) where {FT<:AbstractFloat}
     processed = copy(data)
 
     processed["ms"] = length(processed["Zs"]) - 1
+
+    _, _, _, Osat, Ohy, _, _, _, _, _, O33 = Soil.soil_parameters_total(
+        processed["Pcla"],
+        processed["Psan"],
+        processed["Porg"],
+        processed["Kfc"],
+        processed["Phy"],
+        processed["SPAR"],
+        processed["Kbot"],
+        tree.CASE_ROOT,
+        ground.CASE_ROOT,
+        tree.ZR95,
+        ground.ZR95,
+        tree.ZR50,
+        ground.ZR50,
+        tree.ZRmax,
+        ground.ZRmax,
+        processed["Zs"],
+    )
+
+    unique_Osat = unique(Osat)
+    @assert length(unique_Osat) == 1 "Osat should be unique after preprocessing"
+    unique_Ohy = unique(Ohy)
+    @assert length(unique_Ohy) == 1 "Ohy should be unique after preprocessing"
+    unique_O33 = unique(O33)
+    @assert length(unique_O33) == 1 "O33 should be unique after preprocessing"
+
+    processed["Osat"] = unique_Osat[1]
+    processed["Ohy"] = unique_Ohy[1]
+    processed["O33"] = unique_O33[1]
+    processed["dz"] = diff(processed["Zs"])
 
     return processed
 end
@@ -94,12 +137,16 @@ Base.@kwdef struct SoilParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
 end
 
 function initialize_soil_parameters(
-    ::Type{FT}, data::Dict{String,Any}
+    ::Type{FT}, data::Dict{String,Any}, vegetation::VegetationParameters{FT}
 ) where {FT<:AbstractFloat}
     processed = copy(data)
 
-    processed["roof"] = initialize_vegetated_soilparameters(FT, data["roof"])
-    processed["ground"] = initialize_vegetated_soilparameters(FT, data["ground"])
+    processed["roof"] = initialize_vegetated_soilparameters(
+        FT, data["roof"], vegetation.roof, vegetation.roof
+    )
+    processed["ground"] = initialize_vegetated_soilparameters(
+        FT, data["ground"], vegetation.tree, vegetation.ground
+    )
     processed["wall"] = initialize_wall_soilparameters(FT, data["wall"])
 
     return initialize(FT, SoilParameters, processed)

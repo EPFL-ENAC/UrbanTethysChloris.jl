@@ -41,7 +41,6 @@ function TethysChlorisCore.preprocess_fields(
         FT, data["building_energy"]
     )
     processed["person"] = initialize_person_parameters(FT, data["person"])
-    processed["soil"] = initialize_soil_parameters(FT, data["soil"])
 
     processed["surfacefractions"] = initialize_surfacefractions(
         FT, data["surfacefractions"]
@@ -54,6 +53,9 @@ function TethysChlorisCore.preprocess_fields(
         FT, data["urbangeometry"]
     )
     processed["vegetation"] = initialize_vegetationparameters(FT, data["vegetation"])
+    processed["soil"] = initialize_soil_parameters(
+        FT, data["soil"], processed["vegetation"]
+    )
     processed["location"] = initialize_locationproperties(FT, data["location"])
 
     return processed
