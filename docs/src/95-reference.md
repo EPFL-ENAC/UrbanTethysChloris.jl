@@ -111,3 +111,9 @@ UrbanTethysChloris.ModelComponents.Parameters.PersonParameters
 UrbanTethysChloris.ModelComponents.Parameters.ParameterSet
 UrbanTethysChloris.ModelComponents.Parameters.TreeThermalProperties
 ```
+
+### ModelVariables
+
+```@autodocs
+Modules = [UrbanTethysChloris.ModelComponents.ModelVariables]
+```
