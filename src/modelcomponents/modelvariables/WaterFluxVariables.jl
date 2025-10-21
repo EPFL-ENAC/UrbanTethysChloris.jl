@@ -288,7 +288,7 @@ Base.@kwdef struct Vwater{FT<:AbstractFloat,N} <: AbstractVwater{FT,N}
 end
 
 function initialize_vwater(
-    ::Type{FT}, N::Int, soil_parameters::SoilParameters{FT}, hours::Int=1
+    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
 ) where {FT<:AbstractFloat}
     return initialize(FT, Vwater, Dict{String,Any}(), (FT, N), hours, soil_parameters)
 end
@@ -298,8 +298,8 @@ function get_dimensions(
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
-    soil_parameters::SoilParameters{FT},
-) where {T<:AbstractVwater,FT<:AbstractFloat}
+    soil_parameters::NamedTuple,
+) where {T<:AbstractVwater}
     if params[2] ∉ [1, 2]
         throw(ArgumentError("Only N=1 and N=2 are currently supported"))
     end
@@ -332,7 +332,7 @@ function TethysChlorisCore.preprocess_fields(
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
-    soil_parameters::SoilParameters{FT},
+    soil_parameters::NamedTuple,
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
     dimensions = get_dimensions(Vwater, data, params, hours, soil_parameters)
@@ -384,7 +384,7 @@ Base.@kwdef struct dVwater_dt{FT<:AbstractFloat,N} <: AbstractdVwater_dt{FT,N}
 end
 
 function initialize_dvwater_dt(
-    ::Type{FT}, N::Int, soil_parameters::SoilParameters{FT}, hours::Int=1
+    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
 ) where {FT<:AbstractFloat}
     return initialize(FT, dVwater_dt, Dict{String,Any}(), (FT, N), hours, soil_parameters)
 end
@@ -394,8 +394,8 @@ function get_dimensions(
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
-    soil_parameters::SoilParameters{FT},
-) where {T<:AbstractdVwater_dt,FT<:AbstractFloat}
+    soil_parameters::NamedTuple,
+) where {T<:AbstractdVwater_dt}
     if params[2] ∉ [1, 2]
         throw(ArgumentError("Only N=1 and N=2 are currently supported"))
     end
@@ -428,7 +428,7 @@ function TethysChlorisCore.preprocess_fields(
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
-    soil_parameters::SoilParameters{FT},
+    soil_parameters::NamedTuple,
 ) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset}
     processed = Dict{String,Any}()
     dimensions = get_dimensions(T, data, params, hours, soil_parameters)
@@ -462,7 +462,7 @@ Base.@kwdef struct Owater{FT<:AbstractFloat,N} <: AbstractOwater{FT,N}
 end
 
 function initialize_owater(
-    ::Type{FT}, N::Int, soil_parameters::SoilParameters{FT}, hours::Int=1
+    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
 ) where {FT<:AbstractFloat}
     return initialize(FT, Owater, Dict{String,Any}(), (FT, N), hours, soil_parameters)
 end
@@ -472,8 +472,8 @@ function get_dimensions(
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
-    soil_parameters::SoilParameters{FT},
-) where {T<:AbstractOwater,FT<:AbstractFloat}
+    soil_parameters::NamedTuple,
+) where {T<:AbstractOwater}
     if params[2] ∉ [1, 2]
         throw(ArgumentError("Only N=1 and N=2 are currently supported"))
     end
@@ -506,7 +506,7 @@ function TethysChlorisCore.preprocess_fields(
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
-    soil_parameters::SoilParameters{FT},
+    soil_parameters::NamedTuple,
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
     dimensions = get_dimensions(Owater, data, params, hours, soil_parameters)
@@ -555,7 +555,7 @@ Base.@kwdef struct OSwater{FT<:AbstractFloat,N} <: AbstractOSwater{FT,N}
 end
 
 function initialize_oswater(
-    ::Type{FT}, N::Int, soil_parameters::SoilParameters{FT}, hours::Int=1
+    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
 ) where {FT<:AbstractFloat}
     return initialize(FT, OSwater, Dict{String,Any}(), (FT, N), hours, soil_parameters)
 end
@@ -565,8 +565,8 @@ function get_dimensions(
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
-    soil_parameters::SoilParameters{FT},
-) where {T<:AbstractOSwater,FT<:AbstractFloat}
+    soil_parameters::NamedTuple,
+) where {T<:AbstractOSwater}
     if params[2] ∉ [1, 2]
         throw(ArgumentError("Only N=1 and N=2 are currently supported"))
     end
@@ -622,7 +622,7 @@ Base.@kwdef struct Qinlat{FT<:AbstractFloat,N} <: AbstractQinlat{FT,N}
 end
 
 function initialize_qinlat(
-    ::Type{FT}, N::Int, soil_parameters::SoilParameters{FT}, hours::Int=1
+    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
 ) where {FT<:AbstractFloat}
     return initialize(
         FT, Qinlat, Dict{String,Any}(), (FT, N), hours, soil_parameters.ground.ms
@@ -702,7 +702,7 @@ Base.@kwdef struct ExWater{FT<:AbstractFloat,N} <: AbstractExWater{FT,N}
 end
 
 function initialize_exwater(
-    ::Type{FT}, N::Int, soil_parameters::SoilParameters{FT}, hours::Int=1
+    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
 ) where {FT<:AbstractFloat}
     return initialize(FT, ExWater, Dict{String,Any}(), (FT, N), hours, soil_parameters)
 end
@@ -712,8 +712,8 @@ function get_dimensions(
     data::Dict{String,Any},
     params::Tuple{DataType,Signed},
     hours::Int,
-    soil_parameters::SoilParameters{FT},
-) where {T<:AbstractExWater,FT<:AbstractFloat}
+    soil_parameters::NamedTuple,
+) where {T<:AbstractExWater}
     if params[2] ∉ [1, 2]
         throw(ArgumentError("Only N=1 and N=2 are currently supported"))
     end
@@ -896,6 +896,7 @@ function initialize_water_flux_variables(
     ::Type{FT},
     N::Int,
     soil_parameters::SoilParameters{FT},
+    vegetation_parameters::VegetationParameters{FT},
     initial_value::FT=400.0,
     hours::Int=1,
 ) where {FT<:AbstractFloat}
@@ -906,7 +907,44 @@ function initialize_water_flux_variables(
         (FT, N, N+1),
         hours,
         soil_parameters,
+        vegetation_parameters,
         initial_value,
+    )
+end
+
+function calculate_soil_parameters(
+    soil::VegetatedSoilParameters{FT},
+    tree::HeightDependentVegetationParameters{FT},
+    ground::HeightDependentVegetationParameters{FT},
+) where {FT<:AbstractFloat}
+    _, _, _, Osat, Ohy, _, _, _, _, _, O33 = soil_parameters_total(
+        soil.Pcla,
+        soil.Psan,
+        soil.Porg,
+        soil.Kfc,
+        soil.Phy,
+        soil.SPAR,
+        soil.Kbot,
+        tree.CASE_ROOT,
+        ground.CASE_ROOT,
+        tree.ZR95,
+        ground.ZR95,
+        tree.ZR50,
+        ground.ZR50,
+        tree.ZRmax,
+        ground.ZRmax,
+        soil.Zs,
+    )
+
+    unique_Osat = unique(Osat)
+    @assert length(unique_Osat) == 1 "Osat should be unique after preprocessing"
+    unique_Ohy = unique(Ohy)
+    @assert length(unique_Ohy) == 1 "Ohy should be unique after preprocessing"
+    unique_O33 = unique(O33)
+    @assert length(unique_O33) == 1 "O33 should be unique after preprocessing"
+
+    return (;
+        Osat=unique_Osat[], Ohy=unique_Ohy[], O33=unique_O33[], ms=soil.ms, dz=diff(soil.Zs)
     )
 end
 
@@ -917,9 +955,19 @@ function TethysChlorisCore.preprocess_fields(
     params::Tuple,
     hours::Int,
     soil_parameters::SoilParameters{FT},
+    vegetation_parameters::VegetationParameters{FT},
     initial_value::FT,
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
+
+    roof_soil_params = calculate_soil_parameters(
+        soil_parameters.roof, vegetation_parameters.roof, vegetation_parameters.roof
+    )
+    ground_soil_params = calculate_soil_parameters(
+        soil_parameters.ground, vegetation_parameters.tree, vegetation_parameters.ground
+    )
+
+    soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
 
     processed["Eflux"] = initialize_eflux(FT, params[2], hours)
     processed["Runoff"] = initialize_runoff(FT, params[2], hours)
@@ -928,14 +976,12 @@ function TethysChlorisCore.preprocess_fields(
     processed["Interception"] = initialize_interception(FT, params[2], hours)
     processed["dInt_dt"] = initialize_dint_dt(FT, params[2], hours)
     processed["Infiltration"] = initialize_infiltration(FT, params[2], hours)
-    processed["Vwater"] = initialize_vwater(FT, params[2] + 1, soil_parameters, hours)
-    processed["dVwater_dt"] = initialize_dvwater_dt(
-        FT, params[2] + 1, soil_parameters, hours
-    )
-    processed["Owater"] = initialize_owater(FT, params[2] + 1, soil_parameters, hours)
-    processed["OSwater"] = initialize_oswater(FT, params[2] + 1, soil_parameters, hours)
-    processed["Qinlat"] = initialize_qinlat(FT, params[2] + 1, soil_parameters, hours)
-    processed["ExWater"] = initialize_exwater(FT, params[2] + 1, soil_parameters, hours)
+    processed["Vwater"] = initialize_vwater(FT, params[2] + 1, soil_values, hours)
+    processed["dVwater_dt"] = initialize_dvwater_dt(FT, params[2] + 1, soil_values, hours)
+    processed["Owater"] = initialize_owater(FT, params[2] + 1, soil_values, hours)
+    processed["OSwater"] = initialize_oswater(FT, params[2] + 1, soil_values, hours)
+    processed["Qinlat"] = initialize_qinlat(FT, params[2] + 1, soil_values, hours)
+    processed["ExWater"] = initialize_exwater(FT, params[2] + 1, soil_values, hours)
     processed["SoilPotW"] = initialize_soilpotw(FT, params[2], hours)
     processed["CiCO2Leaf"] = initialize_cico2leaf(FT, params[2], initial_value, hours)
 

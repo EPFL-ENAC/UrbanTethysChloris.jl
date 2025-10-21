@@ -33,6 +33,8 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
     WaterFluxVariables,
     initialize_water_flux_variables
 
+using UrbanTethysChloris.ModelComponents.ModelVariables: calculate_soil_parameters
+
 using UrbanTethysChloris.ModelComponents.Parameters: initialize_parameter_set
 using ....TestUtils: load_test_parameters
 
@@ -41,6 +43,16 @@ FT = Float64
 input_data = load_test_parameters()
 
 ps = initialize_parameter_set(Float64, input_data)
+
+roof_soil_params = calculate_soil_parameters(
+    ps.soil.roof, ps.vegetation.roof, ps.vegetation.roof
+)
+
+ground_soil_params = calculate_soil_parameters(
+    ps.soil.ground, ps.vegetation.tree, ps.vegetation.ground
+)
+
+soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
 
 @testset "Water Flux Variables Components" begin
     @testset "Eflux scalar (N=0)" begin
@@ -261,7 +273,7 @@ ps = initialize_parameter_set(Float64, input_data)
     end
 
     @testset "Vwater vector (N=1)" begin
-        vwater = initialize_vwater(FT, 1, ps.soil)
+        vwater = initialize_vwater(FT, 1, soil_values)
 
         # Test structure
         @test vwater isa Vwater{FT,1}
@@ -279,13 +291,13 @@ ps = initialize_parameter_set(Float64, input_data)
 
     @testset "Vwater matrix (N=2)" begin
         hours = 24
-        vwater = initialize_vwater(FT, 2, ps.soil, hours)
+        vwater = initialize_vwater(FT, 2, soil_values, hours)
 
         # Test structure
         @test vwater isa Vwater{FT,2}
 
-        roof_init = ps.soil.roof.O33 .* ps.soil.roof.dz
-        ground_init = ps.soil.ground.O33 .* ps.soil.ground.dz
+        roof_init = soil_values.roof.O33 .* soil_values.roof.dz
+        ground_init = soil_values.ground.O33 .* soil_values.ground.dz
 
         # Test field access for scalar case
         @test vwater.VRoofSoilVeg[1, :] == roof_init
@@ -299,13 +311,13 @@ ps = initialize_parameter_set(Float64, input_data)
     end
 
     @testset "dVwater_dt vector (N=1)" begin
-        dvwater_dt = initialize_dvwater_dt(FT, 1, ps.soil)
+        dvwater_dt = initialize_dvwater_dt(FT, 1, soil_values)
 
         @test dvwater_dt isa dVwater_dt{FT,1}
 
-        @test size(dvwater_dt.dVRoofSoilVeg_dt) == (ps.soil.roof.ms,)
-        @test size(dvwater_dt.dVGroundSoilBare_dt) == (ps.soil.ground.ms,)
-        @test size(dvwater_dt.dVGroundSoilTot_dt) == (ps.soil.ground.ms,)
+        @test size(dvwater_dt.dVRoofSoilVeg_dt) == (soil_values.roof.ms,)
+        @test size(dvwater_dt.dVGroundSoilBare_dt) == (soil_values.ground.ms,)
+        @test size(dvwater_dt.dVGroundSoilTot_dt) == (soil_values.ground.ms,)
 
         # Test all fields are accessible, have correct dimensions and initialized to zero
         for field in fieldnames(dVwater_dt)
@@ -316,14 +328,14 @@ ps = initialize_parameter_set(Float64, input_data)
 
     @testset "dVwater_dt matrix (N=2)" begin
         hours = 24
-        dvwater_dt = initialize_dvwater_dt(FT, 2, ps.soil, hours)
+        dvwater_dt = initialize_dvwater_dt(FT, 2, soil_values, hours)
 
         # Test structure
         @test dvwater_dt isa dVwater_dt{FT,2}
 
-        @test size(dvwater_dt.dVRoofSoilVeg_dt) == (hours, ps.soil.roof.ms)
-        @test size(dvwater_dt.dVGroundSoilBare_dt) == (hours, ps.soil.ground.ms)
-        @test size(dvwater_dt.dVGroundSoilTot_dt) == (hours, ps.soil.ground.ms)
+        @test size(dvwater_dt.dVRoofSoilVeg_dt) == (hours, soil_values.roof.ms)
+        @test size(dvwater_dt.dVGroundSoilBare_dt) == (hours, soil_values.ground.ms)
+        @test size(dvwater_dt.dVGroundSoilTot_dt) == (hours, soil_values.ground.ms)
 
         # Test all fields are accessible
         for field in fieldnames(dVwater_dt)
@@ -332,13 +344,13 @@ ps = initialize_parameter_set(Float64, input_data)
     end
 
     @testset "Owater vector (N=1)" begin
-        owater = initialize_owater(FT, 1, ps.soil)
+        owater = initialize_owater(FT, 1, soil_values)
 
         @test owater isa Owater{FT,1}
 
-        @test size(owater.OwRoofSoilVeg) == (ps.soil.roof.ms,)
-        @test size(owater.OwGroundSoilBare) == (ps.soil.ground.ms,)
-        @test size(owater.OwGroundSoilTot) == (ps.soil.ground.ms,)
+        @test size(owater.OwRoofSoilVeg) == (soil_values.roof.ms,)
+        @test size(owater.OwGroundSoilBare) == (soil_values.ground.ms,)
+        @test size(owater.OwGroundSoilTot) == (soil_values.ground.ms,)
 
         # Test all fields are accessible, have correct dimensions and initialized to zero
         for field in fieldnames(Owater)
@@ -349,14 +361,14 @@ ps = initialize_parameter_set(Float64, input_data)
 
     @testset "Owater matrix (N=2)" begin
         hours = 24
-        owater = initialize_owater(FT, 2, ps.soil, hours)
+        owater = initialize_owater(FT, 2, soil_values, hours)
 
         # Test structure
         @test owater isa Owater{FT,2}
 
-        @test size(owater.OwRoofSoilVeg) == (hours, ps.soil.roof.ms)
-        @test size(owater.OwGroundSoilBare) == (hours, ps.soil.ground.ms)
-        @test size(owater.OwGroundSoilTot) == (hours, ps.soil.ground.ms)
+        @test size(owater.OwRoofSoilVeg) == (hours, soil_values.roof.ms)
+        @test size(owater.OwGroundSoilBare) == (hours, soil_values.ground.ms)
+        @test size(owater.OwGroundSoilTot) == (hours, soil_values.ground.ms)
 
         # Test all fields are accessible
         for field in fieldnames(Owater)
@@ -366,13 +378,13 @@ ps = initialize_parameter_set(Float64, input_data)
 
     @testset "OSwater" begin
         @testset "OSwater vector (N=1)" begin
-            oswater = initialize_oswater(FT, 1, ps.soil)
+            oswater = initialize_oswater(FT, 1, soil_values)
 
             @test oswater isa OSwater{FT,1}
 
-            @test size(oswater.OSwRoofSoilVeg) == (ps.soil.roof.ms,)
-            @test size(oswater.OSwGroundSoilBare) == (ps.soil.ground.ms,)
-            @test size(oswater.OSwGroundSoilTot) == (ps.soil.ground.ms,)
+            @test size(oswater.OSwRoofSoilVeg) == (soil_values.roof.ms,)
+            @test size(oswater.OSwGroundSoilBare) == (soil_values.ground.ms,)
+            @test size(oswater.OSwGroundSoilTot) == (soil_values.ground.ms,)
 
             # Test all fields are accessible, have correct dimensions and initialized to zero
             for field in fieldnames(OSwater)
@@ -383,14 +395,14 @@ ps = initialize_parameter_set(Float64, input_data)
 
         @testset "OSwater matrix (N=2)" begin
             hours = 24
-            oswater = initialize_oswater(FT, 2, ps.soil, hours)
+            oswater = initialize_oswater(FT, 2, soil_values, hours)
 
             # Test structure
             @test oswater isa OSwater{FT,2}
 
-            @test size(oswater.OSwRoofSoilVeg) == (hours, ps.soil.roof.ms)
-            @test size(oswater.OSwGroundSoilBare) == (hours, ps.soil.ground.ms)
-            @test size(oswater.OSwGroundSoilTot) == (hours, ps.soil.ground.ms)
+            @test size(oswater.OSwRoofSoilVeg) == (hours, soil_values.roof.ms)
+            @test size(oswater.OSwGroundSoilBare) == (hours, soil_values.ground.ms)
+            @test size(oswater.OSwGroundSoilTot) == (hours, soil_values.ground.ms)
 
             # Test all fields are accessible
             for field in fieldnames(OSwater)
@@ -401,13 +413,13 @@ ps = initialize_parameter_set(Float64, input_data)
 
     @testset "Qinlat" begin
         @testset "Qinlat vector (N=1)" begin
-            qinlat = initialize_qinlat(FT, 1, ps.soil)
+            qinlat = initialize_qinlat(FT, 1, soil_values)
 
             @test qinlat isa Qinlat{FT,1}
 
-            @test size(qinlat.Qin_bare2imp) == (ps.soil.ground.ms,)
-            @test size(qinlat.Qin_imp2bare) == (ps.soil.ground.ms,)
-            @test size(qinlat.Qin_imp) == (ps.soil.ground.ms,)
+            @test size(qinlat.Qin_bare2imp) == (soil_values.ground.ms,)
+            @test size(qinlat.Qin_imp2bare) == (soil_values.ground.ms,)
+            @test size(qinlat.Qin_imp) == (soil_values.ground.ms,)
 
             # Test all fields are accessible, have correct dimensions and initialized to zero
             for field in fieldnames(Qinlat)
@@ -418,14 +430,14 @@ ps = initialize_parameter_set(Float64, input_data)
 
         @testset "Qinlat matrix (N=2)" begin
             hours = 24
-            qinlat = initialize_qinlat(FT, 2, ps.soil, hours)
+            qinlat = initialize_qinlat(FT, 2, soil_values, hours)
 
             # Test structure
             @test qinlat isa Qinlat{FT,2}
 
-            @test size(qinlat.Qin_bare2imp) == (hours, ps.soil.ground.ms)
-            @test size(qinlat.Qin_imp2bare) == (hours, ps.soil.ground.ms)
-            @test size(qinlat.Qin_imp) == (hours, ps.soil.ground.ms)
+            @test size(qinlat.Qin_bare2imp) == (hours, soil_values.ground.ms)
+            @test size(qinlat.Qin_imp2bare) == (hours, soil_values.ground.ms)
+            @test size(qinlat.Qin_imp) == (hours, soil_values.ground.ms)
 
             # Test all fields are accessible
             for field in fieldnames(Qinlat)
@@ -436,20 +448,20 @@ ps = initialize_parameter_set(Float64, input_data)
 
     @testset "ExWater" begin
         @testset "ExWater vector (N=1)" begin
-            exwater = initialize_exwater(FT, 1, ps.soil)
+            exwater = initialize_exwater(FT, 1, soil_values)
 
             @test exwater isa ExWater{FT,1}
 
-            @test size(exwater.ExWaterRoofVeg_H) == (ps.soil.roof.ms,)
-            @test size(exwater.ExWaterRoofVeg_L) == (ps.soil.roof.ms,)
-            @test size(exwater.ExWaterGroundImp_H) == (ps.soil.ground.ms,)
-            @test size(exwater.ExWaterGroundImp_L) == (ps.soil.ground.ms,)
-            @test size(exwater.ExWaterGroundBare_H) == (ps.soil.ground.ms,)
-            @test size(exwater.ExWaterGroundBare_L) == (ps.soil.ground.ms,)
-            @test size(exwater.ExWaterGroundVeg_H) == (ps.soil.ground.ms,)
-            @test size(exwater.ExWaterGroundVeg_L) == (ps.soil.ground.ms,)
-            @test size(exwater.ExWaterGroundTot_H) == (ps.soil.ground.ms,)
-            @test size(exwater.ExWaterGroundTot_L) == (ps.soil.ground.ms,)
+            @test size(exwater.ExWaterRoofVeg_H) == (soil_values.roof.ms,)
+            @test size(exwater.ExWaterRoofVeg_L) == (soil_values.roof.ms,)
+            @test size(exwater.ExWaterGroundImp_H) == (soil_values.ground.ms,)
+            @test size(exwater.ExWaterGroundImp_L) == (soil_values.ground.ms,)
+            @test size(exwater.ExWaterGroundBare_H) == (soil_values.ground.ms,)
+            @test size(exwater.ExWaterGroundBare_L) == (soil_values.ground.ms,)
+            @test size(exwater.ExWaterGroundVeg_H) == (soil_values.ground.ms,)
+            @test size(exwater.ExWaterGroundVeg_L) == (soil_values.ground.ms,)
+            @test size(exwater.ExWaterGroundTot_H) == (soil_values.ground.ms,)
+            @test size(exwater.ExWaterGroundTot_L) == (soil_values.ground.ms,)
 
             # Test all fields are accessible, have correct dimensions and initialized to zero
             for field in fieldnames(ExWater)
@@ -460,21 +472,21 @@ ps = initialize_parameter_set(Float64, input_data)
 
         @testset "ExWater matrix (N=2)" begin
             hours = 24
-            exwater = initialize_exwater(FT, 2, ps.soil, hours)
+            exwater = initialize_exwater(FT, 2, soil_values, hours)
 
             # Test structure
             @test exwater isa ExWater{FT,2}
 
-            @test size(exwater.ExWaterRoofVeg_H) == (hours, ps.soil.roof.ms)
-            @test size(exwater.ExWaterRoofVeg_L) == (hours, ps.soil.roof.ms)
-            @test size(exwater.ExWaterGroundImp_H) == (hours, ps.soil.ground.ms)
-            @test size(exwater.ExWaterGroundImp_L) == (hours, ps.soil.ground.ms)
-            @test size(exwater.ExWaterGroundBare_H) == (hours, ps.soil.ground.ms)
-            @test size(exwater.ExWaterGroundBare_L) == (hours, ps.soil.ground.ms)
-            @test size(exwater.ExWaterGroundVeg_H) == (hours, ps.soil.ground.ms)
-            @test size(exwater.ExWaterGroundVeg_L) == (hours, ps.soil.ground.ms)
-            @test size(exwater.ExWaterGroundTot_H) == (hours, ps.soil.ground.ms)
-            @test size(exwater.ExWaterGroundTot_L) == (hours, ps.soil.ground.ms)
+            @test size(exwater.ExWaterRoofVeg_H) == (hours, soil_values.roof.ms)
+            @test size(exwater.ExWaterRoofVeg_L) == (hours, soil_values.roof.ms)
+            @test size(exwater.ExWaterGroundImp_H) == (hours, soil_values.ground.ms)
+            @test size(exwater.ExWaterGroundImp_L) == (hours, soil_values.ground.ms)
+            @test size(exwater.ExWaterGroundBare_H) == (hours, soil_values.ground.ms)
+            @test size(exwater.ExWaterGroundBare_L) == (hours, soil_values.ground.ms)
+            @test size(exwater.ExWaterGroundVeg_H) == (hours, soil_values.ground.ms)
+            @test size(exwater.ExWaterGroundVeg_L) == (hours, soil_values.ground.ms)
+            @test size(exwater.ExWaterGroundTot_H) == (hours, soil_values.ground.ms)
+            @test size(exwater.ExWaterGroundTot_L) == (hours, soil_values.ground.ms)
 
             # Test all fields are accessible
             for field in fieldnames(ExWater)
@@ -553,7 +565,9 @@ end
 
 @testset "WaterFluxVariables" begin
     @testset "WaterFluxVariables 'scalar' (N=0)" begin
-        water_flux_vars = initialize_water_flux_variables(FT, 0, ps.soil)
+        water_flux_vars = initialize_water_flux_variables(
+            FT, 0, ps.soil, ps.vegetation, 300.0
+        )
 
         # Test structure
         @test water_flux_vars isa WaterFluxVariables{FT,0,1}
@@ -582,7 +596,7 @@ end
         hours = 24
         initial_value = 300.0
         water_flux_vars = initialize_water_flux_variables(
-            FT, 1, ps.soil, initial_value, hours
+            FT, 1, ps.soil, ps.vegetation, initial_value, hours
         )
 
         # Test structure
