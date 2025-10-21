@@ -20,6 +20,18 @@ end
     include("HumidityVariables.jl")
 end
 
+@safetestset "RadiationFluxVariables" begin
+    include("RadiationFluxVariables.jl")
+end
+
 @safetestset "TemperatureVariables" begin
     include("TemperatureVariables.jl")
+end
+
+@safetestset "WaterFluxVariables" begin
+    include("WaterFluxVariables.jl")
+end
+
+@safetestset "ModelVariableSet" begin
+    include("ModelVariableSet.jl")
 end
