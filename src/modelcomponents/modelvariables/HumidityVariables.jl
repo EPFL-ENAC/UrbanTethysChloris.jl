@@ -1,8 +1,11 @@
-abstract type AbstractHumidityVariables{FT<:AbstractFloat,N} <: AbstractModelVariables{FT} end
-abstract type AbstractHumidity{FT<:AbstractFloat} <: AbstractModelVariables{FT} end
-abstract type AbstractResults2m{FT<:AbstractFloat} <: AbstractModelVariables{FT} end
-# TODO: restructure into subcomponents, AbstractHumidity and AbstractResults2m should be
-# subtypes of something else than AbstractModelVariables, to allow efficient dispatch.
+abstract type AbstractHumidityVariables{FT<:AbstractFloat,N} <: AbstractModelVariableSet{FT} end
+
+abstract type AbstractHumidityVariablesSubset{FT<:AbstractFloat,N} <:
+              AbstractModelVariables{FT} end
+
+abstract type AbstractHumidity{FT<:AbstractFloat,N} <: AbstractHumidityVariablesSubset{FT,N} end
+abstract type AbstractResults2m{FT<:AbstractFloat,N} <:
+              AbstractHumidityVariablesSubset{FT,N} end
 
 """
     Humidity{FT<:AbstractFloat, N} <: AbstractHumidity{FT}
@@ -23,7 +26,7 @@ Canyon and atmospheric humidity variables.
 - `AtmSpecificSat`: Specific humidity at saturation at atmospheric forcing height [kg/kg]
 - `AtmVapourPreSat`: Saturation vapour pressure at atmospheric forcing height [Pa]
 """
-Base.@kwdef struct Humidity{FT<:AbstractFloat,N} <: AbstractHumidity{FT}
+Base.@kwdef struct Humidity{FT<:AbstractFloat,N} <: AbstractHumidity{FT,N}
     # Canyon and Atmospheric Humidity Fields
     CanyonRelative::Array{FT,N}
     CanyonSpecific::Array{FT,N}
@@ -40,7 +43,7 @@ Base.@kwdef struct Humidity{FT<:AbstractFloat,N} <: AbstractHumidity{FT}
 end
 
 """
-    Results2m{FT<:AbstractFloat, N} <: AbstractHumidityVariables{FT}
+    Results2m{FT<:AbstractFloat, N} <: AbstractResults2m{FT,N}
 
 Temperature and humidity results at 2-meter canyon height.
 
@@ -53,7 +56,7 @@ Temperature and humidity results at 2-meter canyon height.
 - `e_Tcan`: Canyon vapor pressure [Pa]
 - `RH_Tcan`: Canyon relative humidity [-]
 """
-Base.@kwdef struct Results2m{FT<:AbstractFloat,N} <: AbstractResults2m{FT}
+Base.@kwdef struct Results2m{FT<:AbstractFloat,N} <: AbstractResults2m{FT,N}
     # 2-meter Height Results
     T2m::Array{FT,N}
     q2m::Array{FT,N}
@@ -66,11 +69,7 @@ end
 
 function Base.getproperty(
     obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:Results2m{FT,0}}
-    return getfield(obj, field)[]
-end
-
-function Base.getproperty(obj::T, field::Symbol) where {FT<:AbstractFloat,T<:Humidity{FT,0}}
+) where {FT<:AbstractFloat,T<:AbstractHumidityVariablesSubset{FT,0}}
     return getfield(obj, field)[]
 end
 
