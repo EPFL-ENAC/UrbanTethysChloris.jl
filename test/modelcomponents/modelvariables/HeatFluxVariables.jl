@@ -11,13 +11,15 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
     Results2mEnergyFlux,
     initialize_results2m_energy_flux,
     HeatFluxVariables,
-    initialize_heat_flux_variables
+    initialize_heat_flux_variables,
+    TimeSlice,
+    TimeSeries
 
 FT = Float64
 
 @testset "Subsets" begin
     @testset "Hflux scalar (N=0)" begin
-        hflux = initialize_hflux(FT, 0)
+        hflux = initialize_hflux(FT, TimeSlice())
 
         # Test structure
         @test hflux isa Hflux{FT,0}
@@ -35,7 +37,7 @@ FT = Float64
 
     @testset "Hflux vector (N=1)" begin
         hours = 24
-        hflux = initialize_hflux(FT, 1, hours)
+        hflux = initialize_hflux(FT, TimeSeries(), hours)
 
         @test hflux isa Hflux{FT,1}
 
@@ -48,7 +50,7 @@ FT = Float64
     end
 
     @testset "LEflux scalar (N=0)" begin
-        leflux = initialize_leflux(FT, 0)
+        leflux = initialize_leflux(FT, TimeSlice())
 
         # Test structure
         @test leflux isa LEflux{FT,0}
@@ -66,7 +68,7 @@ FT = Float64
 
     @testset "LEflux vector (N=1)" begin
         hours = 24
-        leflux = initialize_leflux(FT, 1, hours)
+        leflux = initialize_leflux(FT, TimeSeries(), hours)
 
         @test leflux isa LEflux{FT,1}
 
@@ -79,7 +81,7 @@ FT = Float64
     end
 
     @testset "Gflux scalar (N=0)" begin
-        gflux = initialize_gflux(FT, 0)
+        gflux = initialize_gflux(FT, TimeSlice())
 
         # Test structure
         @test gflux isa Gflux{FT,0}
@@ -97,7 +99,7 @@ FT = Float64
 
     @testset "Gflux vector (N=1)" begin
         hours = 24
-        gflux = initialize_gflux(FT, 1, hours)
+        gflux = initialize_gflux(FT, TimeSeries(), hours)
 
         @test gflux isa Gflux{FT,1}
 
@@ -110,7 +112,7 @@ FT = Float64
     end
 
     @testset "dStorage scalar (N=0)" begin
-        dstorage = initialize_dstorage(FT, 0)
+        dstorage = initialize_dstorage(FT, TimeSlice())
 
         # Test structure
         @test dstorage isa dStorage{FT,0}
@@ -128,7 +130,7 @@ FT = Float64
 
     @testset "dStorage vector (N=1)" begin
         hours = 24
-        dstorage = initialize_dstorage(FT, 1, hours)
+        dstorage = initialize_dstorage(FT, TimeSeries(), hours)
 
         @test dstorage isa dStorage{FT,1}
 
@@ -141,7 +143,7 @@ FT = Float64
     end
 
     @testset "Results2mEnergyFlux scalar (N=0)" begin
-        results2m_energy_flux = initialize_results2m_energy_flux(FT, 0)
+        results2m_energy_flux = initialize_results2m_energy_flux(FT, TimeSlice())
 
         # Test structure
         @test results2m_energy_flux isa Results2mEnergyFlux{FT,0}
@@ -159,7 +161,7 @@ FT = Float64
 
     @testset "Results2mEnergyFlux vector (N=1)" begin
         hours = 24
-        results2m_energy_flux = initialize_results2m_energy_flux(FT, 1, hours)
+        results2m_energy_flux = initialize_results2m_energy_flux(FT, TimeSeries(), hours)
 
         @test results2m_energy_flux isa Results2mEnergyFlux{FT,1}
 
@@ -173,7 +175,7 @@ FT = Float64
 end
 
 @testset "HeatFluxVariables scalar (N=0)" begin
-    heat_flux_vars = initialize_heat_flux_variables(FT, 0)
+    heat_flux_vars = initialize_heat_flux_variables(FT, TimeSlice())
 
     # Test structure
     @test heat_flux_vars isa HeatFluxVariables{FT,0}
@@ -195,7 +197,7 @@ end
 
 @testset "HeatFluxVariables vector (N=1)" begin
     hours = 24
-    heat_flux_vars = initialize_heat_flux_variables(FT, 1, hours)
+    heat_flux_vars = initialize_heat_flux_variables(FT, TimeSeries(), hours)
 
     # Test structure
     @test heat_flux_vars isa HeatFluxVariables{FT,1}

@@ -13,6 +13,12 @@ abstract type AbstractDefaultRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <
 abstract type AbstractAlbedoOutput{FT<:AbstractFloat,N} <:
               AbstractRadiationFluxVariablesSubset{FT,N} end
 
+function Base.getproperty(
+    obj::T, field::Symbol
+) where {FT<:AbstractFloat,T<:AbstractRadiationFluxVariablesSubset{FT,0}}
+    return getfield(obj, field)[]
+end
+
 """
     AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat, N} <: AbstractAbsorbedRadiationFluxVariablesSubset{FT,N}
 
@@ -56,6 +62,29 @@ Base.@kwdef struct AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
     WallShadeTransmitted::Array{FT,N}
 end
 
+function initialize_absorbed_radiation_flux_variables(
+    ::Type{FT}, ::TimeSlice
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        AbsorbedRadiationFluxVariablesSubset,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSlice())),
+    )
+end
+
+function initialize_absorbed_radiation_flux_variables(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        AbsorbedRadiationFluxVariablesSubset,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+    )
+end
+
 """
     DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat, N} <: AbstractDefaultRadiationFluxVariablesSubset{FT,N}
 
@@ -91,6 +120,29 @@ Base.@kwdef struct DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
     TotalUrban::Array{FT,N}
 end
 
+function initialize_default_radiation_flux_variables(
+    ::Type{FT}, ::TimeSlice
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        DefaultRadiationFluxVariablesSubset,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSlice())),
+    )
+end
+
+function initialize_default_radiation_flux_variables(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        DefaultRadiationFluxVariablesSubset,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+    )
+end
+
 """
     AlbedoOutput{FT<:AbstractFloat, N} <: AbstractAlbedoOutput{FT,N}
 
@@ -105,6 +157,20 @@ Base.@kwdef struct AlbedoOutput{FT<:AbstractFloat,N} <: AbstractAlbedoOutput{FT,
     TotalUrban::Array{FT,N}
     TotalCanyon::Array{FT,N}
     Roof::Array{FT,N}
+end
+
+function initialize_albedo_output(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, AlbedoOutput, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
+function initialize_albedo_output(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT, AlbedoOutput, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -136,44 +202,58 @@ Base.@kwdef struct RadiationFluxVariables{FT<:AbstractFloat,N} <:
     AlbedoOutput::AlbedoOutput{FT,N}
 end
 
-# Base getproperty methods for scalar access
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractRadiationFluxVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
-# Initialization functions for individual components
-function initialize_absorbed_radiation_flux_variables(
-    ::Type{FT}, N::Int, hours::Int=1
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, AbsorbedRadiationFluxVariablesSubset, Dict{String,Any}(), (FT, N), hours
-    )
-end
-
-function initialize_default_radiation_flux_variables(
-    ::Type{FT}, N::Int, hours::Int=1
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, DefaultRadiationFluxVariablesSubset, Dict{String,Any}(), (FT, N), hours
-    )
-end
-
-function initialize_albedo_output(
-    ::Type{FT}, N::Int, hours::Int=1
-) where {FT<:AbstractFloat}
-    return initialize(FT, AlbedoOutput, Dict{String,Any}(), (FT, N), hours)
-end
-
-# Main initialization function for RadiationFluxVariables
 function initialize_radiation_flux_variables(
-    ::Type{FT}, N::Int, hours::Int=1
+    ::Type{FT}, ::TimeSlice
 ) where {FT<:AbstractFloat}
-    return initialize(FT, RadiationFluxVariables, Dict{String,Any}(), (FT, N), hours)
+    return initialize(
+        FT, RadiationFluxVariables, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
 end
 
-# Main preprocess_fields method for RadiationFluxVariables
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{RadiationFluxVariables}, data::Dict{String,Any}, params::Tuple
+) where {FT<:AbstractFloat}
+    processed = Dict{String,Any}()
+    processed["SWRabs"] = initialize_absorbed_radiation_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["SWRin"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["SWRout"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["SWREB"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["LWRabs"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["LWRin"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["LWRout"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["LWREB"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["AlbedoOutput"] = initialize_albedo_output(FT, dimensionality_type(params[2]))
+    return processed
+end
+
+function initialize_radiation_flux_variables(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        RadiationFluxVariables,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+    )
+end
+
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT},
     ::Type{RadiationFluxVariables},
@@ -182,17 +262,32 @@ function TethysChlorisCore.preprocess_fields(
     hours::Int,
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-
-    # Initialize each component
-    processed["SWRabs"] = initialize_absorbed_radiation_flux_variables(FT, params[2], hours)
-    processed["SWRin"] = initialize_default_radiation_flux_variables(FT, params[2], hours)
-    processed["SWRout"] = initialize_default_radiation_flux_variables(FT, params[2], hours)
-    processed["SWREB"] = initialize_default_radiation_flux_variables(FT, params[2], hours)
-    processed["LWRabs"] = initialize_default_radiation_flux_variables(FT, params[2], hours)
-    processed["LWRin"] = initialize_default_radiation_flux_variables(FT, params[2], hours)
-    processed["LWRout"] = initialize_default_radiation_flux_variables(FT, params[2], hours)
-    processed["LWREB"] = initialize_default_radiation_flux_variables(FT, params[2], hours)
-    processed["AlbedoOutput"] = initialize_albedo_output(FT, params[2], hours)
-
+    processed["SWRabs"] = initialize_absorbed_radiation_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["SWRin"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["SWRout"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["SWREB"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["LWRabs"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["LWRin"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["LWRout"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["LWREB"] = initialize_default_radiation_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["AlbedoOutput"] = initialize_albedo_output(
+        FT, dimensionality_type(params[2]), hours
+    )
     return processed
 end

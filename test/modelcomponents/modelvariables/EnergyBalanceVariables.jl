@@ -11,13 +11,15 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
     SolverVariables,
     initialize_solver_variables,
     EnergyBalanceVariables,
-    initialize_energy_balance_variables
+    initialize_energy_balance_variables,
+    TimeSlice,
+    TimeSeries
 
 FT = Float64
 
 @testset "Subsets" begin
     @testset "WBRoof scalar (N=0)" begin
-        wbroof = initialize_wbroof(FT, 0)
+        wbroof = initialize_wbroof(FT, TimeSlice())
 
         # Test structure
         @test wbroof isa WBRoof{FT,0}
@@ -35,7 +37,7 @@ FT = Float64
 
     @testset "WBRoof vector (N=1)" begin
         hours = 24
-        wbroof = initialize_wbroof(FT, 1, hours)
+        wbroof = initialize_wbroof(FT, TimeSeries(), hours)
 
         @test wbroof isa WBRoof{FT,1}
 
@@ -48,7 +50,7 @@ FT = Float64
     end
 
     @testset "WBCanyonIndv scalar (N=0)" begin
-        wbcanyon_indv = initialize_wbcanyon_indv(FT, 0)
+        wbcanyon_indv = initialize_wbcanyon_indv(FT, TimeSlice())
 
         # Test structure
         @test wbcanyon_indv isa WBCanyonIndv{FT,0}
@@ -66,7 +68,7 @@ FT = Float64
 
     @testset "WBCanyonIndv vector (N=1)" begin
         hours = 24
-        wbcanyon_indv = initialize_wbcanyon_indv(FT, 1, hours)
+        wbcanyon_indv = initialize_wbcanyon_indv(FT, TimeSeries(), hours)
 
         @test wbcanyon_indv isa WBCanyonIndv{FT,1}
 
@@ -79,7 +81,7 @@ FT = Float64
     end
 
     @testset "WBCanyonTot scalar (N=0)" begin
-        wbcanyon_tot = initialize_wbcanyon_tot(FT, 0)
+        wbcanyon_tot = initialize_wbcanyon_tot(FT, TimeSlice())
 
         # Test structure
         @test wbcanyon_tot isa WBCanyonTot{FT,0}
@@ -97,7 +99,7 @@ FT = Float64
 
     @testset "WBCanyonTot vector (N=1)" begin
         hours = 24
-        wbcanyon_tot = initialize_wbcanyon_tot(FT, 1, hours)
+        wbcanyon_tot = initialize_wbcanyon_tot(FT, TimeSeries(), hours)
 
         @test wbcanyon_tot isa WBCanyonTot{FT,1}
 
@@ -110,7 +112,7 @@ FT = Float64
     end
 
     @testset "EB scalar (N=0)" begin
-        eb = initialize_eb(FT, 0)
+        eb = initialize_eb(FT, TimeSlice())
 
         # Test structure
         @test eb isa EB{FT,0}
@@ -128,7 +130,7 @@ FT = Float64
 
     @testset "EB vector (N=1)" begin
         hours = 24
-        eb = initialize_eb(FT, 1, hours)
+        eb = initialize_eb(FT, TimeSeries(), hours)
 
         @test eb isa EB{FT,1}
 
@@ -141,7 +143,7 @@ FT = Float64
     end
 
     @testset "Solver vector (N=0)" begin
-        sv = initialize_solver_variables(FT, 0)
+        sv = initialize_solver_variables(FT, TimeSlice())
 
         # Test structure
         @test sv isa SolverVariables{FT,0,1}
@@ -160,7 +162,7 @@ FT = Float64
 
     @testset "Solver matrix (N=1)" begin
         hours = 24
-        sv = initialize_solver_variables(FT, 1, hours)
+        sv = initialize_solver_variables(FT, TimeSeries(), hours)
 
         @test sv isa SolverVariables{FT,1,2}
 
@@ -177,7 +179,7 @@ FT = Float64
 end
 
 @testset "EnergyBalanceVariables scalar (N=0)" begin
-    energy_balance_vars = initialize_energy_balance_variables(FT, 0)
+    energy_balance_vars = initialize_energy_balance_variables(FT, TimeSlice())
 
     # Test structure
     @test energy_balance_vars isa EnergyBalanceVariables{FT,0}
@@ -199,7 +201,7 @@ end
 
 @testset "EnergyBalanceVariables vector (N=1)" begin
     hours = 24
-    energy_balance_vars = initialize_energy_balance_variables(FT, 1, hours)
+    energy_balance_vars = initialize_energy_balance_variables(FT, TimeSeries(), hours)
 
     # Test structure
     @test energy_balance_vars isa EnergyBalanceVariables{FT,1,2}

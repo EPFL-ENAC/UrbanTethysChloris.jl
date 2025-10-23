@@ -12,6 +12,12 @@ abstract type AbstractdStorage{FT<:AbstractFloat,N} <: AbstractHeatFluxVariables
 abstract type AbstractResults2mEnergyFlux{FT<:AbstractFloat,N} <:
               AbstractHeatFluxVariablesSubset{FT,N} end
 
+function Base.getproperty(
+    obj::T, field::Symbol
+) where {FT<:AbstractFloat,T<:AbstractHeatFluxVariablesSubset{FT,0}}
+    return getfield(obj, field)[]
+end
+
 """
     Hflux{FT<:AbstractFloat, N} <: AbstractHflux{FT,N}
 
@@ -46,6 +52,16 @@ Base.@kwdef struct Hflux{FT<:AbstractFloat,N} <: AbstractHflux{FT,N}
     HfluxCanyon::Array{FT,N}
     HfluxUrban::Array{FT,N}
     dS_H_air::Array{FT,N}
+end
+
+function initialize_hflux(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, Hflux, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_hflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Hflux, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -108,6 +124,16 @@ Base.@kwdef struct LEflux{FT<:AbstractFloat,N} <: AbstractLEflux{FT,N}
     dS_LE_air::Array{FT,N}
 end
 
+function initialize_leflux(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, LEflux, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_leflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, LEflux, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
+end
+
 """
     Gflux{FT<:AbstractFloat, N} <: AbstractGflux{FT,N}
 
@@ -156,6 +182,16 @@ Base.@kwdef struct Gflux{FT<:AbstractFloat,N} <: AbstractGflux{FT,N}
     G2Urban::Array{FT,N}
 end
 
+function initialize_gflux(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, Gflux, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_gflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Gflux, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
+end
+
 """
     dStorage{FT<:AbstractFloat, N} <: AbstractdStorage{FT,N}
 
@@ -184,6 +220,16 @@ Base.@kwdef struct dStorage{FT<:AbstractFloat,N} <: AbstractdStorage{FT,N}
     dsWallSun::Array{FT,N}
     dsWallShade::Array{FT,N}
     dsCanyonAir::Array{FT,N}
+end
+
+function initialize_dstorage(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, dStorage, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_dstorage(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, dStorage, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -225,6 +271,24 @@ Base.@kwdef struct Results2mEnergyFlux{FT<:AbstractFloat,N} <:
     Ecan_2m::Array{FT,N}
 end
 
+function initialize_results2m_energy_flux(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Results2mEnergyFlux, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
+function initialize_results2m_energy_flux(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        Results2mEnergyFlux,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+    )
+end
+
 """
     HeatFluxVariables{FT<:AbstractFloat, N} <: AbstractHeatFluxVariables{FT}
 
@@ -245,57 +309,48 @@ Base.@kwdef struct HeatFluxVariables{FT<:AbstractFloat,N} <: AbstractHeatFluxVar
     Results2mEnergyFlux::Results2mEnergyFlux{FT,N}
 end
 
-# Base getproperty methods for scalar access
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractHeatFluxVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
+function initialize_heat_flux_variables(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, HeatFluxVariables, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
 end
 
-# Initialization functions for individual components
-function initialize_hflux(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Hflux, Dict{String,Any}(), (FT, N), hours)
-end
-
-function initialize_leflux(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, LEflux, Dict{String,Any}(), (FT, N), hours)
-end
-
-function initialize_gflux(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Gflux, Dict{String,Any}(), (FT, N), hours)
-end
-
-function initialize_dstorage(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, dStorage, Dict{String,Any}(), (FT, N), hours)
-end
-
-function initialize_results2m_energy_flux(
-    ::Type{FT}, N::Int, hours::Int=1
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{HeatFluxVariables}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
-    return initialize(FT, Results2mEnergyFlux, Dict{String,Any}(), (FT, N), hours)
+    processed = Dict{String,Any}()
+    processed["Hflux"] = initialize_hflux(FT, dimensionality_type(params[2]))
+    processed["LEflux"] = initialize_leflux(FT, dimensionality_type(params[2]))
+    processed["Gflux"] = initialize_gflux(FT, dimensionality_type(params[2]))
+    processed["dStorage"] = initialize_dstorage(FT, dimensionality_type(params[2]))
+    processed["Results2mEnergyFlux"] = initialize_results2m_energy_flux(
+        FT, dimensionality_type(params[2])
+    )
+    return processed
 end
 
-# Main initialization function for HeatFluxVariables
 function initialize_heat_flux_variables(
-    ::Type{FT}, N::Int, hours::Int=1
+    ::Type{FT}, ::TimeSeries, hours::Int
 ) where {FT<:AbstractFloat}
-    return initialize(FT, HeatFluxVariables, Dict{String,Any}(), (FT, N), hours)
+    return initialize(
+        FT,
+        HeatFluxVariables,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+    )
 end
 
-# Main preprocess_fields method for HeatFluxVariables
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{HeatFluxVariables}, data::Dict{String,Any}, params::Tuple, hours::Int
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-
-    # Initialize each component
-    processed["Hflux"] = initialize_hflux(FT, params[2], hours)
-    processed["LEflux"] = initialize_leflux(FT, params[2], hours)
-    processed["Gflux"] = initialize_gflux(FT, params[2], hours)
-    processed["dStorage"] = initialize_dstorage(FT, params[2], hours)
+    processed["Hflux"] = initialize_hflux(FT, dimensionality_type(params[2]), hours)
+    processed["LEflux"] = initialize_leflux(FT, dimensionality_type(params[2]), hours)
+    processed["Gflux"] = initialize_gflux(FT, dimensionality_type(params[2]), hours)
+    processed["dStorage"] = initialize_dstorage(FT, dimensionality_type(params[2]), hours)
     processed["Results2mEnergyFlux"] = initialize_results2m_energy_flux(
-        FT, params[2], hours
+        FT, dimensionality_type(params[2]), hours
     )
-
     return processed
 end

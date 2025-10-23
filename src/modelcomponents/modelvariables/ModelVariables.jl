@@ -14,12 +14,33 @@ abstract type AbstractModelVariables{FT<:AbstractFloat} <:
 
 abstract type AbstractModelVariableSet{FT<:AbstractFloat} <: AbstractModelComponentSet{FT} end
 
+abstract type ModelDimension end
+struct TimeSlice <: ModelDimension end
+struct TimeSeries <: ModelDimension end
+dimension_value(::TimeSlice) = 0
+dimension_value(::TimeSeries) = 1
+dimensionality_type(dim_value::Int) = dim_value == 0 ? TimeSlice() : TimeSeries()
+
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
+    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat,T<:AbstractModelVariables}
     processed = Dict{String,Any}()
 
-    dimensions = get_dimensions(T, data, params, hours)
+    vars = String.(fieldnames(T))
+
+    for var in vars
+        processed[var] = zeros(FT, ())
+    end
+
+    return processed
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, args...
+) where {FT<:AbstractFloat,T<:AbstractModelVariables}
+    processed = Dict{String,Any}()
+
+    dimensions = get_dimensions(T, data, params, args...)
 
     for (var, dims) in dimensions
         processed[var] = zeros(FT, dims)
@@ -36,6 +57,25 @@ end
 
 """
     get_dimensions(
+        ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType, Signed},
+    ) where {T<:AbstractModelVariables}
+
+Get the dimensions of each field in the model variables struct `T` based on the parameters and hours.
+"""
+function get_dimensions(
+    ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType,Signed}
+) where {T<:AbstractModelVariables}
+    dimensions = Dict{String,Tuple}()
+
+    for field in fieldnames(T)
+        dimensions[String(field)] = ()
+    end
+
+    return dimensions
+end
+
+"""
+    get_dimensions(
         ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType, Signed}, hours::Int
     ) where {T<:AbstractModelVariables}
 
@@ -44,26 +84,10 @@ Get the dimensions of each field in the model variables struct `T` based on the 
 function get_dimensions(
     ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType,Signed}, hours::Int
 ) where {T<:AbstractModelVariables}
-    if params[2] ∉ [0, 1]
-        throw(ArgumentError("Only N=0 and N=1 are currently supported"))
-    end
-
-    # Create a dictionary with all field names and their dimensions
     dimensions = Dict{String,Tuple}()
 
-    # Get all field names from the struct
-    field_names = fieldnames(T)
-
-    if params[2] == 0
-        # For scalar case (N=0), all fields are scalars
-        for field in field_names
-            dimensions[String(field)] = ()
-        end
-    else
-        # For time series case (N=1), all fields have hours dimension
-        for field in field_names
-            dimensions[String(field)] = (hours,)
-        end
+    for field in fieldnames(T)
+        dimensions[String(field)] = (hours,)
     end
 
     return dimensions

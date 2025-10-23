@@ -10,7 +10,9 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
     initialize_mrt,
     initialize_thermal_comfort,
     TemperatureVariables,
-    initialize_temperature_variables
+    initialize_temperature_variables,
+    TimeSlice,
+    TimeSeries
 
 FT = Float64
 
@@ -18,7 +20,7 @@ hours = 24
 
 @testset "TempVec" begin
     @testset "N = 0" begin
-        tempvec = initialize_tempvec(FT, 0)
+        tempvec = initialize_tempvec(FT, TimeSlice())
         @test tempvec isa TempVec{FT,0}
 
         for field in fieldnames(TempVec)
@@ -28,7 +30,7 @@ hours = 24
     end
 
     @testset "N = 1" begin
-        tempvec = initialize_tempvec(FT, 1, hours)
+        tempvec = initialize_tempvec(FT, TimeSeries(), hours)
         @test tempvec isa TempVec{FT,1}
 
         for field in fieldnames(TempVec)
@@ -41,7 +43,7 @@ end
 
 @testset "TempDamp" begin
     @testset "N = 0" begin
-        tempdamp = initialize_tempdamp(FT, 0)
+        tempdamp = initialize_tempdamp(FT, TimeSlice())
         @test tempdamp isa TempDamp{FT,0}
 
         for field in fieldnames(TempDamp)
@@ -51,7 +53,7 @@ end
     end
 
     @testset "N = 1" begin
-        tempdamp = initialize_tempdamp(FT, 1, hours)
+        tempdamp = initialize_tempdamp(FT, TimeSeries(), hours)
         @test tempdamp isa TempDamp{FT,1}
 
         for field in fieldnames(TempDamp)
@@ -64,7 +66,7 @@ end
 
 @testset "MRT" begin
     @testset "N = 0" begin
-        mrt = initialize_mrt(FT, 0)
+        mrt = initialize_mrt(FT, TimeSlice())
         @test mrt isa MRT{FT,0}
 
         for field in fieldnames(MRT)
@@ -74,7 +76,7 @@ end
     end
 
     @testset "N = 1" begin
-        mrt = initialize_mrt(FT, 1, hours)
+        mrt = initialize_mrt(FT, TimeSeries(), hours)
         @test mrt isa MRT{FT,1}
 
         for field in fieldnames(MRT)
@@ -87,7 +89,7 @@ end
 
 @testset "ThermalComfort" begin
     @testset "N = 0" begin
-        tc = initialize_thermal_comfort(FT, 0)
+        tc = initialize_thermal_comfort(FT, TimeSlice())
         @test tc isa ThermalComfort{FT,0}
 
         for field in fieldnames(ThermalComfort)
@@ -97,7 +99,7 @@ end
     end
 
     @testset "N = 1" begin
-        tc = initialize_thermal_comfort(FT, 1, hours)
+        tc = initialize_thermal_comfort(FT, TimeSeries(), hours)
         @test tc isa ThermalComfort{FT,1}
 
         for field in fieldnames(ThermalComfort)
@@ -109,7 +111,7 @@ end
 end
 
 @testset "TemperatureVariables scalar (N=0)" begin
-    temp_vars = initialize_temperature_variables(FT, 0)
+    temp_vars = initialize_temperature_variables(FT, TimeSlice())
 
     # Test structure
     @test temp_vars isa TemperatureVariables{FT,0}
@@ -128,7 +130,7 @@ end
 @testset "TemperatureVariables vector (N=1)" begin
     hours = 24
 
-    temp_vars = initialize_temperature_variables(FT, 1, hours)
+    temp_vars = initialize_temperature_variables(FT, TimeSeries(), hours)
 
     # Test structure
     @test temp_vars isa TemperatureVariables{FT,1}

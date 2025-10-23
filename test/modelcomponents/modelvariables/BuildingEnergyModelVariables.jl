@@ -21,25 +21,23 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
     ParACHeat_ts,
     initialize_paracheat_ts,
     BuildingEnergyModelVariables,
-    initialize_building_energy_model_variables
+    initialize_building_energy_model_variables,
+    TimeSlice,
+    TimeSeries
 
 FT = Float64
 
 @testset "Subsets" begin
     @testset "TempVecB scalar (N=0)" begin
-        tempvecb = initialize_tempvecb(FT, 0)
+        tempvecb = initialize_tempvecb(FT, TimeSlice())
 
         # Test structure
         @test tempvecb isa TempVecB{FT,0}
 
-        # Test field access for scalar case
-        @test tempvecb.Tceiling === 0.0
-        @test tempvecb.Tinwallsun === 0.0
-        @test tempvecb.Tinground === 0.0
-
         # Test all fields are accessible
         for field in fieldnames(TempVecB)
             @test isa(getproperty(tempvecb, field), FT)
+            @test getproperty(tempvecb, field) == 0.0
         end
     end
 
@@ -48,7 +46,7 @@ FT = Float64
         AtmSpecific = FT(0.01)  # Initial specific humidity
 
         hours = 24
-        tempvecb = initialize_tempvecb(FT, 1, hours, Tatm, AtmSpecific)
+        tempvecb = initialize_tempvecb(FT, TimeSeries(), hours, Tatm, AtmSpecific)
 
         @test tempvecb isa TempVecB{FT,1}
 
@@ -65,7 +63,7 @@ FT = Float64
     end
 
     @testset "HumidityBuilding scalar (N=0)" begin
-        humidityb = initialize_humidity_building(FT, 0)
+        humidityb = initialize_humidity_building(FT, TimeSlice())
 
         # Test structure
         @test humidityb isa HumidityBuilding{FT,0}
@@ -83,7 +81,7 @@ FT = Float64
 
     @testset "HumidityBuilding vector (N=1)" begin
         hours = 24
-        humidityb = initialize_humidity_building(FT, 1, hours)
+        humidityb = initialize_humidity_building(FT, TimeSeries(), hours)
 
         @test humidityb isa HumidityBuilding{FT,1}
 
@@ -96,7 +94,7 @@ FT = Float64
     end
 
     @testset "HbuildInt scalar (N=0)" begin
-        hbuildint = initialize_hbuildint(FT, 0)
+        hbuildint = initialize_hbuildint(FT, TimeSlice())
 
         # Test structure
         @test hbuildint isa HbuildInt{FT,0}
@@ -114,7 +112,7 @@ FT = Float64
 
     @testset "HbuildInt vector (N=1)" begin
         hours = 24
-        hbuildint = initialize_hbuildint(FT, 1, hours)
+        hbuildint = initialize_hbuildint(FT, TimeSeries(), hours)
 
         @test hbuildint isa HbuildInt{FT,1}
 
@@ -127,7 +125,7 @@ FT = Float64
     end
 
     @testset "LEbuildInt scalar (N=0)" begin
-        lebuildint = initialize_lebuildint(FT, 0)
+        lebuildint = initialize_lebuildint(FT, TimeSlice())
 
         # Test structure
         @test lebuildint isa LEbuildInt{FT,0}
@@ -145,7 +143,7 @@ FT = Float64
 
     @testset "LEbuildInt vector (N=1)" begin
         hours = 24
-        lebuildint = initialize_lebuildint(FT, 1, hours)
+        lebuildint = initialize_lebuildint(FT, TimeSeries(), hours)
 
         @test lebuildint isa LEbuildInt{FT,1}
 
@@ -158,7 +156,7 @@ FT = Float64
     end
 
     @testset "GbuildInt scalar (N=0)" begin
-        gbuildint = initialize_gbuildint(FT, 0)
+        gbuildint = initialize_gbuildint(FT, TimeSlice())
 
         # Test structure
         @test gbuildint isa GbuildInt{FT,0}
@@ -176,7 +174,7 @@ FT = Float64
 
     @testset "GbuildInt vector (N=1)" begin
         hours = 24
-        gbuildint = initialize_gbuildint(FT, 1, hours)
+        gbuildint = initialize_gbuildint(FT, TimeSeries(), hours)
 
         @test gbuildint isa GbuildInt{FT,1}
 
@@ -189,7 +187,7 @@ FT = Float64
     end
 
     @testset "SWRabsB scalar (N=0)" begin
-        swrabsb = initialize_swrabsb(FT, 0)
+        swrabsb = initialize_swrabsb(FT, TimeSlice())
 
         # Test structure
         @test swrabsb isa SWRabsB{FT,0}
@@ -207,7 +205,7 @@ FT = Float64
 
     @testset "SWRabsB vector (N=1)" begin
         hours = 24
-        swrabsb = initialize_swrabsb(FT, 1, hours)
+        swrabsb = initialize_swrabsb(FT, TimeSeries(), hours)
 
         @test swrabsb isa SWRabsB{FT,1}
 
@@ -220,7 +218,7 @@ FT = Float64
     end
 
     @testset "LWRabsB scalar (N=0)" begin
-        lwrabsb = initialize_lwrabsb(FT, 0)
+        lwrabsb = initialize_lwrabsb(FT, TimeSlice())
 
         # Test structure
         @test lwrabsb isa LWRabsB{FT,0}
@@ -238,7 +236,7 @@ FT = Float64
 
     @testset "LWRabsB vector (N=1)" begin
         hours = 24
-        lwrabsb = initialize_lwrabsb(FT, 1, hours)
+        lwrabsb = initialize_lwrabsb(FT, TimeSeries(), hours)
 
         @test lwrabsb isa LWRabsB{FT,1}
 
@@ -251,7 +249,7 @@ FT = Float64
     end
 
     @testset "BEMWasteHeat scalar (N=0)" begin
-        bemwasteheat = initialize_bemwasteheat(FT, 0)
+        bemwasteheat = initialize_bemwasteheat(FT, TimeSlice())
 
         # Test structure
         @test bemwasteheat isa BEMWasteHeat{FT,0}
@@ -269,7 +267,7 @@ FT = Float64
 
     @testset "BEMWasteHeat vector (N=1)" begin
         hours = 24
-        bemwasteheat = initialize_bemwasteheat(FT, 1, hours)
+        bemwasteheat = initialize_bemwasteheat(FT, TimeSeries(), hours)
 
         @test bemwasteheat isa BEMWasteHeat{FT,1}
 
@@ -282,7 +280,7 @@ FT = Float64
     end
 
     @testset "BEMEnergyUse scalar (N=0)" begin
-        bemenergyuse = initialize_bemenergyuse(FT, 0)
+        bemenergyuse = initialize_bemenergyuse(FT, TimeSlice())
 
         # Test structure
         @test bemenergyuse isa BEMEnergyUse{FT,0}
@@ -300,7 +298,7 @@ FT = Float64
 
     @testset "BEMEnergyUse vector (N=1)" begin
         hours = 24
-        bemenergyuse = initialize_bemenergyuse(FT, 1, hours)
+        bemenergyuse = initialize_bemenergyuse(FT, TimeSeries(), hours)
 
         @test bemenergyuse isa BEMEnergyUse{FT,1}
 
@@ -313,7 +311,7 @@ FT = Float64
     end
 
     @testset "ParACHeat_ts scalar (N=0)" begin
-        paracheat_ts = initialize_paracheat_ts(FT, 0)
+        paracheat_ts = initialize_paracheat_ts(FT, TimeSlice())
 
         # Test structure
         @test paracheat_ts isa ParACHeat_ts{FT,0}
@@ -331,7 +329,7 @@ FT = Float64
 
     @testset "ParACHeat_ts vector (N=1)" begin
         hours = 24
-        paracheat_ts = initialize_paracheat_ts(FT, 1, hours)
+        paracheat_ts = initialize_paracheat_ts(FT, TimeSeries(), hours)
 
         @test paracheat_ts isa ParACHeat_ts{FT,1}
 
@@ -345,7 +343,7 @@ FT = Float64
 end
 
 @testset "BuildingEnergyModelVariables scalar (N=0)" begin
-    bem_vars = initialize_building_energy_model_variables(FT, 0)
+    bem_vars = initialize_building_energy_model_variables(FT, TimeSlice())
 
     # Test structure
     @test bem_vars isa BuildingEnergyModelVariables{FT,0}
@@ -368,7 +366,9 @@ end
     tatm = FT(300.0)  # Initial temperature
     qatm = FT(0.01)   # Initial humidity
 
-    bem_vars = initialize_building_energy_model_variables(FT, 1, hours, tatm, qatm)
+    bem_vars = initialize_building_energy_model_variables(
+        FT, TimeSeries(), hours, tatm, qatm
+    )
 
     # Test structure
     @test bem_vars isa BuildingEnergyModelVariables{FT,1}

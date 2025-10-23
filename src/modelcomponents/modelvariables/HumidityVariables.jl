@@ -7,6 +7,12 @@ abstract type AbstractHumidity{FT<:AbstractFloat,N} <: AbstractHumidityVariables
 abstract type AbstractResults2m{FT<:AbstractFloat,N} <:
               AbstractHumidityVariablesSubset{FT,N} end
 
+function Base.getproperty(
+    obj::T, field::Symbol
+) where {FT<:AbstractFloat,T<:AbstractHumidityVariablesSubset{FT,0}}
+    return getfield(obj, field)[]
+end
+
 """
     Humidity{FT<:AbstractFloat, N} <: AbstractHumidity{FT}
 
@@ -27,7 +33,6 @@ Canyon and atmospheric humidity variables.
 - `AtmVapourPreSat`: Saturation vapour pressure at atmospheric forcing height [Pa]
 """
 Base.@kwdef struct Humidity{FT<:AbstractFloat,N} <: AbstractHumidity{FT,N}
-    # Canyon and Atmospheric Humidity Fields
     CanyonRelative::Array{FT,N}
     CanyonSpecific::Array{FT,N}
     CanyonVapourPre::Array{FT,N}
@@ -40,6 +45,46 @@ Base.@kwdef struct Humidity{FT<:AbstractFloat,N} <: AbstractHumidity{FT,N}
     AtmRelativeSat::Array{FT,N}
     AtmSpecificSat::Array{FT,N}
     AtmVapourPreSat::Array{FT,N}
+end
+
+function initialize_humidity(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, Humidity, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_humidity(
+    ::Type{FT}, ::TimeSeries, hours::Int, AtmSpecific::FT
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        Humidity,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+        AtmSpecific,
+    )
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT},
+    ::Type{T},
+    data::Dict{String,Any},
+    params::Tuple,
+    hours::Int,
+    AtmSpecific::FT,
+) where {FT<:AbstractFloat,T<:AbstractHumidity}
+    processed = Dict{String,Any}()
+    dimensions = get_dimensions(T, data, params, hours)
+
+    for (var, dims) in dimensions
+        processed[var] = zeros(FT, dims)
+    end
+
+    # Initialize with atmospheric specific humidity if provided
+    if params[2] == 1
+        processed["CanyonSpecific"][1] = AtmSpecific
+    end
+
+    return processed
 end
 
 """
@@ -67,43 +112,16 @@ Base.@kwdef struct Results2m{FT<:AbstractFloat,N} <: AbstractResults2m{FT,N}
     RH_Tcan::Array{FT,N}
 end
 
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractHumidityVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
+function initialize_results2m(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, Results2m, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
 end
 
-function initialize_humidity(
-    ::Type{FT}, N::Int, hours::Int=1, AtmSpecific::FT=0.0
+function initialize_results2m(
+    ::Type{FT}, ::TimeSeries, hours::Int
 ) where {FT<:AbstractFloat}
-    return initialize(FT, Humidity, Dict{String,Any}(), (FT, N), hours, AtmSpecific)
-end
-
-function initialize_results2m(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Results2m, Dict{String,Any}(), (FT, N), hours)
-end
-
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT},
-    ::Type{T},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    AtmSpecific::FT,
-) where {FT<:AbstractFloat,T<:AbstractHumidity}
-    processed = Dict{String,Any}()
-    dimensions = get_dimensions(T, data, params, hours)
-
-    for (var, dims) in dimensions
-        processed[var] = zeros(FT, dims)
-    end
-
-    # Initialize with atmospheric specific humidity if provided
-    if params[2] == 1
-        processed["CanyonSpecific"][1] = AtmSpecific
-    end
-
-    return processed
+    return initialize(
+        FT, Results2m, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -119,11 +137,34 @@ Base.@kwdef struct HumidityVariables{FT<:AbstractFloat,N} <: AbstractHumidityVar
     Results2m::Results2m{FT,N}
 end
 
+function initialize_humidity_variables(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, HumidityVariables, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple
+) where {FT<:AbstractFloat,T<:AbstractHumidityVariables}
+    processed = Dict{String,Any}()
+
+    # Preprocess each component separately
+    processed["Humidity"] = initialize_humidity(FT, dimensionality_type(params[2]))
+    processed["Results2m"] = initialize_results2m(FT, dimensionality_type(params[2]))
+
+    return processed
+end
+
 function initialize_humidity_variables(
-    ::Type{FT}, N::Int, hours::Int=1, AtmSpecific::FT=0.0
+    ::Type{FT}, ::TimeSeries, hours::Int, AtmSpecific::FT
 ) where {FT<:AbstractFloat}
     return initialize(
-        FT, HumidityVariables, Dict{String,Any}(), (FT, N), hours, AtmSpecific
+        FT,
+        HumidityVariables,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+        AtmSpecific,
     )
 end
 
@@ -138,8 +179,10 @@ function TethysChlorisCore.preprocess_fields(
     processed = Dict{String,Any}()
 
     # Preprocess each component separately
-    processed["Humidity"] = initialize_humidity(FT, params[2], hours, AtmSpecific)
-    processed["Results2m"] = initialize_results2m(FT, params[2], hours)
+    processed["Humidity"] = initialize_humidity(
+        FT, dimensionality_type(params[2]), hours, AtmSpecific
+    )
+    processed["Results2m"] = initialize_results2m(FT, dimensionality_type(params[2]), hours)
 
     return processed
 end

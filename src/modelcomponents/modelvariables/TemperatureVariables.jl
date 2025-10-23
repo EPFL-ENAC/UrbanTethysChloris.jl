@@ -51,8 +51,14 @@ Base.@kwdef struct TempVec{FT<:AbstractFloat,N} <: AbstractTempVec{FT,N}
     Tatm::Array{FT,N}
 end
 
-function initialize_tempvec(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, TempVec, Dict{String,Any}(), (FT, N), hours)
+function initialize_tempvec(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, TempVec, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_tempvec(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, TempVec, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -75,8 +81,14 @@ Base.@kwdef struct TempDamp{FT<:AbstractFloat,N} <: AbstractTempDamp{FT,N}
     TDampGroundBuild::Array{FT,N}
 end
 
-function initialize_tempdamp(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, TempDamp, Dict{String,Any}(), (FT, N), hours)
+function initialize_tempdamp(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, TempDamp, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_tempdamp(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, TempDamp, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -111,8 +123,14 @@ Base.@kwdef struct MRT{FT<:AbstractFloat,N} <: AbstractMRT{FT,N}
     LWR_Person::Array{FT,N}
 end
 
-function initialize_mrt(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, MRT, Dict{String,Any}(), (FT, N), hours)
+function initialize_mrt(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, MRT, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_mrt(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, MRT, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -127,10 +145,18 @@ Base.@kwdef struct ThermalComfort{FT<:AbstractFloat,N} <: AbstractThermalComfort
     UTCI::Array{FT,N}
 end
 
+function initialize_thermal_comfort(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, ThermalComfort, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
 function initialize_thermal_comfort(
-    ::Type{FT}, N::Int, hours::Int=1
+    ::Type{FT}, ::TimeSeries, hours::Int
 ) where {FT<:AbstractFloat}
-    return initialize(FT, ThermalComfort, Dict{String,Any}(), (FT, N), hours)
+    return initialize(
+        FT, ThermalComfort, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -146,10 +172,35 @@ Base.@kwdef struct TemperatureVariables{FT<:AbstractFloat,N} <:
     thermalcomfort::AbstractThermalComfort{FT,N}
 end
 
+function initialize_temperature_variables(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, TemperatureVariables, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
 function initialize_temperature_variables(
-    ::Type{FT}, N::Int, hours::Int=1
+    ::Type{FT}, ::TimeSeries, hours::Int
 ) where {FT<:AbstractFloat}
-    return initialize(FT, TemperatureVariables, Dict{String,Any}(), (FT, N), hours)
+    return initialize(
+        FT,
+        TemperatureVariables,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+    )
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{TemperatureVariables}, data::Dict{String,Any}, params::Tuple
+) where {FT<:AbstractFloat}
+    processed = Dict{String,Any}()
+    processed["tempvec"] = initialize_tempvec(FT, dimensionality_type(params[2]))
+    processed["tempdamp"] = initialize_tempdamp(FT, dimensionality_type(params[2]))
+    processed["mrt"] = initialize_mrt(FT, dimensionality_type(params[2]))
+    processed["thermalcomfort"] = initialize_thermal_comfort(
+        FT, dimensionality_type(params[2])
+    )
+    return processed
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -160,12 +211,11 @@ function TethysChlorisCore.preprocess_fields(
     hours::Int,
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-
-    # Initialize each component
-    processed["tempvec"] = initialize_tempvec(FT, params[2], hours)
-    processed["tempdamp"] = initialize_tempdamp(FT, params[2], hours)
-    processed["mrt"] = initialize_mrt(FT, params[2], hours)
-    processed["thermalcomfort"] = initialize_thermal_comfort(FT, params[2], hours)
-
+    processed["tempvec"] = initialize_tempvec(FT, dimensionality_type(params[2]), hours)
+    processed["tempdamp"] = initialize_tempdamp(FT, dimensionality_type(params[2]), hours)
+    processed["mrt"] = initialize_mrt(FT, dimensionality_type(params[2]), hours)
+    processed["thermalcomfort"] = initialize_thermal_comfort(
+        FT, dimensionality_type(params[2]), hours
+    )
     return processed
 end

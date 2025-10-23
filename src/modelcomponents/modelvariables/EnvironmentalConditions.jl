@@ -31,8 +31,14 @@ Base.@kwdef struct Wind{FT<:AbstractFloat,N} <: AbstractWind{FT,N}
     u_ZPerson::Array{FT,N}
 end
 
-function initialize_wind(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Wind, Dict{String,Any}(), (FT, N), hours)
+function initialize_wind(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, Wind, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_wind(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Wind, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -49,10 +55,18 @@ Base.@kwdef struct LAITimeSeries{FT<:AbstractFloat,N} <: AbstractLAITimeSeries{F
     LAI_T::Array{FT,N}
 end
 
+function initialize_lai_time_series(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, LAITimeSeries, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
 function initialize_lai_time_series(
-    ::Type{FT}, N::Int, hours::Int=1
+    ::Type{FT}, ::TimeSeries, hours::Int
 ) where {FT<:AbstractFloat}
-    return initialize(FT, LAITimeSeries, Dict{String,Any}(), (FT, N), hours)
+    return initialize(
+        FT, LAITimeSeries, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -113,8 +127,18 @@ Base.@kwdef struct Resistance{FT<:AbstractFloat,N} <: AbstractResistance{FT,N}
     rap_Zp1::Array{FT,N}
 end
 
-function initialize_resistance(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Resistance, Dict{String,Any}(), (FT, N), hours)
+function initialize_resistance(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Resistance, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
+function initialize_resistance(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Resistance, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -130,9 +154,35 @@ Base.@kwdef struct EnvironmentalConditions{FT<:AbstractFloat,N} <:
 end
 
 function initialize_environmental_conditions(
-    ::Type{FT}, N::Int, hours::Int=1
+    ::Type{FT}, ::TimeSlice
 ) where {FT<:AbstractFloat}
-    return initialize(FT, EnvironmentalConditions, Dict{String,Any}(), (FT, N), hours)
+    return initialize(
+        FT, EnvironmentalConditions, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{EnvironmentalConditions}, data::Dict{String,Any}, params::Tuple
+) where {FT<:AbstractFloat}
+    processed = Dict{String,Any}()
+    processed["wind"] = initialize_wind(FT, dimensionality_type(params[2]))
+    processed["LAI_time_series"] = initialize_lai_time_series(
+        FT, dimensionality_type(params[2])
+    )
+    processed["resistance"] = initialize_resistance(FT, dimensionality_type(params[2]))
+    return processed
+end
+
+function initialize_environmental_conditions(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        EnvironmentalConditions,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+    )
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -143,11 +193,12 @@ function TethysChlorisCore.preprocess_fields(
     hours::Int,
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-
-    # Initialize each component
-    processed["wind"] = initialize_wind(FT, params[2], hours)
-    processed["LAI_time_series"] = initialize_lai_time_series(FT, params[2], hours)
-    processed["resistance"] = initialize_resistance(FT, params[2], hours)
-
+    processed["wind"] = initialize_wind(FT, dimensionality_type(params[2]), hours)
+    processed["LAI_time_series"] = initialize_lai_time_series(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["resistance"] = initialize_resistance(
+        FT, dimensionality_type(params[2]), hours
+    )
     return processed
 end

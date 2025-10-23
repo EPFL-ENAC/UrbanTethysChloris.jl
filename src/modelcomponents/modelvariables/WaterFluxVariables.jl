@@ -26,6 +26,60 @@ abstract type AbstractExWater{FT<:AbstractFloat,N} <: AbstractWaterFluxVariables
 abstract type AbstractCiCO2Leaf{FT<:AbstractFloat,N} <:
               AbstractWaterFluxVariablesSubset{FT,N} end
 
+function Base.getproperty(
+    obj::T, field::Symbol
+) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset{FT,0}}
+    return getfield(obj, field)[]
+end
+
+# function TethysChlorisCore.preprocess_fields(
+#     ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, args...
+# ) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset}
+#     processed = Dict{String,Any}()
+#     dimensions = get_dimensions(T, data, params, args...)
+
+#     for (var, dims) in dimensions
+#         processed[var] = zeros(FT, dims)
+#     end
+
+#     return processed
+# end
+
+# function TethysChlorisCore.preprocess_fields(
+#     ::Type{FT},
+#     ::Type{T},
+#     data::Dict{String,Any},
+#     params::Tuple,
+#     soil_value::NamedTuple,
+# ) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset}
+#     processed = Dict{String,Any}()
+#     dimensions = get_dimensions(T, data, params, soil_value)
+
+#     for (var, dims) in dimensions
+#         processed[var] = zeros(FT, dims)
+#     end
+
+#     return processed
+# end
+
+# function TethysChlorisCore.preprocess_fields(
+#     ::Type{FT},
+#     ::Type{T},
+#     data::Dict{String,Any},
+#     params::Tuple,
+#     hours::Int,
+#     soil_value::NamedTuple,
+# ) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset}
+#     processed = Dict{String,Any}()
+#     dimensions = get_dimensions(T, data, params, hours, soil_value)
+
+#     for (var, dims) in dimensions
+#         processed[var] = zeros(FT, dims)
+#     end
+
+#     return processed
+# end
+
 """
     Eflux{FT<:AbstractFloat, N} <: AbstractEflux{FT,N}
 
@@ -84,8 +138,14 @@ Base.@kwdef struct Eflux{FT<:AbstractFloat,N} <: AbstractEflux{FT,N}
     EfluxUrban::Array{FT,N}
 end
 
-function initialize_eflux(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Eflux, Dict{String,Any}(), (FT, N), hours)
+function initialize_eflux(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, Eflux, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_eflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Eflux, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -120,8 +180,14 @@ Base.@kwdef struct Runoff{FT<:AbstractFloat,N} <: AbstractRunoff{FT,N}
     QGroundVegSoil::Array{FT,N}
 end
 
-function initialize_runoff(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Runoff, Dict{String,Any}(), (FT, N), hours)
+function initialize_runoff(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, Runoff, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_runoff(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Runoff, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -146,8 +212,14 @@ Base.@kwdef struct Runon{FT<:AbstractFloat,N} <: AbstractRunon{FT,N}
     RunoffUrban::Array{FT,N}
 end
 
-function initialize_runon(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Runon, Dict{String,Any}(), (FT, N), hours)
+function initialize_runon(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, Runon, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_runon(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Runon, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -176,8 +248,14 @@ Base.@kwdef struct Leakage{FT<:AbstractFloat,N} <: AbstractLeakage{FT,N}
     LkUrban::Array{FT,N}
 end
 
-function initialize_leakage(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Leakage, Dict{String,Any}(), (FT, N), hours)
+function initialize_leakage(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, Leakage, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_leakage(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Leakage, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -208,8 +286,18 @@ Base.@kwdef struct Interception{FT<:AbstractFloat,N} <: AbstractInterception{FT,
     IntTree::Array{FT,N}
 end
 
-function initialize_interception(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Interception, Dict{String,Any}(), (FT, N), hours)
+function initialize_interception(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Interception, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
+function initialize_interception(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Interception, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -241,8 +329,14 @@ Base.@kwdef struct dInt_dt{FT<:AbstractFloat,N} <: AbstractdInt_dt{FT,N}
     dInt_dtTree::Array{FT,N}
 end
 
-function initialize_dint_dt(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, dInt_dt, Dict{String,Any}(), (FT, N), hours)
+function initialize_dint_dt(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, dInt_dt, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_dint_dt(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, dInt_dt, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -263,8 +357,18 @@ Base.@kwdef struct Infiltration{FT<:AbstractFloat,N} <: AbstractInfiltration{FT,
     fGroundImp::Array{FT,N}
 end
 
-function initialize_infiltration(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, Infiltration, Dict{String,Any}(), (FT, N), hours)
+function initialize_infiltration(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Infiltration, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
+function initialize_infiltration(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT, Infiltration, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -288,42 +392,66 @@ Base.@kwdef struct Vwater{FT<:AbstractFloat,N} <: AbstractVwater{FT,N}
 end
 
 function initialize_vwater(
-    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
+    ::Type{FT}, ::TimeSlice, soil_values::NamedTuple
 ) where {FT<:AbstractFloat}
-    return initialize(FT, Vwater, Dict{String,Any}(), (FT, N), hours, soil_parameters)
+    return initialize(
+        FT, Vwater, Dict{String,Any}(), (FT, dimension_value(TimeSlice())+1), soil_values
+    )
 end
 
 function get_dimensions(
-    ::Type{T},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    soil_parameters::NamedTuple,
+    ::Type{T}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
 ) where {T<:AbstractVwater}
-    if params[2] ∉ [1, 2]
-        throw(ArgumentError("Only N=1 and N=2 are currently supported"))
-    end
+    roof_layers = soil_values.roof.ms
+    ground_layers = soil_values.ground.ms
 
-    roof_layers = soil_parameters.roof.ms
-    ground_layers = soil_parameters.ground.ms
+    return Dict{String,Tuple}(
+        "VRoofSoilVeg" => (roof_layers,),
+        "VGroundSoilImp" => (ground_layers,),
+        "VGroundSoilBare" => (ground_layers,),
+        "VGroundSoilVeg" => (ground_layers,),
+        "VGroundSoilTot" => (ground_layers,),
+    )
+end
 
-    if params[2] == 1
-        return Dict{String,Tuple}(
-            "VRoofSoilVeg" => (roof_layers,),
-            "VGroundSoilImp" => (ground_layers,),
-            "VGroundSoilBare" => (ground_layers,),
-            "VGroundSoilVeg" => (ground_layers,),
-            "VGroundSoilTot" => (ground_layers,),
-        )
-    else
-        return Dict{String,Tuple}(
-            "VRoofSoilVeg" => (hours, roof_layers),
-            "VGroundSoilImp" => (hours, ground_layers),
-            "VGroundSoilBare" => (hours, ground_layers),
-            "VGroundSoilVeg" => (hours, ground_layers),
-            "VGroundSoilTot" => (hours, ground_layers),
-        )
-    end
+# function TethysChlorisCore.preprocess_fields(
+#     ::Type{FT},
+#     ::Type{Vwater},
+#     data::Dict{String,Any},
+#     params::Tuple,
+#     soil_values::NamedTuple,
+# ) where {FT<:AbstractFloat}
+#     processed = Dict{String,Any}()
+
+#     roof_layers = soil_values.roof.ms
+#     ground_layers = soil_values.ground.ms
+
+#     dimensions = Dict{String,Tuple}(
+#         "VRoofSoilVeg" => (roof_layers,),
+#         "VGroundSoilImp" => (ground_layers,),
+#         "VGroundSoilBare" => (ground_layers,),
+#         "VGroundSoilVeg" => (ground_layers,),
+#         "VGroundSoilTot" => (ground_layers,),
+#     )
+
+#     for (var, dims) in dimensions
+#         processed[var] = zeros(FT, dims)
+#     end
+
+#     return processed
+# end
+
+function initialize_vwater(
+    ::Type{FT}, ::TimeSeries, soil_values::NamedTuple, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        Vwater,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())+1),
+        hours,
+        soil_values,
+    )
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -332,31 +460,28 @@ function TethysChlorisCore.preprocess_fields(
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
-    soil_parameters::NamedTuple,
+    soil_values::NamedTuple,
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-    dimensions = get_dimensions(Vwater, data, params, hours, soil_parameters)
-
-    for (var, dims) in dimensions
-        processed[var] = zeros(FT, dims)
-    end
 
     # Initialize temperature and humidity fields
     ground_fields = [
         "VGroundSoilImp", "VGroundSoilBare", "VGroundSoilVeg", "VGroundSoilTot"
     ]
-    ground_init = soil_parameters.ground.O33 * soil_parameters.ground.dz
+    ground_init = soil_values.ground.O33 * soil_values.ground.dz
+    ground_layers = soil_values.ground.ms
 
     roof_fields = ["VRoofSoilVeg"]
-    roof_init = soil_parameters.roof.O33 * soil_parameters.roof.dz
+    roof_init = soil_values.roof.O33 * soil_values.roof.dz
+    roof_layers = soil_values.roof.ms
 
-    if params[2] == 2
-        for var in ground_fields
-            processed[var][1, :] = ground_init
-        end
-        for var in roof_fields
-            processed[var][1, :] = roof_init
-        end
+    for var in ground_fields
+        processed[var] = zeros(FT, (1, ground_layers))
+        processed[var][1, :] = ground_init
+    end
+    for var in roof_fields
+        processed[var] = zeros(FT, (1, roof_layers))
+        processed[var][1, :] = roof_init
     end
 
     return processed
@@ -384,60 +509,58 @@ Base.@kwdef struct dVwater_dt{FT<:AbstractFloat,N} <: AbstractdVwater_dt{FT,N}
 end
 
 function initialize_dvwater_dt(
-    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
+    ::Type{FT}, ::TimeSlice, soil_values::NamedTuple
 ) where {FT<:AbstractFloat}
-    return initialize(FT, dVwater_dt, Dict{String,Any}(), (FT, N), hours, soil_parameters)
+    return initialize(
+        FT,
+        dVwater_dt,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSlice())+1),
+        soil_values,
+    )
 end
 
 function get_dimensions(
-    ::Type{T},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    soil_parameters::NamedTuple,
+    ::Type{T}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
 ) where {T<:AbstractdVwater_dt}
-    if params[2] ∉ [1, 2]
-        throw(ArgumentError("Only N=1 and N=2 are currently supported"))
-    end
+    roof_layers = soil_values.roof.ms
+    ground_layers = soil_values.ground.ms
 
-    roof_layers = soil_parameters.roof.ms
-    ground_layers = soil_parameters.ground.ms
-
-    if params[2] == 1
-        return Dict{String,Tuple}(
-            "dVRoofSoilVeg_dt" => (roof_layers,),
-            "dVGroundSoilImp_dt" => (ground_layers,),
-            "dVGroundSoilBare_dt" => (ground_layers,),
-            "dVGroundSoilVeg_dt" => (ground_layers,),
-            "dVGroundSoilTot_dt" => (ground_layers,),
-        )
-    else
-        return Dict{String,Tuple}(
-            "dVRoofSoilVeg_dt" => (hours, roof_layers),
-            "dVGroundSoilImp_dt" => (hours, ground_layers),
-            "dVGroundSoilBare_dt" => (hours, ground_layers),
-            "dVGroundSoilVeg_dt" => (hours, ground_layers),
-            "dVGroundSoilTot_dt" => (hours, ground_layers),
-        )
-    end
+    return Dict{String,Tuple}(
+        "dVRoofSoilVeg_dt" => (roof_layers,),
+        "dVGroundSoilImp_dt" => (ground_layers,),
+        "dVGroundSoilBare_dt" => (ground_layers,),
+        "dVGroundSoilVeg_dt" => (ground_layers,),
+        "dVGroundSoilTot_dt" => (ground_layers,),
+    )
 end
 
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT},
-    ::Type{T},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    soil_parameters::NamedTuple,
-) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset}
-    processed = Dict{String,Any}()
-    dimensions = get_dimensions(T, data, params, hours, soil_parameters)
+function initialize_dvwater_dt(
+    ::Type{FT}, ::TimeSeries, soil_values::NamedTuple, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        dVwater_dt,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())+1),
+        hours,
+        soil_values,
+    )
+end
 
-    for (var, dims) in dimensions
-        processed[var] = zeros(FT, dims)
-    end
+function get_dimensions(
+    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int, soil_values::NamedTuple
+) where {T<:AbstractdVwater_dt}
+    roof_layers = soil_values.roof.ms
+    ground_layers = soil_values.ground.ms
 
-    return processed
+    return Dict{String,Tuple}(
+        "dVRoofSoilVeg_dt" => (hours, roof_layers),
+        "dVGroundSoilImp_dt" => (hours, ground_layers),
+        "dVGroundSoilBare_dt" => (hours, ground_layers),
+        "dVGroundSoilVeg_dt" => (hours, ground_layers),
+        "dVGroundSoilTot_dt" => (hours, ground_layers),
+    )
 end
 
 """
@@ -462,42 +585,38 @@ Base.@kwdef struct Owater{FT<:AbstractFloat,N} <: AbstractOwater{FT,N}
 end
 
 function initialize_owater(
-    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
+    ::Type{FT}, ::TimeSlice, soil_values::NamedTuple
 ) where {FT<:AbstractFloat}
-    return initialize(FT, Owater, Dict{String,Any}(), (FT, N), hours, soil_parameters)
+    return initialize(
+        FT, Owater, Dict{String,Any}(), (FT, dimension_value(TimeSlice())+1), soil_values
+    )
 end
 
 function get_dimensions(
-    ::Type{T},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    soil_parameters::NamedTuple,
+    ::Type{T}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
 ) where {T<:AbstractOwater}
-    if params[2] ∉ [1, 2]
-        throw(ArgumentError("Only N=1 and N=2 are currently supported"))
-    end
+    roof_layers = soil_values.roof.ms
+    ground_layers = soil_values.ground.ms
+    return Dict{String,Tuple}(
+        "OwRoofSoilVeg" => (roof_layers,),
+        "OwGroundSoilImp" => (ground_layers,),
+        "OwGroundSoilBare" => (ground_layers,),
+        "OwGroundSoilVeg" => (ground_layers,),
+        "OwGroundSoilTot" => (ground_layers,),
+    )
+end
 
-    roof_layers = soil_parameters.roof.ms
-    ground_layers = soil_parameters.ground.ms
-
-    if params[2] == 1
-        return Dict{String,Tuple}(
-            "OwRoofSoilVeg" => (roof_layers,),
-            "OwGroundSoilImp" => (ground_layers,),
-            "OwGroundSoilBare" => (ground_layers,),
-            "OwGroundSoilVeg" => (ground_layers,),
-            "OwGroundSoilTot" => (ground_layers,),
-        )
-    else
-        return Dict{String,Tuple}(
-            "OwRoofSoilVeg" => (hours, roof_layers),
-            "OwGroundSoilImp" => (hours, ground_layers),
-            "OwGroundSoilBare" => (hours, ground_layers),
-            "OwGroundSoilVeg" => (hours, ground_layers),
-            "OwGroundSoilTot" => (hours, ground_layers),
-        )
-    end
+function initialize_owater(
+    ::Type{FT}, ::TimeSeries, soil_values::NamedTuple, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        Owater,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())+1),
+        hours,
+        soil_values,
+    )
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -506,31 +625,42 @@ function TethysChlorisCore.preprocess_fields(
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
-    soil_parameters::NamedTuple,
+    soil_values::NamedTuple,
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-    dimensions = get_dimensions(Owater, data, params, hours, soil_parameters)
+    dimensions = get_dimensions(Owater, data, params, hours, soil_values)
 
     for (var, dims) in dimensions
         processed[var] = zeros(FT, dims)
     end
 
-    # Initialize temperature and humidity fields
     ground_fields = [
         "OwGroundSoilImp", "OwGroundSoilBare", "OwGroundSoilVeg", "OwGroundSoilTot"
     ]
     roof_fields = ["OwRoofSoilVeg"]
 
-    if params[2] == 2
-        for var in ground_fields
-            processed[var][1, :] .= soil_parameters.ground.O33
-        end
-        for var in roof_fields
-            processed[var][1, :] .= soil_parameters.roof.O33
-        end
+    for var in ground_fields
+        processed[var][1, :] .= soil_values.ground.O33
+    end
+    for var in roof_fields
+        processed[var][1, :] .= soil_values.roof.O33
     end
 
     return processed
+end
+
+function get_dimensions(
+    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int, soil_values::NamedTuple
+) where {T<:AbstractOwater}
+    roof_layers = soil_values.roof.ms
+    ground_layers = soil_values.ground.ms
+    return Dict{String,Tuple}(
+        "OwRoofSoilVeg" => (hours, roof_layers),
+        "OwGroundSoilImp" => (hours, ground_layers),
+        "OwGroundSoilBare" => (hours, ground_layers),
+        "OwGroundSoilVeg" => (hours, ground_layers),
+        "OwGroundSoilTot" => (hours, ground_layers),
+    )
 end
 
 """
@@ -555,42 +685,54 @@ Base.@kwdef struct OSwater{FT<:AbstractFloat,N} <: AbstractOSwater{FT,N}
 end
 
 function initialize_oswater(
-    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
+    ::Type{FT}, ::TimeSlice, soil_values::NamedTuple
 ) where {FT<:AbstractFloat}
-    return initialize(FT, OSwater, Dict{String,Any}(), (FT, N), hours, soil_parameters)
+    return initialize(
+        FT, OSwater, Dict{String,Any}(), (FT, dimension_value(TimeSlice())+1), soil_values
+    )
 end
 
 function get_dimensions(
-    ::Type{T},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    soil_parameters::NamedTuple,
+    ::Type{T}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
 ) where {T<:AbstractOSwater}
-    if params[2] ∉ [1, 2]
-        throw(ArgumentError("Only N=1 and N=2 are currently supported"))
-    end
+    roof_layers = soil_values.roof.ms
+    ground_layers = soil_values.ground.ms
 
-    roof_layers = soil_parameters.roof.ms
-    ground_layers = soil_parameters.ground.ms
+    return Dict{String,Tuple}(
+        "OSwRoofSoilVeg" => (roof_layers,),
+        "OSwGroundSoilImp" => (ground_layers,),
+        "OSwGroundSoilBare" => (ground_layers,),
+        "OSwGroundSoilVeg" => (ground_layers,),
+        "OSwGroundSoilTot" => (ground_layers,),
+    )
+end
 
-    if params[2] == 1
-        return Dict{String,Tuple}(
-            "OSwRoofSoilVeg" => (roof_layers,),
-            "OSwGroundSoilImp" => (ground_layers,),
-            "OSwGroundSoilBare" => (ground_layers,),
-            "OSwGroundSoilVeg" => (ground_layers,),
-            "OSwGroundSoilTot" => (ground_layers,),
-        )
-    else
-        return Dict{String,Tuple}(
-            "OSwRoofSoilVeg" => (hours, roof_layers),
-            "OSwGroundSoilImp" => (hours, ground_layers),
-            "OSwGroundSoilBare" => (hours, ground_layers),
-            "OSwGroundSoilVeg" => (hours, ground_layers),
-            "OSwGroundSoilTot" => (hours, ground_layers),
-        )
-    end
+function initialize_oswater(
+    ::Type{FT}, ::TimeSeries, soil_values::NamedTuple, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        OSwater,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())+1),
+        hours,
+        soil_values,
+    )
+end
+
+function get_dimensions(
+    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int, soil_values::NamedTuple
+) where {T<:AbstractOSwater}
+    roof_layers = soil_values.roof.ms
+    ground_layers = soil_values.ground.ms
+
+    return Dict{String,Tuple}(
+        "OSwRoofSoilVeg" => (hours, roof_layers),
+        "OSwGroundSoilImp" => (hours, ground_layers),
+        "OSwGroundSoilBare" => (hours, ground_layers),
+        "OSwGroundSoilVeg" => (hours, ground_layers),
+        "OSwGroundSoilTot" => (hours, ground_layers),
+    )
 end
 
 """
@@ -622,53 +764,66 @@ Base.@kwdef struct Qinlat{FT<:AbstractFloat,N} <: AbstractQinlat{FT,N}
 end
 
 function initialize_qinlat(
-    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
+    ::Type{FT}, ::TimeSlice, soil_values::NamedTuple
 ) where {FT<:AbstractFloat}
     return initialize(
-        FT, Qinlat, Dict{String,Any}(), (FT, N), hours, soil_parameters.ground.ms
+        FT,
+        Qinlat,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSlice())+1),
+        soil_values.ground.ms,
+    )
+end
+
+function get_dimensions(
+    ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType,Signed}, ms::Int
+) where {T<:AbstractQinlat}
+    dimensions = Dict{String,Tuple}()
+
+    for field in fieldnames(T)
+        dimensions[String(field)] = (ms,)
+    end
+
+    return dimensions
+end
+
+function initialize_qinlat(
+    ::Type{FT}, ::TimeSeries, soil_values::NamedTuple, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        Qinlat,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())+1),
+        hours,
+        soil_values.ground.ms,
     )
 end
 
 function get_dimensions(
     ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType,Signed}, hours::Int, ms::Int
 ) where {T<:AbstractQinlat}
-    if params[2] ∉ [1, 2]
-        throw(ArgumentError("Only N=1 and N=2 are currently supported"))
-    end
-
-    # Create a dictionary with all field names and their dimensions
     dimensions = Dict{String,Tuple}()
 
-    # Get all field names from the struct
-    field_names = fieldnames(T)
-
-    if params[2] == 1
-        # For scalar case (N=1), all fields are vectors with length ms
-        for field in field_names
-            dimensions[String(field)] = (ms,)
-        end
-    else
-        # For time series case (N=2), all fields are matrices with size (hours, ms)
-        for field in field_names
-            dimensions[String(field)] = (hours, ms)
-        end
+    for field in fieldnames(T)
+        dimensions[String(field)] = (hours, ms)
     end
 
     return dimensions
 end
 
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int, ms::Int
-) where {FT<:AbstractFloat,T<:AbstractQinlat}
-    processed = Dict{String,Any}()
-    dimensions = get_dimensions(T, data, params, hours, ms)
+# function TethysChlorisCore.preprocess_fields(
+#     ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int, ms::Int
+# ) where {FT<:AbstractFloat,T<:AbstractQinlat}
+#     processed = Dict{String,Any}()
+#     dimensions = get_dimensions(T, data, params, hours, ms)
 
-    for (var, dims) in dimensions
-        processed[var] = zeros(FT, dims)
-    end
+#     for (var, dims) in dimensions
+#         processed[var] = zeros(FT, dims)
+#     end
 
-    return processed
-end
+#     return processed
+# end
 
 """
     ExWater{FT<:AbstractFloat, N, M} <: AbstractExWater{FT,N}
@@ -702,24 +857,21 @@ Base.@kwdef struct ExWater{FT<:AbstractFloat,N} <: AbstractExWater{FT,N}
 end
 
 function initialize_exwater(
-    ::Type{FT}, N::Int, soil_parameters::NamedTuple, hours::Int=1
+    ::Type{FT}, ::TimeSlice, soil_values::NamedTuple
 ) where {FT<:AbstractFloat}
-    return initialize(FT, ExWater, Dict{String,Any}(), (FT, N), hours, soil_parameters)
+    return initialize(
+        FT, ExWater, Dict{String,Any}(), (FT, dimension_value(TimeSlice())+1), soil_values
+    )
 end
 
 function get_dimensions(
     ::Type{T},
     data::Dict{String,Any},
     params::Tuple{DataType,Signed},
-    hours::Int,
-    soil_parameters::NamedTuple,
+    soil_values::NamedTuple,
 ) where {T<:AbstractExWater}
-    if params[2] ∉ [1, 2]
-        throw(ArgumentError("Only N=1 and N=2 are currently supported"))
-    end
-
-    ms_ground = soil_parameters.ground.ms
-    ms_roof = soil_parameters.roof.ms
+    ms_ground = soil_values.ground.ms
+    ms_roof = soil_values.roof.ms
 
     ground_names = [
         "ExWaterGroundImp_H",
@@ -733,25 +885,60 @@ function get_dimensions(
     ]
     roof_names = ["ExWaterRoofVeg_H", "ExWaterRoofVeg_L"]
 
-    # Create a dictionary with all field names and their dimensions
     dimensions = Dict{String,Tuple}()
 
-    if params[2] == 1
-        # For scalar case (N=1), all fields are vectors with length ms
-        for field in roof_names
-            dimensions[field] = (ms_roof,)
-        end
-        for field in ground_names
-            dimensions[field] = (ms_ground,)
-        end
-    else
-        # For time series case (N=2), all fields are matrices with size (hours, ms)
-        for field in roof_names
-            dimensions[field] = (hours, ms_roof)
-        end
-        for field in ground_names
-            dimensions[field] = (hours, ms_ground)
-        end
+    for field in roof_names
+        dimensions[field] = (ms_roof,)
+    end
+    for field in ground_names
+        dimensions[field] = (ms_ground,)
+    end
+
+    return dimensions
+end
+
+function initialize_exwater(
+    ::Type{FT}, ::TimeSeries, soil_values::NamedTuple, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT,
+        ExWater,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())+1),
+        hours,
+        soil_values,
+    )
+end
+
+function get_dimensions(
+    ::Type{T},
+    data::Dict{String,Any},
+    params::Tuple{DataType,Signed},
+    hours::Int,
+    soil_values::NamedTuple,
+) where {T<:AbstractExWater}
+    ms_ground = soil_values.ground.ms
+    ms_roof = soil_values.roof.ms
+
+    ground_names = [
+        "ExWaterGroundImp_H",
+        "ExWaterGroundImp_L",
+        "ExWaterGroundBare_H",
+        "ExWaterGroundBare_L",
+        "ExWaterGroundVeg_H",
+        "ExWaterGroundVeg_L",
+        "ExWaterGroundTot_H",
+        "ExWaterGroundTot_L",
+    ]
+    roof_names = ["ExWaterRoofVeg_H", "ExWaterRoofVeg_L"]
+
+    dimensions = Dict{String,Tuple}()
+
+    for field in roof_names
+        dimensions[field] = (hours, ms_roof)
+    end
+    for field in ground_names
+        dimensions[field] = (hours, ms_ground)
     end
 
     return dimensions
@@ -786,8 +973,15 @@ Base.@kwdef struct SoilPotW{FT<:AbstractFloat,N} <: AbstractSoilPotW{FT,N}
     SoilPotWGroundTot_H::Array{FT,N}
     SoilPotWGroundTot_L::Array{FT,N}
 end
-function initialize_soilpotw(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, SoilPotW, Dict{String,Any}(), (FT, N), hours)
+
+function initialize_soilpotw(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, SoilPotW, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_soilpotw(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, SoilPotW, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -812,10 +1006,21 @@ Base.@kwdef struct CiCO2Leaf{FT<:AbstractFloat,N} <: AbstractCiCO2Leaf{FT,N}
     CiCO2LeafTreeShd::Array{FT,N}
 end
 
+function initialize_cico2leaf(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, CiCO2Leaf, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
 function initialize_cico2leaf(
-    ::Type{FT}, N::Int, initial_value::FT=400.0, hours::Int=1
+    ::Type{FT}, ::TimeSeries, initial_value::FT, hours::Int
 ) where {FT<:AbstractFloat}
-    return initialize(FT, CiCO2Leaf, Dict{String,Any}(), (FT, N), hours, initial_value)
+    return initialize(
+        FT,
+        CiCO2Leaf,
+        Dict{String,Any}(),
+        (FT, dimension_value(TimeSeries())),
+        hours,
+        initial_value,
+    )
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -885,21 +1090,76 @@ Base.@kwdef struct WaterFluxVariables{FT<:AbstractFloat,N,Np1} <:
     CiCO2Leaf::CiCO2Leaf{FT,N}
 end
 
-# Base getproperty methods for scalar access
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
+function initialize_water_flux_variables(
+    ::Type{FT},
+    ::TimeSlice,
+    soil_parameters::SoilParameters{FT},
+    vegetation_parameters::VegetationParameters{FT},
+) where {FT<:AbstractFloat}
+    N = dimension_value(TimeSlice())
+    return initialize(
+        FT,
+        WaterFluxVariables,
+        Dict{String,Any}(),
+        (FT, N, N+1),
+        soil_parameters,
+        vegetation_parameters,
+    )
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT},
+    ::Type{WaterFluxVariables},
+    data::Dict{String,Any},
+    params::Tuple,
+    soil_parameters::SoilParameters{FT},
+    vegetation_parameters::VegetationParameters{FT},
+) where {FT<:AbstractFloat}
+    processed = Dict{String,Any}()
+
+    roof_soil_params = calculate_soil_values(
+        soil_parameters.roof, vegetation_parameters.roof, vegetation_parameters.roof
+    )
+    ground_soil_params = calculate_soil_values(
+        soil_parameters.ground, vegetation_parameters.tree, vegetation_parameters.ground
+    )
+
+    soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
+
+    processed["Eflux"] = initialize_eflux(FT, dimensionality_type(params[2]))
+    processed["Runoff"] = initialize_runoff(FT, dimensionality_type(params[2]))
+    processed["Runon"] = initialize_runon(FT, dimensionality_type(params[2]))
+    processed["Leakage"] = initialize_leakage(FT, dimensionality_type(params[2]))
+    processed["Interception"] = initialize_interception(FT, dimensionality_type(params[2]))
+    processed["dInt_dt"] = initialize_dint_dt(FT, dimensionality_type(params[2]))
+    processed["Infiltration"] = initialize_infiltration(FT, dimensionality_type(params[2]))
+    processed["Vwater"] = initialize_vwater(FT, dimensionality_type(params[2]), soil_values)
+    processed["dVwater_dt"] = initialize_dvwater_dt(
+        FT, dimensionality_type(params[2]), soil_values
+    )
+    processed["Owater"] = initialize_owater(FT, dimensionality_type(params[2]), soil_values)
+    processed["OSwater"] = initialize_oswater(
+        FT, dimensionality_type(params[2]), soil_values
+    )
+    processed["Qinlat"] = initialize_qinlat(FT, dimensionality_type(params[2]), soil_values)
+    processed["ExWater"] = initialize_exwater(
+        FT, dimensionality_type(params[2]), soil_values
+    )
+    processed["SoilPotW"] = initialize_soilpotw(FT, dimensionality_type(params[2]))
+    processed["CiCO2Leaf"] = initialize_cico2leaf(FT, dimensionality_type(params[2]))
+
+    return processed
 end
 
 function initialize_water_flux_variables(
     ::Type{FT},
-    N::Int,
+    ::TimeSeries,
     soil_parameters::SoilParameters{FT},
     vegetation_parameters::VegetationParameters{FT},
-    initial_value::FT=400.0,
-    hours::Int=1,
+    initial_value::FT,
+    hours::Int,
 ) where {FT<:AbstractFloat}
+    N = dimension_value(TimeSeries())
     return initialize(
         FT,
         WaterFluxVariables,
@@ -912,7 +1172,7 @@ function initialize_water_flux_variables(
     )
 end
 
-function calculate_soil_parameters(
+function calculate_soil_values(
     soil::VegetatedSoilParameters{FT},
     tree::HeightDependentVegetationParameters{FT},
     ground::HeightDependentVegetationParameters{FT},
@@ -960,30 +1220,48 @@ function TethysChlorisCore.preprocess_fields(
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
-    roof_soil_params = calculate_soil_parameters(
+    roof_soil_params = calculate_soil_values(
         soil_parameters.roof, vegetation_parameters.roof, vegetation_parameters.roof
     )
-    ground_soil_params = calculate_soil_parameters(
+    ground_soil_params = calculate_soil_values(
         soil_parameters.ground, vegetation_parameters.tree, vegetation_parameters.ground
     )
 
     soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
 
-    processed["Eflux"] = initialize_eflux(FT, params[2], hours)
-    processed["Runoff"] = initialize_runoff(FT, params[2], hours)
-    processed["Runon"] = initialize_runon(FT, params[2], hours)
-    processed["Leakage"] = initialize_leakage(FT, params[2], hours)
-    processed["Interception"] = initialize_interception(FT, params[2], hours)
-    processed["dInt_dt"] = initialize_dint_dt(FT, params[2], hours)
-    processed["Infiltration"] = initialize_infiltration(FT, params[2], hours)
-    processed["Vwater"] = initialize_vwater(FT, params[2] + 1, soil_values, hours)
-    processed["dVwater_dt"] = initialize_dvwater_dt(FT, params[2] + 1, soil_values, hours)
-    processed["Owater"] = initialize_owater(FT, params[2] + 1, soil_values, hours)
-    processed["OSwater"] = initialize_oswater(FT, params[2] + 1, soil_values, hours)
-    processed["Qinlat"] = initialize_qinlat(FT, params[2] + 1, soil_values, hours)
-    processed["ExWater"] = initialize_exwater(FT, params[2] + 1, soil_values, hours)
-    processed["SoilPotW"] = initialize_soilpotw(FT, params[2], hours)
-    processed["CiCO2Leaf"] = initialize_cico2leaf(FT, params[2], initial_value, hours)
+    processed["Eflux"] = initialize_eflux(FT, dimensionality_type(params[2]), hours)
+    processed["Runoff"] = initialize_runoff(FT, dimensionality_type(params[2]), hours)
+    processed["Runon"] = initialize_runon(FT, dimensionality_type(params[2]), hours)
+    processed["Leakage"] = initialize_leakage(FT, dimensionality_type(params[2]), hours)
+    processed["Interception"] = initialize_interception(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["dInt_dt"] = initialize_dint_dt(FT, dimensionality_type(params[2]), hours)
+    processed["Infiltration"] = initialize_infiltration(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["Vwater"] = initialize_vwater(
+        FT, dimensionality_type(params[2]), soil_values, hours
+    )
+    processed["dVwater_dt"] = initialize_dvwater_dt(
+        FT, dimensionality_type(params[2]), soil_values, hours
+    )
+    processed["Owater"] = initialize_owater(
+        FT, dimensionality_type(params[2]), soil_values, hours
+    )
+    processed["OSwater"] = initialize_oswater(
+        FT, dimensionality_type(params[2]), soil_values, hours
+    )
+    processed["Qinlat"] = initialize_qinlat(
+        FT, dimensionality_type(params[2]), soil_values, hours
+    )
+    processed["ExWater"] = initialize_exwater(
+        FT, dimensionality_type(params[2]), soil_values, hours
+    )
+    processed["SoilPotW"] = initialize_soilpotw(FT, dimensionality_type(params[2]), hours)
+    processed["CiCO2Leaf"] = initialize_cico2leaf(
+        FT, dimensionality_type(params[2]), initial_value, hours
+    )
 
     return processed
 end

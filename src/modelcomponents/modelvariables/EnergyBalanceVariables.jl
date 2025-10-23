@@ -16,6 +16,12 @@ abstract type AbstractEB{FT<:AbstractFloat,N} <: AbstractEnergyBalanceVariablesS
 abstract type AbstractSolverVariables{FT<:AbstractFloat,N,Np} <:
               AbstractEnergyBalanceVariablesSubset{FT,N} end
 
+function Base.getproperty(
+    obj::T, field::Symbol
+) where {FT<:AbstractFloat,T<:AbstractEnergyBalanceVariablesSubset{FT,0}}
+    return getfield(obj, field)[]
+end
+
 """
     WBRoof{FT<:AbstractFloat, N} <: AbstractWBRoof{FT,N}
 
@@ -36,6 +42,16 @@ Base.@kwdef struct WBRoof{FT<:AbstractFloat,N} <: AbstractWBRoof{FT,N}
     WBRoofVegSoil::Array{FT,N}
     WBRoofVeg::Array{FT,N}
     WBRoofTot::Array{FT,N}
+end
+
+function initialize_wbroof(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, WBRoof, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_wbroof(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, WBRoof, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -62,6 +78,20 @@ Base.@kwdef struct WBCanyonIndv{FT<:AbstractFloat,N} <: AbstractWBCanyonIndv{FT,
     WB_Soil_gimp::Array{FT,N}
     WB_Soil_gbare::Array{FT,N}
     WB_Soil_gveg::Array{FT,N}
+end
+
+function initialize_wbcanyon_indv(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, WBCanyonIndv, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
+function initialize_wbcanyon_indv(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT, WBCanyonIndv, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -104,6 +134,20 @@ Base.@kwdef struct WBCanyonTot{FT<:AbstractFloat,N} <: AbstractWBCanyonTot{FT,N}
     WBcanyon_level::Array{FT,N}
 end
 
+function initialize_wbcanyon_tot(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(
+        FT, WBCanyonTot, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
+    )
+end
+
+function initialize_wbcanyon_tot(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    return initialize(
+        FT, WBCanyonTot, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
+end
+
 """
     EB{FT<:AbstractFloat, N} <: AbstractEB{FT,N}
 
@@ -136,6 +180,16 @@ Base.@kwdef struct EB{FT<:AbstractFloat,N} <: AbstractEB{FT,N}
     EBWallShadeInt::Array{FT,N}
     EBCanyonT::Array{FT,N}
     EBCanyonQ::Array{FT,N}
+end
+
+function initialize_eb(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    return initialize(FT, EB, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+end
+
+function initialize_eb(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
+    return initialize(
+        FT, EB, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
+    )
 end
 
 """
@@ -171,18 +225,19 @@ function Base.getproperty(
     end
 end
 
-function initialize_solver_variables(
-    ::Type{FT}, N::Int, hours::Int=1
-) where {FT<:AbstractFloat}
-    return initialize(FT, SolverVariables, Dict{String,Any}(), (FT, N, N+1), hours)
+function initialize_solver_variables(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
+    N = dimension_value(TimeSlice())
+    return initialize(FT, SolverVariables, Dict{String,Any}(), (FT, N, N+1))
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
+    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat,T<:AbstractSolverVariables}
     processed = Dict{String,Any}()
 
-    dimensions = get_dimensions(T, data, params, hours)
+    dimensions = Dict(
+        "Success" => (), "ValuesEB" => (22,), "Tsolver" => (22,), "YfunctionOutput" => (22,)
+    )
 
     for (var, dims) in dimensions
         if var != "Success"
@@ -195,28 +250,34 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
-) where {T<:AbstractSolverVariables}
-    if params[2] ∉ [0, 1]
-        throw(ArgumentError("Only N=0 and N=1 are currently supported"))
+function initialize_solver_variables(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    N = dimension_value(TimeSeries())
+    return initialize(FT, SolverVariables, Dict{String,Any}(), (FT, N, N+1), hours)
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
+) where {FT<:AbstractFloat,T<:AbstractSolverVariables}
+    processed = Dict{String,Any}()
+
+    dimensions = Dict(
+        "Success" => (hours,),
+        "ValuesEB" => (hours, 22),
+        "Tsolver" => (hours, 22),
+        "YfunctionOutput" => (hours, 22),
+    )
+
+    for (var, dims) in dimensions
+        if var != "Success"
+            processed[var] = zeros(FT, dims)
+        else
+            processed[var] = fill(false, dims)
+        end
     end
 
-    if params[2] == 0
-        return Dict(
-            "Success" => (),
-            "ValuesEB" => (22,),
-            "Tsolver" => (22,),
-            "YfunctionOutput" => (22,),
-        )
-    else
-        return Dict(
-            "Success" => (hours,),
-            "ValuesEB" => (hours, 22),
-            "Tsolver" => (hours, 22),
-            "YfunctionOutput" => (hours, 22),
-        )
-    end
+    return processed
 end
 
 """
@@ -240,40 +301,32 @@ Base.@kwdef struct EnergyBalanceVariables{FT<:AbstractFloat,N,Np} <:
     Solver::SolverVariables{FT,N,Np}
 end
 
-# Base getproperty methods for scalar access
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractEnergyBalanceVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
-# Initialization functions for individual components
-function initialize_wbroof(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, WBRoof, Dict{String,Any}(), (FT, N), hours)
-end
-
-function initialize_wbcanyon_indv(
-    ::Type{FT}, N::Int, hours::Int=1
-) where {FT<:AbstractFloat}
-    return initialize(FT, WBCanyonIndv, Dict{String,Any}(), (FT, N), hours)
-end
-
-function initialize_wbcanyon_tot(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, WBCanyonTot, Dict{String,Any}(), (FT, N), hours)
-end
-
-function initialize_eb(::Type{FT}, N::Int, hours::Int=1) where {FT<:AbstractFloat}
-    return initialize(FT, EB, Dict{String,Any}(), (FT, N), hours)
-end
-
-# Main initialization function for EnergyBalanceVariables
 function initialize_energy_balance_variables(
-    ::Type{FT}, N::Int, hours::Int=1
+    ::Type{FT}, ::TimeSlice
 ) where {FT<:AbstractFloat}
+    N = dimension_value(TimeSlice())
+    return initialize(FT, EnergyBalanceVariables, Dict{String,Any}(), (FT, N, N+1))
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{EnergyBalanceVariables}, data::Dict{String,Any}, params::Tuple
+) where {FT<:AbstractFloat}
+    processed = Dict{String,Any}()
+    processed["WBRoof"] = initialize_wbroof(FT, dimensionality_type(params[2]))
+    processed["WBCanyonIndv"] = initialize_wbcanyon_indv(FT, dimensionality_type(params[2]))
+    processed["WBCanyonTot"] = initialize_wbcanyon_tot(FT, dimensionality_type(params[2]))
+    processed["EB"] = initialize_eb(FT, dimensionality_type(params[2]))
+    processed["Solver"] = initialize_solver_variables(FT, dimensionality_type(params[2]))
+    return processed
+end
+
+function initialize_energy_balance_variables(
+    ::Type{FT}, ::TimeSeries, hours::Int
+) where {FT<:AbstractFloat}
+    N = dimension_value(TimeSeries())
     return initialize(FT, EnergyBalanceVariables, Dict{String,Any}(), (FT, N, N+1), hours)
 end
 
-# Main preprocess_fields method for EnergyBalanceVariables
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT},
     ::Type{EnergyBalanceVariables},
@@ -282,13 +335,16 @@ function TethysChlorisCore.preprocess_fields(
     hours::Int,
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-
-    # Initialize each component
-    processed["WBRoof"] = initialize_wbroof(FT, params[2], hours)
-    processed["WBCanyonIndv"] = initialize_wbcanyon_indv(FT, params[2], hours)
-    processed["WBCanyonTot"] = initialize_wbcanyon_tot(FT, params[2], hours)
-    processed["EB"] = initialize_eb(FT, params[2], hours)
-    processed["Solver"] = initialize_solver_variables(FT, params[2], hours)
-
+    processed["WBRoof"] = initialize_wbroof(FT, dimensionality_type(params[2]), hours)
+    processed["WBCanyonIndv"] = initialize_wbcanyon_indv(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["WBCanyonTot"] = initialize_wbcanyon_tot(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["EB"] = initialize_eb(FT, dimensionality_type(params[2]), hours)
+    processed["Solver"] = initialize_solver_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
     return processed
 end

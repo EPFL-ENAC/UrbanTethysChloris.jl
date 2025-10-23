@@ -5,14 +5,15 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
     Results2m,
     initialize_results2m,
     HumidityVariables,
-    initialize_humidity_variables
+    initialize_humidity_variables,
+    TimeSlice,
+    TimeSeries
 
 FT = Float64
 
 @testset "Humidity" begin
     @testset "Humidity scalar (N=0)" begin
-        atm_specific = FT(0.01)  # Initial specific humidity
-        humidity = initialize_humidity(FT, 0, 1, atm_specific)
+        humidity = initialize_humidity(FT, TimeSlice())
 
         # Test structure
         @test humidity isa Humidity{FT,0}
@@ -32,7 +33,7 @@ FT = Float64
         hours = 24
         atm_specific = FT(0.01)  # Initial specific humidity
 
-        humidity = initialize_humidity(FT, 1, hours, atm_specific)
+        humidity = initialize_humidity(FT, TimeSeries(), hours, atm_specific)
 
         # Test structure
         @test humidity isa Humidity{FT,1}
@@ -55,10 +56,7 @@ end
 
 @testset "Results2m" begin
     @testset "Results2m scalar (N=0)" begin
-        hours = 24
-        qatm = FT(0.01)   # Initial specific humidity
-
-        results = initialize_results2m(FT, 0)
+        results = initialize_results2m(FT, TimeSlice())
 
         # Test structure
         @test results isa Results2m{FT,0}
@@ -75,7 +73,7 @@ end
     @testset "Results2m vector (N=1)" begin
         hours = 24
 
-        results = initialize_results2m(FT, 1, hours)
+        results = initialize_results2m(FT, TimeSeries(), hours)
 
         # Test structure
         @test results isa Results2m{FT,1}
@@ -97,7 +95,7 @@ end
 
 @testset "HumidityVariables" begin
     @testset "HumidityVariables scalar (N=0)" begin
-        humidity_vars = initialize_humidity_variables(FT, 0)
+        humidity_vars = initialize_humidity_variables(FT, TimeSlice())
 
         # Test structure
         @test humidity_vars isa HumidityVariables{FT,0}
@@ -109,7 +107,7 @@ end
         hours = 24
         q_atm = 0.005
 
-        humidity_vars = initialize_humidity_variables(FT, 1, hours, q_atm)
+        humidity_vars = initialize_humidity_variables(FT, TimeSeries(), hours, q_atm)
 
         # Test structure
         @test humidity_vars isa HumidityVariables{FT,1}

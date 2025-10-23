@@ -7,13 +7,15 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
     AlbedoOutput,
     initialize_albedo_output,
     RadiationFluxVariables,
-    initialize_radiation_flux_variables
+    initialize_radiation_flux_variables,
+    TimeSlice,
+    TimeSeries
 
 FT = Float64
 
 @testset "Subsets" begin
     @testset "AbsorbedRadiationFluxVariablesSubset scalar (N=0)" begin
-        swrabs = initialize_absorbed_radiation_flux_variables(FT, 0)
+        swrabs = initialize_absorbed_radiation_flux_variables(FT, TimeSlice())
 
         # Test structure
         @test swrabs isa AbsorbedRadiationFluxVariablesSubset{FT,0}
@@ -27,7 +29,7 @@ FT = Float64
 
     @testset "AbsorbedRadiationFluxVariablesSubset vector (N=1)" begin
         hours = 24
-        swrabs = initialize_absorbed_radiation_flux_variables(FT, 1, hours)
+        swrabs = initialize_absorbed_radiation_flux_variables(FT, TimeSeries(), hours)
 
         @test swrabs isa AbsorbedRadiationFluxVariablesSubset{FT,1}
 
@@ -40,7 +42,7 @@ FT = Float64
     end
 
     @testset "DefaultRadiationFluxVariablesSubset scalar (N=0)" begin
-        swrin = initialize_default_radiation_flux_variables(FT, 0)
+        swrin = initialize_default_radiation_flux_variables(FT, TimeSlice())
 
         # Test structure
         @test swrin isa DefaultRadiationFluxVariablesSubset{FT,0}
@@ -54,7 +56,7 @@ FT = Float64
 
     @testset "DefaultRadiationFluxVariablesSubset vector (N=1)" begin
         hours = 24
-        swrin = initialize_default_radiation_flux_variables(FT, 1, hours)
+        swrin = initialize_default_radiation_flux_variables(FT, TimeSeries(), hours)
 
         @test swrin isa DefaultRadiationFluxVariablesSubset{FT,1}
 
@@ -67,7 +69,7 @@ FT = Float64
     end
 
     @testset "AlbedoOutput scalar (N=0)" begin
-        albedo_output = initialize_albedo_output(FT, 0)
+        albedo_output = initialize_albedo_output(FT, TimeSlice())
 
         # Test structure
         @test albedo_output isa AlbedoOutput{FT,0}
@@ -81,7 +83,7 @@ FT = Float64
 
     @testset "AlbedoOutput vector (N=1)" begin
         hours = 24
-        albedo_output = initialize_albedo_output(FT, 1, hours)
+        albedo_output = initialize_albedo_output(FT, TimeSeries(), hours)
 
         @test albedo_output isa AlbedoOutput{FT,1}
 
@@ -95,7 +97,7 @@ FT = Float64
 end
 
 @testset "RadiationFluxVariables scalar (N=0)" begin
-    radiation_vars = initialize_radiation_flux_variables(FT, 0)
+    radiation_vars = initialize_radiation_flux_variables(FT, TimeSlice())
 
     # Test structure
     @test radiation_vars isa RadiationFluxVariables{FT,0}
@@ -119,7 +121,7 @@ end
 
 @testset "RadiationFluxVariables vector (N=1)" begin
     hours = 24
-    radiation_vars = initialize_radiation_flux_variables(FT, 1, hours)
+    radiation_vars = initialize_radiation_flux_variables(FT, TimeSeries(), hours)
 
     # Test structure
     @test radiation_vars isa RadiationFluxVariables{FT,1}

@@ -46,17 +46,72 @@ Initialize a `ModelVariableSet` with the given parameters.
 - `initial_value::FT`: Initial value for water flux variables (default is `400.0`).
 - `hours::Int`: Number of time steps (default is `1`).
 """
+function initialize_model_variable_set(
+    ::Type{FT},
+    ::TimeSlice,
+    soil_parameters::SoilParameters{FT},
+    vegetation_parameters::VegetationParameters{FT},
+) where {FT<:AbstractFloat}
+    N = dimension_value(TimeSlice())
+    return initialize(
+        FT,
+        ModelVariableSet,
+        Dict{String,Any}(),
+        (FT, N, N+1),
+        soil_parameters,
+        vegetation_parameters,
+    )
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT},
+    ::Type{ModelVariableSet},
+    data::Dict{String,Any},
+    params::Tuple,
+    soil_parameters::SoilParameters{FT},
+    vegetation_parameters::VegetationParameters{FT},
+) where {FT<:AbstractFloat}
+    processed = Dict{String,Any}()
+
+    processed["buildingenergymodel"] = initialize_building_energy_model_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["energybalance"] = initialize_energy_balance_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["environmentalconditions"] = initialize_environmental_conditions(
+        FT, dimensionality_type(params[2])
+    )
+    processed["heatflux"] = initialize_heat_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["humidity"] = initialize_humidity_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["radiationflux"] = initialize_radiation_flux_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["temperature"] = initialize_temperature_variables(
+        FT, dimensionality_type(params[2])
+    )
+    processed["waterflux"] = initialize_water_flux_variables(
+        FT, dimensionality_type(params[2]), soil_parameters, vegetation_parameters
+    )
+
+    return processed
+end
 
 function initialize_model_variable_set(
     ::Type{FT},
-    N::Int,
+    ::TimeSeries,
     Tatm::FT,
     AtmSpecific::FT,
     soil_parameters::SoilParameters{FT},
     vegetation_parameters::VegetationParameters{FT},
     initial_value::FT,
-    hours::Int=1,
+    hours::Int,
 ) where {FT<:AbstractFloat}
+    N = dimension_value(TimeSeries())
     return initialize(
         FT,
         ModelVariableSet,
@@ -86,18 +141,33 @@ function TethysChlorisCore.preprocess_fields(
     processed = Dict{String,Any}()
 
     processed["buildingenergymodel"] = initialize_building_energy_model_variables(
-        FT, params[2], hours, Tatm, AtmSpecific
+        FT, dimensionality_type(params[2]), hours, Tatm, AtmSpecific
     )
-    processed["energybalance"] = initialize_energy_balance_variables(FT, params[2], hours)
+    processed["energybalance"] = initialize_energy_balance_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
     processed["environmentalconditions"] = initialize_environmental_conditions(
-        FT, params[2], hours
+        FT, dimensionality_type(params[2]), hours
     )
-    processed["heatflux"] = initialize_heat_flux_variables(FT, params[2], hours)
-    processed["humidity"] = initialize_humidity_variables(FT, params[2], hours, AtmSpecific)
-    processed["radiationflux"] = initialize_radiation_flux_variables(FT, params[2], hours)
-    processed["temperature"] = initialize_temperature_variables(FT, params[2], hours)
+    processed["heatflux"] = initialize_heat_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["humidity"] = initialize_humidity_variables(
+        FT, dimensionality_type(params[2]), hours, AtmSpecific
+    )
+    processed["radiationflux"] = initialize_radiation_flux_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
+    processed["temperature"] = initialize_temperature_variables(
+        FT, dimensionality_type(params[2]), hours
+    )
     processed["waterflux"] = initialize_water_flux_variables(
-        FT, params[2], soil_parameters, vegetation_parameters, initial_value, hours
+        FT,
+        dimensionality_type(params[2]),
+        soil_parameters,
+        vegetation_parameters,
+        initial_value,
+        hours,
     )
 
     return processed
