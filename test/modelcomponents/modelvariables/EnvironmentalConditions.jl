@@ -14,7 +14,7 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
 FT = Float64
 
 @testset "Wind" begin
-    @testset "Wind scalar (N=0)" begin
+    @testset "TimeSlice" begin
         wind = initialize_wind(FT, TimeSlice())
         @test wind isa Wind{FT,0}
         for field in fieldnames(Wind)
@@ -22,7 +22,7 @@ FT = Float64
         end
     end
 
-    @testset "Wind vector (N=1)" begin
+    @testset "TimeSeries" begin
         hours = 24
         wind = initialize_wind(FT, TimeSeries(), hours)
         @test wind isa Wind{FT,1}
@@ -34,7 +34,7 @@ FT = Float64
 end
 
 @testset "LAITimeSeries" begin
-    @testset "LAITimeSeries scalar (N=0)" begin
+    @testset "TimeSlice" begin
         lai = initialize_lai_time_series(FT, TimeSlice())
         @test lai isa LAITimeSeries{FT,0}
         for field in fieldnames(LAITimeSeries)
@@ -42,7 +42,7 @@ end
         end
     end
 
-    @testset "LAITimeSeries vector (N=1)" begin
+    @testset "TimeSeries" begin
         hours = 24
         lai = initialize_lai_time_series(FT, TimeSeries(), hours)
         @test lai isa LAITimeSeries{FT,1}
@@ -54,7 +54,7 @@ end
 end
 
 @testset "Resistance" begin
-    @testset "Resistance scalar (N=0)" begin
+    @testset "TimeSlice" begin
         res = initialize_resistance(FT, TimeSlice())
         @test res isa Resistance{FT,0}
         for field in fieldnames(Resistance)
@@ -62,7 +62,7 @@ end
         end
     end
 
-    @testset "Resistance vector (N=1)" begin
+    @testset "TimeSeries" begin
         hours = 24
         res = initialize_resistance(FT, TimeSeries(), hours)
         @test res isa Resistance{FT,1}
@@ -74,7 +74,7 @@ end
 end
 
 @testset "EnvironmentalConditions" begin
-    @testset "EnvironmentalConditions scalar (N=0)" begin
+    @testset "TimeSlice" begin
         env = initialize_environmental_conditions(FT, TimeSlice())
         @test env isa EnvironmentalConditions{FT,0}
         @test env.wind isa Wind{FT,0}
@@ -82,7 +82,7 @@ end
         @test env.resistance isa Resistance{FT,0}
     end
 
-    @testset "EnvironmentalConditions vector (N=1)" begin
+    @testset "TimeSeries" begin
         hours = 24
         env = initialize_environmental_conditions(FT, TimeSeries(), hours)
         @test env isa EnvironmentalConditions{FT,1}

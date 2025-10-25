@@ -32,54 +32,6 @@ function Base.getproperty(
     return getfield(obj, field)[]
 end
 
-# function TethysChlorisCore.preprocess_fields(
-#     ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, args...
-# ) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset}
-#     processed = Dict{String,Any}()
-#     dimensions = get_dimensions(T, data, params, args...)
-
-#     for (var, dims) in dimensions
-#         processed[var] = zeros(FT, dims)
-#     end
-
-#     return processed
-# end
-
-# function TethysChlorisCore.preprocess_fields(
-#     ::Type{FT},
-#     ::Type{T},
-#     data::Dict{String,Any},
-#     params::Tuple,
-#     soil_value::NamedTuple,
-# ) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset}
-#     processed = Dict{String,Any}()
-#     dimensions = get_dimensions(T, data, params, soil_value)
-
-#     for (var, dims) in dimensions
-#         processed[var] = zeros(FT, dims)
-#     end
-
-#     return processed
-# end
-
-# function TethysChlorisCore.preprocess_fields(
-#     ::Type{FT},
-#     ::Type{T},
-#     data::Dict{String,Any},
-#     params::Tuple,
-#     hours::Int,
-#     soil_value::NamedTuple,
-# ) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset}
-#     processed = Dict{String,Any}()
-#     dimensions = get_dimensions(T, data, params, hours, soil_value)
-
-#     for (var, dims) in dimensions
-#         processed[var] = zeros(FT, dims)
-#     end
-
-#     return processed
-# end
-
 """
     Eflux{FT<:AbstractFloat, N} <: AbstractEflux{FT,N}
 
@@ -413,33 +365,6 @@ function get_dimensions(
         "VGroundSoilTot" => (ground_layers,),
     )
 end
-
-# function TethysChlorisCore.preprocess_fields(
-#     ::Type{FT},
-#     ::Type{Vwater},
-#     data::Dict{String,Any},
-#     params::Tuple,
-#     soil_values::NamedTuple,
-# ) where {FT<:AbstractFloat}
-#     processed = Dict{String,Any}()
-
-#     roof_layers = soil_values.roof.ms
-#     ground_layers = soil_values.ground.ms
-
-#     dimensions = Dict{String,Tuple}(
-#         "VRoofSoilVeg" => (roof_layers,),
-#         "VGroundSoilImp" => (ground_layers,),
-#         "VGroundSoilBare" => (ground_layers,),
-#         "VGroundSoilVeg" => (ground_layers,),
-#         "VGroundSoilTot" => (ground_layers,),
-#     )
-
-#     for (var, dims) in dimensions
-#         processed[var] = zeros(FT, dims)
-#     end
-
-#     return processed
-# end
 
 function initialize_vwater(
     ::Type{FT}, ::TimeSeries, soil_values::NamedTuple, hours::Int

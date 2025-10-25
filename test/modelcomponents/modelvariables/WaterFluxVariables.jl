@@ -75,7 +75,7 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
             end
         end
 
-        @testset "TimeVector" begin
+        @testset "TimeSeries" begin
             hours = 24
             eflux = initialize_eflux(FT, TimeSeries(), hours)
 
