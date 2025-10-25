@@ -13,6 +13,36 @@ function Base.getproperty(
     return getfield(obj, field)[]
 end
 
+function Base.setproperty!(
+    obj::T, field::Symbol, value::FT
+) where {FT<:AbstractFloat,T<:AbstractHumidityVariablesSubset{FT,0}}
+    setfield!(obj, field, fill(value))
+end
+
+function Base.getindex(
+    obj::T, idx::Int
+) where {FT<:AbstractFloat,T<:AbstractHumidityVariablesSubset{FT,1}}
+    scalar_type = typeof(obj).name.wrapper{FT,0}
+    fieldvals = Dict{Symbol,Any}()
+    for field in fieldnames(typeof(obj))
+        fieldvals[field] = fill(getproperty(obj, field)[idx])
+    end
+    return scalar_type(; fieldvals...)
+end
+
+function Base.setindex!(
+    obj::T, value::S, idx::Int
+) where {
+    FT<:AbstractFloat,
+    T<:AbstractHumidityVariablesSubset{FT,1},
+    S<:AbstractHumidityVariablesSubset{FT,0},
+}
+    for field in fieldnames(typeof(obj))
+        getproperty(obj, field)[idx] = getproperty(value, field)
+    end
+    return obj
+end
+
 """
     Humidity{FT<:AbstractFloat, N} <: AbstractHumidity{FT}
 
@@ -32,7 +62,7 @@ Canyon and atmospheric humidity variables.
 - `AtmSpecificSat`: Specific humidity at saturation at atmospheric forcing height [kg/kg]
 - `AtmVapourPreSat`: Saturation vapour pressure at atmospheric forcing height [Pa]
 """
-Base.@kwdef struct Humidity{FT<:AbstractFloat,N} <: AbstractHumidity{FT,N}
+Base.@kwdef mutable struct Humidity{FT<:AbstractFloat,N} <: AbstractHumidity{FT,N}
     CanyonRelative::Array{FT,N}
     CanyonSpecific::Array{FT,N}
     CanyonVapourPre::Array{FT,N}
@@ -101,7 +131,7 @@ Temperature and humidity results at 2-meter canyon height.
 - `e_Tcan`: Canyon vapor pressure [Pa]
 - `RH_Tcan`: Canyon relative humidity [-]
 """
-Base.@kwdef struct Results2m{FT<:AbstractFloat,N} <: AbstractResults2m{FT,N}
+Base.@kwdef mutable struct Results2m{FT<:AbstractFloat,N} <: AbstractResults2m{FT,N}
     # 2-meter Height Results
     T2m::Array{FT,N}
     q2m::Array{FT,N}
@@ -185,4 +215,26 @@ function TethysChlorisCore.preprocess_fields(
     processed["Results2m"] = initialize_results2m(FT, dimensionality_type(params[2]), hours)
 
     return processed
+end
+
+function Base.getindex(
+    obj::T, idx::Int
+) where {FT<:AbstractFloat,T<:AbstractHumidityVariables{FT,1}}
+    scalar_type = typeof(obj).name.wrapper{FT,0}
+    fieldvals = Dict{Symbol,Any}()
+    for field in fieldnames(typeof(obj))
+        fieldvals[field] = getindex(getproperty(obj, field), idx)
+    end
+    return scalar_type(; fieldvals...)
+end
+
+function Base.setindex!(
+    obj::T, value::S, idx::Int
+) where {
+    FT<:AbstractFloat,T<:AbstractHumidityVariables{FT,1},S<:AbstractHumidityVariables{FT,0}
+}
+    for field in fieldnames(typeof(obj))
+        getproperty(obj, field)[idx] = getproperty(value, field)
+    end
+    return obj
 end

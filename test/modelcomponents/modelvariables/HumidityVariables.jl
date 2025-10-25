@@ -36,6 +36,13 @@ FT = Float64
             @test isa(getproperty(humidity, field), Array{FT,1})
             @test size(getproperty(humidity, field)) == (hours,)
         end
+
+        # Test setproperty! for TimeSlice
+        x = humidity[1]
+        @test x isa Humidity{FT,0}
+        x.AtmRelative = 0.5
+        humidity[2] = x
+        @test humidity.AtmRelative[2] == 0.5
     end
 end
 
@@ -60,6 +67,12 @@ end
             @test isa(getproperty(results, field), Array{FT,1})
             @test size(getproperty(results, field)) == (hours,)
         end
+
+        x = results[1]
+        @test x isa Results2m{FT,0}
+        x.T2m = 0.5
+        results[2] = x
+        @test results.T2m[2] == 0.5
     end
 end
 
@@ -81,5 +94,11 @@ end
         @test size(humidity_vars.Humidity.CanyonRelative) == (hours,)
         @test size(humidity_vars.Results2m.T2m) == (hours,)
         @test humidity_vars.Humidity.CanyonSpecific[1] == q_atm
+
+        x = humidity_vars[1]
+        @test x isa HumidityVariables{FT,0}
+        x.Humidity.AtmRelative = 0.6
+        humidity_vars[2] = x
+        @test humidity_vars.Humidity.AtmRelative[2] == 0.6
     end
 end

@@ -10,6 +10,7 @@ HVAC schedule parameters that specify heat and humidity sources from building eq
 - `LEpeople`: Latent heat from people [W/m² building ground area]
 - `AirConRoomFraction`: Fraction of air conditioned space [-]
 """
+# TODO: check whether this should really by a Parameters subtype
 Base.@kwdef struct HVACSchedule{FT<:AbstractFloat} <: AbstractParameters{FT}
     Hequip::Vector{FT}
     Hpeople::Vector{FT}
