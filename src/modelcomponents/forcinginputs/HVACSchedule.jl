@@ -1,3 +1,5 @@
+abstract type AbstractHVACSchedule{FT<:AbstractFloat} <: AbstractForcingInputs{FT} end
+
 """
     HVACSchedule{FT<:AbstractFloat}
 
@@ -10,8 +12,7 @@ HVAC schedule parameters that specify heat and humidity sources from building eq
 - `LEpeople`: Latent heat from people [W/m² building ground area]
 - `AirConRoomFraction`: Fraction of air conditioned space [-]
 """
-# TODO: check whether this should really by a Parameters subtype
-Base.@kwdef struct HVACSchedule{FT<:AbstractFloat} <: AbstractAnthropogenicInputs{FT}
+Base.@kwdef struct HVACSchedule{FT<:AbstractFloat} <: AbstractHVACSchedule{FT}
     Hequip::Vector{FT}
     Hpeople::Vector{FT}
     LEequip::Vector{FT}
