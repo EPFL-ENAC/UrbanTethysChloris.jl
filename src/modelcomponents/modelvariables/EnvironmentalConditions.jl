@@ -1,31 +1,15 @@
 abstract type AbstractEnvironmentalConditionSet{FT<:AbstractFloat} <:
               AbstractModelVariableSet{FT} end
 
-abstract type AbstractEnvironmentalConditionSubset{FT<:AbstractFloat,N} <:
-              AbstractModelVariables{FT} end
-
-abstract type AbstractWind{FT<:AbstractFloat,N} <:
-              AbstractEnvironmentalConditionSubset{FT,N} end
-abstract type AbstractLAITimeSeries{FT<:AbstractFloat,N} <:
-              AbstractEnvironmentalConditionSubset{FT,N} end
-abstract type AbstractResistance{FT<:AbstractFloat,N} <:
-              AbstractEnvironmentalConditionSubset{FT,N} end
-
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractEnvironmentalConditionSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
 """
-    Wind{FT<:AbstractFloat,N} <: AbstractWind{FT,N}
+    Wind{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
 
 # Fields
 - `u_Hcan`: Wind speed at canyon calculation height (hdisp + canyon roughness height) [m/s]
 - `u_Zref_und`: Wind speed at undercanopy reference height [m/s]
 - `u_ZPerson`: Wind speed at person height [m/s]
 """
-Base.@kwdef struct Wind{FT<:AbstractFloat,N} <: AbstractWind{FT,N}
+Base.@kwdef mutable struct Wind{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     u_Hcan::Array{FT,N}
     u_Zref_und::Array{FT,N}
     u_ZPerson::Array{FT,N}
@@ -42,14 +26,15 @@ function initialize_wind(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abstra
 end
 
 """
-    LAITimeSeries{FT<:AbstractFloat,N} <: AbstractLAITimeSeries{FT,N}
+    LAITimeSeries{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
 
 # Fields
 - `LAI_R`: LAI of roof vegetation [-]
 - `LAI_G`: LAI of ground vegetation [-]
 - `LAI_T`: LAI of tree vegetation [-]
 """
-Base.@kwdef struct LAITimeSeries{FT<:AbstractFloat,N} <: AbstractLAITimeSeries{FT,N}
+Base.@kwdef mutable struct LAITimeSeries{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     LAI_R::Array{FT,N}
     LAI_G::Array{FT,N}
     LAI_T::Array{FT,N}
@@ -70,7 +55,7 @@ function initialize_lai_time_series(
 end
 
 """
-    Resistance{FT<:AbstractFloat,N} <: AbstractResistance{FT,N}
+    Resistance{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
 
 # Fields
 - `raRooftoAtm`: Aerodynamic resistance ra from roof to atmosphere [s/m]
@@ -99,7 +84,7 @@ end
 - `rap_W2_In`: Vertical aerodynamic resistance applied from 2m height to canyon displacement height plus momentum roughness length height for shaded wall [s/m]
 - `rap_Zp1`: Vertical aerodynamic resistance from the ground to 2m height [s/m]
 """
-Base.@kwdef struct Resistance{FT<:AbstractFloat,N} <: AbstractResistance{FT,N}
+Base.@kwdef mutable struct Resistance{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     raRooftoAtm::Array{FT,N}
     raCanyontoAtmOrig::Array{FT,N}
     rap_LRoof::Array{FT,N}
@@ -142,15 +127,15 @@ function initialize_resistance(
 end
 
 """
-    EnvironmentalConditionSet{FT<:AbstractFloat, N} <: AbstractEnvironmentalConditionSet{FT}
+    EnvironmentalConditionSet{FT<:AbstractFloat, N} <: Abstract1PModelVariablesSet{FT, N}
 
 Environmental condition set including wind, LAI time series, and resistances.
 """
 Base.@kwdef struct EnvironmentalConditions{FT<:AbstractFloat,N} <:
-                   AbstractEnvironmentalConditionSet{FT}
+                   Abstract1PModelVariablesSet{FT,N}
     wind::Wind{FT,N}
-    LAI_time_series::AbstractLAITimeSeries{FT,N}
-    resistance::AbstractResistance{FT,N}
+    LAI_time_series::LAITimeSeries{FT,N}
+    resistance::Resistance{FT,N}
 end
 
 function initialize_environmental_conditions(

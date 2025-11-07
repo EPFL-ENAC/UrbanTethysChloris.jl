@@ -145,3 +145,25 @@ end
         @test size(temp_vars.thermalcomfort.UTCI) == (hours,)
     end
 end
+
+@testset "get/setindex" begin
+    hours = 24
+    temp_vars = initialize_temperature_variables(FT, TimeSeries(), hours)
+
+    TRoofImp = FT(300.0)
+    TDampGroundImp = FT(290.0)
+    LWR_Person = FT(310.0)
+    UTCI = FT(25.0)
+
+    x = temp_vars[1]
+    x.tempvec.TRoofImp = TRoofImp
+    x.tempdamp.TDampGroundImp = TDampGroundImp
+    x.mrt.LWR_Person = LWR_Person
+    x.thermalcomfort.UTCI = UTCI
+
+    temp_vars[2] = x
+    @test temp_vars.tempvec.TRoofImp[2] == TRoofImp
+    @test temp_vars.tempdamp.TDampGroundImp[2] == TDampGroundImp
+    @test temp_vars.mrt.LWR_Person[2] == LWR_Person
+    @test temp_vars.thermalcomfort.UTCI[2] == UTCI
+end

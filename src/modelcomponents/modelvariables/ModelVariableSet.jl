@@ -1,5 +1,5 @@
 """
-    ModelVariableSet{FT<:AbstractFloat,N,Np} <: AbstractModelVariableSet{FT}
+    ModelVariableSet{FT<:AbstractFloat, N, Np} <: Abstract2PModelVariablesSet{FT, N, Np1}
 
 Forcing inputs for the Urban Tethys-Chloris model.
 
@@ -13,15 +13,16 @@ Forcing inputs for the Urban Tethys-Chloris model.
 - `temperature`: Temperature variables
 - `waterflux`: Water flux variables
 """
-Base.@kwdef struct ModelVariableSet{FT<:AbstractFloat,N,Np} <: AbstractModelVariableSet{FT}
+Base.@kwdef struct ModelVariableSet{FT<:AbstractFloat,N,Np1} <:
+                   Abstract2PModelVariablesSet{FT,N,Np1}
     buildingenergymodel::BuildingEnergyModelVariables{FT,N}
-    energybalance::EnergyBalanceVariables{FT,N,Np}
+    energybalance::EnergyBalanceVariables{FT,N,Np1}
     environmentalconditions::EnvironmentalConditions{FT,N}
     heatflux::HeatFluxVariables{FT,N}
     humidity::HumidityVariables{FT,N}
     radiationflux::RadiationFluxVariables{FT,N}
     temperature::TemperatureVariables{FT,N}
-    waterflux::WaterFluxVariables{FT,N,Np}
+    waterflux::WaterFluxVariables{FT,N,Np1}
 end
 
 """

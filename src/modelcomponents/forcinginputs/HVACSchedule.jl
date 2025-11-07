@@ -11,7 +11,7 @@ HVAC schedule parameters that specify heat and humidity sources from building eq
 - `AirConRoomFraction`: Fraction of air conditioned space [-]
 """
 # TODO: check whether this should really by a Parameters subtype
-Base.@kwdef struct HVACSchedule{FT<:AbstractFloat} <: AbstractParameters{FT}
+Base.@kwdef struct HVACSchedule{FT<:AbstractFloat} <: AbstractAnthropogenicInputs{FT}
     Hequip::Vector{FT}
     Hpeople::Vector{FT}
     LEequip::Vector{FT}

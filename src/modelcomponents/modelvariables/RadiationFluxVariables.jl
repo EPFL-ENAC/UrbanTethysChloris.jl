@@ -1,26 +1,5 @@
-# Subtype for the set of subsets of radiation variables
-abstract type AbstractRadiationFluxVariables{FT<:AbstractFloat} <:
-              AbstractModelVariableSet{FT} end
-
-# Subtype for each subset of radiation variables
-abstract type AbstractRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
-              AbstractModelVariables{FT} end
-
-abstract type AbstractAbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
-              AbstractRadiationFluxVariablesSubset{FT,N} end
-abstract type AbstractDefaultRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
-              AbstractRadiationFluxVariablesSubset{FT,N} end
-abstract type AbstractAlbedoOutput{FT<:AbstractFloat,N} <:
-              AbstractRadiationFluxVariablesSubset{FT,N} end
-
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractRadiationFluxVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
 """
-    AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat, N} <: AbstractAbsorbedRadiationFluxVariablesSubset{FT,N}
+    AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Absorbed shortwave radiation for different urban surfaces.
 
@@ -42,8 +21,8 @@ Absorbed shortwave radiation for different urban surfaces.
 - `WallSunTransmitted`: Shortwave radiation transmitted through the windows on the sunlit wall area [W/m² vertical wall area]
 - `WallShadeTransmitted`: Shortwave radiation transmitted through the windows on the sunlit wall area [W/m² vertical wall area]
 """
-Base.@kwdef struct AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
-                   AbstractAbsorbedRadiationFluxVariablesSubset{FT,N}
+Base.@kwdef mutable struct AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     SWRabsRoofImp::Array{FT,N}
     RoofVeg::Array{FT,N}
     TotalRoof::Array{FT,N}
@@ -86,7 +65,7 @@ function initialize_absorbed_radiation_flux_variables(
 end
 
 """
-    DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat, N} <: AbstractDefaultRadiationFluxVariablesSubset{FT,N}
+    DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Radiation flux for different urban surfaces.
 
@@ -104,8 +83,8 @@ Radiation flux for different urban surfaces.
 - `TotalCanyon`: Total incoming shortwave radiation by all the canyon facets [W/m²]
 - `TotalUrban`: Total incoming shortwave radiation by all the urban elements (roof plus canyon) [W/m²]
 """
-Base.@kwdef struct DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
-                   AbstractDefaultRadiationFluxVariablesSubset{FT,N}
+Base.@kwdef mutable struct DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     RoofImp::Array{FT,N}
     RoofVeg::Array{FT,N}
     TotalRoof::Array{FT,N}
@@ -144,7 +123,7 @@ function initialize_default_radiation_flux_variables(
 end
 
 """
-    AlbedoOutput{FT<:AbstractFloat, N} <: AbstractAlbedoOutput{FT,N}
+    AlbedoOutput{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Albedo values for urban areas.
 
@@ -153,7 +132,8 @@ Albedo values for urban areas.
 - `TotalCanyon`: Albedo of the total canyon area [-]
 - `Roof`: Albedo of the total roof area [-]
 """
-Base.@kwdef struct AlbedoOutput{FT<:AbstractFloat,N} <: AbstractAlbedoOutput{FT,N}
+Base.@kwdef mutable struct AlbedoOutput{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     TotalUrban::Array{FT,N}
     TotalCanyon::Array{FT,N}
     Roof::Array{FT,N}
@@ -174,7 +154,7 @@ function initialize_albedo_output(
 end
 
 """
-    RadiationFluxVariables{FT<:AbstractFloat, N} <: AbstractRadiationFluxVariables{FT}
+    RadiationFluxVariables{FT<:AbstractFloat, N} <: Abstract1PModelVariablesSet{FT, N}
 
 Container for all radiation variable components.
 
@@ -190,7 +170,7 @@ Container for all radiation variable components.
 - `AlbedoOutput`: Albedo values for urban areas
 """
 Base.@kwdef struct RadiationFluxVariables{FT<:AbstractFloat,N} <:
-                   AbstractRadiationFluxVariables{FT}
+                   Abstract1PModelVariablesSet{FT,N}
     SWRabs::AbsorbedRadiationFluxVariablesSubset{FT,N}
     SWRin::DefaultRadiationFluxVariablesSubset{FT,N}
     SWRout::DefaultRadiationFluxVariablesSubset{FT,N}

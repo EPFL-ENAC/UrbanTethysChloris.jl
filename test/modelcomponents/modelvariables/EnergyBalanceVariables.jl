@@ -141,44 +141,6 @@ end
 @testset "EnergyBalanceVariables" begin
     @testset "TimeSlice" begin
         energy_balance_vars = initialize_energy_balance_variables(FT, TimeSlice())
-        @test energy_balance_vars isa EnergyBalanceVariables{FT,0}
-        @test isa(energy_balance_vars.WBRoof, WBRoof{FT,0})
-        @test isa(energy_balance_vars.WBCanyonIndv, WBCanyonIndv{FT,0})
-        @test isa(energy_balance_vars.WBCanyonTot, WBCanyonTot{FT,0})
-        @test isa(energy_balance_vars.EB, EB{FT,0})
-        @test isa(energy_balance_vars.Solver, SolverVariables{FT,0,1})
-        @test energy_balance_vars.WBRoof.WBRoofImp === 0.0
-        @test energy_balance_vars.WBCanyonIndv.WB_In_tree === 0.0
-        @test energy_balance_vars.WBCanyonTot.WBsoil_veg === 0.0
-        @test energy_balance_vars.EB.EBRoofImp === 0.0
-        @test energy_balance_vars.Solver.Success === false
-    end
-
-    @testset "TimeSeries" begin
-        hours = 24
-        energy_balance_vars = initialize_energy_balance_variables(FT, TimeSeries(), hours)
-        @test energy_balance_vars isa EnergyBalanceVariables{FT,1,2}
-        @test isa(energy_balance_vars.WBRoof, WBRoof{FT,1})
-        @test isa(energy_balance_vars.WBCanyonIndv, WBCanyonIndv{FT,1})
-        @test isa(energy_balance_vars.WBCanyonTot, WBCanyonTot{FT,1})
-        @test isa(energy_balance_vars.EB, EB{FT,1})
-        @test isa(energy_balance_vars.Solver, SolverVariables{FT,1,2})
-        @test size(energy_balance_vars.WBRoof.WBRoofImp) == (hours,)
-        @test size(energy_balance_vars.WBCanyonIndv.WB_In_tree) == (hours,)
-        @test size(energy_balance_vars.WBCanyonTot.WBsoil_veg) == (hours,)
-        @test size(energy_balance_vars.EB.EBRoofImp) == (hours,)
-        @test size(energy_balance_vars.Solver.Success) == (hours,)
-        @test energy_balance_vars.WBRoof.WBRoofImp[1] == 0.0
-        @test energy_balance_vars.WBCanyonIndv.WB_In_tree[1] == 0.0
-        @test energy_balance_vars.WBCanyonTot.WBsoil_veg[1] == 0.0
-        @test energy_balance_vars.EB.EBRoofImp[1] == 0.0
-        @test energy_balance_vars.Solver.Success[1] == false
-    end
-end
-
-@testset "EnergyBalanceVariables" begin
-    @testset "TimeSlice" begin
-        energy_balance_vars = initialize_energy_balance_variables(FT, TimeSlice())
 
         # Test structure
         @test energy_balance_vars isa EnergyBalanceVariables{FT,0}
@@ -226,4 +188,30 @@ end
         @test energy_balance_vars.EB.EBRoofImp[1] == 0.0
         @test energy_balance_vars.Solver.Success[1] == false
     end
+end
+
+@testset "get/setindex" begin
+    hours = 24
+    energy_balance_vars = initialize_energy_balance_variables(FT, TimeSeries(), hours)
+
+    WBRoofImp = FT(1.5)
+    WB_In_tree = FT(3.5)
+    WBsoil_veg = FT(4.5)
+    EBRoofImp = FT(2.5)
+    ValuesEB = fill(FT(1.5), 22)
+
+    # Get index 1
+    ebv = energy_balance_vars[1]
+    ebv.WBRoof.WBRoofImp = WBRoofImp
+    ebv.WBCanyonIndv.WB_In_tree = WB_In_tree
+    ebv.WBCanyonTot.WBsoil_veg = WBsoil_veg
+    ebv.EB.EBRoofImp = EBRoofImp
+    ebv.Solver.ValuesEB = ValuesEB
+    energy_balance_vars[2] = ebv
+
+    @test energy_balance_vars.WBRoof.WBRoofImp[2] == WBRoofImp
+    @test energy_balance_vars.WBCanyonIndv.WB_In_tree[2] == WB_In_tree
+    @test energy_balance_vars.WBCanyonTot.WBsoil_veg[2] == WBsoil_veg
+    @test energy_balance_vars.EB.EBRoofImp[2] == EBRoofImp
+    @test energy_balance_vars.Solver.ValuesEB[2, :] == ValuesEB
 end

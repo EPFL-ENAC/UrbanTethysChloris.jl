@@ -94,3 +94,22 @@ end
         @test size(env.resistance.raRooftoAtm) == (hours,)
     end
 end
+
+@testset "get/setindex" begin
+    hours = 24
+    env = initialize_environmental_conditions(FT, TimeSeries(), hours)
+
+    LAI_R = FT(2.0)
+    u_Hcan = FT(3.0)
+    raRooftoAtm = FT(4.0)
+
+    x = env[1]
+    x.LAI_time_series.LAI_R = LAI_R
+    x.wind.u_Hcan = u_Hcan
+    x.resistance.raRooftoAtm = raRooftoAtm
+
+    env[2] = x
+    @test env.LAI_time_series.LAI_R[2] == LAI_R
+    @test env.wind.u_Hcan[2] == u_Hcan
+    @test env.resistance.raRooftoAtm[2] == raRooftoAtm
+end

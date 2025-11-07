@@ -94,11 +94,22 @@ end
         @test size(humidity_vars.Humidity.CanyonRelative) == (hours,)
         @test size(humidity_vars.Results2m.T2m) == (hours,)
         @test humidity_vars.Humidity.CanyonSpecific[1] == q_atm
-
-        x = humidity_vars[1]
-        @test x isa HumidityVariables{FT,0}
-        x.Humidity.AtmRelative = 0.6
-        humidity_vars[2] = x
-        @test humidity_vars.Humidity.AtmRelative[2] == 0.6
     end
+end
+
+@testset "get/setindex" begin
+    hours = 24
+    humidity_vars = initialize_humidity_variables(FT, TimeSeries(), hours, 0.005)
+
+    atm_relative = FT(0.7)
+    t2m = FT(300.0)
+
+    x = humidity_vars[1]
+    @test x isa HumidityVariables{FT,0}
+    x.Humidity.AtmRelative = atm_relative
+    x.Results2m.T2m = t2m
+    humidity_vars[2] = x
+
+    @test humidity_vars.Humidity.AtmRelative[2] == atm_relative
+    @test humidity_vars.Results2m.T2m[2] == t2m
 end

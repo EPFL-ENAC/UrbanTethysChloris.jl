@@ -1,25 +1,5 @@
-# Subtype for the set of subsets of heat flux model variables
-abstract type AbstractHeatFluxVariables{FT<:AbstractFloat} <: AbstractModelVariableSet{FT} end
-
-# Subtype for each subset of heat flux model variables
-abstract type AbstractHeatFluxVariablesSubset{FT<:AbstractFloat,N} <:
-              AbstractModelVariables{FT} end
-
-abstract type AbstractHflux{FT<:AbstractFloat,N} <: AbstractHeatFluxVariablesSubset{FT,N} end
-abstract type AbstractLEflux{FT<:AbstractFloat,N} <: AbstractHeatFluxVariablesSubset{FT,N} end
-abstract type AbstractGflux{FT<:AbstractFloat,N} <: AbstractHeatFluxVariablesSubset{FT,N} end
-abstract type AbstractdStorage{FT<:AbstractFloat,N} <: AbstractHeatFluxVariablesSubset{FT,N} end
-abstract type AbstractResults2mEnergyFlux{FT<:AbstractFloat,N} <:
-              AbstractHeatFluxVariablesSubset{FT,N} end
-
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractHeatFluxVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
 """
-    Hflux{FT<:AbstractFloat, N} <: AbstractHflux{FT,N}
+    Hflux{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Sensible heat fluxes for different urban surfaces.
 
@@ -38,7 +18,7 @@ Sensible heat fluxes for different urban surfaces.
 - `HfluxUrban`: Total sensible heat flux of urban area to atmosphere [W/m² horizontal urban area]
 - `dS_H_air`: Change in sensible heat storage in canyon air volume due to temperature change [W/m² horizontal area]
 """
-Base.@kwdef struct Hflux{FT<:AbstractFloat,N} <: AbstractHflux{FT,N}
+Base.@kwdef mutable struct Hflux{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     HfluxRoofImp::Array{FT,N}
     HfluxRoofVeg::Array{FT,N}
     HfluxRoof::Array{FT,N}
@@ -65,7 +45,7 @@ function initialize_hflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abstr
 end
 
 """
-    LEflux{FT<:AbstractFloat, N} <: AbstractLEflux{FT,N}
+    LEflux{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Latent heat fluxes for different urban surfaces.
 
@@ -96,7 +76,7 @@ Latent heat fluxes for different urban surfaces.
 - `LEfluxUrban`: Total latent heat flux of urban area to atmosphere [W/m² horizontal urban area]
 - `dS_LE_air`: Change in latent heat storage in canyon air volume due to moisture change [W/m² horizontal area]
 """
-Base.@kwdef struct LEflux{FT<:AbstractFloat,N} <: AbstractLEflux{FT,N}
+Base.@kwdef mutable struct LEflux{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     LEfluxRoofImp::Array{FT,N}
     LEfluxRoofVegInt::Array{FT,N}
     LEfluxRoofVegPond::Array{FT,N}
@@ -135,7 +115,7 @@ function initialize_leflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abst
 end
 
 """
-    Gflux{FT<:AbstractFloat, N} <: AbstractGflux{FT,N}
+    Gflux{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Conductive heat fluxes for different urban surfaces.
 
@@ -160,7 +140,7 @@ Conductive heat fluxes for different urban surfaces.
 - `G1Urban`: Total conductive heat flux G1 area-averaged per m² urban [W/m² horizontal urban area]
 - `G2Urban`: Total conductive heat flux G2 (G2 of ground is 0) area-averaged per m² urban [W/m² horizontal urban area]
 """
-Base.@kwdef struct Gflux{FT<:AbstractFloat,N} <: AbstractGflux{FT,N}
+Base.@kwdef mutable struct Gflux{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     G1RoofImp::Array{FT,N}
     G1RoofVeg::Array{FT,N}
     G2RoofImp::Array{FT,N}
@@ -193,7 +173,7 @@ function initialize_gflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abstr
 end
 
 """
-    dStorage{FT<:AbstractFloat, N} <: AbstractdStorage{FT,N}
+    dStorage{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Heat storage in different urban surfaces.
 
@@ -209,7 +189,7 @@ Heat storage in different urban surfaces.
 - `dsWallShade`: Storage of energy in shaded wall [W/m² vertical wall area]
 - `dsCanyonAir`: Storage of energy in canyon air [W/m² horizontal canyon area]
 """
-Base.@kwdef struct dStorage{FT<:AbstractFloat,N} <: AbstractdStorage{FT,N}
+Base.@kwdef mutable struct dStorage{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     dsRoofImp::Array{FT,N}
     dsRoofVeg::Array{FT,N}
     dsRoof::Array{FT,N}
@@ -233,7 +213,7 @@ function initialize_dstorage(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Ab
 end
 
 """
-    Results2mEnergyFlux{FT<:AbstractFloat, N} <: AbstractResults2mEnergyFlux{FT,N}
+    Results2mEnergyFlux{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Energy fluxes at 2m canyon height.
 
@@ -253,8 +233,8 @@ Energy fluxes at 2m canyon height.
 - `TEveg_2m`: Transpiration flux at 2m height [W/m²]
 - `Ecan_2m`: Total latent heat flux at 2m height [W/m²]
 """
-Base.@kwdef struct Results2mEnergyFlux{FT<:AbstractFloat,N} <:
-                   AbstractResults2mEnergyFlux{FT,N}
+Base.@kwdef mutable struct Results2mEnergyFlux{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     DHi::Array{FT,N}
     Himp_2m::Array{FT,N}
     Hbare_2m::Array{FT,N}
@@ -290,7 +270,7 @@ function initialize_results2m_energy_flux(
 end
 
 """
-    HeatFluxVariables{FT<:AbstractFloat, N} <: AbstractHeatFluxVariables{FT}
+    HeatFluxVariables{FT<:AbstractFloat, N} <: Abstract1PModelVariablesSet{FT, N}
 
 Container for all heat flux variable components.
 
@@ -301,7 +281,8 @@ Container for all heat flux variable components.
 - `dStorage`: Heat storage in different urban surfaces
 - `Results2mEnergyFlux`: Energy fluxes at 2m canyon height
 """
-Base.@kwdef struct HeatFluxVariables{FT<:AbstractFloat,N} <: AbstractHeatFluxVariables{FT}
+Base.@kwdef struct HeatFluxVariables{FT<:AbstractFloat,N} <:
+                   Abstract1PModelVariablesSet{FT,N}
     Hflux::Hflux{FT,N}
     LEflux::LEflux{FT,N}
     Gflux::Gflux{FT,N}

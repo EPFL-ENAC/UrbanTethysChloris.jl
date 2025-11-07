@@ -117,3 +117,40 @@ end
         @test radiation_vars.AlbedoOutput.TotalUrban[1] == 0.0
     end
 end
+
+@testset "get/setindex" begin
+    hours = 24
+    radiation_vars = initialize_radiation_flux_variables(FT, TimeSeries(), hours)
+
+    SWRabs_GroundImp = FT(1.0)
+    SWRin_Tree = FT(2.0)
+    SWRout_GroundBare = FT(3.0)
+    SWREB_TotalRoof = FT(4.0)
+    LWRabs_GroundVeg = FT(5.0)
+    LWRin_Tree = FT(6.0)
+    LWRout_TotalGround = FT(7.0)
+    LWREB_TotalCanyon = FT(8.0)
+    AlbedoOutput_Roof = FT(0.5)
+
+    x = radiation_vars[1]
+    x.SWRabs.GroundImp = SWRabs_GroundImp
+    x.SWRin.Tree = SWRin_Tree
+    x.SWRout.GroundBare = SWRout_GroundBare
+    x.SWREB.TotalRoof = SWREB_TotalRoof
+    x.LWRabs.GroundVeg = LWRabs_GroundVeg
+    x.LWRin.Tree = LWRin_Tree
+    x.LWRout.TotalGround = LWRout_TotalGround
+    x.LWREB.TotalCanyon = LWREB_TotalCanyon
+    x.AlbedoOutput.Roof = AlbedoOutput_Roof
+
+    radiation_vars[2] = x
+    @test radiation_vars.SWRabs.GroundImp[2] == SWRabs_GroundImp
+    @test radiation_vars.SWRin.Tree[2] == SWRin_Tree
+    @test radiation_vars.SWRout.GroundBare[2] == SWRout_GroundBare
+    @test radiation_vars.SWREB.TotalRoof[2] == SWREB_TotalRoof
+    @test radiation_vars.LWRabs.GroundVeg[2] == LWRabs_GroundVeg
+    @test radiation_vars.LWRin.Tree[2] == LWRin_Tree
+    @test radiation_vars.LWRout.TotalGround[2] == LWRout_TotalGround
+    @test radiation_vars.LWREB.TotalCanyon[2] == LWREB_TotalCanyon
+    @test radiation_vars.AlbedoOutput.Roof[2] == AlbedoOutput_Roof
+end

@@ -642,3 +642,61 @@ end
         @test isa(water_flux_vars.ExWater, ExWater{FT,2})
     end
 end
+
+@testset "get/setindex" begin
+    hours = 24
+    initial_value = 300.0
+    water_flux_vars = initialize_water_flux_variables(
+        FT, TimeSeries(), ps.soil, ps.vegetation, initial_value, hours
+    )
+
+    EfluxRoofImp = FT(1.0)
+    QRoofImp = FT(2.0)
+    RunonRoofTot = FT(3.0)
+    LkRoofImp = FT(4.0)
+    IntRoofImp = FT(5.0)
+    dInt_dtRoofImp = FT(6.0)
+    fRoofVeg = FT(7.0)
+    VRoofSoilVeg = fill(FT(8.0), ps.soil.roof.ms)
+    dVGroundSoilVeg_dt = fill(FT(9.0), ps.soil.ground.ms)
+    OwRoofSoilVeg = fill(FT(10.0), ps.soil.roof.ms)
+    OSwRoofSoilVeg = fill(FT(11.0), ps.soil.roof.ms)
+    Qin_bare2imp = fill(FT(12.0), ps.soil.ground.ms)
+    ExWaterRoofVeg_H = fill(FT(13.0), ps.soil.roof.ms)
+    SoilPotWRoofVeg_H = FT(14.0)
+    CiCO2LeafRoofVegSun = FT(15.0)
+
+    x = water_flux_vars[1]
+    x.Eflux.EfluxRoofImp = EfluxRoofImp
+    x.Runoff.QRoofImp = QRoofImp
+    x.Runon.RunonRoofTot = RunonRoofTot
+    x.Leakage.LkRoofImp = LkRoofImp
+    x.Interception.IntRoofImp = IntRoofImp
+    x.dInt_dt.dInt_dtRoofImp = dInt_dtRoofImp
+    x.Infiltration.fRoofVeg = fRoofVeg
+    x.Vwater.VRoofSoilVeg = VRoofSoilVeg
+    x.dVwater_dt.dVGroundSoilVeg_dt = dVGroundSoilVeg_dt
+    x.Owater.OwRoofSoilVeg = OwRoofSoilVeg
+    x.OSwater.OSwRoofSoilVeg = OSwRoofSoilVeg
+    x.Qinlat.Qin_bare2imp = Qin_bare2imp
+    x.ExWater.ExWaterRoofVeg_H = ExWaterRoofVeg_H
+    x.SoilPotW.SoilPotWRoofVeg_H = SoilPotWRoofVeg_H
+    x.CiCO2Leaf.CiCO2LeafRoofVegSun = CiCO2LeafRoofVegSun
+
+    water_flux_vars[2] = x
+    @test water_flux_vars.Eflux.EfluxRoofImp[2] == EfluxRoofImp
+    @test water_flux_vars.Runoff.QRoofImp[2] == QRoofImp
+    @test water_flux_vars.Runon.RunonRoofTot[2] == RunonRoofTot
+    @test water_flux_vars.Leakage.LkRoofImp[2] == LkRoofImp
+    @test water_flux_vars.Interception.IntRoofImp[2] == IntRoofImp
+    @test water_flux_vars.dInt_dt.dInt_dtRoofImp[2] == dInt_dtRoofImp
+    @test water_flux_vars.Infiltration.fRoofVeg[2] == fRoofVeg
+    @test water_flux_vars.Vwater.VRoofSoilVeg[2, :] == VRoofSoilVeg
+    @test water_flux_vars.dVwater_dt.dVGroundSoilVeg_dt[2, :] == dVGroundSoilVeg_dt
+    @test water_flux_vars.Owater.OwRoofSoilVeg[2, :] == OwRoofSoilVeg
+    @test water_flux_vars.OSwater.OSwRoofSoilVeg[2, :] == OSwRoofSoilVeg
+    @test water_flux_vars.Qinlat.Qin_bare2imp[2, :] == Qin_bare2imp
+    @test water_flux_vars.ExWater.ExWaterRoofVeg_H[2, :] == ExWaterRoofVeg_H
+    @test water_flux_vars.SoilPotW.SoilPotWRoofVeg_H[2] == SoilPotWRoofVeg_H
+    @test water_flux_vars.CiCO2Leaf.CiCO2LeafRoofVegSun[2] == CiCO2LeafRoofVegSun
+end

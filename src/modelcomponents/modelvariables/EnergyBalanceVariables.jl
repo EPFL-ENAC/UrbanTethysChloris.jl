@@ -1,29 +1,5 @@
-# Subtype for the set of subsets of energy balance variables
-abstract type AbstractEnergyBalanceVariables{FT<:AbstractFloat} <:
-              AbstractModelVariableSet{FT} end
-
-# Subtype for each subset of energy balance variables
-abstract type AbstractEnergyBalanceVariablesSubset{FT<:AbstractFloat,N} <:
-              AbstractModelVariables{FT} end
-
-abstract type AbstractWBRoof{FT<:AbstractFloat,N} <:
-              AbstractEnergyBalanceVariablesSubset{FT,N} end
-abstract type AbstractWBCanyonIndv{FT<:AbstractFloat,N} <:
-              AbstractEnergyBalanceVariablesSubset{FT,N} end
-abstract type AbstractWBCanyonTot{FT<:AbstractFloat,N} <:
-              AbstractEnergyBalanceVariablesSubset{FT,N} end
-abstract type AbstractEB{FT<:AbstractFloat,N} <: AbstractEnergyBalanceVariablesSubset{FT,N} end
-abstract type AbstractSolverVariables{FT<:AbstractFloat,N,Np} <:
-              AbstractEnergyBalanceVariablesSubset{FT,N} end
-
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractEnergyBalanceVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
 """
-    WBRoof{FT<:AbstractFloat, N} <: AbstractWBRoof{FT,N}
+    WBRoof{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Water balance checks for roof surfaces and soil.
 
@@ -35,7 +11,7 @@ Water balance checks for roof surfaces and soil.
 - `WBRoofVeg`: Water balance check for overall vegetated roof
 - `WBRoofTot`: Water balance check for total roof
 """
-Base.@kwdef struct WBRoof{FT<:AbstractFloat,N} <: AbstractWBRoof{FT,N}
+Base.@kwdef mutable struct WBRoof{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     WBRoofImp::Array{FT,N}
     WBRoofVegInVeg::Array{FT,N}
     WBRoofVegInGround::Array{FT,N}
@@ -55,7 +31,7 @@ function initialize_wbroof(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abst
 end
 
 """
-    WBCanyonIndv{FT<:AbstractFloat, N} <: AbstractWBCanyonIndv{FT,N}
+    WBCanyonIndv{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Individual water balance checks for canyon components.
 
@@ -69,7 +45,8 @@ Individual water balance checks for canyon components.
 - `WB_Soil_gbare`: Water balance check for bare ground soil
 - `WB_Soil_gveg`: Water balance check for vegetated ground soil
 """
-Base.@kwdef struct WBCanyonIndv{FT<:AbstractFloat,N} <: AbstractWBCanyonIndv{FT,N}
+Base.@kwdef mutable struct WBCanyonIndv{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     WB_In_tree::Array{FT,N}
     WB_In_gveg::Array{FT,N}
     WB_In_gimp::Array{FT,N}
@@ -95,7 +72,7 @@ function initialize_wbcanyon_indv(
 end
 
 """
-    WBCanyonTot{FT<:AbstractFloat, N} <: AbstractWBCanyonTot{FT,N}
+    WBCanyonTot{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Total water balance checks for canyon components and levels.
 
@@ -116,7 +93,8 @@ Total water balance checks for canyon components and levels.
 - `WBsoil_level`: Water balance check at soil level
 - `WBcanyon_level`: Water balance check at canyon level
 """
-Base.@kwdef struct WBCanyonTot{FT<:AbstractFloat,N} <: AbstractWBCanyonTot{FT,N}
+Base.@kwdef mutable struct WBCanyonTot{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     WBsurf_tree::Array{FT,N}
     WBsurf_imp::Array{FT,N}
     WBsurf_bare::Array{FT,N}
@@ -149,7 +127,7 @@ function initialize_wbcanyon_tot(
 end
 
 """
-    EB{FT<:AbstractFloat, N} <: AbstractEB{FT,N}
+    EB{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Energy balance checks for different urban components.
 
@@ -167,7 +145,7 @@ Energy balance checks for different urban components.
 - `EBCanyonT`: Energy balance check for canyon temperature [W/m² canyon area]
 - `EBCanyonQ`: Energy balance check for canyon humidity [kg/kg]
 """
-Base.@kwdef struct EB{FT<:AbstractFloat,N} <: AbstractEB{FT,N}
+Base.@kwdef mutable struct EB{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     EBRoofImp::Array{FT,N}
     EBRoofVeg::Array{FT,N}
     EBGroundImp::Array{FT,N}
@@ -193,7 +171,7 @@ function initialize_eb(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abstract
 end
 
 """
-    SolverVariables{FT<:AbstractFloat, N, Np} <: AbstractModelVariables{FT}
+    SolverVariables{FT<:AbstractFloat, N, Np1} <: Abstract2PModelVariables{FT,N,Np1}
 
 Optical properties for indoor building surfaces.
 
@@ -203,26 +181,16 @@ Optical properties for indoor building surfaces.
 - `Tsolver`: Temperatures and humidity of different canyon faces and air [K], [kg/kg]
 - `YfunctionOutput`: Solver function outputs
 """
-Base.@kwdef struct SolverVariables{FT<:AbstractFloat,N,Np} <:
-                   AbstractSolverVariables{FT,N,Np}
+Base.@kwdef mutable struct SolverVariables{FT<:AbstractFloat,N,Np1} <:
+                           Abstract2PModelVariables{FT,N,Np1}
     Success::Array{Bool,N}
-    ValuesEB::Array{FT,Np}
-    Tsolver::Array{FT,Np}
-    YfunctionOutput::Array{FT,Np}
+    ValuesEB::Array{FT,Np1}
+    Tsolver::Array{FT,Np1}
+    YfunctionOutput::Array{FT,Np1}
 end
 
-function get_vector_fields(obj::SolverVariables{FT,0,1}) where {FT<:AbstractFloat}
+function get_vector_fields(obj::SolverVariables)
     return [:Success]
-end
-
-function Base.getproperty(
-    obj::SolverVariables{FT,0,1}, field::Symbol
-) where {FT<:AbstractFloat}
-    if field in get_vector_fields(obj)
-        return getfield(obj, field)[]
-    else
-        return getfield(obj, field)
-    end
 end
 
 function initialize_solver_variables(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
@@ -231,8 +199,8 @@ function initialize_solver_variables(::Type{FT}, ::TimeSlice) where {FT<:Abstrac
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple
-) where {FT<:AbstractFloat,T<:AbstractSolverVariables}
+    ::Type{FT}, ::Type{SolverVariables}, data::Dict{String,Any}, params::Tuple
+) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
     dimensions = Dict(
@@ -258,8 +226,8 @@ function initialize_solver_variables(
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int
-) where {FT<:AbstractFloat,T<:AbstractSolverVariables}
+    ::Type{FT}, ::Type{SolverVariables}, data::Dict{String,Any}, params::Tuple, hours::Int
+) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
     dimensions = Dict(
@@ -281,7 +249,7 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 """
-    EnergyBalanceVariables{FT<:AbstractFloat, N} <: AbstractEnergyBalanceVariables{FT}
+    EnergyBalanceVariables{FT<:AbstractFloat, N} <: Abstract1PModelVariablesSet{FT, N}
 
 Container for all energy balance variable components.
 
@@ -292,13 +260,13 @@ Container for all energy balance variable components.
 - `EB`: Energy balance checks for different urban components
 - `Solver`: Energy balance solver variables
 """
-Base.@kwdef struct EnergyBalanceVariables{FT<:AbstractFloat,N,Np} <:
-                   AbstractEnergyBalanceVariables{FT}
+Base.@kwdef struct EnergyBalanceVariables{FT<:AbstractFloat,N,Np1} <:
+                   Abstract2PModelVariablesSet{FT,N,Np1}
     WBRoof::WBRoof{FT,N}
     WBCanyonIndv::WBCanyonIndv{FT,N}
     WBCanyonTot::WBCanyonTot{FT,N}
     EB::EB{FT,N}
-    Solver::SolverVariables{FT,N,Np}
+    Solver::SolverVariables{FT,N,Np1}
 end
 
 function initialize_energy_balance_variables(

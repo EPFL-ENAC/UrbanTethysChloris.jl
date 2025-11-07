@@ -411,3 +411,47 @@ end
         @test bem_vars.TempVecB.qbin[1] == qatm
     end
 end
+
+@testset "get/setindex" begin
+    hours = 24
+    tatm = FT(300.0)  # Initial temperature
+    qatm = FT(0.01)   # Initial humidity
+
+    bem_vars = initialize_building_energy_model_variables(
+        FT, TimeSeries(), hours, tatm, qatm
+    )
+
+    Tceiling = FT(310.0)
+    esatbin = FT(5.0)
+    LEvent = FT(15.0)
+    G2Roof = FT(20.0)
+    SWRabsCeiling = FT(25.0)
+    LWRabsCeiling = FT(30.0)
+    SensibleFromAC_Can = FT(35.0)
+    EnergyForAC = FT(40.0)
+    AC_on = FT(1.0)
+
+    # Get values for time index 1
+    x = bem_vars[1]
+    x.TempVecB.Tceiling = Tceiling
+    x.HumidityBuilding.esatbin = esatbin
+    x.LEbuildInt.LEvent = LEvent
+    x.GbuildInt.G2Roof = G2Roof
+    x.SWRabsB.SWRabsCeiling = SWRabsCeiling
+    x.LWRabsB.LWRabsCeiling = LWRabsCeiling
+    x.BEMWasteHeat.SensibleFromAC_Can = SensibleFromAC_Can
+    x.BEMEnergyUse.EnergyForAC = EnergyForAC
+    x.ParACHeat_ts.AC_on = AC_on
+
+    # Set values back to time index 2
+    bem_vars[2] = x
+    @test bem_vars.TempVecB.Tceiling[2] == Tceiling
+    @test bem_vars.HumidityBuilding.esatbin[2] == esatbin
+    @test bem_vars.LEbuildInt.LEvent[2] == LEvent
+    @test bem_vars.GbuildInt.G2Roof[2] == G2Roof
+    @test bem_vars.SWRabsB.SWRabsCeiling[2] == SWRabsCeiling
+    @test bem_vars.LWRabsB.LWRabsCeiling[2] == LWRabsCeiling
+    @test bem_vars.BEMWasteHeat.SensibleFromAC_Can[2] == SensibleFromAC_Can
+    @test bem_vars.BEMEnergyUse.EnergyForAC[2] == EnergyForAC
+    @test bem_vars.ParACHeat_ts.AC_on[2] == AC_on
+end

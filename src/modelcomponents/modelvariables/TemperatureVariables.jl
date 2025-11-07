@@ -1,20 +1,5 @@
-abstract type AbstractTemperatureVariables{FT<:AbstractFloat} <: AbstractModelVariables{FT} end
-
-abstract type AbstractTemperatureSubset{FT<:AbstractFloat,N} <: AbstractModelVariables{FT} end
-
-abstract type AbstractTempVec{FT<:AbstractFloat,N} <: AbstractTemperatureSubset{FT,N} end
-abstract type AbstractTempDamp{FT<:AbstractFloat,N} <: AbstractTemperatureSubset{FT,N} end
-abstract type AbstractMRT{FT<:AbstractFloat,N} <: AbstractTemperatureSubset{FT,N} end
-abstract type AbstractThermalComfort{FT<:AbstractFloat,N} <: AbstractTemperatureSubset{FT,N} end
-
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractTemperatureSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
 """
-    TempVec{FT<:AbstractFloat, N} <: AbstractTempVec{FT, N}
+    TempVec{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Temperature Vector Fields.
 
@@ -34,7 +19,7 @@ Temperature Vector Fields.
 - `TCanyon`: Temperature canyon [K]
 - `Tatm`: Temperature atmosphere (measured) [K]
 """
-Base.@kwdef struct TempVec{FT<:AbstractFloat,N} <: AbstractTempVec{FT,N}
+Base.@kwdef mutable struct TempVec{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     TRoofImp::Array{FT,N}
     TRoofVeg::Array{FT,N}
     TRoofIntImp::Array{FT,N}
@@ -62,7 +47,7 @@ function initialize_tempvec(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abs
 end
 
 """
-    TempDamp{FT<:AbstractFloat, N} <: AbstractTempDamp{FT, N}
+    TempDamp{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Temperature Dampening Fields.
 
@@ -73,7 +58,7 @@ Temperature Dampening Fields.
 - `TDampTree`: Dampening temperature tree canopy [K]
 - `TDampGroundBuild`: Dampening temperature of ground in building interior [K]
 """
-Base.@kwdef struct TempDamp{FT<:AbstractFloat,N} <: AbstractTempDamp{FT,N}
+Base.@kwdef mutable struct TempDamp{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     TDampGroundImp::Array{FT,N}
     TDampGroundBare::Array{FT,N}
     TDampGroundVeg::Array{FT,N}
@@ -92,7 +77,7 @@ function initialize_tempdamp(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Ab
 end
 
 """
-    MRT{FT<:AbstractFloat, N} <: AbstractMRT{FT, N}
+    MRT{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Mean Radiant Temperature Fields.
 
@@ -109,7 +94,7 @@ Mean Radiant Temperature Fields.
 - `SWRdiff_Person`: Diffuse shortwave radiation the person receives [W/m²]
 - `LWR_Person`: Longwave radiation the person receives [W/m²]
 """
-Base.@kwdef struct MRT{FT<:AbstractFloat,N} <: AbstractMRT{FT,N}
+Base.@kwdef mutable struct MRT{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     Tmrt::Array{FT,N}
     BoleanInSun::Array{FT,N}
     SWRdir_Person::Array{FT,N}
@@ -134,14 +119,15 @@ function initialize_mrt(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abstrac
 end
 
 """
-    ThermalComfort{FT<:AbstractFloat, N} <: AbstractThermalComfort{FT, N}
+    ThermalComfort{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Universal Thermal Climate Index.
 
 # Fields
 - `UTCI`: Universal Thermal Climate Index [°C]
 """
-Base.@kwdef struct ThermalComfort{FT<:AbstractFloat,N} <: AbstractThermalComfort{FT,N}
+Base.@kwdef mutable struct ThermalComfort{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     UTCI::Array{FT,N}
 end
 
@@ -160,16 +146,16 @@ function initialize_thermal_comfort(
 end
 
 """
-    TemperatureVariables{FT<:AbstractFloat} <: AbstractTemperatureVariables{FT}
+    TemperatureVariables{FT<:AbstractFloat} <: Abstract1PModelVariablesSet{FT, N}
 
 Temperature-related variables for the urban environment.
 """
-Base.@kwdef struct TemperatureVariables{FT<:AbstractFloat,N} <:
-                   AbstractTemperatureVariables{FT}
-    tempvec::AbstractTempVec{FT,N}
-    tempdamp::AbstractTempDamp{FT,N}
-    mrt::AbstractMRT{FT,N}
-    thermalcomfort::AbstractThermalComfort{FT,N}
+Base.@kwdef mutable struct TemperatureVariables{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariablesSet{FT,N}
+    tempvec::TempVec{FT,N}
+    tempdamp::TempDamp{FT,N}
+    mrt::MRT{FT,N}
+    thermalcomfort::ThermalComfort{FT,N}
 end
 
 function initialize_temperature_variables(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}

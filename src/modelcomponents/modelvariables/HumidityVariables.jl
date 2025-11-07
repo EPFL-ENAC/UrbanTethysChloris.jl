@@ -1,50 +1,5 @@
-abstract type AbstractHumidityVariables{FT<:AbstractFloat,N} <: AbstractModelVariableSet{FT} end
-
-abstract type AbstractHumidityVariablesSubset{FT<:AbstractFloat,N} <:
-              AbstractModelVariables{FT} end
-
-abstract type AbstractHumidity{FT<:AbstractFloat,N} <: AbstractHumidityVariablesSubset{FT,N} end
-abstract type AbstractResults2m{FT<:AbstractFloat,N} <:
-              AbstractHumidityVariablesSubset{FT,N} end
-
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractHumidityVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
-function Base.setproperty!(
-    obj::T, field::Symbol, value::FT
-) where {FT<:AbstractFloat,T<:AbstractHumidityVariablesSubset{FT,0}}
-    setfield!(obj, field, fill(value))
-end
-
-function Base.getindex(
-    obj::T, idx::Int
-) where {FT<:AbstractFloat,T<:AbstractHumidityVariablesSubset{FT,1}}
-    scalar_type = typeof(obj).name.wrapper{FT,0}
-    fieldvals = Dict{Symbol,Any}()
-    for field in fieldnames(typeof(obj))
-        fieldvals[field] = fill(getproperty(obj, field)[idx])
-    end
-    return scalar_type(; fieldvals...)
-end
-
-function Base.setindex!(
-    obj::T, value::S, idx::Int
-) where {
-    FT<:AbstractFloat,
-    T<:AbstractHumidityVariablesSubset{FT,1},
-    S<:AbstractHumidityVariablesSubset{FT,0},
-}
-    for field in fieldnames(typeof(obj))
-        getproperty(obj, field)[idx] = getproperty(value, field)
-    end
-    return obj
-end
-
 """
-    Humidity{FT<:AbstractFloat, N} <: AbstractHumidity{FT}
+    Humidity{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
 
 Canyon and atmospheric humidity variables.
 
@@ -62,7 +17,7 @@ Canyon and atmospheric humidity variables.
 - `AtmSpecificSat`: Specific humidity at saturation at atmospheric forcing height [kg/kg]
 - `AtmVapourPreSat`: Saturation vapour pressure at atmospheric forcing height [Pa]
 """
-Base.@kwdef mutable struct Humidity{FT<:AbstractFloat,N} <: AbstractHumidity{FT,N}
+Base.@kwdef mutable struct Humidity{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     CanyonRelative::Array{FT,N}
     CanyonSpecific::Array{FT,N}
     CanyonVapourPre::Array{FT,N}
@@ -96,14 +51,14 @@ end
 
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT},
-    ::Type{T},
+    ::Type{Humidity},
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
     AtmSpecific::FT,
-) where {FT<:AbstractFloat,T<:AbstractHumidity}
+) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-    dimensions = get_dimensions(T, data, params, hours)
+    dimensions = get_dimensions(Humidity, data, params, hours)
 
     for (var, dims) in dimensions
         processed[var] = zeros(FT, dims)
@@ -131,7 +86,7 @@ Temperature and humidity results at 2-meter canyon height.
 - `e_Tcan`: Canyon vapor pressure [Pa]
 - `RH_Tcan`: Canyon relative humidity [-]
 """
-Base.@kwdef mutable struct Results2m{FT<:AbstractFloat,N} <: AbstractResults2m{FT,N}
+Base.@kwdef mutable struct Results2m{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     # 2-meter Height Results
     T2m::Array{FT,N}
     q2m::Array{FT,N}
@@ -155,14 +110,15 @@ function initialize_results2m(
 end
 
 """
-    HumidityVariables{FT<:AbstractFloat, N} <: AbstractHumidityVariables{FT}
+    HumidityVariables{FT<:AbstractFloat, N} <: Abstract1PModelVariablesSet{FT, N}
 
     Combines Humidity and Results2m into a single model variables struct.
 # Fields
 - `Humidity`: Humidity variables at canyon and atmospheric heights
 - `Results2m`: Temperature and humidity results at 2-meter canyon height
 """
-Base.@kwdef struct HumidityVariables{FT<:AbstractFloat,N} <: AbstractHumidityVariables{FT,N}
+Base.@kwdef struct HumidityVariables{FT<:AbstractFloat,N} <:
+                   Abstract1PModelVariablesSet{FT,N}
     Humidity::Humidity{FT,N}
     Results2m::Results2m{FT,N}
 end
@@ -174,8 +130,8 @@ function initialize_humidity_variables(::Type{FT}, ::TimeSlice) where {FT<:Abstr
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple
-) where {FT<:AbstractFloat,T<:AbstractHumidityVariables}
+    ::Type{FT}, ::Type{HumidityVariables}, data::Dict{String,Any}, params::Tuple
+) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
     # Preprocess each component separately
@@ -200,12 +156,12 @@ end
 
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT},
-    ::Type{T},
+    ::Type{HumidityVariables},
     data::Dict{String,Any},
     params::Tuple,
     hours::Int,
     AtmSpecific::FT,
-) where {FT<:AbstractFloat,T<:AbstractHumidityVariables}
+) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
     # Preprocess each component separately
@@ -215,26 +171,4 @@ function TethysChlorisCore.preprocess_fields(
     processed["Results2m"] = initialize_results2m(FT, dimensionality_type(params[2]), hours)
 
     return processed
-end
-
-function Base.getindex(
-    obj::T, idx::Int
-) where {FT<:AbstractFloat,T<:AbstractHumidityVariables{FT,1}}
-    scalar_type = typeof(obj).name.wrapper{FT,0}
-    fieldvals = Dict{Symbol,Any}()
-    for field in fieldnames(typeof(obj))
-        fieldvals[field] = getindex(getproperty(obj, field), idx)
-    end
-    return scalar_type(; fieldvals...)
-end
-
-function Base.setindex!(
-    obj::T, value::S, idx::Int
-) where {
-    FT<:AbstractFloat,T<:AbstractHumidityVariables{FT,1},S<:AbstractHumidityVariables{FT,0}
-}
-    for field in fieldnames(typeof(obj))
-        getproperty(obj, field)[idx] = getproperty(value, field)
-    end
-    return obj
 end

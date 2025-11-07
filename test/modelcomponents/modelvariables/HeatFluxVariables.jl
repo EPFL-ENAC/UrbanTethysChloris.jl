@@ -173,3 +173,28 @@ end
         @test heat_flux_vars.Results2mEnergyFlux.Hcan_2m[1] == 0.0
     end
 end
+
+@testset "get/setindex" begin
+    hours = 24
+    heat_flux_vars = initialize_heat_flux_variables(FT, TimeSeries(), hours)
+
+    HfluxRoofImp = FT(1.0)
+    LEfluxRoofImp = FT(2.0)
+    G1RoofImp = FT(3.0)
+    dsRoofImp = FT(4.0)
+    DHi = FT(5.0)
+
+    x = heat_flux_vars[1]
+    x.Hflux.HfluxRoofImp = HfluxRoofImp
+    x.LEflux.LEfluxRoofImp = LEfluxRoofImp
+    x.Gflux.G1RoofImp = G1RoofImp
+    x.dStorage.dsRoofImp = dsRoofImp
+    x.Results2mEnergyFlux.DHi = DHi
+
+    heat_flux_vars[2] = x
+    @test heat_flux_vars.Hflux.HfluxRoofImp[2] == HfluxRoofImp
+    @test heat_flux_vars.LEflux.LEfluxRoofImp[2] == LEfluxRoofImp
+    @test heat_flux_vars.Gflux.G1RoofImp[2] == G1RoofImp
+    @test heat_flux_vars.dStorage.dsRoofImp[2] == dsRoofImp
+    @test heat_flux_vars.Results2mEnergyFlux.DHi[2] == DHi
+end

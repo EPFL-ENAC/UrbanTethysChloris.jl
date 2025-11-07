@@ -1,40 +1,5 @@
-# Subtype for the set of subsets of building energy model variables
-abstract type AbstractBuildingEnergyModelVariables{FT<:AbstractFloat} <:
-              AbstractModelVariableSet{FT} end
-
-# Subtype for each subset of building energy model variables
-abstract type AbstractBuildingEnergyModelVariablesSubset{FT<:AbstractFloat,N} <:
-              AbstractModelVariables{FT} end
-
-abstract type AbstractTempVecB{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-abstract type AbstractHumidityBuilding{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-abstract type AbstractHbuildInt{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-abstract type AbstractLEbuildInt{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-abstract type AbstractGbuildInt{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-abstract type AbstractSWRabsB{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-abstract type AbstractLWRabsB{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-abstract type AbstractBEMWasteHeat{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-abstract type AbstractBEMEnergyUse{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-abstract type AbstractParACHeat_ts{FT<:AbstractFloat,N} <:
-              AbstractBuildingEnergyModelVariablesSubset{FT,N} end
-
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractBuildingEnergyModelVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
 """
-    TempVecB{FT<:AbstractFloat, N} <: AbstractTempVecB{FT}
+    TempVecB{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT}
 
 Building interior temperatures.
 
@@ -48,7 +13,7 @@ Building interior temperatures.
 - `Tbin`: Building interior air temperature [K]
 - `qbin`: Building interior specific humidity [kg/kg]
 """
-Base.@kwdef struct TempVecB{FT<:AbstractFloat,N} <: AbstractTempVecB{FT,N}
+Base.@kwdef mutable struct TempVecB{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     Tceiling::Array{FT,N}
     Tinwallsun::Array{FT,N}
     Tinwallshd::Array{FT,N}
@@ -111,7 +76,7 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 """
-    HumidityBuilding{FT<:AbstractFloat, N} <: AbstractHumidityBuilding{FT,N}
+    HumidityBuilding{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Building interior humidity variables.
 
@@ -120,7 +85,8 @@ Building interior humidity variables.
 - `ebin`: Vapor pressure in building interior [Pa]
 - `RHbin`: Relative humidity in building interior [-]
 """
-Base.@kwdef struct HumidityBuilding{FT<:AbstractFloat,N} <: AbstractHumidityBuilding{FT,N}
+Base.@kwdef mutable struct HumidityBuilding{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     esatbin::Array{FT,N}
     ebin::Array{FT,N}
     RHbin::Array{FT,N}
@@ -141,7 +107,7 @@ function initialize_humidity_building(
 end
 
 """
-    HbuildInt{FT<:AbstractFloat, N} <: AbstractHbuildInt{FT,N}
+    HbuildInt{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Building interior sensible heat fluxes.
 
@@ -158,7 +124,7 @@ Building interior sensible heat fluxes.
 - `H_AC_Heat`: Sensible heat flux building due to HVAC [W/m² ground area]
 - `dSH_air`: Sensible heat flux building due to change in heat storage in air [W/m² ground area]
 """
-Base.@kwdef struct HbuildInt{FT<:AbstractFloat,N} <: AbstractHbuildInt{FT,N}
+Base.@kwdef mutable struct HbuildInt{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     HBinRoof::Array{FT,N}
     HbinWallSun::Array{FT,N}
     HbinWallshd::Array{FT,N}
@@ -185,7 +151,7 @@ function initialize_hbuildint(
 end
 
 """
-    LEbuildInt{FT<:AbstractFloat, N} <: AbstractLEbuildInt{FT,N}
+    LEbuildInt{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Building interior latent heat fluxes.
 
@@ -196,7 +162,7 @@ Building interior latent heat fluxes.
 - `LE_AC_Heat`: Latent heat flux building due to HVAC [W/m² ground area]
 - `dSLE_air`: Latent heat flux building due to change in moisture in air [W/m² ground area]
 """
-Base.@kwdef struct LEbuildInt{FT<:AbstractFloat,N} <: AbstractLEbuildInt{FT,N}
+Base.@kwdef mutable struct LEbuildInt{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     LEvent::Array{FT,N}
     LEequip::Array{FT,N}
     LEpeople::Array{FT,N}
@@ -219,7 +185,7 @@ function initialize_lebuildint(
 end
 
 """
-    GbuildInt{FT<:AbstractFloat, N} <: AbstractGbuildInt{FT,N}
+    GbuildInt{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Building interior conductive heat fluxes.
 
@@ -230,7 +196,7 @@ Building interior conductive heat fluxes.
 - `Gfloor`: Conductive heat flux from building floor [W/m² ground area]
 - `dSinternalMass`: Change in heat storage in internal mass [W/m² wall area]
 """
-Base.@kwdef struct GbuildInt{FT<:AbstractFloat,N} <: AbstractGbuildInt{FT,N}
+Base.@kwdef mutable struct GbuildInt{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     G2Roof::Array{FT,N}
     G2WallSun::Array{FT,N}
     G2WallShade::Array{FT,N}
@@ -251,7 +217,7 @@ function initialize_gbuildint(
 end
 
 """
-    SWRabsB{FT<:AbstractFloat, N} <: AbstractSWRabsB{FT,N}
+    SWRabsB{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Absorbed shortwave radiation in building interior.
 
@@ -262,7 +228,7 @@ Absorbed shortwave radiation in building interior.
 - `SWRabsGround`: Absorbed shortwave radiation by building interior ground [W/m² ground area]
 - `SWRabsInternalMass`: Absorbed shortwave radiation by building internal mass [W/m² wall area]
 """
-Base.@kwdef struct SWRabsB{FT<:AbstractFloat,N} <: AbstractSWRabsB{FT,N}
+Base.@kwdef mutable struct SWRabsB{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     SWRabsCeiling::Array{FT,N}
     SWRabsWallsun::Array{FT,N}
     SWRabsWallshd::Array{FT,N}
@@ -281,7 +247,7 @@ function initialize_swrabsb(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abs
 end
 
 """
-    LWRabsB{FT<:AbstractFloat, N} <: AbstractLWRabsB{FT,N}
+    LWRabsB{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Absorbed longwave radiation in building interior.
 
@@ -292,7 +258,7 @@ Absorbed longwave radiation in building interior.
 - `LWRabsGround`: Absorbed longwave radiation by building interior ground [W/m² ground area]
 - `LWRabsInternalMass`: Absorbed longwave radiation by building internal mass [W/m² wall area]
 """
-Base.@kwdef struct LWRabsB{FT<:AbstractFloat,N} <: AbstractLWRabsB{FT,N}
+Base.@kwdef mutable struct LWRabsB{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     LWRabsCeiling::Array{FT,N}
     LWRabsWallsun::Array{FT,N}
     LWRabsWallshd::Array{FT,N}
@@ -311,7 +277,7 @@ function initialize_lwrabsb(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abs
 end
 
 """
-    BEMWasteHeat{FT<:AbstractFloat, N} <: AbstractBEMWasteHeat{FT,N}
+    BEMWasteHeat{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Building energy model waste heat variables.
 
@@ -325,7 +291,8 @@ Building energy model waste heat variables.
 - `LatentFromVent_Can`: Latent heat removed or added to the canyon due to exchange of indoor to outdoor air [W/m² canyon ground]
 - `TotAnthInput_URB`: Total anthropogenic heat output to the urban area due to HVAC [W/m² urban]
 """
-Base.@kwdef struct BEMWasteHeat{FT<:AbstractFloat,N} <: AbstractBEMWasteHeat{FT,N}
+Base.@kwdef mutable struct BEMWasteHeat{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     SensibleFromAC_Can::Array{FT,N}
     LatentFromAC_Can::Array{FT,N}
     WaterFromAC_Can::Array{FT,N}
@@ -361,7 +328,8 @@ Building energy use variables.
 - `EnergyForAC_LE`: Energy consumption for AC latent [total building interior]
 - `EnergyForHeating`: Energy consumption for heating [total building interior]
 """
-Base.@kwdef struct BEMEnergyUse{FT<:AbstractFloat,N} <: AbstractBEMEnergyUse{FT,N}
+Base.@kwdef mutable struct BEMEnergyUse{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     EnergyForAC::Array{FT,N}
     EnergyForAC_H::Array{FT,N}
     EnergyForAC_LE::Array{FT,N}
@@ -393,7 +361,8 @@ AC parameters time series variables.
 - `AC_onDehum`: Indicating the timesteps in which AC is switched on due to dehumidification
 - `Heat_on`: Indicating the timesteps in which heating is switched on
 """
-Base.@kwdef struct ParACHeat_ts{FT<:AbstractFloat,N} <: AbstractParACHeat_ts{FT,N}
+Base.@kwdef mutable struct ParACHeat_ts{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     AC_on::Array{FT,N}
     AC_onCool::Array{FT,N}
     AC_onDehum::Array{FT,N}
@@ -432,7 +401,7 @@ Container for all building energy model variable components.
 - `ParACHeat_ts`: AC parameters time series variables
 """
 Base.@kwdef struct BuildingEnergyModelVariables{FT<:AbstractFloat,N} <:
-                   AbstractBuildingEnergyModelVariables{FT}
+                   Abstract1PModelVariablesSet{FT,N}
     TempVecB::TempVecB{FT,N}
     HumidityBuilding::HumidityBuilding{FT,N}
     HbuildInt::HbuildInt{FT,N}

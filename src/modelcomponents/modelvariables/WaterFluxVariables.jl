@@ -1,39 +1,5 @@
-# Subtype for the set of subsets of water flux model variables
-abstract type AbstractWaterFluxVariables{FT<:AbstractFloat} <: AbstractModelVariableSet{FT} end
-
-# Subtype for each subset of water flux model variables
-abstract type AbstractWaterFluxVariablesSubset{FT<:AbstractFloat,N} <:
-              AbstractModelVariables{FT} end
-
-abstract type AbstractEflux{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractRunoff{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractRunon{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractLeakage{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractInterception{FT<:AbstractFloat,N} <:
-              AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractdInt_dt{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractInfiltration{FT<:AbstractFloat,N} <:
-              AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractVwater{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractdVwater_dt{FT<:AbstractFloat,N} <:
-              AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractOwater{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractOSwater{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractQinlat{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractSoilPotW{FT<:AbstractFloat,N} <:
-              AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractExWater{FT<:AbstractFloat,N} <: AbstractWaterFluxVariablesSubset{FT,N} end
-abstract type AbstractCiCO2Leaf{FT<:AbstractFloat,N} <:
-              AbstractWaterFluxVariablesSubset{FT,N} end
-
-function Base.getproperty(
-    obj::T, field::Symbol
-) where {FT<:AbstractFloat,T<:AbstractWaterFluxVariablesSubset{FT,0}}
-    return getfield(obj, field)[]
-end
-
 """
-    Eflux{FT<:AbstractFloat, N} <: AbstractEflux{FT,N}
+    Eflux{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Evapotranspiration fluxes.
 
@@ -63,7 +29,7 @@ Evapotranspiration fluxes.
 - `EfluxCanyon`: Evaporation flux of canyon to atmosphere [kg/m²*s horizontal canyon area]
 - `EfluxUrban`: Total evaporation flux of urban area to atmosphere [kg/m²*s horizontal urban area]
 """
-Base.@kwdef struct Eflux{FT<:AbstractFloat,N} <: AbstractEflux{FT,N}
+Base.@kwdef mutable struct Eflux{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     EfluxRoofImp::Array{FT,N}
     EfluxRoofVegInt::Array{FT,N}
     EfluxRoofVegPond::Array{FT,N}
@@ -101,7 +67,7 @@ function initialize_eflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abstr
 end
 
 """
-    Runoff{FT<:AbstractFloat, N} <: AbstractRunoff{FT,N}
+    Runoff{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Runoff variables for different urban surfaces.
 
@@ -118,7 +84,7 @@ Runoff variables for different urban surfaces.
 - `QGroundVegPond`: Runoff from soil under vegetation due to limitation in infiltration capacity [mm/time step per horizontal vegetated ground area]
 - `QGroundVegSoil`: Runoff due to soil saturation under vegetation on ground [mm/time step per horizontal vegetated ground area]
 """
-Base.@kwdef struct Runoff{FT<:AbstractFloat,N} <: AbstractRunoff{FT,N}
+Base.@kwdef mutable struct Runoff{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     QRoofImp::Array{FT,N}
     QRoofVegDrip::Array{FT,N}
     QRoofVegPond::Array{FT,N}
@@ -143,7 +109,7 @@ function initialize_runoff(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abst
 end
 
 """
-    Runon{FT<:AbstractFloat, N} <: AbstractRunon{FT,N}
+    Runon{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Runon variables for urban area.
 
@@ -155,7 +121,7 @@ Runon variables for urban area.
 - `RunonUrban`: Total urban runon to the next time step [mm/time step per horizontal urban area]
 - `RunoffUrban`: Total urban runoff that is removed from the system [mm/time step per horizontal urban area]
 """
-Base.@kwdef struct Runon{FT<:AbstractFloat,N} <: AbstractRunon{FT,N}
+Base.@kwdef mutable struct Runon{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     RunonRoofTot::Array{FT,N}
     RunoffRoofTot::Array{FT,N}
     RunonGroundTot::Array{FT,N}
@@ -175,7 +141,7 @@ function initialize_runon(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abstr
 end
 
 """
-    Leakage{FT<:AbstractFloat, N} <: AbstractLeakage{FT,N}
+    Leakage{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Leakage variables for different urban surfaces.
 
@@ -189,7 +155,7 @@ Leakage variables for different urban surfaces.
 - `LkGround`: Total leakage of ground [mm/h per horizontal ground area]
 - `LkUrban`: Total leakage of ground and roof soil [mm/h per horizontal urban area]
 """
-Base.@kwdef struct Leakage{FT<:AbstractFloat,N} <: AbstractLeakage{FT,N}
+Base.@kwdef mutable struct Leakage{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     LkRoofImp::Array{FT,N}
     LkRoofVeg::Array{FT,N}
     LkRoof::Array{FT,N}
@@ -211,7 +177,7 @@ function initialize_leakage(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abs
 end
 
 """
-    Interception{FT<:AbstractFloat, N} <: AbstractInterception{FT,N}
+    Interception{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Interception variables for different urban surfaces.
 
@@ -226,7 +192,8 @@ Interception variables for different urban surfaces.
 - `IntGroundVegGround`: Interception on ground [mm per horizontal vegetated ground area]
 - `IntTree`: Interception on tree [mm per horizontally projected tree area]
 """
-Base.@kwdef struct Interception{FT<:AbstractFloat,N} <: AbstractInterception{FT,N}
+Base.@kwdef mutable struct Interception{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     IntRoofImp::Array{FT,N}
     IntRoofVegPlant::Array{FT,N}
     IntRoofVegGround::Array{FT,N}
@@ -253,7 +220,7 @@ function initialize_interception(
 end
 
 """
-    dInt_dt{FT<:AbstractFloat, N} <: AbstractdInt_dt{FT,N}
+    dInt_dt{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Change in interception variables for different urban surfaces.
 
@@ -269,7 +236,7 @@ Change in interception variables for different urban surfaces.
 - `dInt_dtTree`: Change in interception on tree [mm/h per horizontally projected tree area]
 """
 # Same names as Interception but with dInt_dt prefix
-Base.@kwdef struct dInt_dt{FT<:AbstractFloat,N} <: AbstractdInt_dt{FT,N}
+Base.@kwdef mutable struct dInt_dt{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     dInt_dtRoofImp::Array{FT,N}
     dInt_dtRoofVegPlant::Array{FT,N}
     dInt_dtRoofVegGround::Array{FT,N}
@@ -292,7 +259,7 @@ function initialize_dint_dt(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Abs
 end
 
 """
-    Infiltration{FT<:AbstractFloat, N} <: AbstractInfiltration{FT,N}
+    Infiltration{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Infiltration variables for different urban surfaces.
 
@@ -302,7 +269,8 @@ Infiltration variables for different urban surfaces.
 - `fGroundVeg`: Infiltration in first soil layer of vegetated ground [mm/h per horizontal vegetated ground area]
 - `fGroundImp`: Infiltration in impervious ground (usually zero) [mm/h per horizontal impervious ground area]
 """
-Base.@kwdef struct Infiltration{FT<:AbstractFloat,N} <: AbstractInfiltration{FT,N}
+Base.@kwdef mutable struct Infiltration{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     fRoofVeg::Array{FT,N}
     fGroundBare::Array{FT,N}
     fGroundVeg::Array{FT,N}
@@ -324,7 +292,7 @@ function initialize_infiltration(
 end
 
 """
-    Vwater{FT<:AbstractFloat, N} <: AbstractVwater{FT,N}
+    Vwater{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Water volume in soil for different urban surfaces.
 
@@ -335,7 +303,7 @@ Water volume in soil for different urban surfaces.
 - `VGroundSoilVeg`: Water volume in the different soil layers of ground under vegetated [mm per horizontal vegetated ground area]
 - `VGroundSoilTot`: Water volume in the different soil layers of ground total [mm per horizontal ground area]
 """
-Base.@kwdef struct Vwater{FT<:AbstractFloat,N} <: AbstractVwater{FT,N}
+Base.@kwdef mutable struct Vwater{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     VRoofSoilVeg::Array{FT,N}
     VGroundSoilImp::Array{FT,N}
     VGroundSoilBare::Array{FT,N}
@@ -352,8 +320,8 @@ function initialize_vwater(
 end
 
 function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
-) where {T<:AbstractVwater}
+    ::Type{Vwater}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
+)
     roof_layers = soil_values.roof.ms
     ground_layers = soil_values.ground.ms
 
@@ -401,11 +369,11 @@ function TethysChlorisCore.preprocess_fields(
     roof_layers = soil_values.roof.ms
 
     for var in ground_fields
-        processed[var] = zeros(FT, (1, ground_layers))
+        processed[var] = zeros(FT, (hours, ground_layers))
         processed[var][1, :] = ground_init
     end
     for var in roof_fields
-        processed[var] = zeros(FT, (1, roof_layers))
+        processed[var] = zeros(FT, (hours, roof_layers))
         processed[var][1, :] = roof_init
     end
 
@@ -413,7 +381,7 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 """
-    dVwater_dt{FT<:AbstractFloat, N} <: AbstractdVwater_dt{FT,N}
+    dVwater_dt{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Change in water volume in soil for different urban surfaces.
 
@@ -425,7 +393,7 @@ Change in water volume in soil for different urban surfaces.
 - `dVGroundSoilTot_dt`: Change in water volume in the different soil layers of ground total [mm per horizontal ground area]
 """
 # Same names as Vwater
-Base.@kwdef struct dVwater_dt{FT<:AbstractFloat,N} <: AbstractdVwater_dt{FT,N}
+Base.@kwdef mutable struct dVwater_dt{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     dVRoofSoilVeg_dt::Array{FT,N}
     dVGroundSoilImp_dt::Array{FT,N}
     dVGroundSoilBare_dt::Array{FT,N}
@@ -446,8 +414,8 @@ function initialize_dvwater_dt(
 end
 
 function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
-) where {T<:AbstractdVwater_dt}
+    ::Type{dVwater_dt}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
+)
     roof_layers = soil_values.roof.ms
     ground_layers = soil_values.ground.ms
 
@@ -474,8 +442,12 @@ function initialize_dvwater_dt(
 end
 
 function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int, soil_values::NamedTuple
-) where {T<:AbstractdVwater_dt}
+    ::Type{dVwater_dt},
+    data::Dict{String,Any},
+    params::Tuple,
+    hours::Int,
+    soil_values::NamedTuple,
+)
     roof_layers = soil_values.roof.ms
     ground_layers = soil_values.ground.ms
 
@@ -489,7 +461,7 @@ function get_dimensions(
 end
 
 """
-    Owater{FT<:AbstractFloat, N} <: AbstractOwater{FT,N}
+    Owater{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Soil moisture in different soil layers for urban surfaces.
 
@@ -501,7 +473,7 @@ Soil moisture in different soil layers for urban surfaces.
 - `OwGroundSoilTot`: Soil moisture in the different soil layers of ground total [-]
 """
 # Same names as Vwater
-Base.@kwdef struct Owater{FT<:AbstractFloat,N} <: AbstractOwater{FT,N}
+Base.@kwdef mutable struct Owater{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     OwRoofSoilVeg::Array{FT,N}
     OwGroundSoilImp::Array{FT,N}
     OwGroundSoilBare::Array{FT,N}
@@ -518,8 +490,8 @@ function initialize_owater(
 end
 
 function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
-) where {T<:AbstractOwater}
+    ::Type{Owater}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
+)
     roof_layers = soil_values.roof.ms
     ground_layers = soil_values.ground.ms
     return Dict{String,Tuple}(
@@ -575,8 +547,12 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int, soil_values::NamedTuple
-) where {T<:AbstractOwater}
+    ::Type{Owater},
+    data::Dict{String,Any},
+    params::Tuple,
+    hours::Int,
+    soil_values::NamedTuple,
+)
     roof_layers = soil_values.roof.ms
     ground_layers = soil_values.ground.ms
     return Dict{String,Tuple}(
@@ -589,7 +565,7 @@ function get_dimensions(
 end
 
 """
-    OSwater{FT<:AbstractFloat, N} <: AbstractOSwater{FT,N}
+    OSwater{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Additional soil moisture variables for urban surfaces.
 
@@ -601,7 +577,7 @@ Additional soil moisture variables for urban surfaces.
 - `OSwGroundSoilTot`: Additional soil moisture values for ground soil layers total [-]
 """
 # Same names as Vwater
-Base.@kwdef struct OSwater{FT<:AbstractFloat,N} <: AbstractOSwater{FT,N}
+Base.@kwdef mutable struct OSwater{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     OSwRoofSoilVeg::Array{FT,N}
     OSwGroundSoilImp::Array{FT,N}
     OSwGroundSoilBare::Array{FT,N}
@@ -618,8 +594,8 @@ function initialize_oswater(
 end
 
 function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
-) where {T<:AbstractOSwater}
+    ::Type{OSwater}, data::Dict{String,Any}, params::Tuple, soil_values::NamedTuple
+)
     roof_layers = soil_values.roof.ms
     ground_layers = soil_values.ground.ms
 
@@ -646,8 +622,12 @@ function initialize_oswater(
 end
 
 function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int, soil_values::NamedTuple
-) where {T<:AbstractOSwater}
+    ::Type{OSwater},
+    data::Dict{String,Any},
+    params::Tuple,
+    hours::Int,
+    soil_values::NamedTuple,
+)
     roof_layers = soil_values.roof.ms
     ground_layers = soil_values.ground.ms
 
@@ -661,7 +641,7 @@ function get_dimensions(
 end
 
 """
-    Qinlat{FT<:AbstractFloat, N, M} <: AbstractQinlat{FT,N}
+    Qinlat{FT<:AbstractFloat, N, M} <: Abstract1PModelVariables{FT,N}
 
 Lateral soil water flux variables.
 
@@ -676,7 +656,7 @@ Lateral soil water flux variables.
 - `Qin_bare`: Total lateral water flux to bare soil [mm/h]
 - `Qin_veg`: Total lateral water flux to vegetated soil [mm/h]
 """
-Base.@kwdef struct Qinlat{FT<:AbstractFloat,N} <: AbstractQinlat{FT,N}
+Base.@kwdef mutable struct Qinlat{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     Qin_bare2imp::Array{FT,N}
     Qin_veg2imp::Array{FT,N}
     Qin_veg2bare::Array{FT,N}
@@ -701,11 +681,11 @@ function initialize_qinlat(
 end
 
 function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType,Signed}, ms::Int
-) where {T<:AbstractQinlat}
+    ::Type{Qinlat}, data::Dict{String,Any}, params::Tuple{DataType,Signed}, ms::Int
+)
     dimensions = Dict{String,Tuple}()
 
-    for field in fieldnames(T)
+    for field in fieldnames(Qinlat)
         dimensions[String(field)] = (ms,)
     end
 
@@ -726,32 +706,23 @@ function initialize_qinlat(
 end
 
 function get_dimensions(
-    ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType,Signed}, hours::Int, ms::Int
-) where {T<:AbstractQinlat}
+    ::Type{Qinlat},
+    data::Dict{String,Any},
+    params::Tuple{DataType,Signed},
+    hours::Int,
+    ms::Int,
+)
     dimensions = Dict{String,Tuple}()
 
-    for field in fieldnames(T)
+    for field in fieldnames(Qinlat)
         dimensions[String(field)] = (hours, ms)
     end
 
     return dimensions
 end
 
-# function TethysChlorisCore.preprocess_fields(
-#     ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple, hours::Int, ms::Int
-# ) where {FT<:AbstractFloat,T<:AbstractQinlat}
-#     processed = Dict{String,Any}()
-#     dimensions = get_dimensions(T, data, params, hours, ms)
-
-#     for (var, dims) in dimensions
-#         processed[var] = zeros(FT, dims)
-#     end
-
-#     return processed
-# end
-
 """
-    ExWater{FT<:AbstractFloat, N, M} <: AbstractExWater{FT,N}
+    ExWater{FT<:AbstractFloat, N, M} <: Abstract1PModelVariables{FT,N}
 
 Extractable water for plants from soil.
 
@@ -768,7 +739,7 @@ Extractable water for plants from soil.
 - `ExWaterGroundTot_L`: Extractable water for low vegetation from total ground soil [mm m²/m² ground h]
 """
 # Same names as SoilPotW
-Base.@kwdef struct ExWater{FT<:AbstractFloat,N} <: AbstractExWater{FT,N}
+Base.@kwdef mutable struct ExWater{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     ExWaterRoofVeg_H::Array{FT,N}
     ExWaterRoofVeg_L::Array{FT,N}
     ExWaterGroundImp_H::Array{FT,N}
@@ -790,11 +761,11 @@ function initialize_exwater(
 end
 
 function get_dimensions(
-    ::Type{T},
+    ::Type{ExWater},
     data::Dict{String,Any},
     params::Tuple{DataType,Signed},
     soil_values::NamedTuple,
-) where {T<:AbstractExWater}
+)
     ms_ground = soil_values.ground.ms
     ms_roof = soil_values.roof.ms
 
@@ -836,12 +807,12 @@ function initialize_exwater(
 end
 
 function get_dimensions(
-    ::Type{T},
+    ::Type{ExWater},
     data::Dict{String,Any},
     params::Tuple{DataType,Signed},
     hours::Int,
     soil_values::NamedTuple,
-) where {T<:AbstractExWater}
+)
     ms_ground = soil_values.ground.ms
     ms_roof = soil_values.roof.ms
 
@@ -870,7 +841,7 @@ function get_dimensions(
 end
 
 """
-    SoilPotW{FT<:AbstractFloat, N} <: AbstractSoilPotW{FT,N}
+    SoilPotW{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Soil water potential for plants.
 
@@ -886,7 +857,7 @@ Soil water potential for plants.
 - `SoilPotWGroundTot_H`: Soil water potential for plants in total ground, high vegetation [MPa]
 - `SoilPotWGroundTot_L`: Soil water potential for plants in total ground, low vegetation [MPa]
 """
-Base.@kwdef struct SoilPotW{FT<:AbstractFloat,N} <: AbstractSoilPotW{FT,N}
+Base.@kwdef mutable struct SoilPotW{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     SoilPotWRoofVeg_H::Array{FT,N}
     SoilPotWRoofVeg_L::Array{FT,N}
     SoilPotWGroundImp_H::Array{FT,N}
@@ -910,7 +881,7 @@ function initialize_soilpotw(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:Ab
 end
 
 """
-    CiCO2Leaf{FT<:AbstractFloat, N} <: AbstractCiCO2Leaf{FT,N}
+    CiCO2Leaf{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
 
 Intercellular CO2 concentration in leaf for different urban surfaces.
 
@@ -922,7 +893,7 @@ Intercellular CO2 concentration in leaf for different urban surfaces.
 - `CiCO2LeafTreeSun`: Ci_sun_veg sunlit tree leafs [umolCO2/mol]
 - `CiCO2LeafTreeShd`: Ci_shd_veg shaded tree leafs [umolCO2/mol]
 """
-Base.@kwdef struct CiCO2Leaf{FT<:AbstractFloat,N} <: AbstractCiCO2Leaf{FT,N}
+Base.@kwdef mutable struct CiCO2Leaf{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
     CiCO2LeafRoofVegSun::Array{FT,N}
     CiCO2LeafRoofVegShd::Array{FT,N}
     CiCO2LeafGroundVegSun::Array{FT,N}
@@ -975,7 +946,7 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 """
-    WaterFluxVariables{FT<:AbstractFloat, N, MS} <: AbstractWaterFluxVariables{FT}
+    WaterFluxVariables{FT<:AbstractFloat, N, Np1} <: Abstract2PModelVariablesSet{FT, N, Np1}
 
 Container for all water flux variable components.
 
@@ -997,7 +968,7 @@ Container for all water flux variable components.
 - `CiCO2Leaf`: Intercellular CO2 concentration in leaf for different urban surfaces
 """
 Base.@kwdef struct WaterFluxVariables{FT<:AbstractFloat,N,Np1} <:
-                   AbstractWaterFluxVariables{FT}
+                   Abstract2PModelVariablesSet{FT,N,Np1}
     Eflux::Eflux{FT,N}
     Runoff::Runoff{FT,N}
     Runon::Runon{FT,N}
