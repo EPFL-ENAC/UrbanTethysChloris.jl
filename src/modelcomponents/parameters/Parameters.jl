@@ -2,7 +2,6 @@ module Parameters
 
 using TethysChlorisCore
 using TethysChlorisCore.ModelComponents
-using ...Soil
 
 include("PersonParameters.jl")
 include("SurfaceFractions.jl")
