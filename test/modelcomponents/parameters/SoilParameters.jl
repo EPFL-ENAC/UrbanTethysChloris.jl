@@ -7,23 +7,7 @@ using UrbanTethysChloris.ModelComponents.Parameters:
     initialize_soil_parameters,
     VegetationParameters
 
-using ....TestUtils: create_height_dependent_vegetation_parameters
-
 FT = Float64
-
-vegground = create_height_dependent_vegetation_parameters(
-    FT; CASE_ROOT=1, ZR95=[250.0], ZR50=[NaN], ZRmax=[NaN]
-)
-
-vegroof = create_height_dependent_vegetation_parameters(
-    FT; CASE_ROOT=1, ZR95=[70.0], ZR50=[NaN], ZRmax=[NaN]
-)
-
-vegtree = create_height_dependent_vegetation_parameters(
-    FT; CASE_ROOT=1, ZR95=[1000.0], ZR50=[NaN], ZRmax=[NaN]
-)
-
-vegetation_params = VegetationParameters{FT}(; roof=vegroof, ground=vegground, tree=vegtree)
 
 soil_params = Dict{String,Any}()
 
@@ -90,7 +74,7 @@ soil_params["Sp_In_T"] = 0.2
 @testset "VegetatedSoilProperties initialization" begin
     # Test roof soil parameters
     roof_params = soil_params["roof"]
-    roof_parameters = initialize_vegetated_soilparameters(FT, roof_params, vegroof, vegroof)
+    roof_parameters = initialize_vegetated_soilparameters(FT, roof_params)
 
     @test roof_parameters.Pcla == FT(0.20)
     @test roof_parameters.Psan == FT(0.40)
@@ -113,9 +97,7 @@ soil_params["Sp_In_T"] = 0.2
 
     # Test ground soil parameters
     ground_params = soil_params["ground"]
-    ground_parameters = initialize_vegetated_soilparameters(
-        FT, ground_params, vegtree, vegground
-    )
+    ground_parameters = initialize_vegetated_soilparameters(FT, ground_params)
 
     @test ground_parameters.Pcla == FT(0.20)
     @test ground_parameters.Psan == FT(0.40)
@@ -153,9 +135,7 @@ end
 @testset "Extraneous VegetatedSoilParameters field" begin
     extra_params = copy(soil_params["ground"])
     extra_params["extra_field"] = 0.5
-    @test_throws ArgumentError initialize_vegetated_soilparameters(
-        FT, extra_params, vegroof, vegroof
-    )
+    @test_throws ArgumentError initialize_vegetated_soilparameters(FT, extra_params)
 end
 
 @testset "WallSoilProperties initialization" begin
@@ -168,8 +148,8 @@ end
 end
 
 @testset "SoilProperties initialization" begin
-    @test_nowarn initialize_soil_parameters(FT, soil_params, vegetation_params)
+    @test_nowarn initialize_soil_parameters(FT, soil_params)
 
-    soil_parameters = initialize_soil_parameters(FT, soil_params, vegetation_params)
+    soil_parameters = initialize_soil_parameters(FT, soil_params)
     @test soil_parameters.Sp_In_T == FT(0.2)
 end

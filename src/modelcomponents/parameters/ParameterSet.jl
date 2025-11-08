@@ -53,9 +53,7 @@ function TethysChlorisCore.preprocess_fields(
         FT, data["urbangeometry"]
     )
     processed["vegetation"] = initialize_vegetationparameters(FT, data["vegetation"])
-    processed["soil"] = initialize_soil_parameters(
-        FT, data["soil"], processed["vegetation"]
-    )
+    processed["soil"] = initialize_soil_parameters(FT, data["soil"])
     processed["location"] = initialize_locationproperties(FT, data["location"])
 
     return processed

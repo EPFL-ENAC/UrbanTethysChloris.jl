@@ -42,12 +42,9 @@ Base.@kwdef struct VegetatedSoilParameters{FT<:AbstractFloat} <: AbstractParamet
 end
 
 function initialize_vegetated_soilparameters(
-    ::Type{FT},
-    data::Dict{String,Any},
-    tree::HeightDependentVegetationParameters{FT},
-    ground::HeightDependentVegetationParameters{FT},
+    ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, VegetatedSoilParameters, data, (FT,), tree, ground)
+    return initialize(FT, VegetatedSoilParameters, data, (FT,))
 end
 
 function TethysChlorisCore.get_calculated_fields(::Type{VegetatedSoilParameters})
@@ -59,12 +56,7 @@ function TethysChlorisCore.get_optional_fields(::Type{VegetatedSoilParameters})
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT},
-    ::Type{VegetatedSoilParameters},
-    data::Dict{String,Any},
-    params::Tuple,
-    tree::HeightDependentVegetationParameters{FT},
-    ground::HeightDependentVegetationParameters{FT},
+    ::Type{FT}, ::Type{VegetatedSoilParameters}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = copy(data)
 
@@ -102,16 +94,12 @@ Base.@kwdef struct SoilParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
 end
 
 function initialize_soil_parameters(
-    ::Type{FT}, data::Dict{String,Any}, vegetation::VegetationParameters{FT}
+    ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
     processed = copy(data)
 
-    processed["roof"] = initialize_vegetated_soilparameters(
-        FT, data["roof"], vegetation.roof, vegetation.roof
-    )
-    processed["ground"] = initialize_vegetated_soilparameters(
-        FT, data["ground"], vegetation.tree, vegetation.ground
-    )
+    processed["roof"] = initialize_vegetated_soilparameters(FT, data["roof"])
+    processed["ground"] = initialize_vegetated_soilparameters(FT, data["ground"])
     processed["wall"] = initialize_wall_soilparameters(FT, data["wall"])
 
     return initialize(FT, SoilParameters, processed)
