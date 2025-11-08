@@ -66,7 +66,7 @@ end
         ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType, Signed},
     ) where {T<:AbstractModelVariables}
 
-Get the dimensions of each field in the model variables struct `T` based on the parameters and hours.
+Get the dimensions of each field in the model variables struct `T` based on the parameters.
 """
 function get_dimensions(
     ::Type{T}, data::Dict{String,Any}, params::Tuple{DataType,Signed}

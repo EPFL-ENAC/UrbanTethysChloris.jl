@@ -99,7 +99,7 @@ end
 function initialize_windowparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, WindowParameters, data, (FT,))
+    return initialize(FT, WindowParameters, data)
 end
 
 """
@@ -147,7 +147,7 @@ end
 function initialize_hvacparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, HVACParameters, data, (FT,))
+    return initialize(FT, HVACParameters, data)
 end
 
 """
