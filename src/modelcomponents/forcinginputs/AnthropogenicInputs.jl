@@ -25,7 +25,7 @@ end
 function initialize_anthropogenic_inputs(
     ::Type{FT}, data::NCDataset, Tatm::Vector{FT}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, AnthropogenicInputs, data, Tatm)
+    return initialize(FT, AnthropogenicInputs, data, (FT,), Tatm)
 end
 
 function TethysChlorisCore.get_required_fields(::Type{AnthropogenicInputs})
@@ -45,7 +45,11 @@ function get_array_fields(::Type{AnthropogenicInputs})
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{AnthropogenicInputs}, data::NCDataset, Tatm::Vector{FT}
+    ::Type{FT},
+    ::Type{AnthropogenicInputs},
+    data::NCDataset,
+    params::Tuple,
+    Tatm::Vector{FT},
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 

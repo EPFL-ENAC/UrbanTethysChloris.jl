@@ -4,7 +4,8 @@ using UrbanTethysChloris.ModelComponents.Parameters:
     SoilParameters,
     initialize_vegetated_soilparameters,
     initialize_wall_soilparameters,
-    initialize_soil_parameters
+    initialize_soil_parameters,
+    VegetationParameters
 
 FT = Float64
 

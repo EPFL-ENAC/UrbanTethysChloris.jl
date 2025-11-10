@@ -44,7 +44,7 @@ end
 function initialize_vegetated_soilparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, VegetatedSoilParameters, data)
+    return initialize(FT, VegetatedSoilParameters, data, (FT,))
 end
 
 function TethysChlorisCore.get_calculated_fields(::Type{VegetatedSoilParameters})
@@ -56,7 +56,7 @@ function TethysChlorisCore.get_optional_fields(::Type{VegetatedSoilParameters})
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{VegetatedSoilParameters}, data::Dict{String,Any}
+    ::Type{FT}, ::Type{VegetatedSoilParameters}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = copy(data)
 

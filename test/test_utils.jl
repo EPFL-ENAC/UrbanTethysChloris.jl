@@ -51,7 +51,7 @@ result = convert_special_values(data)
 # Returns Dict("x" => Inf, "y" => NaN, "z" => -Inf)
 ```
 """
-function convert_special_values(data::Dict)
+function convert_special_values(data::T) where {T<:AbstractDict}
     for (key, value) in data
         data[key] = convert_special_values(value)
     end

@@ -21,7 +21,7 @@ end
 function initialize_person_parameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, PersonParameters, data)
+    return initialize(FT, PersonParameters, data, (FT,))
 end
 
 function TethysChlorisCore.validate_fields(::Type{PersonParameters}, data::Dict{String,Any})

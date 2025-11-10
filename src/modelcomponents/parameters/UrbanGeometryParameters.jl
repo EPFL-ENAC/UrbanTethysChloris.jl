@@ -52,7 +52,7 @@ end
 function initialize_urbangeometry_parameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, UrbanGeometryParameters, data)
+    return initialize(FT, UrbanGeometryParameters, data, (FT,))
 end
 
 function TethysChlorisCore.get_calculated_fields(::Type{UrbanGeometryParameters})
@@ -70,7 +70,7 @@ function TethysChlorisCore.get_calculated_fields(::Type{UrbanGeometryParameters}
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{UrbanGeometryParameters}, data::Dict{String,Any}
+    ::Type{FT}, ::Type{UrbanGeometryParameters}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = copy(data)
 

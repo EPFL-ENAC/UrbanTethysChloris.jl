@@ -16,12 +16,12 @@ location:
 optical:
   roof:
     aveg: 0.2
-    eveg: 0.9944834355792392
+    eveg: 0.9179970453459032
     aimp: 0.15
     eimp: 0.95
   ground:
     aveg: 0.2
-    eveg: 0.9944834355792392
+    eveg: 0.9179970453459032
     abare: 0.15
     ebare: 0.95
     aimp: 0.1
@@ -37,77 +37,75 @@ vegetation:
     ZRmax:
       - .NaN
     Psi_sto_50: -3.0
-    SPARTREE: 2
     ZR95:
-      - 1000.0
+      - 70.0
     rjv: 2.4
     e_relN: 1.0
-    a1: 9.0
+    a1: 6.0
     ZR50:
       - .NaN
     d_leaf: 0.8
     Vmax: 68.0
     CASE_ROOT: 1
     Rrootl:
-      - 4000.0
+      - 3800.0
     FI: 0.081
     Knit: 0.15
     mSl: 0.0
     go: 0.01
     Do: 1000.0
-    Ha: 76.0
+    Ha: 55.0
     Kopt: 0.5
-    Sl: 0.024
+    Sl: 0.035
     PsiL50:
-      - -3.0
-    hc: .NaN
+      - -4.0
+    hc: 0.15
     e_rel: 1.0
-    SAI: 0.2
+    SAI: 0.001
     CT: 3
-    DSE: 0.649
+    DSE: 0.656
     PsiX50:
       - -4.5
     Psi_sto_00: -0.5
     h_disp: 0.09999999999999999
-    LAI: 5.0
+    LAI: 2.5
     gmes: .inf
   ground:
     ZRmax:
       - .NaN
     Psi_sto_50: -3.0
-    SPARTREE: 2
     ZR95:
-      - 1000.0
+      - 250.0
     rjv: 2.4
     e_relN: 1.0
-    a1: 9.0
+    a1: 6.0
     ZR50:
       - .NaN
     d_leaf: 0.8
     Vmax: 68.0
     CASE_ROOT: 1
     Rrootl:
-      - 4000.0
+      - 3800.0
     FI: 0.081
     Knit: 0.15
     mSl: 0.0
     go: 0.01
     Do: 1000.0
-    Ha: 76.0
+    Ha: 55.0
     Kopt: 0.5
-    Sl: 0.024
+    Sl: 0.035
     PsiL50:
-      - -3.0
-    hc: .NaN
+      - -4.0
+    hc: 0.15
     e_rel: 1.0
-    SAI: 0.2
+    SAI: 0.001
     CT: 3
-    DSE: 0.649
+    DSE: 0.656
     PsiX50:
       - -4.5
     Psi_sto_00: -0.5
     h_disp: 0.09999999999999999
-    LAI: 5.0
+    LAI: 2.5
     gmes: .inf
   tree:
     ZRmax:

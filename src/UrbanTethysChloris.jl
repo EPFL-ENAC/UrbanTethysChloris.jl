@@ -7,6 +7,9 @@ using ConstructionBase
 using LeastSquaresOptim
 using Roots
 
+include(joinpath("soil", "Soil.jl"))
+using .Soil
+
 include(joinpath("modelcomponents", "ModelComponents.jl"))
 using .ModelComponents
 
@@ -21,9 +24,6 @@ using .OutdoorThermalComfort
 
 include(joinpath("radiation", "Radiation.jl"))
 using .Radiation
-
-include(joinpath("soil", "Soil.jl"))
-using .Soil
 
 include(joinpath("conductive_heat", "ConductiveHeat.jl"))
 using .ConductiveHeat

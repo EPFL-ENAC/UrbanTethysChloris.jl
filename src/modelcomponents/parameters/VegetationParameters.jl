@@ -85,7 +85,7 @@ end
 function initialize_heightdependent_vegetationparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, HeightDependentVegetationParameters, data)
+    return initialize(FT, HeightDependentVegetationParameters, data, (FT,))
 end
 
 function TethysChlorisCore.get_optional_fields(::Type{HeightDependentVegetationParameters})
@@ -125,11 +125,11 @@ end
 function initialize_vegetationparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, VegetationParameters, data)
+    return initialize(FT, VegetationParameters, data, (FT,))
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{VegetationParameters}, data::Dict{String,Any}
+    ::Type{FT}, ::Type{VegetationParameters}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 

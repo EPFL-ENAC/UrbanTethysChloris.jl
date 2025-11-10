@@ -16,7 +16,7 @@ end
 function initialize_locationspecific_thermalproperties(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, LocationSpecificThermalProperties, data)
+    return initialize(FT, LocationSpecificThermalProperties, data, (FT,))
 end
 
 function TethysChlorisCore.get_required_fields(::Type{LocationSpecificThermalProperties})
@@ -39,7 +39,7 @@ end
 function initialize_tree_thermalproperties(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, TreeThermalProperties, data)
+    return initialize(FT, TreeThermalProperties, data, (FT,))
 end
 
 """
@@ -62,11 +62,11 @@ end
 function initialize_thermalproperties(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, ThermalProperties, data)
+    return initialize(FT, ThermalProperties, data, (FT,))
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{ThermalProperties}, data::Dict{String,Any}
+    ::Type{FT}, ::Type{ThermalProperties}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 

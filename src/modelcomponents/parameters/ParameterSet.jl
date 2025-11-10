@@ -28,11 +28,11 @@ end
 function initialize_parameter_set(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, ParameterSet, data)
+    return initialize(FT, ParameterSet, data, (FT,))
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{ParameterSet}, data::Dict{String,Any}
+    ::Type{FT}, ::Type{ParameterSet}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
@@ -41,7 +41,6 @@ function TethysChlorisCore.preprocess_fields(
         FT, data["building_energy"]
     )
     processed["person"] = initialize_person_parameters(FT, data["person"])
-    processed["soil"] = initialize_soil_parameters(FT, data["soil"])
 
     processed["surfacefractions"] = initialize_surfacefractions(
         FT, data["surfacefractions"]
@@ -54,6 +53,7 @@ function TethysChlorisCore.preprocess_fields(
         FT, data["urbangeometry"]
     )
     processed["vegetation"] = initialize_vegetationparameters(FT, data["vegetation"])
+    processed["soil"] = initialize_soil_parameters(FT, data["soil"])
     processed["location"] = initialize_locationproperties(FT, data["location"])
 
     return processed

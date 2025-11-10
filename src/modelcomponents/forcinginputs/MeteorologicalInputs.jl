@@ -68,11 +68,15 @@ end
 function initialize_meteorological_inputs(
     ::Type{FT}, data::NCDataset, theta_Z::Vector{FT}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, MeteorologicalInputs, data, theta_Z)
+    return initialize(FT, MeteorologicalInputs, data, (FT,), theta_Z)
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{MeteorologicalInputs}, data::NCDataset, theta_Z::Vector{FT}
+    ::Type{FT},
+    ::Type{MeteorologicalInputs},
+    data::NCDataset,
+    params::Tuple,
+    theta_Z::Vector{FT},
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
     fields = [

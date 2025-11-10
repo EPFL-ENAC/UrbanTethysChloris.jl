@@ -1,3 +1,5 @@
+abstract type AbstractHVACSchedule{FT<:AbstractFloat} <: AbstractForcingInputs{FT} end
+
 """
     HVACSchedule{FT<:AbstractFloat}
 
@@ -10,7 +12,7 @@ HVAC schedule parameters that specify heat and humidity sources from building eq
 - `LEpeople`: Latent heat from people [W/m² building ground area]
 - `AirConRoomFraction`: Fraction of air conditioned space [-]
 """
-Base.@kwdef struct HVACSchedule{FT<:AbstractFloat} <: AbstractParameters{FT}
+Base.@kwdef struct HVACSchedule{FT<:AbstractFloat} <: AbstractHVACSchedule{FT}
     Hequip::Vector{FT}
     Hpeople::Vector{FT}
     LEequip::Vector{FT}
@@ -23,11 +25,11 @@ function TethysChlorisCore.get_optional_fields(::Type{HVACSchedule})
 end
 
 function initialize_hvacschedule(::Type{FT}, data::NCDataset) where {FT<:AbstractFloat}
-    return initialize(FT, HVACSchedule, data)
+    return initialize(FT, HVACSchedule, data, (FT,))
 end
 
 function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{HVACSchedule}, data::NCDataset
+    ::Type{FT}, ::Type{HVACSchedule}, data::NCDataset, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 

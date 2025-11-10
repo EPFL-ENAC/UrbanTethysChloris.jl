@@ -181,5 +181,5 @@ function initialize_building_energy_model_parameters(
     processed["windows"] = initialize_windowparameters(FT, data["windows"])
     processed["hvac"] = initialize_hvacparameters(FT, data["hvac"])
 
-    return initialize(FT, BuildingEnergyModelParameters, processed)
+    return initialize(FT, BuildingEnergyModelParameters, processed, (FT,))
 end
