@@ -50,8 +50,8 @@ function TethysChlorisCore.preprocess_fields(
     processed = Dict{String,Any}()
 
     # Calculate sun variables for each timestamp
-    t_bef = data["t_bef"][]
-    t_aft = data["t_aft"][]
+    t_bef = FT(data["t_bef"][])
+    t_aft = FT(data["t_aft"][])
     processed["t_bef"] = t_bef
     processed["t_aft"] = t_aft
 

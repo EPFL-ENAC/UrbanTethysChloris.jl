@@ -66,7 +66,7 @@ function TethysChlorisCore.preprocess_fields(
     end
 
     # Calculate Tb
-    processed["Tb"] = Tb(Tatm, data["Tbmin"][], data["Tbmax"][])
+    processed["Tb"] = Tb(Tatm, FT(data["Tbmin"][]), FT(data["Tbmax"][]))
 
     return processed
 end
