@@ -14,4 +14,6 @@ include("SunPositionInputs.jl")
 include("HVACSchedule.jl")
 include("ForcingInputSet.jl")
 
+export initialize_forcinginputset
+
 end

@@ -266,4 +266,6 @@ include("TemperatureVariables.jl")
 include("WaterFluxVariables.jl")
 include("ModelVariableSet.jl")
 
+export initialize_model_variable_set
+
 end

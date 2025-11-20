@@ -34,7 +34,7 @@ Base.@kwdef struct VegetatedSoilParameters{FT<:AbstractFloat} <: AbstractParamet
     Kbot::FT
     dz1::FT = FT(NaN)
     dz2::FT = FT(NaN)
-    Zs::Vector{FT}
+    Zs::Vector{FT} # TODO: replace with static array
     ms::Int
     FixSM::Bool
     FixSM_LayerStart::Int

@@ -52,6 +52,8 @@ Base.@kwdef struct HeightDependentVegetationParameters{FT<:AbstractFloat} <:
 
     # Tree water uptake
     CASE_ROOT::Int
+
+    # TODO: replace with staticarrays
     ZR95::Vector{FT}
     ZR50::Vector{FT}
     ZRmax::Vector{FT}
