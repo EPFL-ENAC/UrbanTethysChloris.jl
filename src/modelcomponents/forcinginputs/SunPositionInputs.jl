@@ -1,7 +1,5 @@
-abstract type AbstractSunPositionInputs{FT<:AbstractFloat} <: AbstractForcingInputs{FT} end
-
 """
-    SunPositionInputs{FT<:AbstractFloat}
+    SunPositionInputs{FT<:AbstractFloat, N} <: Abstract1PForcingInputs{FT, N}
 
 Solar position and timing parameters.
 
@@ -13,14 +11,16 @@ Solar position and timing parameters.
 - `zeta_S::Vector{FT}`: Solar azimuth angle [rad]
 - `TimeOfMaxSolAlt::Vector{FT}`: Time of maximum solar altitude [h]
 """
-Base.@kwdef struct SunPositionInputs{FT<:AbstractFloat} <: AbstractSunPositionInputs{FT}
+Base.@kwdef struct SunPositionInputs{FT<:AbstractFloat,N} <: Abstract1PForcingInputs{FT,N}
     t_bef::FT
     t_aft::FT
-    theta_Z::Vector{FT}
-    theta_n::Vector{FT}
-    zeta_S::Vector{FT}
-    TimeOfMaxSolAlt::Vector{FT}
+    theta_Z::Array{FT,N}
+    theta_n::Array{FT,N}
+    zeta_S::Array{FT,N}
+    TimeOfMaxSolAlt::Array{FT,N}
 end
+
+const SCALAR_SUNPOS_FIELDS = [:t_bef, :t_aft]
 
 function TethysChlorisCore.get_required_fields(::Type{SunPositionInputs})
     return [:t_bef, :t_aft]
@@ -30,13 +30,16 @@ function TethysChlorisCore.get_calculated_fields(::Type{SunPositionInputs})
     return [:theta_Z, :theta_n, :zeta_S, :TimeOfMaxSolAlt]
 end
 
-function initialize_sunposition_inputs(
+function SunPositionInputs(
     ::Type{FT},
+    ::TimeSeries,
     data::NCDataset,
     datetime::Vector{DateTime},
     location::LocationProperties{FT},
 ) where {FT<:AbstractFloat}
-    return initialize(FT, SunPositionInputs, data, (FT,), datetime, location)
+    return initialize(
+        FT, SunPositionInputs, data, (FT, dimension_value(TimeSeries())), datetime, location
+    )
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -76,3 +79,18 @@ function TethysChlorisCore.preprocess_fields(
 end
 
 function TethysChlorisCore.validate_fields(::Type{SunPositionInputs}, data::NCDataset) end
+
+function Base.getindex(
+    obj::T, idx::Int
+) where {FT<:AbstractFloat,T<:SunPositionInputs{FT,1}}
+    scalar_type = typeof(obj).name.wrapper{FT,0}
+    fieldvals = Dict{Symbol,Any}()
+    for field in fieldnames(typeof(obj))
+        if field in SCALAR_SUNPOS_FIELDS
+            fieldvals[field] = getproperty(obj, field)
+        else
+            fieldvals[field] = fill(getproperty(obj, field)[idx])
+        end
+    end
+    return scalar_type(; fieldvals...)
+end

@@ -1,11 +1,19 @@
 using Test
+using UrbanTethysChloris.ModelComponents: TimeSeries
 import UrbanTethysChloris.ModelComponents.Parameters: initialize_locationproperties
-import UrbanTethysChloris.ModelComponents.ForcingInputs: initialize_forcinginputset
+import UrbanTethysChloris.ModelComponents.ForcingInputs: ForcingInputSet
 import ....TestUtils: load_test_parameters, load_test_netcdf
 
-test_data = load_test_parameters()
-test_ds = load_test_netcdf()
+FT = Float64
 
-location_properties = initialize_locationproperties(Float64, test_data["location"])
+@testset "ForcingInputSet" begin
+    test_data = load_test_parameters()
+    test_ds = load_test_netcdf()
 
-@test_nowarn initialize_forcinginputset(Float64, test_ds, location_properties)
+    location_properties = initialize_locationproperties(Float64, test_data["location"])
+
+    fis = ForcingInputSet(FT, TimeSeries(), test_ds, location_properties);
+
+    @test fis isa ForcingInputSet{FT,1}
+    @test fis[1] isa ForcingInputSet{FT,0}
+end

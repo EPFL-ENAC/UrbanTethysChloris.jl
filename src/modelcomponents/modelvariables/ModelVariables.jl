@@ -8,6 +8,7 @@ using ..Parameters:
     HeightDependentVegetationParameters,
     VegetatedSoilParameters
 using ...Soil: soil_parameters_total
+using ...UrbanTethysChloris.ModelComponents
 
 abstract type AbstractModelVariables{FT<:AbstractFloat} <:
               AbstractIndividualModelComponent{FT} end
@@ -19,13 +20,6 @@ abstract type Abstract1PModelVariablesSet{FT<:AbstractFloat,N} <:
               AbstractModelVariableSet{FT} end
 abstract type Abstract2PModelVariablesSet{FT<:AbstractFloat,N,Np1} <:
               AbstractModelVariableSet{FT} end
-
-abstract type ModelDimension end
-struct TimeSlice <: ModelDimension end
-struct TimeSeries <: ModelDimension end
-dimension_value(::TimeSlice) = 0
-dimension_value(::TimeSeries) = 1
-dimensionality_type(dim_value::Int) = dim_value == 0 ? TimeSlice() : TimeSeries()
 
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{T}, data::Dict{String,Any}, params::Tuple
@@ -266,6 +260,7 @@ include("TemperatureVariables.jl")
 include("WaterFluxVariables.jl")
 include("ModelVariableSet.jl")
 
+export initialize_humidity, initialize_tempvec, initialize_tempvecb
 export initialize_model_variable_set
 
 end
