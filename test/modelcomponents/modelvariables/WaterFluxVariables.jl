@@ -1,4 +1,5 @@
 using Test
+using UrbanTethysChloris.ModelComponents: TimeSlice, TimeSeries
 using UrbanTethysChloris.ModelComponents.ModelVariables:
     Eflux,
     initialize_eflux,
@@ -32,8 +33,9 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
     initialize_cico2leaf,
     WaterFluxVariables,
     initialize_water_flux_variables,
-    TimeSlice,
-    TimeSeries
+    ground_fields,
+    roof_fields
+using StaticArrays
 
 using UrbanTethysChloris.ModelComponents.ModelVariables: calculate_soil_values
 
@@ -293,7 +295,7 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
             vwater = initialize_vwater(FT, TimeSlice(), soil_values)
 
             # Test structure
-            @test vwater isa Vwater{FT,1}
+            @test vwater isa Vwater{FT,0,soil_values.roof.ms,soil_values.ground.ms}
 
             # Test field access for scalar case
             @test all(vwater.VRoofSoilVeg .== 0.0)
@@ -301,8 +303,14 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
             @test all(vwater.VGroundSoilTot .== 0.0)
 
             # Test all fields are accessible
-            for field in fieldnames(Vwater)
-                @test isa(getproperty(vwater, field), Vector{FT})
+            for field in Symbol.(ground_fields(Vwater))
+                @test isa(getproperty(vwater, field), MVector{soil_values.ground.ms,FT})
+                @test all(getproperty(vwater, field) .== 0.0)
+            end
+
+            for field in Symbol.(roof_fields(Vwater))
+                @test isa(getproperty(vwater, field), MVector{soil_values.roof.ms,FT})
+                @test all(getproperty(vwater, field) .== 0.0)
             end
         end
 
@@ -311,19 +319,24 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
             vwater = initialize_vwater(FT, TimeSeries(), soil_values, hours)
 
             # Test structure
-            @test vwater isa Vwater{FT,2}
+            @test vwater isa Vwater{FT,1,soil_values.roof.ms,soil_values.ground.ms}
 
             roof_init = soil_values.roof.O33 .* soil_values.roof.dz
             ground_init = soil_values.ground.O33 .* soil_values.ground.dz
 
-            # Test field access for scalar case
-            @test vwater.VRoofSoilVeg[1, :] == roof_init
-            @test vwater.VGroundSoilBare[1, :] == ground_init
-            @test vwater.VGroundSoilTot[1, :] == ground_init
-
             # Test all fields are accessible
-            for field in fieldnames(Vwater)
-                @test isa(getproperty(vwater, field), Matrix{FT})
+            for field in Symbol.(ground_fields(Vwater))
+                @test isa(
+                    getproperty(vwater, field), Vector{MVector{soil_values.ground.ms,FT}}
+                )
+                @test all(getproperty(vwater, field)[1] .== ground_init)
+            end
+
+            for field in Symbol.(roof_fields(Vwater))
+                @test isa(
+                    getproperty(vwater, field), Vector{MVector{soil_values.roof.ms,FT}}
+                )
+                @test all(getproperty(vwater, field)[1] .== roof_init)
             end
         end
     end
@@ -332,16 +345,19 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
         @testset "TimeSlice" begin
             dvwater_dt = initialize_dvwater_dt(FT, TimeSlice(), soil_values)
 
-            @test dvwater_dt isa dVwater_dt{FT,1}
-
-            @test size(dvwater_dt.dVRoofSoilVeg_dt) == (soil_values.roof.ms,)
-            @test size(dvwater_dt.dVGroundSoilBare_dt) == (soil_values.ground.ms,)
-            @test size(dvwater_dt.dVGroundSoilTot_dt) == (soil_values.ground.ms,)
+            @test dvwater_dt isa dVwater_dt{FT,0,soil_values.roof.ms,soil_values.ground.ms}
 
             # Test all fields are accessible, have correct dimensions and initialized to zero
-            for field in fieldnames(dVwater_dt)
-                @test isa(getproperty(dvwater_dt, field), Array{FT,1})
-                @test getproperty(dvwater_dt, field)[1] == 0
+            for field in Symbol.(ground_fields(dVwater_dt))
+                @test size(getproperty(dvwater_dt, field)) == (soil_values.ground.ms,)
+                @test isa(getproperty(dvwater_dt, field), MVector{soil_values.ground.ms,FT})
+                @test all(getproperty(dvwater_dt, field) .== 0)
+            end
+
+            for field in Symbol.(roof_fields(dVwater_dt))
+                @test size(getproperty(dvwater_dt, field)) == (soil_values.roof.ms,)
+                @test isa(getproperty(dvwater_dt, field), MVector{soil_values.roof.ms,FT})
+                @test all(getproperty(dvwater_dt, field) .== 0)
             end
         end
 
@@ -350,15 +366,22 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
             dvwater_dt = initialize_dvwater_dt(FT, TimeSeries(), soil_values, hours)
 
             # Test structure
-            @test dvwater_dt isa dVwater_dt{FT,2}
-
-            @test size(dvwater_dt.dVRoofSoilVeg_dt) == (hours, soil_values.roof.ms)
-            @test size(dvwater_dt.dVGroundSoilBare_dt) == (hours, soil_values.ground.ms)
-            @test size(dvwater_dt.dVGroundSoilTot_dt) == (hours, soil_values.ground.ms)
+            @test dvwater_dt isa dVwater_dt{FT,1,soil_values.roof.ms,soil_values.ground.ms}
 
             # Test all fields are accessible
-            for field in fieldnames(dVwater_dt)
-                @test isa(getproperty(dvwater_dt, field), Matrix{FT})
+            for field in Symbol.(ground_fields(dVwater_dt))
+                @test size(getproperty(dvwater_dt, field)) == (hours,)
+                @test isa(
+                    getproperty(dvwater_dt, field),
+                    Vector{MVector{soil_values.ground.ms,FT}},
+                )
+            end
+
+            for field in Symbol.(roof_fields(dVwater_dt))
+                @test size(getproperty(dvwater_dt, field)) == (hours,)
+                @test isa(
+                    getproperty(dvwater_dt, field), Vector{MVector{soil_values.roof.ms,FT}}
+                )
             end
         end
     end
@@ -367,16 +390,19 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
         @testset "TimeSlice" begin
             owater = initialize_owater(FT, TimeSlice(), soil_values)
 
-            @test owater isa Owater{FT,1}
-
-            @test size(owater.OwRoofSoilVeg) == (soil_values.roof.ms,)
-            @test size(owater.OwGroundSoilBare) == (soil_values.ground.ms,)
-            @test size(owater.OwGroundSoilTot) == (soil_values.ground.ms,)
+            @test owater isa Owater{FT,0,soil_values.roof.ms,soil_values.ground.ms}
 
             # Test all fields are accessible, have correct dimensions and initialized to zero
-            for field in fieldnames(Owater)
-                @test isa(getproperty(owater, field), Array{FT,1})
-                @test getproperty(owater, field)[1] == 0
+            for field in Symbol.(ground_fields(Owater))
+                @test size(getproperty(owater, field)) == (soil_values.ground.ms,)
+                @test isa(getproperty(owater, field), MVector{soil_values.ground.ms,FT})
+                @test all(getproperty(owater, field) .== 0)
+            end
+
+            for field in Symbol.(roof_fields(Owater))
+                @test size(getproperty(owater, field)) == (soil_values.roof.ms,)
+                @test isa(getproperty(owater, field), MVector{soil_values.roof.ms,FT})
+                @test all(getproperty(owater, field) .== 0)
             end
         end
 
@@ -385,15 +411,24 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
             owater = initialize_owater(FT, TimeSeries(), soil_values, hours)
 
             # Test structure
-            @test owater isa Owater{FT,2}
+            @test owater isa Owater{FT,1,soil_values.roof.ms,soil_values.ground.ms}
 
-            @test size(owater.OwRoofSoilVeg) == (hours, soil_values.roof.ms)
-            @test size(owater.OwGroundSoilBare) == (hours, soil_values.ground.ms)
-            @test size(owater.OwGroundSoilTot) == (hours, soil_values.ground.ms)
+            roof_init = soil_values.roof.O33
+            ground_init = soil_values.ground.O33
 
             # Test all fields are accessible
-            for field in fieldnames(Owater)
-                @test isa(getproperty(owater, field), Matrix{FT})
+            for field in Symbol.(ground_fields(Owater))
+                @test isa(
+                    getproperty(owater, field), Vector{MVector{soil_values.ground.ms,FT}}
+                )
+                @test all(getproperty(owater, field)[1] .== ground_init)
+            end
+
+            for field in Symbol.(roof_fields(Owater))
+                @test isa(
+                    getproperty(owater, field), Vector{MVector{soil_values.roof.ms,FT}}
+                )
+                @test all(getproperty(owater, field)[1] .== roof_init)
             end
         end
     end
@@ -401,16 +436,19 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
         @testset "TimeSlice" begin
             oswater = initialize_oswater(FT, TimeSlice(), soil_values)
 
-            @test oswater isa OSwater{FT,1}
-
-            @test size(oswater.OSwRoofSoilVeg) == (soil_values.roof.ms,)
-            @test size(oswater.OSwGroundSoilBare) == (soil_values.ground.ms,)
-            @test size(oswater.OSwGroundSoilTot) == (soil_values.ground.ms,)
+            @test oswater isa OSwater{FT,0,soil_values.roof.ms,soil_values.ground.ms}
 
             # Test all fields are accessible, have correct dimensions and initialized to zero
-            for field in fieldnames(OSwater)
-                @test isa(getproperty(oswater, field), Array{FT,1})
-                @test getproperty(oswater, field)[1] == 0
+            for field in Symbol.(ground_fields(OSwater))
+                @test size(getproperty(oswater, field)) == (soil_values.ground.ms,)
+                @test isa(getproperty(oswater, field), MVector{soil_values.ground.ms,FT})
+                @test all(getproperty(oswater, field) .== 0)
+            end
+
+            for field in Symbol.(roof_fields(OSwater))
+                @test size(getproperty(oswater, field)) == (soil_values.roof.ms,)
+                @test isa(getproperty(oswater, field), MVector{soil_values.roof.ms,FT})
+                @test all(getproperty(oswater, field) .== 0)
             end
         end
 
@@ -419,15 +457,21 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
             oswater = initialize_oswater(FT, TimeSeries(), soil_values, hours)
 
             # Test structure
-            @test oswater isa OSwater{FT,2}
-
-            @test size(oswater.OSwRoofSoilVeg) == (hours, soil_values.roof.ms)
-            @test size(oswater.OSwGroundSoilBare) == (hours, soil_values.ground.ms)
-            @test size(oswater.OSwGroundSoilTot) == (hours, soil_values.ground.ms)
+            @test oswater isa OSwater{FT,1,soil_values.roof.ms,soil_values.ground.ms}
 
             # Test all fields are accessible
-            for field in fieldnames(OSwater)
-                @test isa(getproperty(oswater, field), Matrix{FT})
+            for field in Symbol.(ground_fields(OSwater))
+                @test size(getproperty(oswater, field)) == (hours,)
+                @test isa(
+                    getproperty(oswater, field), Vector{MVector{soil_values.ground.ms,FT}}
+                )
+            end
+
+            for field in Symbol.(roof_fields(OSwater))
+                @test size(getproperty(oswater, field)) == (hours,)
+                @test isa(
+                    getproperty(oswater, field), Vector{MVector{soil_values.roof.ms,FT}}
+                )
             end
         end
     end
@@ -436,16 +480,13 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
         @testset "TimeSlice" begin
             qinlat = initialize_qinlat(FT, TimeSlice(), soil_values)
 
-            @test qinlat isa Qinlat{FT,1}
-
-            @test size(qinlat.Qin_bare2imp) == (soil_values.ground.ms,)
-            @test size(qinlat.Qin_imp2bare) == (soil_values.ground.ms,)
-            @test size(qinlat.Qin_imp) == (soil_values.ground.ms,)
+            @test qinlat isa Qinlat{FT,0,soil_values.ground.ms}
 
             # Test all fields are accessible, have correct dimensions and initialized to zero
-            for field in fieldnames(Qinlat)
-                @test isa(getproperty(qinlat, field), Array{FT,1})
-                @test getproperty(qinlat, field)[1] == 0
+            for field in Symbol.(ground_fields(Qinlat))
+                @test size(getproperty(qinlat, field)) == (soil_values.ground.ms,)
+                @test isa(getproperty(qinlat, field), MVector{soil_values.ground.ms,FT})
+                @test all(getproperty(qinlat, field) .== 0)
             end
         end
 
@@ -454,15 +495,14 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
             qinlat = initialize_qinlat(FT, TimeSeries(), soil_values, hours)
 
             # Test structure
-            @test qinlat isa Qinlat{FT,2}
-
-            @test size(qinlat.Qin_bare2imp) == (hours, soil_values.ground.ms)
-            @test size(qinlat.Qin_imp2bare) == (hours, soil_values.ground.ms)
-            @test size(qinlat.Qin_imp) == (hours, soil_values.ground.ms)
+            @test qinlat isa Qinlat{FT,1,soil_values.ground.ms}
 
             # Test all fields are accessible
-            for field in fieldnames(Qinlat)
-                @test isa(getproperty(qinlat, field), Matrix{FT})
+            for field in Symbol.(ground_fields(Qinlat))
+                @test size(getproperty(qinlat, field)) == (hours,)
+                @test isa(
+                    getproperty(qinlat, field), Vector{MVector{soil_values.ground.ms,FT}}
+                )
             end
         end
     end
@@ -471,23 +511,19 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
         @testset "TimeSlice" begin
             exwater = initialize_exwater(FT, TimeSlice(), soil_values)
 
-            @test exwater isa ExWater{FT,1}
-
-            @test size(exwater.ExWaterRoofVeg_H) == (soil_values.roof.ms,)
-            @test size(exwater.ExWaterRoofVeg_L) == (soil_values.roof.ms,)
-            @test size(exwater.ExWaterGroundImp_H) == (soil_values.ground.ms,)
-            @test size(exwater.ExWaterGroundImp_L) == (soil_values.ground.ms,)
-            @test size(exwater.ExWaterGroundBare_H) == (soil_values.ground.ms,)
-            @test size(exwater.ExWaterGroundBare_L) == (soil_values.ground.ms,)
-            @test size(exwater.ExWaterGroundVeg_H) == (soil_values.ground.ms,)
-            @test size(exwater.ExWaterGroundVeg_L) == (soil_values.ground.ms,)
-            @test size(exwater.ExWaterGroundTot_H) == (soil_values.ground.ms,)
-            @test size(exwater.ExWaterGroundTot_L) == (soil_values.ground.ms,)
+            @test exwater isa ExWater{FT,0,soil_values.roof.ms,soil_values.ground.ms}
 
             # Test all fields are accessible, have correct dimensions and initialized to zero
-            for field in fieldnames(ExWater)
-                @test isa(getproperty(exwater, field), Array{FT,1})
-                @test getproperty(exwater, field)[1] == 0
+            for field in Symbol.(ground_fields(ExWater))
+                @test size(getproperty(exwater, field)) == (soil_values.ground.ms,)
+                @test isa(getproperty(exwater, field), MVector{soil_values.ground.ms,FT})
+                @test all(getproperty(exwater, field) .== 0)
+            end
+
+            for field in Symbol.(roof_fields(ExWater))
+                @test size(getproperty(exwater, field)) == (soil_values.roof.ms,)
+                @test isa(getproperty(exwater, field), MVector{soil_values.roof.ms,FT})
+                @test all(getproperty(exwater, field) .== 0)
             end
         end
 
@@ -496,22 +532,21 @@ soil_values = (; roof=roof_soil_params, ground=ground_soil_params)
             exwater = initialize_exwater(FT, TimeSeries(), soil_values, hours)
 
             # Test structure
-            @test exwater isa ExWater{FT,2}
-
-            @test size(exwater.ExWaterRoofVeg_H) == (hours, soil_values.roof.ms)
-            @test size(exwater.ExWaterRoofVeg_L) == (hours, soil_values.roof.ms)
-            @test size(exwater.ExWaterGroundImp_H) == (hours, soil_values.ground.ms)
-            @test size(exwater.ExWaterGroundImp_L) == (hours, soil_values.ground.ms)
-            @test size(exwater.ExWaterGroundBare_H) == (hours, soil_values.ground.ms)
-            @test size(exwater.ExWaterGroundBare_L) == (hours, soil_values.ground.ms)
-            @test size(exwater.ExWaterGroundVeg_H) == (hours, soil_values.ground.ms)
-            @test size(exwater.ExWaterGroundVeg_L) == (hours, soil_values.ground.ms)
-            @test size(exwater.ExWaterGroundTot_H) == (hours, soil_values.ground.ms)
-            @test size(exwater.ExWaterGroundTot_L) == (hours, soil_values.ground.ms)
+            @test exwater isa ExWater{FT,1,soil_values.roof.ms,soil_values.ground.ms}
 
             # Test all fields are accessible
-            for field in fieldnames(ExWater)
-                @test isa(getproperty(exwater, field), Matrix{FT})
+            for field in Symbol.(ground_fields(ExWater))
+                @test size(getproperty(exwater, field)) == (hours,)
+                @test isa(
+                    getproperty(exwater, field), Vector{MVector{soil_values.ground.ms,FT}}
+                )
+            end
+
+            for field in Symbol.(roof_fields(ExWater))
+                @test size(getproperty(exwater, field)) == (hours,)
+                @test isa(
+                    getproperty(exwater, field), Vector{MVector{soil_values.roof.ms,FT}}
+                )
             end
         end
     end
@@ -591,7 +626,8 @@ end
         )
 
         # Test structure
-        @test water_flux_vars isa WaterFluxVariables{FT,0,1}
+        @test water_flux_vars isa
+            WaterFluxVariables{FT,0,soil_values.roof.ms,soil_values.ground.ms}
 
         # Test fields are properly initialized
         @test isa(water_flux_vars.Eflux, Eflux{FT,0})
@@ -604,12 +640,23 @@ end
         @test isa(water_flux_vars.SoilPotW, SoilPotW{FT,0})
 
         # Soil layer fields should be properly initialized with correct dimensions
-        @test isa(water_flux_vars.Vwater, Vwater{FT,1})
-        @test isa(water_flux_vars.dVwater_dt, dVwater_dt{FT,1})
-        @test isa(water_flux_vars.Owater, Owater{FT,1})
-        @test isa(water_flux_vars.OSwater, OSwater{FT,1})
-        @test isa(water_flux_vars.Qinlat, Qinlat{FT,1})
-        @test isa(water_flux_vars.ExWater, ExWater{FT,1})
+        @test isa(
+            water_flux_vars.Vwater, Vwater{FT,0,soil_values.roof.ms,soil_values.ground.ms}
+        )
+        @test isa(
+            water_flux_vars.dVwater_dt,
+            dVwater_dt{FT,0,soil_values.roof.ms,soil_values.ground.ms},
+        )
+        @test isa(
+            water_flux_vars.Owater, Owater{FT,0,soil_values.roof.ms,soil_values.ground.ms}
+        )
+        @test isa(
+            water_flux_vars.OSwater, OSwater{FT,0,soil_values.roof.ms,soil_values.ground.ms}
+        )
+        @test isa(water_flux_vars.Qinlat, Qinlat{FT,0,soil_values.ground.ms})
+        @test isa(
+            water_flux_vars.ExWater, ExWater{FT,0,soil_values.roof.ms,soil_values.ground.ms}
+        )
     end
 
     @testset "TimeSeries" begin
@@ -621,7 +668,8 @@ end
         )
 
         # Test structure
-        @test water_flux_vars isa WaterFluxVariables{FT,1,2}
+        @test water_flux_vars isa
+            WaterFluxVariables{FT,1,soil_values.roof.ms,soil_values.ground.ms}
 
         # Test fields are properly initialized
         @test isa(water_flux_vars.Eflux, Eflux{FT,1})
@@ -634,12 +682,23 @@ end
         @test isa(water_flux_vars.SoilPotW, SoilPotW{FT,1})
 
         # Soil layer fields should be properly initialized with correct dimensions
-        @test isa(water_flux_vars.Vwater, Vwater{FT,2})
-        @test isa(water_flux_vars.dVwater_dt, dVwater_dt{FT,2})
-        @test isa(water_flux_vars.Owater, Owater{FT,2})
-        @test isa(water_flux_vars.OSwater, OSwater{FT,2})
-        @test isa(water_flux_vars.Qinlat, Qinlat{FT,2})
-        @test isa(water_flux_vars.ExWater, ExWater{FT,2})
+        @test isa(
+            water_flux_vars.Vwater, Vwater{FT,1,soil_values.roof.ms,soil_values.ground.ms}
+        )
+        @test isa(
+            water_flux_vars.dVwater_dt,
+            dVwater_dt{FT,1,soil_values.roof.ms,soil_values.ground.ms},
+        )
+        @test isa(
+            water_flux_vars.Owater, Owater{FT,1,soil_values.roof.ms,soil_values.ground.ms}
+        )
+        @test isa(
+            water_flux_vars.OSwater, OSwater{FT,1,soil_values.roof.ms,soil_values.ground.ms}
+        )
+        @test isa(water_flux_vars.Qinlat, Qinlat{FT,1,soil_values.ground.ms})
+        @test isa(
+            water_flux_vars.ExWater, ExWater{FT,1,soil_values.roof.ms,soil_values.ground.ms}
+        )
     end
 end
 

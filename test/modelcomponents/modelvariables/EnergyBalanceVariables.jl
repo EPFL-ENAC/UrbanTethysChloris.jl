@@ -14,6 +14,7 @@ using UrbanTethysChloris.ModelComponents.ModelVariables:
     initialize_energy_balance_variables,
     TimeSlice,
     TimeSeries
+using StaticArrays: MVector
 
 FT = Float64
 
@@ -113,23 +114,23 @@ FT = Float64
     @testset "SolverVariables" begin
         @testset "TimeSlice" begin
             sv = initialize_solver_variables(FT, TimeSlice())
-            @test sv isa SolverVariables{FT,0,1}
+            @test sv isa SolverVariables{FT,0}
             @test sv.Success === false
             @test all(sv.ValuesEB .== 0.0)
             @test all(sv.Tsolver .== 0.0)
             for field in setdiff(fieldnames(SolverVariables), [:Success])
-                @test isa(getproperty(sv, field), Vector{FT})
+                @test isa(getproperty(sv, field), MVector{22,FT})
             end
             @test isa(getproperty(sv, :Success), Bool)
         end
         @testset "TimeSeries" begin
             hours = 24
             sv = initialize_solver_variables(FT, TimeSeries(), hours)
-            @test sv isa SolverVariables{FT,1,2}
+            @test sv isa SolverVariables{FT,1}
             for field in setdiff(fieldnames(SolverVariables), [:Success])
-                @test isa(getproperty(sv, field), Matrix{FT})
-                @test size(getproperty(sv, field)) == (hours, 22)
-                @test all(getproperty(sv, field)[1, :] .== 0)
+                @test isa(getproperty(sv, field), Array{MVector{22,FT},1})
+                @test size(getproperty(sv, field)) == (hours,)
+                @test all(getproperty(sv, field)[1] .== 0)
             end
             @test isa(getproperty(sv, :Success), Vector{Bool})
             @test size(getproperty(sv, :Success)) == (hours,)
@@ -150,7 +151,7 @@ end
         @test isa(energy_balance_vars.WBCanyonIndv, WBCanyonIndv{FT,0})
         @test isa(energy_balance_vars.WBCanyonTot, WBCanyonTot{FT,0})
         @test isa(energy_balance_vars.EB, EB{FT,0})
-        @test isa(energy_balance_vars.Solver, SolverVariables{FT,0,1})
+        @test isa(energy_balance_vars.Solver, SolverVariables{FT,0})
 
         # Test some random fields
         @test energy_balance_vars.WBRoof.WBRoofImp === 0.0
@@ -172,7 +173,7 @@ end
         @test isa(energy_balance_vars.WBCanyonIndv, WBCanyonIndv{FT,1})
         @test isa(energy_balance_vars.WBCanyonTot, WBCanyonTot{FT,1})
         @test isa(energy_balance_vars.EB, EB{FT,1})
-        @test isa(energy_balance_vars.Solver, SolverVariables{FT,1,2})
+        @test isa(energy_balance_vars.Solver, SolverVariables{FT,1})
 
         # Test dimensions of a few fields
         @test size(energy_balance_vars.WBRoof.WBRoofImp) == (hours,)

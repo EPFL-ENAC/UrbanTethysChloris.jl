@@ -13,16 +13,16 @@ Forcing inputs for the Urban Tethys-Chloris model.
 - `temperature`: Temperature variables
 - `waterflux`: Water flux variables
 """
-Base.@kwdef struct ModelVariableSet{FT<:AbstractFloat,N,Np1} <:
-                   Abstract2PModelVariablesSet{FT,N,Np1}
+Base.@kwdef struct ModelVariableSet{FT<:AbstractFloat,N,MR,MG} <:
+                   Abstract1PModelVariablesSet{FT,N}
     buildingenergymodel::BuildingEnergyModelVariables{FT,N}
-    energybalance::EnergyBalanceVariables{FT,N,Np1}
+    energybalance::EnergyBalanceVariables{FT,N}
     environmentalconditions::EnvironmentalConditions{FT,N}
     heatflux::HeatFluxVariables{FT,N}
     humidity::HumidityVariables{FT,N}
     radiationflux::RadiationFluxVariables{FT,N}
     temperature::TemperatureVariables{FT,N}
-    waterflux::WaterFluxVariables{FT,N,Np1}
+    waterflux::WaterFluxVariables{FT,N,MR,MG}
 end
 
 """
@@ -58,7 +58,7 @@ function initialize_model_variable_set(
         FT,
         ModelVariableSet,
         Dict{String,Any}(),
-        (FT, N, N+1),
+        (FT, N, soil_parameters.roof.ms, soil_parameters.ground.ms),
         soil_parameters,
         vegetation_parameters,
     )
@@ -117,7 +117,7 @@ function initialize_model_variable_set(
         FT,
         ModelVariableSet,
         Dict{String,Any}(),
-        (FT, N, N+1),
+        (FT, N, soil_parameters.roof.ms, soil_parameters.ground.ms),
         hours,
         Tatm,
         AtmSpecific,

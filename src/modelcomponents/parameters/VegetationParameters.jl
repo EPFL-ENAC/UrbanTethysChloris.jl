@@ -81,7 +81,7 @@ Base.@kwdef struct HeightDependentVegetationParameters{FT<:AbstractFloat} <:
     Psi_sto_50::FT
     Sl::FT
 
-    SPARTREE::Int = 1
+    SPARTREE::Int = 1 # TODO: replace with enum
 end
 
 function initialize_heightdependent_vegetationparameters(

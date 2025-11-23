@@ -13,7 +13,7 @@ ps = initialize_parameter_set(Float64, input_data)
 @testset "TimeSlice" begin
     mv_set = initialize_model_variable_set(FT, TimeSlice(), ps.soil, ps.vegetation)
 
-    @test mv_set isa ModelVariableSet{FT,0,1}
+    @test mv_set isa ModelVariableSet{FT,0}
 end
 
 @testset "TimeSeries" begin
@@ -25,7 +25,7 @@ end
         FT, TimeSeries(), Tatm, AtmSpecific, ps.soil, ps.vegetation, initial_value, hours
     )
 
-    @test mv_set isa ModelVariableSet{FT,1,2}
+    @test mv_set isa ModelVariableSet{FT,1}
 end
 
 @testset "get/setindex" begin

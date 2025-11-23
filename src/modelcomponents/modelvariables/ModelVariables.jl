@@ -9,6 +9,7 @@ using ..Parameters:
     VegetatedSoilParameters
 using ...Soil: soil_parameters_total
 using ...UrbanTethysChloris.ModelComponents
+using StaticArrays
 
 abstract type AbstractModelVariables{FT<:AbstractFloat} <:
               AbstractIndividualModelComponent{FT} end

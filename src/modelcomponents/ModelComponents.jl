@@ -7,7 +7,7 @@ dimension_value(::TimeSlice) = 0
 dimension_value(::TimeSeries) = 1
 dimensionality_type(dim_value::Int) = dim_value == 0 ? TimeSlice() : TimeSeries()
 
-export TimeSlice, TimeSeries, dimension_value, dimensionality_type
+export TimeSlice, TimeSeries, ModelDimension, dimension_value, dimensionality_type
 
 include(joinpath("parameters", "Parameters.jl"))
 using .Parameters

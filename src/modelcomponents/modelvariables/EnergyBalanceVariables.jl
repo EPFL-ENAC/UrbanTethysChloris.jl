@@ -181,21 +181,23 @@ Optical properties for indoor building surfaces.
 - `Tsolver`: Temperatures and humidity of different canyon faces and air [K], [kg/kg]
 - `YfunctionOutput`: Solver function outputs
 """
-Base.@kwdef mutable struct SolverVariables{FT<:AbstractFloat,N,Np1} <:
-                           Abstract2PModelVariables{FT,N,Np1}
+Base.@kwdef mutable struct SolverVariables{FT<:AbstractFloat,N} <:
+                           Abstract1PModelVariables{FT,N}
     Success::Array{Bool,N}
-    ValuesEB::Array{FT,Np1}
-    Tsolver::Array{FT,Np1}
-    YfunctionOutput::Array{FT,Np1}
+    ValuesEB::Array{MVector{22,FT},N}
+    Tsolver::Array{MVector{22,FT},N}
+    YfunctionOutput::Array{MVector{22,FT},N}
 end
 
 function get_vector_fields(obj::SolverVariables)
     return [:Success]
 end
 
-function initialize_solver_variables(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    N = dimension_value(TimeSlice())
-    return initialize(FT, SolverVariables, Dict{String,Any}(), (FT, N, N+1))
+function initialize_solver_variables(
+    ::Type{FT}, dim::T, args...
+) where {FT<:AbstractFloat,T<:ModelDimension}
+    N = dimension_value(dim)
+    return initialize(FT, SolverVariables, Dict{String,Any}(), (FT, N), args...)
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -203,26 +205,15 @@ function TethysChlorisCore.preprocess_fields(
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
-    dimensions = Dict(
-        "Success" => (), "ValuesEB" => (22,), "Tsolver" => (22,), "YfunctionOutput" => (22,)
-    )
-
-    for (var, dims) in dimensions
-        if var != "Success"
-            processed[var] = zeros(FT, dims)
+    for field in String.(fieldnames(SolverVariables))
+        if field != "Success"
+            processed[field] = fill(zero(MVector{22,FT}))
         else
-            processed[var] = fill(false, dims)
+            processed[field] = fill(false)
         end
     end
 
     return processed
-end
-
-function initialize_solver_variables(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    N = dimension_value(TimeSeries())
-    return initialize(FT, SolverVariables, Dict{String,Any}(), (FT, N, N+1), hours)
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -230,18 +221,11 @@ function TethysChlorisCore.preprocess_fields(
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
 
-    dimensions = Dict(
-        "Success" => (hours,),
-        "ValuesEB" => (hours, 22),
-        "Tsolver" => (hours, 22),
-        "YfunctionOutput" => (hours, 22),
-    )
-
-    for (var, dims) in dimensions
-        if var != "Success"
-            processed[var] = zeros(FT, dims)
+    for field in String.(fieldnames(SolverVariables))
+        if field != "Success"
+            processed[field] = [zeros(MVector{22,FT}) for _ in 1:hours]
         else
-            processed[var] = fill(false, dims)
+            processed[field] = fill(false, hours)
         end
     end
 
@@ -266,7 +250,7 @@ Base.@kwdef struct EnergyBalanceVariables{FT<:AbstractFloat,N,Np1} <:
     WBCanyonIndv::WBCanyonIndv{FT,N}
     WBCanyonTot::WBCanyonTot{FT,N}
     EB::EB{FT,N}
-    Solver::SolverVariables{FT,N,Np1}
+    Solver::SolverVariables{FT,N}
 end
 
 function initialize_energy_balance_variables(
