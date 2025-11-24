@@ -46,7 +46,7 @@ include("incoming_longwave.jl")
 include("set_sun_variables.jl")
 
 include("Model.jl")
-export initialize_model
+export create_model
 
 include("eb_solver_canyon.jl")
 include("eb_solver_roof.jl")

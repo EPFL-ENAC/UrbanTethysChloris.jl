@@ -102,7 +102,7 @@ include("TemperatureVariables.jl")
 include("WaterFluxVariables.jl")
 include("ModelVariableSet.jl")
 
-export initialize_humidity, initialize_tempvec, initialize_tempvecb
-export initialize_model_variable_set
+export Humidity, TempVec, TempVecB
+export ModelVariableSet
 
 end

@@ -7,15 +7,16 @@ end
 abstract type AbstractModel{FT<:AbstractFloat} end
 const AM = AbstractModel
 
-Base.@kwdef struct Model{FT<:AbstractFloat} <: AM{FT}
-    variables::ModelComponents.ModelVariables.ModelVariableSet{FT}
-    parameters::ModelComponents.Parameters.ParameterSet{FT}
-    forcing::ModelComponents.ForcingInputs.ForcingInputSet{FT}
-    metadata::AbstractModelMetadata
+abstract type Abstract1PModel{FT<:AbstractFloat} <: AbstractModel{FT} end
+Base.@kwdef mutable struct Model{FT<:AbstractFloat} <: AM{FT}
+    variables::ModelComponents.ModelVariables.AbstractModelVariableSet{FT}
+    const parameters::ModelComponents.Parameters.ParameterSet{FT}
+    forcing::ModelComponents.ForcingInputs.ForcingInputSet{FT,0}
+    const metadata::AbstractModelMetadata
 end
 
 """
-    initialize_model(::Type{FT}) where {FT<:AbstractFloat}
+    Model(::Type{FT}) where {FT<:AbstractFloat}
 
 Initialize a TethysChloris model by loading data from a NetCDF file and a YAML file.
 
@@ -25,23 +26,21 @@ Initialize a TethysChloris model by loading data from a NetCDF file and a YAML f
 - `yamlpath`: The path to the YAML file containing model parameters.
 
 # Returns
-- A `Model{FT}` instance initialized with the provided data.
+- A `Model{FT, MR, MG}` instance initialized with the provided data.
 """
-function initialize_model(
+function create_model(
     ::Type{FT}, netcdfpath::AbstractString, yamlpath::AbstractString
 ) where {FT<:AbstractFloat}
     yamldata = YAML.load_file(yamlpath; dicttype=Dict{String,Any});
 
-    netcdfdata = NCDataset(netcdfpath);
-
-    model = NCDataset(netcdfpath) do netcdfdata
-        _initialize_model(FT, netcdfdata, yamldata, abspath(netcdfpath), abspath(yamlpath))
+    model, forcing = NCDataset(netcdfpath) do netcdfdata
+        _create_model(FT, netcdfdata, yamldata, abspath(netcdfpath), abspath(yamlpath))
     end
 
-    return model
+    return model, forcing
 end
 
-function _initialize_model(
+function _create_model(
     ::Type{FT},
     netcdfdata::NCDataset,
     yamldata::Dict,
@@ -49,20 +48,13 @@ function _initialize_model(
     yamlpath::AbstractString="",
 ) where {FT<:AbstractFloat}
     parameters = initialize_parameter_set(FT, yamldata)
-    forcing = initialize_forcinginputset(FT, netcdfdata, parameters.location)
-    variables = initialize_model_variable_set(
-        FT,
-        ModelComponents.ModelVariables.TimeSeries(),
-        FT(forcing.meteorological.Tatm[1]),
-        FT(forcing.meteorological.q_atm[1]),
-        parameters.soil,
-        parameters.vegetation,
-        FT(400.0),
-        length(forcing.datetime),
-    )
+    forcing = ForcingInputSet(FT, TimeSeries(), netcdfdata, parameters.location)
+    variables = ModelVariableSet(FT, parameters.soil)
     metadata = ModelMetadata(abspath(netcdfpath), abspath(yamlpath))
 
-    return Model{FT}(;
-        variables=variables, parameters=parameters, forcing=forcing, metadata=metadata
+    model = Model{FT}(;
+        variables=variables, parameters=parameters, forcing=forcing[1], metadata=metadata
     )
+
+    return model, forcing
 end
