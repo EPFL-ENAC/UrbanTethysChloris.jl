@@ -1,5 +1,5 @@
 """
-    Hflux{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    Hflux{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Sensible heat fluxes for different urban surfaces.
 
@@ -18,34 +18,28 @@ Sensible heat fluxes for different urban surfaces.
 - `HfluxUrban`: Total sensible heat flux of urban area to atmosphere [W/m² horizontal urban area]
 - `dS_H_air`: Change in sensible heat storage in canyon air volume due to temperature change [W/m² horizontal area]
 """
-Base.@kwdef mutable struct Hflux{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    HfluxRoofImp::Array{FT,N}
-    HfluxRoofVeg::Array{FT,N}
-    HfluxRoof::Array{FT,N}
-    HfluxGroundImp::Array{FT,N}
-    HfluxGroundBare::Array{FT,N}
-    HfluxGroundVeg::Array{FT,N}
-    HfluxGround::Array{FT,N}
-    HfluxTree::Array{FT,N}
-    HfluxWallSun::Array{FT,N}
-    HfluxWallShade::Array{FT,N}
-    HfluxCanyon::Array{FT,N}
-    HfluxUrban::Array{FT,N}
-    dS_H_air::Array{FT,N}
+Base.@kwdef mutable struct Hflux{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    HfluxRoofImp::FT
+    HfluxRoofVeg::FT
+    HfluxRoof::FT
+    HfluxGroundImp::FT
+    HfluxGroundBare::FT
+    HfluxGroundVeg::FT
+    HfluxGround::FT
+    HfluxTree::FT
+    HfluxWallSun::FT
+    HfluxWallShade::FT
+    HfluxCanyon::FT
+    HfluxUrban::FT
+    dS_H_air::FT
 end
 
-function initialize_hflux(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, Hflux, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_hflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
-    return initialize(
-        FT, Hflux, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function Hflux(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, Hflux, Dict{String,Any}())
 end
 
 """
-    LEflux{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    LEflux{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Latent heat fluxes for different urban surfaces.
 
@@ -76,46 +70,40 @@ Latent heat fluxes for different urban surfaces.
 - `LEfluxUrban`: Total latent heat flux of urban area to atmosphere [W/m² horizontal urban area]
 - `dS_LE_air`: Change in latent heat storage in canyon air volume due to moisture change [W/m² horizontal area]
 """
-Base.@kwdef mutable struct LEflux{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    LEfluxRoofImp::Array{FT,N}
-    LEfluxRoofVegInt::Array{FT,N}
-    LEfluxRoofVegPond::Array{FT,N}
-    LEfluxRoofVegSoil::Array{FT,N}
-    LTEfluxRoofVeg::Array{FT,N}
-    LEfluxRoofVeg::Array{FT,N}
-    LEfluxRoof::Array{FT,N}
-    LEfluxGroundImp::Array{FT,N}
-    LEfluxGroundBarePond::Array{FT,N}
-    LEfluxGroundBareSoil::Array{FT,N}
-    LEfluxGroundBare::Array{FT,N}
-    LEfluxGroundVegInt::Array{FT,N}
-    LEfluxGroundVegPond::Array{FT,N}
-    LEfluxGroundVegSoil::Array{FT,N}
-    LTEfluxGroundVeg::Array{FT,N}
-    LEfluxGroundVeg::Array{FT,N}
-    LEfluxGround::Array{FT,N}
-    LEfluxTreeInt::Array{FT,N}
-    LTEfluxTree::Array{FT,N}
-    LEfluxTree::Array{FT,N}
-    LEfluxWallSun::Array{FT,N}
-    LEfluxWallShade::Array{FT,N}
-    LEfluxCanyon::Array{FT,N}
-    LEfluxUrban::Array{FT,N}
-    dS_LE_air::Array{FT,N}
+Base.@kwdef mutable struct LEflux{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    LEfluxRoofImp::FT
+    LEfluxRoofVegInt::FT
+    LEfluxRoofVegPond::FT
+    LEfluxRoofVegSoil::FT
+    LTEfluxRoofVeg::FT
+    LEfluxRoofVeg::FT
+    LEfluxRoof::FT
+    LEfluxGroundImp::FT
+    LEfluxGroundBarePond::FT
+    LEfluxGroundBareSoil::FT
+    LEfluxGroundBare::FT
+    LEfluxGroundVegInt::FT
+    LEfluxGroundVegPond::FT
+    LEfluxGroundVegSoil::FT
+    LTEfluxGroundVeg::FT
+    LEfluxGroundVeg::FT
+    LEfluxGround::FT
+    LEfluxTreeInt::FT
+    LTEfluxTree::FT
+    LEfluxTree::FT
+    LEfluxWallSun::FT
+    LEfluxWallShade::FT
+    LEfluxCanyon::FT
+    LEfluxUrban::FT
+    dS_LE_air::FT
 end
 
-function initialize_leflux(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, LEflux, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_leflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
-    return initialize(
-        FT, LEflux, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function LEflux(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, LEflux, Dict{String,Any}())
 end
 
 """
-    Gflux{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    Gflux{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Conductive heat fluxes for different urban surfaces.
 
@@ -140,40 +128,34 @@ Conductive heat fluxes for different urban surfaces.
 - `G1Urban`: Total conductive heat flux G1 area-averaged per m² urban [W/m² horizontal urban area]
 - `G2Urban`: Total conductive heat flux G2 (G2 of ground is 0) area-averaged per m² urban [W/m² horizontal urban area]
 """
-Base.@kwdef mutable struct Gflux{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    G1RoofImp::Array{FT,N}
-    G1RoofVeg::Array{FT,N}
-    G2RoofImp::Array{FT,N}
-    G2RoofVeg::Array{FT,N}
-    G1Roof::Array{FT,N}
-    G2Roof::Array{FT,N}
-    G1GroundImp::Array{FT,N}
-    G1GroundBare::Array{FT,N}
-    G1GroundVeg::Array{FT,N}
-    G1Ground::Array{FT,N}
-    GTree::Array{FT,N}
-    G1WallSun::Array{FT,N}
-    G1WallShade::Array{FT,N}
-    G2WallSun::Array{FT,N}
-    G2WallShade::Array{FT,N}
-    G1Canyon::Array{FT,N}
-    G2Canyon::Array{FT,N}
-    G1Urban::Array{FT,N}
-    G2Urban::Array{FT,N}
+Base.@kwdef mutable struct Gflux{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    G1RoofImp::FT
+    G1RoofVeg::FT
+    G2RoofImp::FT
+    G2RoofVeg::FT
+    G1Roof::FT
+    G2Roof::FT
+    G1GroundImp::FT
+    G1GroundBare::FT
+    G1GroundVeg::FT
+    G1Ground::FT
+    GTree::FT
+    G1WallSun::FT
+    G1WallShade::FT
+    G2WallSun::FT
+    G2WallShade::FT
+    G1Canyon::FT
+    G2Canyon::FT
+    G1Urban::FT
+    G2Urban::FT
 end
 
-function initialize_gflux(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, Gflux, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_gflux(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
-    return initialize(
-        FT, Gflux, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function Gflux(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, Gflux, Dict{String,Any}())
 end
 
 """
-    dStorage{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    dStorage{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Heat storage in different urban surfaces.
 
@@ -189,31 +171,25 @@ Heat storage in different urban surfaces.
 - `dsWallShade`: Storage of energy in shaded wall [W/m² vertical wall area]
 - `dsCanyonAir`: Storage of energy in canyon air [W/m² horizontal canyon area]
 """
-Base.@kwdef mutable struct dStorage{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    dsRoofImp::Array{FT,N}
-    dsRoofVeg::Array{FT,N}
-    dsRoof::Array{FT,N}
-    dsGroundImp::Array{FT,N}
-    dsGroundBare::Array{FT,N}
-    dsGroundVeg::Array{FT,N}
-    dsTree::Array{FT,N}
-    dsWallSun::Array{FT,N}
-    dsWallShade::Array{FT,N}
-    dsCanyonAir::Array{FT,N}
+Base.@kwdef mutable struct dStorage{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    dsRoofImp::FT
+    dsRoofVeg::FT
+    dsRoof::FT
+    dsGroundImp::FT
+    dsGroundBare::FT
+    dsGroundVeg::FT
+    dsTree::FT
+    dsWallSun::FT
+    dsWallShade::FT
+    dsCanyonAir::FT
 end
 
-function initialize_dstorage(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, dStorage, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_dstorage(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
-    return initialize(
-        FT, dStorage, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function dStorage(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, dStorage, Dict{String,Any}())
 end
 
 """
-    Results2mEnergyFlux{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    Results2mEnergyFlux{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Energy fluxes at 2m canyon height.
 
@@ -233,44 +209,30 @@ Energy fluxes at 2m canyon height.
 - `TEveg_2m`: Transpiration flux at 2m height [W/m²]
 - `Ecan_2m`: Total latent heat flux at 2m height [W/m²]
 """
-Base.@kwdef mutable struct Results2mEnergyFlux{FT<:AbstractFloat,N} <:
-                           Abstract1PModelVariables{FT,N}
-    DHi::Array{FT,N}
-    Himp_2m::Array{FT,N}
-    Hbare_2m::Array{FT,N}
-    Hveg_2m::Array{FT,N}
-    Hwsun_2m::Array{FT,N}
-    Hwshade_2m::Array{FT,N}
-    Hcan_2m::Array{FT,N}
-    DEi::Array{FT,N}
-    Eimp_2m::Array{FT,N}
-    Ebare_soil_2m::Array{FT,N}
-    Eveg_int_2m::Array{FT,N}
-    Eveg_soil_2m::Array{FT,N}
-    TEveg_2m::Array{FT,N}
-    Ecan_2m::Array{FT,N}
+Base.@kwdef mutable struct Results2mEnergyFlux{FT<:AbstractFloat} <:
+                           AbstractModelVariables{FT}
+    DHi::FT
+    Himp_2m::FT
+    Hbare_2m::FT
+    Hveg_2m::FT
+    Hwsun_2m::FT
+    Hwshade_2m::FT
+    Hcan_2m::FT
+    DEi::FT
+    Eimp_2m::FT
+    Ebare_soil_2m::FT
+    Eveg_int_2m::FT
+    Eveg_soil_2m::FT
+    TEveg_2m::FT
+    Ecan_2m::FT
 end
 
-function initialize_results2m_energy_flux(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, Results2mEnergyFlux, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
-end
-
-function initialize_results2m_energy_flux(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        Results2mEnergyFlux,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-    )
+function Results2mEnergyFlux(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, Results2mEnergyFlux, Dict{String,Any}())
 end
 
 """
-    HeatFluxVariables{FT<:AbstractFloat, N} <: Abstract1PModelVariablesSet{FT, N}
+    HeatFluxVariables{FT<:AbstractFloat} <: AbstractModelVariablesSet{FT}
 
 Container for all heat flux variable components.
 
@@ -281,57 +243,28 @@ Container for all heat flux variable components.
 - `dStorage`: Heat storage in different urban surfaces
 - `Results2mEnergyFlux`: Energy fluxes at 2m canyon height
 """
-Base.@kwdef struct HeatFluxVariables{FT<:AbstractFloat,N} <:
-                   Abstract1PModelVariablesSet{FT,N}
-    Hflux::Hflux{FT,N}
-    LEflux::LEflux{FT,N}
-    Gflux::Gflux{FT,N}
-    dStorage::dStorage{FT,N}
-    Results2mEnergyFlux::Results2mEnergyFlux{FT,N}
+Base.@kwdef struct HeatFluxVariables{FT<:AbstractFloat} <: AbstractModelVariableSet{FT}
+    Hflux::Hflux{FT}
+    LEflux::LEflux{FT}
+    Gflux::Gflux{FT}
+    dStorage::dStorage{FT}
+    Results2mEnergyFlux::Results2mEnergyFlux{FT}
 end
 
-function initialize_heat_flux_variables(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, HeatFluxVariables, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
+function HeatFluxVariables(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, HeatFluxVariables, Dict{String,Any}())
 end
 
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{HeatFluxVariables}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-    processed["Hflux"] = initialize_hflux(FT, dimensionality_type(params[2]))
-    processed["LEflux"] = initialize_leflux(FT, dimensionality_type(params[2]))
-    processed["Gflux"] = initialize_gflux(FT, dimensionality_type(params[2]))
-    processed["dStorage"] = initialize_dstorage(FT, dimensionality_type(params[2]))
-    processed["Results2mEnergyFlux"] = initialize_results2m_energy_flux(
-        FT, dimensionality_type(params[2])
-    )
-    return processed
-end
 
-function initialize_heat_flux_variables(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        HeatFluxVariables,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-    )
-end
+    processed["Hflux"] = Hflux(FT)
+    processed["LEflux"] = LEflux(FT)
+    processed["Gflux"] = Gflux(FT)
+    processed["dStorage"] = dStorage(FT)
+    processed["Results2mEnergyFlux"] = Results2mEnergyFlux(FT)
 
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT}, ::Type{HeatFluxVariables}, data::Dict{String,Any}, params::Tuple, hours::Int
-) where {FT<:AbstractFloat}
-    processed = Dict{String,Any}()
-    processed["Hflux"] = initialize_hflux(FT, dimensionality_type(params[2]), hours)
-    processed["LEflux"] = initialize_leflux(FT, dimensionality_type(params[2]), hours)
-    processed["Gflux"] = initialize_gflux(FT, dimensionality_type(params[2]), hours)
-    processed["dStorage"] = initialize_dstorage(FT, dimensionality_type(params[2]), hours)
-    processed["Results2mEnergyFlux"] = initialize_results2m_energy_flux(
-        FT, dimensionality_type(params[2]), hours
-    )
     return processed
 end

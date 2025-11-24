@@ -1,115 +1,42 @@
 using Test
 using UrbanTethysChloris.ModelComponents.ModelVariables:
-    Wind,
-    initialize_wind,
-    LAITimeSeries,
-    initialize_lai_time_series,
-    Resistance,
-    initialize_resistance,
-    EnvironmentalConditions,
-    initialize_environmental_conditions,
-    TimeSlice,
-    TimeSeries
+    Wind, LAITimeSeries, Resistance, EnvironmentalConditions
 
 FT = Float64
 
-@testset "Wind" begin
-    @testset "TimeSlice" begin
-        wind = initialize_wind(FT, TimeSlice())
-        @test wind isa Wind{FT,0}
+@testset "Subsets" begin
+    @testset "Wind" begin
+        wind = Wind(FT)
+        @test wind isa Wind{FT}
         for field in fieldnames(Wind)
             @test isa(getproperty(wind, field), FT)
+            @test getproperty(wind, field) == 0
         end
     end
 
-    @testset "TimeSeries" begin
-        hours = 24
-        wind = initialize_wind(FT, TimeSeries(), hours)
-        @test wind isa Wind{FT,1}
-        for field in fieldnames(Wind)
-            @test isa(getproperty(wind, field), Array{FT,1})
-            @test size(getproperty(wind, field)) == (hours,)
-        end
-    end
-end
-
-@testset "LAITimeSeries" begin
-    @testset "TimeSlice" begin
-        lai = initialize_lai_time_series(FT, TimeSlice())
-        @test lai isa LAITimeSeries{FT,0}
+    @testset "LAITimeSeries" begin
+        lai = LAITimeSeries(FT)
+        @test lai isa LAITimeSeries{FT}
         for field in fieldnames(LAITimeSeries)
             @test isa(getproperty(lai, field), FT)
+            @test getproperty(lai, field) == 0
         end
     end
 
-    @testset "TimeSeries" begin
-        hours = 24
-        lai = initialize_lai_time_series(FT, TimeSeries(), hours)
-        @test lai isa LAITimeSeries{FT,1}
-        for field in fieldnames(LAITimeSeries)
-            @test isa(getproperty(lai, field), Array{FT,1})
-            @test size(getproperty(lai, field)) == (hours,)
-        end
-    end
-end
-
-@testset "Resistance" begin
-    @testset "TimeSlice" begin
-        res = initialize_resistance(FT, TimeSlice())
-        @test res isa Resistance{FT,0}
+    @testset "Resistance" begin
+        res = Resistance(FT)
+        @test res isa Resistance{FT}
         for field in fieldnames(Resistance)
             @test isa(getproperty(res, field), FT)
-        end
-    end
-
-    @testset "TimeSeries" begin
-        hours = 24
-        res = initialize_resistance(FT, TimeSeries(), hours)
-        @test res isa Resistance{FT,1}
-        for field in fieldnames(Resistance)
-            @test isa(getproperty(res, field), Array{FT,1})
-            @test size(getproperty(res, field)) == (hours,)
+            @test getproperty(res, field) == 0
         end
     end
 end
 
 @testset "EnvironmentalConditions" begin
-    @testset "TimeSlice" begin
-        env = initialize_environmental_conditions(FT, TimeSlice())
-        @test env isa EnvironmentalConditions{FT,0}
-        @test env.wind isa Wind{FT,0}
-        @test env.LAI_time_series isa LAITimeSeries{FT,0}
-        @test env.resistance isa Resistance{FT,0}
-    end
-
-    @testset "TimeSeries" begin
-        hours = 24
-        env = initialize_environmental_conditions(FT, TimeSeries(), hours)
-        @test env isa EnvironmentalConditions{FT,1}
-        @test env.wind isa Wind{FT,1}
-        @test env.LAI_time_series isa LAITimeSeries{FT,1}
-        @test env.resistance isa Resistance{FT,1}
-        @test size(env.wind.u_Hcan) == (hours,)
-        @test size(env.LAI_time_series.LAI_R) == (hours,)
-        @test size(env.resistance.raRooftoAtm) == (hours,)
-    end
-end
-
-@testset "get/setindex" begin
-    hours = 24
-    env = initialize_environmental_conditions(FT, TimeSeries(), hours)
-
-    LAI_R = FT(2.0)
-    u_Hcan = FT(3.0)
-    raRooftoAtm = FT(4.0)
-
-    x = env[1]
-    x.LAI_time_series.LAI_R = LAI_R
-    x.wind.u_Hcan = u_Hcan
-    x.resistance.raRooftoAtm = raRooftoAtm
-
-    env[2] = x
-    @test env.LAI_time_series.LAI_R[2] == LAI_R
-    @test env.wind.u_Hcan[2] == u_Hcan
-    @test env.resistance.raRooftoAtm[2] == raRooftoAtm
+    env = EnvironmentalConditions(FT)
+    @test env isa EnvironmentalConditions{FT}
+    @test env.wind isa Wind{FT}
+    @test env.LAI_time_series isa LAITimeSeries{FT}
+    @test env.resistance isa Resistance{FT}
 end
