@@ -22,13 +22,12 @@ Base.@kwdef mutable struct TempVecB{FT<:AbstractFloat} <: AbstractModelVariables
     Tintmass::FT
     Tbin::FT
     qbin::FT
+    #TODO: missing Tatm field?
 end
 
 function TempVecB(::Type{FT}) where {FT<:AbstractFloat}
-    @warn "Initializing TempVecB fields to zero. Consider adding initialization in YAML or NetCDF for temperature and humidity fields."
     return initialize(FT, TempVecB, Dict{String,Any}())
 end
-# TODO: Add initialization in YAML or NetCDF for temperature and humidity fields
 """
     HumidityBuilding{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 

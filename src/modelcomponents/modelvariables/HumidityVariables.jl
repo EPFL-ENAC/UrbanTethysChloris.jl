@@ -33,7 +33,6 @@ Base.@kwdef mutable struct Humidity{FT<:AbstractFloat} <: AbstractModelVariables
 end
 
 function Humidity(::Type{FT}) where {FT<:AbstractFloat}
-    @warn "Initializing Humidity variables with zeros. CanyonSpecific should be initialized with AtmSpecific."
     return initialize(FT, Humidity, Dict{String,Any}())
 end
 
