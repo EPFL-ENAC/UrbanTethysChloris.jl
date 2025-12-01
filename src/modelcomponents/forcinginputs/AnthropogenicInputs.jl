@@ -1,5 +1,3 @@
-abstract type AbstractAnthropogenicInputs{FT<:AbstractFloat} <: AbstractForcingInputs{FT} end
-
 """
     AnthropogenicInputs{FT<:AbstractFloat}
 
@@ -13,19 +11,21 @@ Building and anthropogenic inputs affecting the urban environment.
 - `Waterf_canyonBare::Vector{FT}`: Water applied on bare ground surface area [mm/time step]
 - `Waterf_roof::Vector{FT}`: Water applied on roof surface area [mm/time step]
 """
-Base.@kwdef struct AnthropogenicInputs{FT<:AbstractFloat} <: AbstractAnthropogenicInputs{FT}
-    Tb::Vector{FT}
-    Qf_canyon::Vector{FT}
-    Qf_roof::Vector{FT}
-    Waterf_canyonVeg::Vector{FT}
-    Waterf_canyonBare::Vector{FT}
-    Waterf_roof::Vector{FT}
+Base.@kwdef struct AnthropogenicInputs{FT<:AbstractFloat,N} <: Abstract1PForcingInputs{FT,N}
+    Tb::Array{FT,N}
+    Qf_canyon::Array{FT,N}
+    Qf_roof::Array{FT,N}
+    Waterf_canyonVeg::Array{FT,N}
+    Waterf_canyonBare::Array{FT,N}
+    Waterf_roof::Array{FT,N}
 end
 
-function initialize_anthropogenic_inputs(
-    ::Type{FT}, data::NCDataset, Tatm::Vector{FT}
+function AnthropogenicInputs(
+    ::Type{FT}, ::TimeSeries, data::NCDataset, Tatm::Vector{FT}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, AnthropogenicInputs, data, (FT,), Tatm)
+    return initialize(
+        FT, AnthropogenicInputs, data, (FT, dimension_value(TimeSeries())), Tatm
+    )
 end
 
 function TethysChlorisCore.get_required_fields(::Type{AnthropogenicInputs})
@@ -66,13 +66,13 @@ function TethysChlorisCore.preprocess_fields(
     end
 
     # Calculate Tb
-    processed["Tb"] = Tb(Tatm, data["Tbmin"][], data["Tbmax"][])
+    processed["Tb"] = Tb(Tatm, FT(data["Tbmin"][]), FT(data["Tbmax"][]))
 
     return processed
 end
 
 function Tb(Tatm::Vector{FT}, Tbmin::FT, Tbmax::FT) where {FT<:AbstractFloat}
-    return clamp.(Tatm, Tbmin + 273.15, Tbmax + 273.15)
+    return clamp.(Tatm, Tbmin + FT(273.15), Tbmax + FT(273.15))
 end
 
 function TethysChlorisCore.validate_fields(::Type{AnthropogenicInputs}, data::NCDataset) end

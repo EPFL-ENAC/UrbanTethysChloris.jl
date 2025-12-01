@@ -1,5 +1,5 @@
 """
-    AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Absorbed shortwave radiation for different urban surfaces.
 
@@ -21,51 +21,32 @@ Absorbed shortwave radiation for different urban surfaces.
 - `WallSunTransmitted`: Shortwave radiation transmitted through the windows on the sunlit wall area [W/m² vertical wall area]
 - `WallShadeTransmitted`: Shortwave radiation transmitted through the windows on the sunlit wall area [W/m² vertical wall area]
 """
-Base.@kwdef mutable struct AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
-                           Abstract1PModelVariables{FT,N}
-    SWRabsRoofImp::Array{FT,N}
-    RoofVeg::Array{FT,N}
-    TotalRoof::Array{FT,N}
-    GroundImp::Array{FT,N}
-    GroundBare::Array{FT,N}
-    GroundVeg::Array{FT,N}
-    Tree::Array{FT,N}
-    WallSun::Array{FT,N}
-    WallShade::Array{FT,N}
-    TotalGround::Array{FT,N}
-    TotalCanyon::Array{FT,N}
-    TotalUrban::Array{FT,N}
-    WallSunExt::Array{FT,N}
-    WallShadeExt::Array{FT,N}
-    WallSunTransmitted::Array{FT,N}
-    WallShadeTransmitted::Array{FT,N}
+Base.@kwdef mutable struct AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat} <:
+                           AbstractModelVariables{FT}
+    SWRabsRoofImp::FT
+    RoofVeg::FT
+    TotalRoof::FT
+    GroundImp::FT
+    GroundBare::FT
+    GroundVeg::FT
+    Tree::FT
+    WallSun::FT
+    WallShade::FT
+    TotalGround::FT
+    TotalCanyon::FT
+    TotalUrban::FT
+    WallSunExt::FT
+    WallShadeExt::FT
+    WallSunTransmitted::FT
+    WallShadeTransmitted::FT
 end
 
-function initialize_absorbed_radiation_flux_variables(
-    ::Type{FT}, ::TimeSlice
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        AbsorbedRadiationFluxVariablesSubset,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSlice())),
-    )
-end
-
-function initialize_absorbed_radiation_flux_variables(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        AbsorbedRadiationFluxVariablesSubset,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-    )
+function AbsorbedRadiationFluxVariablesSubset(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, AbsorbedRadiationFluxVariablesSubset, Dict{String,Any}())
 end
 
 """
-    DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Radiation flux for different urban surfaces.
 
@@ -83,47 +64,28 @@ Radiation flux for different urban surfaces.
 - `TotalCanyon`: Total incoming shortwave radiation by all the canyon facets [W/m²]
 - `TotalUrban`: Total incoming shortwave radiation by all the urban elements (roof plus canyon) [W/m²]
 """
-Base.@kwdef mutable struct DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat,N} <:
-                           Abstract1PModelVariables{FT,N}
-    RoofImp::Array{FT,N}
-    RoofVeg::Array{FT,N}
-    TotalRoof::Array{FT,N}
-    GroundImp::Array{FT,N}
-    GroundBare::Array{FT,N}
-    GroundVeg::Array{FT,N}
-    Tree::Array{FT,N}
-    WallSun::Array{FT,N}
-    WallShade::Array{FT,N}
-    TotalGround::Array{FT,N}
-    TotalCanyon::Array{FT,N}
-    TotalUrban::Array{FT,N}
+Base.@kwdef mutable struct DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat} <:
+                           AbstractModelVariables{FT}
+    RoofImp::FT
+    RoofVeg::FT
+    TotalRoof::FT
+    GroundImp::FT
+    GroundBare::FT
+    GroundVeg::FT
+    Tree::FT
+    WallSun::FT
+    WallShade::FT
+    TotalGround::FT
+    TotalCanyon::FT
+    TotalUrban::FT
 end
 
-function initialize_default_radiation_flux_variables(
-    ::Type{FT}, ::TimeSlice
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        DefaultRadiationFluxVariablesSubset,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSlice())),
-    )
-end
-
-function initialize_default_radiation_flux_variables(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        DefaultRadiationFluxVariablesSubset,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-    )
+function DefaultRadiationFluxVariablesSubset(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, DefaultRadiationFluxVariablesSubset, Dict{String,Any}())
 end
 
 """
-    AlbedoOutput{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    AlbedoOutput{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Albedo values for urban areas.
 
@@ -132,29 +94,18 @@ Albedo values for urban areas.
 - `TotalCanyon`: Albedo of the total canyon area [-]
 - `Roof`: Albedo of the total roof area [-]
 """
-Base.@kwdef mutable struct AlbedoOutput{FT<:AbstractFloat,N} <:
-                           Abstract1PModelVariables{FT,N}
-    TotalUrban::Array{FT,N}
-    TotalCanyon::Array{FT,N}
-    Roof::Array{FT,N}
+Base.@kwdef mutable struct AlbedoOutput{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    TotalUrban::FT
+    TotalCanyon::FT
+    Roof::FT
 end
 
-function initialize_albedo_output(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, AlbedoOutput, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
-end
-
-function initialize_albedo_output(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, AlbedoOutput, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function AlbedoOutput(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, AlbedoOutput, Dict{String,Any}())
 end
 
 """
-    RadiationFluxVariables{FT<:AbstractFloat, N} <: Abstract1PModelVariablesSet{FT, N}
+    RadiationFluxVariables{FT<:AbstractFloat} <: AbstractModelVariableSet{FT}
 
 Container for all radiation variable components.
 
@@ -169,105 +120,34 @@ Container for all radiation variable components.
 - `LWREB`: Longwave radiation energy balance for different urban surfaces
 - `AlbedoOutput`: Albedo values for urban areas
 """
-Base.@kwdef struct RadiationFluxVariables{FT<:AbstractFloat,N} <:
-                   Abstract1PModelVariablesSet{FT,N}
-    SWRabs::AbsorbedRadiationFluxVariablesSubset{FT,N}
-    SWRin::DefaultRadiationFluxVariablesSubset{FT,N}
-    SWRout::DefaultRadiationFluxVariablesSubset{FT,N}
-    SWREB::DefaultRadiationFluxVariablesSubset{FT,N}
-    LWRabs::DefaultRadiationFluxVariablesSubset{FT,N}
-    LWRin::DefaultRadiationFluxVariablesSubset{FT,N}
-    LWRout::DefaultRadiationFluxVariablesSubset{FT,N}
-    LWREB::DefaultRadiationFluxVariablesSubset{FT,N}
-    AlbedoOutput::AlbedoOutput{FT,N}
+Base.@kwdef struct RadiationFluxVariables{FT<:AbstractFloat} <: AbstractModelVariableSet{FT}
+    SWRabs::AbsorbedRadiationFluxVariablesSubset{FT}
+    SWRin::DefaultRadiationFluxVariablesSubset{FT}
+    SWRout::DefaultRadiationFluxVariablesSubset{FT}
+    SWREB::DefaultRadiationFluxVariablesSubset{FT}
+    LWRabs::DefaultRadiationFluxVariablesSubset{FT}
+    LWRin::DefaultRadiationFluxVariablesSubset{FT}
+    LWRout::DefaultRadiationFluxVariablesSubset{FT}
+    LWREB::DefaultRadiationFluxVariablesSubset{FT}
+    AlbedoOutput::AlbedoOutput{FT}
 end
 
-function initialize_radiation_flux_variables(
-    ::Type{FT}, ::TimeSlice
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, RadiationFluxVariables, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
+function RadiationFluxVariables(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, RadiationFluxVariables, Dict{String,Any}())
 end
 
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{RadiationFluxVariables}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-    processed["SWRabs"] = initialize_absorbed_radiation_flux_variables(
-        FT, dimensionality_type(params[2])
-    )
-    processed["SWRin"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2])
-    )
-    processed["SWRout"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2])
-    )
-    processed["SWREB"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2])
-    )
-    processed["LWRabs"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2])
-    )
-    processed["LWRin"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2])
-    )
-    processed["LWRout"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2])
-    )
-    processed["LWREB"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2])
-    )
-    processed["AlbedoOutput"] = initialize_albedo_output(FT, dimensionality_type(params[2]))
-    return processed
-end
-
-function initialize_radiation_flux_variables(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        RadiationFluxVariables,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-    )
-end
-
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT},
-    ::Type{RadiationFluxVariables},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-) where {FT<:AbstractFloat}
-    processed = Dict{String,Any}()
-    processed["SWRabs"] = initialize_absorbed_radiation_flux_variables(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["SWRin"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["SWRout"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["SWREB"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["LWRabs"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["LWRin"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["LWRout"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["LWREB"] = initialize_default_radiation_flux_variables(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["AlbedoOutput"] = initialize_albedo_output(
-        FT, dimensionality_type(params[2]), hours
-    )
+    processed["SWRabs"] = AbsorbedRadiationFluxVariablesSubset(FT)
+    processed["SWRin"] = DefaultRadiationFluxVariablesSubset(FT)
+    processed["SWRout"] = DefaultRadiationFluxVariablesSubset(FT)
+    processed["SWREB"] = DefaultRadiationFluxVariablesSubset(FT)
+    processed["LWRabs"] = DefaultRadiationFluxVariablesSubset(FT)
+    processed["LWRin"] = DefaultRadiationFluxVariablesSubset(FT)
+    processed["LWRout"] = DefaultRadiationFluxVariablesSubset(FT)
+    processed["LWREB"] = DefaultRadiationFluxVariablesSubset(FT)
+    processed["AlbedoOutput"] = AlbedoOutput(FT)
     return processed
 end

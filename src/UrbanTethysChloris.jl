@@ -6,6 +6,9 @@ using Statistics
 using ConstructionBase
 using LeastSquaresOptim
 using Roots
+using NCDatasets
+using YAML
+using NaNMath: NaNMath
 
 include(joinpath("soil", "Soil.jl"))
 using .Soil
@@ -42,6 +45,9 @@ using .Water
 
 include("incoming_longwave.jl")
 include("set_sun_variables.jl")
+
+include("Model.jl")
+export create_model, initialize!
 
 include("eb_solver_canyon.jl")
 include("eb_solver_roof.jl")

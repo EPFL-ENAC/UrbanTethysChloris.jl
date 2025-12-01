@@ -1,61 +1,41 @@
-abstract type AbstractEnvironmentalConditionSet{FT<:AbstractFloat} <:
-              AbstractModelVariableSet{FT} end
-
 """
-    Wind{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
+    Wind{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 # Fields
 - `u_Hcan`: Wind speed at canyon calculation height (hdisp + canyon roughness height) [m/s]
 - `u_Zref_und`: Wind speed at undercanopy reference height [m/s]
 - `u_ZPerson`: Wind speed at person height [m/s]
 """
-Base.@kwdef mutable struct Wind{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    u_Hcan::Array{FT,N}
-    u_Zref_und::Array{FT,N}
-    u_ZPerson::Array{FT,N}
+Base.@kwdef mutable struct Wind{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    u_Hcan::FT
+    u_Zref_und::FT
+    u_ZPerson::FT
 end
 
-function initialize_wind(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, Wind, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_wind(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
-    return initialize(
-        FT, Wind, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function Wind(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, Wind, Dict{String,Any}())
 end
 
 """
-    LAITimeSeries{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
+    LAITimeSeries{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 # Fields
 - `LAI_R`: LAI of roof vegetation [-]
 - `LAI_G`: LAI of ground vegetation [-]
 - `LAI_T`: LAI of tree vegetation [-]
 """
-Base.@kwdef mutable struct LAITimeSeries{FT<:AbstractFloat,N} <:
-                           Abstract1PModelVariables{FT,N}
-    LAI_R::Array{FT,N}
-    LAI_G::Array{FT,N}
-    LAI_T::Array{FT,N}
+Base.@kwdef mutable struct LAITimeSeries{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    LAI_R::FT
+    LAI_G::FT
+    LAI_T::FT
 end
 
-function initialize_lai_time_series(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, LAITimeSeries, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
-end
-
-function initialize_lai_time_series(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, LAITimeSeries, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function LAITimeSeries(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, LAITimeSeries, Dict{String,Any}())
 end
 
 """
-    Resistance{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
+    Resistance{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 # Fields
 - `raRooftoAtm`: Aerodynamic resistance ra from roof to atmosphere [s/m]
@@ -84,106 +64,60 @@ end
 - `rap_W2_In`: Vertical aerodynamic resistance applied from 2m height to canyon displacement height plus momentum roughness length height for shaded wall [s/m]
 - `rap_Zp1`: Vertical aerodynamic resistance from the ground to 2m height [s/m]
 """
-Base.@kwdef mutable struct Resistance{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    raRooftoAtm::Array{FT,N}
-    raCanyontoAtmOrig::Array{FT,N}
-    rap_LRoof::Array{FT,N}
-    rb_LRoof::Array{FT,N}
-    r_soilRoof::Array{FT,N}
-    rs_sunRoof::Array{FT,N}
-    rs_shdRoof::Array{FT,N}
-    raCanyontoAtm::Array{FT,N}
-    rap_can::Array{FT,N}
-    rap_Htree_In::Array{FT,N}
-    rb_HGround::Array{FT,N}
-    rb_LGround::Array{FT,N}
-    r_soilGroundbare::Array{FT,N}
-    r_soilGroundveg::Array{FT,N}
-    alp_soilGroundbare::Array{FT,N}
-    alp_soilGroundveg::Array{FT,N}
-    rs_sunGround::Array{FT,N}
-    rs_shdGround::Array{FT,N}
-    rs_sunTree::Array{FT,N}
-    rs_shdTree::Array{FT,N}
-    RES_w1::Array{FT,N}
-    RES_w2::Array{FT,N}
-    rap_W1_In::Array{FT,N}
-    rap_W2_In::Array{FT,N}
-    rap_Zp1::Array{FT,N}
+Base.@kwdef mutable struct Resistance{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    raRooftoAtm::FT
+    raCanyontoAtmOrig::FT
+    rap_LRoof::FT
+    rb_LRoof::FT
+    r_soilRoof::FT
+    rs_sunRoof::FT
+    rs_shdRoof::FT
+    raCanyontoAtm::FT
+    rap_can::FT
+    rap_Htree_In::FT
+    rb_HGround::FT
+    rb_LGround::FT
+    r_soilGroundbare::FT
+    r_soilGroundveg::FT
+    alp_soilGroundbare::FT
+    alp_soilGroundveg::FT
+    rs_sunGround::FT
+    rs_shdGround::FT
+    rs_sunTree::FT
+    rs_shdTree::FT
+    RES_w1::FT
+    RES_w2::FT
+    rap_W1_In::FT
+    rap_W2_In::FT
+    rap_Zp1::FT
 end
 
-function initialize_resistance(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, Resistance, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
-end
-
-function initialize_resistance(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, Resistance, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function Resistance(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, Resistance, Dict{String,Any}())
 end
 
 """
-    EnvironmentalConditionSet{FT<:AbstractFloat, N} <: Abstract1PModelVariablesSet{FT, N}
+    EnvironmentalConditionSet{FT<:AbstractFloat} <: AbstractModelVariableSet{FT}
 
 Environmental condition set including wind, LAI time series, and resistances.
 """
-Base.@kwdef struct EnvironmentalConditions{FT<:AbstractFloat,N} <:
-                   Abstract1PModelVariablesSet{FT,N}
-    wind::Wind{FT,N}
-    LAI_time_series::LAITimeSeries{FT,N}
-    resistance::Resistance{FT,N}
+Base.@kwdef struct EnvironmentalConditions{FT<:AbstractFloat} <:
+                   AbstractModelVariableSet{FT}
+    wind::Wind{FT}
+    LAI_time_series::LAITimeSeries{FT}
+    resistance::Resistance{FT}
 end
 
-function initialize_environmental_conditions(
-    ::Type{FT}, ::TimeSlice
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, EnvironmentalConditions, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
+function EnvironmentalConditions(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, EnvironmentalConditions, Dict{String,Any}())
 end
 
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{EnvironmentalConditions}, data::Dict{String,Any}, params::Tuple
 ) where {FT<:AbstractFloat}
     processed = Dict{String,Any}()
-    processed["wind"] = initialize_wind(FT, dimensionality_type(params[2]))
-    processed["LAI_time_series"] = initialize_lai_time_series(
-        FT, dimensionality_type(params[2])
-    )
-    processed["resistance"] = initialize_resistance(FT, dimensionality_type(params[2]))
-    return processed
-end
-
-function initialize_environmental_conditions(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        EnvironmentalConditions,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-    )
-end
-
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT},
-    ::Type{EnvironmentalConditions},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-) where {FT<:AbstractFloat}
-    processed = Dict{String,Any}()
-    processed["wind"] = initialize_wind(FT, dimensionality_type(params[2]), hours)
-    processed["LAI_time_series"] = initialize_lai_time_series(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["resistance"] = initialize_resistance(
-        FT, dimensionality_type(params[2]), hours
-    )
+    processed["wind"] = Wind(FT)
+    processed["LAI_time_series"] = LAITimeSeries(FT)
+    processed["resistance"] = Resistance(FT)
     return processed
 end

@@ -67,7 +67,7 @@ function soil_moistures_rich_comp(
     T_L::Vector{FT},
     Qi_in::Vector{FT},
     IS::Vector{FT},
-    SPAR::Int,
+    SPAR::Int, # TODO: replace with enum-like type
     Osat::Vector{FT},
     Ohy::Vector{FT},
     O33::Vector{FT},

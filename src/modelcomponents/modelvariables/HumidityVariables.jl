@@ -1,5 +1,5 @@
 """
-    Humidity{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
+    Humidity{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Canyon and atmospheric humidity variables.
 
@@ -17,63 +17,27 @@ Canyon and atmospheric humidity variables.
 - `AtmSpecificSat`: Specific humidity at saturation at atmospheric forcing height [kg/kg]
 - `AtmVapourPreSat`: Saturation vapour pressure at atmospheric forcing height [Pa]
 """
-Base.@kwdef mutable struct Humidity{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    CanyonRelative::Array{FT,N}
-    CanyonSpecific::Array{FT,N}
-    CanyonVapourPre::Array{FT,N}
-    CanyonRelativeSat::Array{FT,N}
-    CanyonSpecificSat::Array{FT,N}
-    CanyonVapourPreSat::Array{FT,N}
-    AtmRelative::Array{FT,N}
-    AtmSpecific::Array{FT,N}
-    AtmVapourPre::Array{FT,N}
-    AtmRelativeSat::Array{FT,N}
-    AtmSpecificSat::Array{FT,N}
-    AtmVapourPreSat::Array{FT,N}
+Base.@kwdef mutable struct Humidity{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    CanyonRelative::FT
+    CanyonSpecific::FT
+    CanyonVapourPre::FT
+    CanyonRelativeSat::FT
+    CanyonSpecificSat::FT
+    CanyonVapourPreSat::FT
+    AtmRelative::FT
+    AtmSpecific::FT
+    AtmVapourPre::FT
+    AtmRelativeSat::FT
+    AtmSpecificSat::FT
+    AtmVapourPreSat::FT
 end
 
-function initialize_humidity(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, Humidity, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_humidity(
-    ::Type{FT}, ::TimeSeries, hours::Int, AtmSpecific::FT
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        Humidity,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-        AtmSpecific,
-    )
-end
-
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT},
-    ::Type{Humidity},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    AtmSpecific::FT,
-) where {FT<:AbstractFloat}
-    processed = Dict{String,Any}()
-    dimensions = get_dimensions(Humidity, data, params, hours)
-
-    for (var, dims) in dimensions
-        processed[var] = zeros(FT, dims)
-    end
-
-    # Initialize with atmospheric specific humidity if provided
-    if params[2] == 1
-        processed["CanyonSpecific"][1] = AtmSpecific
-    end
-
-    return processed
+function Humidity(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, Humidity, Dict{String,Any}())
 end
 
 """
-    Results2m{FT<:AbstractFloat, N} <: AbstractResults2m{FT,N}
+    Results2m{FT<:AbstractFloat} <: AbstractResults2m{FT}
 
 Temperature and humidity results at 2-meter canyon height.
 
@@ -86,47 +50,35 @@ Temperature and humidity results at 2-meter canyon height.
 - `e_Tcan`: Canyon vapor pressure [Pa]
 - `RH_Tcan`: Canyon relative humidity [-]
 """
-Base.@kwdef mutable struct Results2m{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    # 2-meter Height Results
-    T2m::Array{FT,N}
-    q2m::Array{FT,N}
-    e_T2m::Array{FT,N}
-    RH_T2m::Array{FT,N}
-    qcan::Array{FT,N}
-    e_Tcan::Array{FT,N}
-    RH_Tcan::Array{FT,N}
+Base.@kwdef mutable struct Results2m{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    T2m::FT
+    q2m::FT
+    e_T2m::FT
+    RH_T2m::FT
+    qcan::FT
+    e_Tcan::FT
+    RH_Tcan::FT
 end
 
-function initialize_results2m(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, Results2m, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_results2m(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, Results2m, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function Results2m(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, Results2m, Dict{String,Any}())
 end
 
 """
-    HumidityVariables{FT<:AbstractFloat, N} <: Abstract1PModelVariablesSet{FT, N}
+    HumidityVariables{FT<:AbstractFloat} <: AbstractModelVariableSet{FT}
 
     Combines Humidity and Results2m into a single model variables struct.
 # Fields
 - `Humidity`: Humidity variables at canyon and atmospheric heights
 - `Results2m`: Temperature and humidity results at 2-meter canyon height
 """
-Base.@kwdef struct HumidityVariables{FT<:AbstractFloat,N} <:
-                   Abstract1PModelVariablesSet{FT,N}
-    Humidity::Humidity{FT,N}
-    Results2m::Results2m{FT,N}
+Base.@kwdef struct HumidityVariables{FT<:AbstractFloat} <: AbstractModelVariableSet{FT}
+    Humidity::Humidity{FT}
+    Results2m::Results2m{FT}
 end
 
-function initialize_humidity_variables(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, HumidityVariables, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
+function HumidityVariables(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, HumidityVariables, Dict{String,Any}())
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -135,40 +87,8 @@ function TethysChlorisCore.preprocess_fields(
     processed = Dict{String,Any}()
 
     # Preprocess each component separately
-    processed["Humidity"] = initialize_humidity(FT, dimensionality_type(params[2]))
-    processed["Results2m"] = initialize_results2m(FT, dimensionality_type(params[2]))
-
-    return processed
-end
-
-function initialize_humidity_variables(
-    ::Type{FT}, ::TimeSeries, hours::Int, AtmSpecific::FT
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        HumidityVariables,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-        AtmSpecific,
-    )
-end
-
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT},
-    ::Type{HumidityVariables},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    AtmSpecific::FT,
-) where {FT<:AbstractFloat}
-    processed = Dict{String,Any}()
-
-    # Preprocess each component separately
-    processed["Humidity"] = initialize_humidity(
-        FT, dimensionality_type(params[2]), hours, AtmSpecific
-    )
-    processed["Results2m"] = initialize_results2m(FT, dimensionality_type(params[2]), hours)
+    processed["Humidity"] = Humidity(FT)
+    processed["Results2m"] = Results2m(FT)
 
     return processed
 end

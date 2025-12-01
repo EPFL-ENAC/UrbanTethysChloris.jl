@@ -123,7 +123,11 @@ function soil_parameters_total(
     m = 2/(p-1)
     nVG = 1/(1-m)
     alpVG =
-        (((-101.9368*Pe)*(2*p*(p-1))/(p+3))*((55.6+7.4*p+p^2)/(147.8+8.1*p+0.092*p^2)))^-1
+        (
+            (
+                (FT(-101.9368)*Pe)*(2*p*(p-1))/(p+3)
+            )*((FT(55.6)+FT(7.4)*p+p^2)/(FT(147.8)+FT(8.1)*p+FT(0.092)*p^2))
+        )^-1
 
     # Initialize vectors for each soil layer
     Osat = fill(Osat, ms)
@@ -135,7 +139,9 @@ function soil_parameters_total(
     alpVG = fill(alpVG, ms)
 
     # Soil parameters II
-    _, _, _, Ohy = soil_parameters2(Osat, L, Pe, Ks_Zs, O33, nVG, alpVG, Kfc, NaN, NaN, Phy)
+    _, _, _, Ohy = soil_parameters2(
+        Osat, L, Pe, Ks_Zs, O33, nVG, alpVG, Kfc, FT(NaN), FT(NaN), Phy
+    )
 
     # Root Distribution
     if CASE_ROOT_H != CASE_ROOT_L

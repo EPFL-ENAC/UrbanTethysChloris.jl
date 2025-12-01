@@ -1,7 +1,5 @@
-abstract type AbstractMeteorologicalInputs{FT<:AbstractFloat} <: AbstractForcingInputs{FT} end
-
 """
-    MeteorologicalInputs{FT<:AbstractFloat}
+    MeteorologicalInputs{FT<:AbstractFloat, N}
 
 Meteorological inputs and derived atmospheric properties.
 
@@ -30,32 +28,34 @@ Meteorological inputs and derived atmospheric properties.
 - `cp_atm::Vector{FT}`: Specific heat of air [J/kg K]
 - `rho_atm::Vector{FT}`: Dry air density at atmosphere [kg/m³]
 """
-Base.@kwdef struct MeteorologicalInputs{FT<:AbstractFloat} <:
-                   AbstractMeteorologicalInputs{FT}
-    LWR_in::Vector{FT}
-    SAB1_in::Vector{FT}
-    SAB2_in::Vector{FT}
-    SAD1_in::Vector{FT}
-    SAD2_in::Vector{FT}
-    Tatm::Vector{FT}
-    Uatm::Vector{FT}
-    Pre::Vector{FT}
-    Rain::Vector{FT}
-    rel_hum::Vector{FT}
-    datetime::Vector{DateTime}
-    esat_Tatm::Vector{FT}
-    ea::Vector{FT}
-    q_atm::Vector{FT}
-    qSat_atm::Vector{FT}
-    SW_dir::Vector{FT}
-    SW_diff::Vector{FT}
+Base.@kwdef struct MeteorologicalInputs{FT<:AbstractFloat,N} <:
+                   Abstract1PForcingInputs{FT,N}
+    LWR_in::Array{FT,N}
+    SAB1_in::Array{FT,N}
+    SAB2_in::Array{FT,N}
+    SAD1_in::Array{FT,N}
+    SAD2_in::Array{FT,N}
+    Tatm::Array{FT,N}
+    Uatm::Array{FT,N}
+    Pre::Array{FT,N}
+    Rain::Array{FT,N}
+    rel_hum::Array{FT,N}
+    datetime::Array{DateTime,N}
+    esat_Tatm::Array{FT,N}
+    ea::Array{FT,N}
+    q_atm::Array{FT,N}
+    qSat_atm::Array{FT,N}
+    SW_dir::Array{FT,N}
+    SW_diff::Array{FT,N}
     Zatm::FT
     Catm_CO2::FT
     Catm_O2::FT
     SunDSM_MRT::FT
-    cp_atm::Vector{FT}
-    rho_atm::Vector{FT}
+    cp_atm::Array{FT,N}
+    rho_atm::Array{FT,N}
 end
+
+const SCALAR_METEO_FIELDS = [:Zatm, :Catm_CO2, :Catm_O2, :SunDSM_MRT]
 
 function get_scalar_fields(::Type{MeteorologicalInputs})
     return [:Zatm, :Catm_CO2, :Catm_O2, :SunDSM_MRT]
@@ -65,10 +65,12 @@ function TethysChlorisCore.get_calculated_fields(::Type{MeteorologicalInputs})
     return [:esat_Tatm, :ea, :q_atm, :qSat_atm, :SW_dir, :SW_diff, :cp_atm, :rho_atm]
 end
 
-function initialize_meteorological_inputs(
-    ::Type{FT}, data::NCDataset, theta_Z::Vector{FT}
+function MeteorologicalInputs(
+    ::Type{FT}, ::TimeSeries, data::NCDataset, theta_Z::Vector{FT}
 ) where {FT<:AbstractFloat}
-    return initialize(FT, MeteorologicalInputs, data, (FT,), theta_Z)
+    return initialize(
+        FT, MeteorologicalInputs, data, (FT, dimension_value(TimeSeries())), theta_Z
+    )
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -131,3 +133,18 @@ function specific_humidity(ea::Vector{<:AbstractFloat}, Pre::Vector{<:AbstractFl
 end
 
 function TethysChlorisCore.validate_fields(::Type{MeteorologicalInputs}, data::NCDataset) end
+
+function Base.getindex(
+    obj::T, idx::Int
+) where {FT<:AbstractFloat,T<:MeteorologicalInputs{FT,1}}
+    scalar_type = typeof(obj).name.wrapper{FT,0}
+    fieldvals = Dict{Symbol,Any}()
+    for field in fieldnames(typeof(obj))
+        if field in SCALAR_METEO_FIELDS
+            fieldvals[field] = getproperty(obj, field)
+        else
+            fieldvals[field] = fill(getproperty(obj, field)[idx])
+        end
+    end
+    return scalar_type(; fieldvals...)
+end

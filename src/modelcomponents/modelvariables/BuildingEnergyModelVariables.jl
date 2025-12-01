@@ -1,5 +1,5 @@
 """
-    TempVecB{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT}
+    TempVecB{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Building interior temperatures.
 
@@ -13,70 +13,23 @@ Building interior temperatures.
 - `Tbin`: Building interior air temperature [K]
 - `qbin`: Building interior specific humidity [kg/kg]
 """
-Base.@kwdef mutable struct TempVecB{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    Tceiling::Array{FT,N}
-    Tinwallsun::Array{FT,N}
-    Tinwallshd::Array{FT,N}
-    Twindows::Array{FT,N}
-    Tinground::Array{FT,N}
-    Tintmass::Array{FT,N}
-    Tbin::Array{FT,N}
-    qbin::Array{FT,N}
+Base.@kwdef mutable struct TempVecB{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    Tceiling::FT
+    Tinwallsun::FT
+    Tinwallshd::FT
+    Twindows::FT
+    Tinground::FT
+    Tintmass::FT
+    Tbin::FT
+    qbin::FT
+    #TODO: missing Tatm field?
 end
 
-function initialize_tempvecb(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, TempVecB, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
+function TempVecB(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, TempVecB, Dict{String,Any}())
 end
-
-function initialize_tempvecb(
-    ::Type{FT}, ::TimeSeries, hours::Int, Tatm::FT, AtmSpecific::FT
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        TempVecB,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-        Tatm,
-        AtmSpecific,
-    )
-end
-
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT},
-    ::Type{TempVecB},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    Tatm::FT,
-    AtmSpecific::FT,
-) where {FT<:AbstractFloat}
-    processed = Dict{String,Any}()
-    dimensions = get_dimensions(TempVecB, data, params, hours)
-
-    for (var, dims) in dimensions
-        processed[var] = zeros(FT, dims)
-    end
-
-    # Initialize temperature and humidity fields
-    temp_fields = [
-        "Tceiling", "Tinwallsun", "Tinwallshd", "Twindows", "Tinground", "Tintmass", "Tbin"
-    ]
-    humidity_fields = ["qbin"]
-
-    for var in temp_fields
-        processed[var][1] = Tatm
-    end
-
-    for var in humidity_fields
-        processed[var][1] = AtmSpecific
-    end
-
-    return processed
-end
-
 """
-    HumidityBuilding{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    HumidityBuilding{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Building interior humidity variables.
 
@@ -85,29 +38,18 @@ Building interior humidity variables.
 - `ebin`: Vapor pressure in building interior [Pa]
 - `RHbin`: Relative humidity in building interior [-]
 """
-Base.@kwdef mutable struct HumidityBuilding{FT<:AbstractFloat,N} <:
-                           Abstract1PModelVariables{FT,N}
-    esatbin::Array{FT,N}
-    ebin::Array{FT,N}
-    RHbin::Array{FT,N}
+Base.@kwdef mutable struct HumidityBuilding{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    esatbin::FT
+    ebin::FT
+    RHbin::FT
 end
 
-function initialize_humidity_building(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, HumidityBuilding, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
-end
-
-function initialize_humidity_building(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, HumidityBuilding, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function HumidityBuilding(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, HumidityBuilding, Dict{String,Any}())
 end
 
 """
-    HbuildInt{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    HbuildInt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Building interior sensible heat fluxes.
 
@@ -124,34 +66,26 @@ Building interior sensible heat fluxes.
 - `H_AC_Heat`: Sensible heat flux building due to HVAC [W/m² ground area]
 - `dSH_air`: Sensible heat flux building due to change in heat storage in air [W/m² ground area]
 """
-Base.@kwdef mutable struct HbuildInt{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    HBinRoof::Array{FT,N}
-    HbinWallSun::Array{FT,N}
-    HbinWallshd::Array{FT,N}
-    HBinGround::Array{FT,N}
-    HbinIntMass::Array{FT,N}
-    HbuildInSurf::Array{FT,N}
-    Hvent::Array{FT,N}
-    Hequip::Array{FT,N}
-    Hpeople::Array{FT,N}
-    H_AC_Heat::Array{FT,N}
-    dSH_air::Array{FT,N}
+Base.@kwdef mutable struct HbuildInt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    HBinRoof::FT
+    HbinWallSun::FT
+    HbinWallshd::FT
+    HBinGround::FT
+    HbinIntMass::FT
+    HbuildInSurf::FT
+    Hvent::FT
+    Hequip::FT
+    Hpeople::FT
+    H_AC_Heat::FT
+    dSH_air::FT
 end
 
-function initialize_hbuildint(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, HbuildInt, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_hbuildint(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, HbuildInt, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function HbuildInt(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, HbuildInt, Dict{String,Any}())
 end
 
 """
-    LEbuildInt{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    LEbuildInt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Building interior latent heat fluxes.
 
@@ -162,30 +96,20 @@ Building interior latent heat fluxes.
 - `LE_AC_Heat`: Latent heat flux building due to HVAC [W/m² ground area]
 - `dSLE_air`: Latent heat flux building due to change in moisture in air [W/m² ground area]
 """
-Base.@kwdef mutable struct LEbuildInt{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    LEvent::Array{FT,N}
-    LEequip::Array{FT,N}
-    LEpeople::Array{FT,N}
-    LE_AC_Heat::Array{FT,N}
-    dSLE_air::Array{FT,N}
+Base.@kwdef mutable struct LEbuildInt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    LEvent::FT
+    LEequip::FT
+    LEpeople::FT
+    LE_AC_Heat::FT
+    dSLE_air::FT
 end
 
-function initialize_lebuildint(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, LEbuildInt, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
-end
-
-function initialize_lebuildint(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, LEbuildInt, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function LEbuildInt(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, LEbuildInt, Dict{String,Any}())
 end
 
 """
-    GbuildInt{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    GbuildInt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Building interior conductive heat fluxes.
 
@@ -196,28 +120,20 @@ Building interior conductive heat fluxes.
 - `Gfloor`: Conductive heat flux from building floor [W/m² ground area]
 - `dSinternalMass`: Change in heat storage in internal mass [W/m² wall area]
 """
-Base.@kwdef mutable struct GbuildInt{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    G2Roof::Array{FT,N}
-    G2WallSun::Array{FT,N}
-    G2WallShade::Array{FT,N}
-    Gfloor::Array{FT,N}
-    dSinternalMass::Array{FT,N}
+Base.@kwdef mutable struct GbuildInt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    G2Roof::FT
+    G2WallSun::FT
+    G2WallShade::FT
+    Gfloor::FT
+    dSinternalMass::FT
 end
 
-function initialize_gbuildint(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, GbuildInt, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_gbuildint(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, GbuildInt, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function GbuildInt(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, GbuildInt, Dict{String,Any}())
 end
 
 """
-    SWRabsB{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    SWRabsB{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Absorbed shortwave radiation in building interior.
 
@@ -228,26 +144,20 @@ Absorbed shortwave radiation in building interior.
 - `SWRabsGround`: Absorbed shortwave radiation by building interior ground [W/m² ground area]
 - `SWRabsInternalMass`: Absorbed shortwave radiation by building internal mass [W/m² wall area]
 """
-Base.@kwdef mutable struct SWRabsB{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    SWRabsCeiling::Array{FT,N}
-    SWRabsWallsun::Array{FT,N}
-    SWRabsWallshd::Array{FT,N}
-    SWRabsGround::Array{FT,N}
-    SWRabsInternalMass::Array{FT,N}
+Base.@kwdef mutable struct SWRabsB{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    SWRabsCeiling::FT
+    SWRabsWallsun::FT
+    SWRabsWallshd::FT
+    SWRabsGround::FT
+    SWRabsInternalMass::FT
 end
 
-function initialize_swrabsb(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, SWRabsB, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_swrabsb(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
-    return initialize(
-        FT, SWRabsB, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function SWRabsB(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, SWRabsB, Dict{String,Any}())
 end
 
 """
-    LWRabsB{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    LWRabsB{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Absorbed longwave radiation in building interior.
 
@@ -258,26 +168,20 @@ Absorbed longwave radiation in building interior.
 - `LWRabsGround`: Absorbed longwave radiation by building interior ground [W/m² ground area]
 - `LWRabsInternalMass`: Absorbed longwave radiation by building internal mass [W/m² wall area]
 """
-Base.@kwdef mutable struct LWRabsB{FT<:AbstractFloat,N} <: Abstract1PModelVariables{FT,N}
-    LWRabsCeiling::Array{FT,N}
-    LWRabsWallsun::Array{FT,N}
-    LWRabsWallshd::Array{FT,N}
-    LWRabsGround::Array{FT,N}
-    LWRabsInternalMass::Array{FT,N}
+Base.@kwdef mutable struct LWRabsB{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    LWRabsCeiling::FT
+    LWRabsWallsun::FT
+    LWRabsWallshd::FT
+    LWRabsGround::FT
+    LWRabsInternalMass::FT
 end
 
-function initialize_lwrabsb(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(FT, LWRabsB, Dict{String,Any}(), (FT, dimension_value(TimeSlice())))
-end
-
-function initialize_lwrabsb(::Type{FT}, ::TimeSeries, hours::Int) where {FT<:AbstractFloat}
-    return initialize(
-        FT, LWRabsB, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function LWRabsB(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, LWRabsB, Dict{String,Any}())
 end
 
 """
-    BEMWasteHeat{FT<:AbstractFloat, N} <: Abstract1PModelVariables{FT,N}
+    BEMWasteHeat{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Building energy model waste heat variables.
 
@@ -291,34 +195,23 @@ Building energy model waste heat variables.
 - `LatentFromVent_Can`: Latent heat removed or added to the canyon due to exchange of indoor to outdoor air [W/m² canyon ground]
 - `TotAnthInput_URB`: Total anthropogenic heat output to the urban area due to HVAC [W/m² urban]
 """
-Base.@kwdef mutable struct BEMWasteHeat{FT<:AbstractFloat,N} <:
-                           Abstract1PModelVariables{FT,N}
-    SensibleFromAC_Can::Array{FT,N}
-    LatentFromAC_Can::Array{FT,N}
-    WaterFromAC_Can::Array{FT,N}
-    SensibleFromHeat_Can::Array{FT,N}
-    LatentFromHeat_Can::Array{FT,N}
-    SensibleFromVent_Can::Array{FT,N}
-    LatentFromVent_Can::Array{FT,N}
-    TotAnthInput_URB::Array{FT,N}
+Base.@kwdef mutable struct BEMWasteHeat{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    SensibleFromAC_Can::FT
+    LatentFromAC_Can::FT
+    WaterFromAC_Can::FT
+    SensibleFromHeat_Can::FT
+    LatentFromHeat_Can::FT
+    SensibleFromVent_Can::FT
+    LatentFromVent_Can::FT
+    TotAnthInput_URB::FT
 end
 
-function initialize_bemwasteheat(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, BEMWasteHeat, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
-end
-
-function initialize_bemwasteheat(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, BEMWasteHeat, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function BEMWasteHeat(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, BEMWasteHeat, Dict{String,Any}())
 end
 
 """
-    BEMEnergyUse{FT<:AbstractFloat, N} <: AbstractBEMEnergyUse{FT,N}
+    BEMEnergyUse{FT<:AbstractFloat} <: AbstractBEMEnergyUse{FT}
 
 Building energy use variables.
 
@@ -328,30 +221,19 @@ Building energy use variables.
 - `EnergyForAC_LE`: Energy consumption for AC latent [total building interior]
 - `EnergyForHeating`: Energy consumption for heating [total building interior]
 """
-Base.@kwdef mutable struct BEMEnergyUse{FT<:AbstractFloat,N} <:
-                           Abstract1PModelVariables{FT,N}
-    EnergyForAC::Array{FT,N}
-    EnergyForAC_H::Array{FT,N}
-    EnergyForAC_LE::Array{FT,N}
-    EnergyForHeating::Array{FT,N}
+Base.@kwdef mutable struct BEMEnergyUse{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    EnergyForAC::FT
+    EnergyForAC_H::FT
+    EnergyForAC_LE::FT
+    EnergyForHeating::FT
 end
 
-function initialize_bemenergyuse(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, BEMEnergyUse, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
-end
-
-function initialize_bemenergyuse(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, BEMEnergyUse, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function BEMEnergyUse(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, BEMEnergyUse, Dict{String,Any}())
 end
 
 """
-    ParACHeat_ts{FT<:AbstractFloat, N} <: AbstractParACHeat_ts{FT,N}
+    ParACHeat_ts{FT<:AbstractFloat} <: AbstractParACHeat_ts{FT}
 
 AC parameters time series variables.
 
@@ -361,30 +243,19 @@ AC parameters time series variables.
 - `AC_onDehum`: Indicating the timesteps in which AC is switched on due to dehumidification
 - `Heat_on`: Indicating the timesteps in which heating is switched on
 """
-Base.@kwdef mutable struct ParACHeat_ts{FT<:AbstractFloat,N} <:
-                           Abstract1PModelVariables{FT,N}
-    AC_on::Array{FT,N}
-    AC_onCool::Array{FT,N}
-    AC_onDehum::Array{FT,N}
-    Heat_on::Array{FT,N}
+Base.@kwdef mutable struct ParACHeat_ts{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    AC_on::FT
+    AC_onCool::FT
+    AC_onDehum::FT
+    Heat_on::FT
 end
 
-function initialize_paracheat_ts(::Type{FT}, ::TimeSlice) where {FT<:AbstractFloat}
-    return initialize(
-        FT, ParACHeat_ts, Dict{String,Any}(), (FT, dimension_value(TimeSlice()))
-    )
-end
-
-function initialize_paracheat_ts(
-    ::Type{FT}, ::TimeSeries, hours::Int
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT, ParACHeat_ts, Dict{String,Any}(), (FT, dimension_value(TimeSeries())), hours
-    )
+function ParACHeat_ts(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, ParACHeat_ts, Dict{String,Any}())
 end
 
 """
-    BuildingEnergyModelVariables{FT<:AbstractFloat, N} <: AbstractBuildingEnergyModelVariables{FT,N}
+    BuildingEnergyModelVariables{FT<:AbstractFloat} <: AbstractBuildingEnergyModelVariables{FT}
 
 Container for all building energy model variable components.
 
@@ -400,29 +271,22 @@ Container for all building energy model variable components.
 - `BEMEnergyUse`: Building energy use variables
 - `ParACHeat_ts`: AC parameters time series variables
 """
-Base.@kwdef struct BuildingEnergyModelVariables{FT<:AbstractFloat,N} <:
-                   Abstract1PModelVariablesSet{FT,N}
-    TempVecB::TempVecB{FT,N}
-    HumidityBuilding::HumidityBuilding{FT,N}
-    HbuildInt::HbuildInt{FT,N}
-    LEbuildInt::LEbuildInt{FT,N}
-    GbuildInt::GbuildInt{FT,N}
-    SWRabsB::SWRabsB{FT,N}
-    LWRabsB::LWRabsB{FT,N}
-    BEMWasteHeat::BEMWasteHeat{FT,N}
-    BEMEnergyUse::BEMEnergyUse{FT,N}
-    ParACHeat_ts::ParACHeat_ts{FT,N}
+Base.@kwdef struct BuildingEnergyModelVariables{FT<:AbstractFloat} <:
+                   AbstractModelVariableSet{FT}
+    TempVecB::TempVecB{FT}
+    HumidityBuilding::HumidityBuilding{FT}
+    HbuildInt::HbuildInt{FT}
+    LEbuildInt::LEbuildInt{FT}
+    GbuildInt::GbuildInt{FT}
+    SWRabsB::SWRabsB{FT}
+    LWRabsB::LWRabsB{FT}
+    BEMWasteHeat::BEMWasteHeat{FT}
+    BEMEnergyUse::BEMEnergyUse{FT}
+    ParACHeat_ts::ParACHeat_ts{FT}
 end
 
-function initialize_building_energy_model_variables(
-    ::Type{FT}, ::TimeSlice
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        BuildingEnergyModelVariables,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSlice())),
-    )
+function BuildingEnergyModelVariables(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, BuildingEnergyModelVariables, Dict{String,Any}())
 end
 
 function TethysChlorisCore.preprocess_fields(
@@ -431,71 +295,16 @@ function TethysChlorisCore.preprocess_fields(
     processed = Dict{String,Any}()
 
     # Initialize each component
-    processed["TempVecB"] = initialize_tempvecb(FT, dimensionality_type(params[2]))
-    processed["HumidityBuilding"] = initialize_humidity_building(
-        FT, dimensionality_type(params[2])
-    )
-    processed["HbuildInt"] = initialize_hbuildint(FT, dimensionality_type(params[2]))
-    processed["LEbuildInt"] = initialize_lebuildint(FT, dimensionality_type(params[2]))
-    processed["GbuildInt"] = initialize_gbuildint(FT, dimensionality_type(params[2]))
-    processed["SWRabsB"] = initialize_swrabsb(FT, dimensionality_type(params[2]))
-    processed["LWRabsB"] = initialize_lwrabsb(FT, dimensionality_type(params[2]))
-    processed["BEMWasteHeat"] = initialize_bemwasteheat(FT, dimensionality_type(params[2]))
-    processed["BEMEnergyUse"] = initialize_bemenergyuse(FT, dimensionality_type(params[2]))
-    processed["ParACHeat_ts"] = initialize_paracheat_ts(FT, dimensionality_type(params[2]))
-
-    return processed
-end
-
-function initialize_building_energy_model_variables(
-    ::Type{FT}, ::TimeSeries, hours::Int, Tatm::FT, AtmSpecific::FT
-) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        BuildingEnergyModelVariables,
-        Dict{String,Any}(),
-        (FT, dimension_value(TimeSeries())),
-        hours,
-        Tatm,
-        AtmSpecific,
-    )
-end
-
-# Main preprocess_fields method for BuildingEnergyModelVariables
-function TethysChlorisCore.preprocess_fields(
-    ::Type{FT},
-    ::Type{BuildingEnergyModelVariables},
-    data::Dict{String,Any},
-    params::Tuple,
-    hours::Int,
-    Tatm::FT,
-    AtmSpecific::FT,
-) where {FT<:AbstractFloat}
-    processed = Dict{String,Any}()
-
-    # Initialize each component
-    processed["TempVecB"] = initialize_tempvecb(
-        FT, dimensionality_type(params[2]), hours, Tatm, AtmSpecific
-    )
-    processed["HumidityBuilding"] = initialize_humidity_building(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["HbuildInt"] = initialize_hbuildint(FT, dimensionality_type(params[2]), hours)
-    processed["LEbuildInt"] = initialize_lebuildint(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["GbuildInt"] = initialize_gbuildint(FT, dimensionality_type(params[2]), hours)
-    processed["SWRabsB"] = initialize_swrabsb(FT, dimensionality_type(params[2]), hours)
-    processed["LWRabsB"] = initialize_lwrabsb(FT, dimensionality_type(params[2]), hours)
-    processed["BEMWasteHeat"] = initialize_bemwasteheat(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["BEMEnergyUse"] = initialize_bemenergyuse(
-        FT, dimensionality_type(params[2]), hours
-    )
-    processed["ParACHeat_ts"] = initialize_paracheat_ts(
-        FT, dimensionality_type(params[2]), hours
-    )
+    processed["TempVecB"] = TempVecB(FT)
+    processed["HumidityBuilding"] = HumidityBuilding(FT)
+    processed["HbuildInt"] = HbuildInt(FT)
+    processed["LEbuildInt"] = LEbuildInt(FT)
+    processed["GbuildInt"] = GbuildInt(FT)
+    processed["SWRabsB"] = SWRabsB(FT)
+    processed["LWRabsB"] = LWRabsB(FT)
+    processed["BEMWasteHeat"] = BEMWasteHeat(FT)
+    processed["BEMEnergyUse"] = BEMEnergyUse(FT)
+    processed["ParACHeat_ts"] = ParACHeat_ts(FT)
 
     return processed
 end

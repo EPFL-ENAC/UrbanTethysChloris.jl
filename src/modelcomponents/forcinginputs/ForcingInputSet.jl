@@ -1,5 +1,5 @@
 """
-    ForcingInputSet{FT<:AbstractFloat} <: AbstractForcingInputSet{FT}
+    ForcingInputSet{FT<:AbstractFloat, N} <: AbstractForcingInputSet{FT}
 
 Forcing inputs for the Urban Tethys-Chloris model.
 
@@ -10,18 +10,18 @@ Forcing inputs for the Urban Tethys-Chloris model.
 - `meteorological::MeteorologicalInputs{FT}`: Meteorological inputs.
 - `sunposition::SunPositionInputs{FT}`: Sun position inputs.
 """
-Base.@kwdef struct ForcingInputSet{FT<:AbstractFloat} <: AbstractForcingInputSet{FT}
-    datetime::Vector{DateTime}
-    anthropogenic::AnthropogenicInputs{FT}
-    hvacschedule::HVACSchedule{FT}
-    meteorological::MeteorologicalInputs{FT}
-    sunposition::SunPositionInputs{FT}
+Base.@kwdef struct ForcingInputSet{FT<:AbstractFloat,N} <: Abstract1PForcingInputsSet{FT,N}
+    datetime::Array{DateTime,N}
+    anthropogenic::AnthropogenicInputs{FT,N}
+    hvacschedule::HVACSchedule{FT,N}
+    meteorological::MeteorologicalInputs{FT,N}
+    sunposition::SunPositionInputs{FT,N}
 end
 
-function initialize_forcinginputset(
-    ::Type{FT}, data::NCDataset, location::LocationProperties{FT}
+function ForcingInputSet(
+    ::Type{FT}, ::TimeSeries, data::NCDataset, location::LocationProperties{FT}
 ) where {FT<:AbstractFloat}
-    initialize(FT, ForcingInputSet, data, (FT,), location)
+    initialize(FT, ForcingInputSet, data, (FT, dimension_value(TimeSeries())), location)
 end
 
 function TethysChlorisCore.get_required_fields(::Type{ForcingInputSet})
@@ -39,18 +39,31 @@ function TethysChlorisCore.preprocess_fields(
 
     processed["datetime"] = Array(data["datetime"])
 
-    processed["sunposition"] = initialize_sunposition_inputs(
-        FT, data, processed["datetime"], location
+    processed["sunposition"] = SunPositionInputs(
+        FT, TimeSeries(), data, processed["datetime"], location
     )
-    processed["meteorological"] = initialize_meteorological_inputs(
-        FT, data, processed["sunposition"].theta_Z
+    processed["meteorological"] = MeteorologicalInputs(
+        FT, TimeSeries(), data, processed["sunposition"].theta_Z
     )
-    processed["anthropogenic"] = initialize_anthropogenic_inputs(
-        FT, data, processed["meteorological"].Tatm
+    processed["anthropogenic"] = AnthropogenicInputs(
+        FT, TimeSeries(), data, processed["meteorological"].Tatm
     )
-    processed["hvacschedule"] = initialize_hvacschedule(FT, data)
+    processed["hvacschedule"] = HVACSchedule(FT, TimeSeries(), data)
 
     return processed
 end
 
 function TethysChlorisCore.validate_fields(::Type{ForcingInputSet}, data::NCDataset) end
+
+function Base.getindex(obj::T, idx::Int) where {FT<:AbstractFloat,T<:ForcingInputSet{FT,1}}
+    scalar_type = typeof(obj).name.wrapper{FT,0}
+    fieldvals = Dict{Symbol,Any}()
+    for field in fieldnames(typeof(obj))
+        if field == :datetime
+            fieldvals[field] = fill(getproperty(obj, field)[idx])
+        else
+            fieldvals[field] = getindex(getproperty(obj, field), idx)
+        end
+    end
+    return scalar_type(; fieldvals...)
+end

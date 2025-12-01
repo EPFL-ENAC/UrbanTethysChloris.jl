@@ -18,5 +18,6 @@ include("OpticalProperties.jl")
 include("ParameterSet.jl")
 
 export UrbanGeometryParameters
+export initialize_parameter_set
 
 end

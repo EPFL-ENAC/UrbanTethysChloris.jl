@@ -52,6 +52,8 @@ Base.@kwdef struct HeightDependentVegetationParameters{FT<:AbstractFloat} <:
 
     # Tree water uptake
     CASE_ROOT::Int
+
+    # TODO: replace with staticarrays
     ZR95::Vector{FT}
     ZR50::Vector{FT}
     ZRmax::Vector{FT}
@@ -79,7 +81,7 @@ Base.@kwdef struct HeightDependentVegetationParameters{FT<:AbstractFloat} <:
     Psi_sto_50::FT
     Sl::FT
 
-    SPARTREE::Int = 1
+    SPARTREE::Int = 1 # TODO: replace with enum
 end
 
 function initialize_heightdependent_vegetationparameters(

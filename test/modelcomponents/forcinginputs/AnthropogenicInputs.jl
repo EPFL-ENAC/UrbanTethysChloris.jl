@@ -1,60 +1,88 @@
 using Test
 using NCDatasets
 using Dates
-using UrbanTethysChloris.ModelComponents.ForcingInputs: initialize_anthropogenic_inputs
+using UrbanTethysChloris.ModelComponents: TimeSeries
+using UrbanTethysChloris.ModelComponents.ForcingInputs: AnthropogenicInputs
 using ....TestUtils: load_test_netcdf
 
 FT = Float64
 
-hours = DateTime(2020, 1, 1, 0, 0, 0):Hour(1):DateTime(2020, 1, 1, 2, 0, 0)
+Tbmin = FT(20.0)
+Tbmax = FT(25.0)
+Tatm = FT.([0, 400, 296.41])
+hours = length(Tatm)
 
-filename = joinpath(mktempdir(), "test_data.nc")
-ds = NCDataset(filename, "c")
+@testset "AnthropogenicInputs" begin
+    @testset "Empty netcdf" begin
+        af = mktempdir() do tempdir
+            filename = joinpath(tempdir, "empty.nc")
+            ds = NCDataset(filename, "c")
 
-# Common dimensions
-defDim(ds, "hours", length(hours))
-defVar(ds, "hours", hours, ("hours",))
+            defDim(ds, "hours", hours)
+            defVar(ds, "Tbmin", Tbmin, ())
+            defVar(ds, "Tbmax", Tbmax, ())
 
-Tbmin = 20.0
-Tbmax = 25.0
-defVar(ds, "Tbmin", 20.0, ())
-defVar(ds, "Tbmax", 25.0, ())
+            AnthropogenicInputs(FT, TimeSeries(), ds, Tatm)
+        end
 
-Tatm = [0, 400, 296.41]
+        @test af.Tb == [Tbmin + 273.15, Tbmax + 273.15, Tatm[3]]
+        @test all(af.Qf_canyon .== 0.0)
+        @test all(af.Qf_roof .== 0.0)
+        @test all(af.Waterf_canyonVeg .== 0.0)
+        @test all(af.Waterf_canyonBare .== 0.0)
+        @test all(af.Waterf_roof .== 0.0)
+    end
 
-@testset "Empty netcdf" begin
-    af = initialize_anthropogenic_inputs(FT, ds, Tatm)
-    @test af.Tb == [Tbmin + 273.15, Tbmax + 273.15, Tatm[3]]
-    @test all(af.Qf_canyon .== 0.0)
-    @test all(af.Qf_roof .== 0.0)
-    @test all(af.Waterf_canyonVeg .== 0.0)
-    @test all(af.Waterf_canyonBare .== 0.0)
-    @test all(af.Waterf_roof .== 0.0)
-end
+    @testset "Hard-coded" begin
+        Qf_canyon = [1.0, 2.0, 3.0]
+        Qf_roof = [4.0, 5.0, 6.0]
+        Waterf_canyonVeg = 7.0
+        Waterf_canyonBare = 8.0
+        Waterf_roof = [9.0, 10.0, 11.0]
 
-@testset "Hard-coded" begin
-    Qf_canyon = [1.0, 2.0, 3.0]
-    Qf_roof = [4.0, 5.0, 6.0]
-    Waterf_canyonVeg = 7.0
-    Waterf_canyonBare = 8.0
-    Waterf_roof = [9.0, 10.0, 11.0]
+        af = mktempdir() do tempdir
+            filename = joinpath(tempdir, "hardcoded.nc")
 
-    defVar(ds, "Qf_canyon", Qf_canyon, ("hours",))
-    defVar(ds, "Qf_roof", Qf_roof, ("hours",))
-    defVar(ds, "Waterf_canyonVeg", Waterf_canyonVeg, ())
-    defVar(ds, "Waterf_canyonBare", Waterf_canyonBare, ())
-    defVar(ds, "Waterf_roof", Waterf_roof, ("hours",))
+            ds = NCDataset(filename, "c")
 
-    af = initialize_anthropogenic_inputs(FT, ds, Tatm)
-    @test af.Tb == [Tbmin + 273.15, Tbmax + 273.15, Tatm[3]]
-    @test af.Qf_canyon == Qf_canyon
-    @test af.Qf_roof == Qf_roof
-    @test all(af.Waterf_canyonVeg .== Waterf_canyonVeg)
-    @test all(af.Waterf_canyonBare .== Waterf_canyonBare)
-    @test af.Waterf_roof == Waterf_roof
-end
+            defDim(ds, "hours", hours)
+            defVar(ds, "Tbmin", Tbmin, ())
+            defVar(ds, "Tbmax", Tbmax, ())
 
-@testset "Test file" begin
-    test_ds = load_test_netcdf()
-    @test_nowarn initialize_anthropogenic_inputs(FT, test_ds, Array(test_ds["Tatm"]))
+            defVar(ds, "Qf_canyon", Qf_canyon, ("hours",))
+            defVar(ds, "Qf_roof", Qf_roof, ("hours",))
+            defVar(ds, "Waterf_canyonVeg", Waterf_canyonVeg, ())
+            defVar(ds, "Waterf_canyonBare", Waterf_canyonBare, ())
+            defVar(ds, "Waterf_roof", Waterf_roof, ("hours",))
+
+            AnthropogenicInputs(FT, TimeSeries(), ds, Tatm)
+        end
+
+        @test af.Tb == [Tbmin + 273.15, Tbmax + 273.15, Tatm[3]]
+        @test af.Qf_canyon == Qf_canyon
+        @test af.Qf_roof == Qf_roof
+        @test all(af.Waterf_canyonVeg .== Waterf_canyonVeg)
+        @test all(af.Waterf_canyonBare .== Waterf_canyonBare)
+        @test af.Waterf_roof == Waterf_roof
+    end
+
+    @testset "Test file" begin
+        ds = load_test_netcdf();
+
+        ai = AnthropogenicInputs(FT, TimeSeries(), ds, Vector(ds["Tatm"]));
+        hours = ds.dim["hours"]
+
+        @test ai isa AnthropogenicInputs{FT,1}
+
+        # Test initial values
+        @test ai.Qf_canyon[1] == ds["Qf_canyon"][1]
+
+        # Test all fields are accessible and have correct dimensions
+        for field in fieldnames(AnthropogenicInputs)
+            @test isa(getproperty(ai, field), Array{FT,1})
+            @test size(getproperty(ai, field)) == (hours,)
+        end
+
+        @test ai[1] isa AnthropogenicInputs{FT,0}
+    end
 end
