@@ -129,12 +129,12 @@ soil = initialize_soil_parameters(Float64, input_data["soil"])
 
         # Test all fields are accessible
         for field in Symbol.(ground_fields(Vwater))
-            @test isa(getproperty(vwater, field), MVector{soil.ground.ms,FT})
+            @test isa(getproperty(vwater, field), Vector{FT})
             @test all(getproperty(vwater, field) .== 0)
         end
 
         for field in Symbol.(roof_fields(Vwater))
-            @test isa(getproperty(vwater, field), MVector{soil.roof.ms,FT})
+            @test isa(getproperty(vwater, field), Vector{FT})
             @test all(getproperty(vwater, field) .== 0)
         end
     end
@@ -146,12 +146,12 @@ soil = initialize_soil_parameters(Float64, input_data["soil"])
 
         # Test all fields are accessible, have correct dimensions and initialized to zero
         for field in Symbol.(ground_fields(dVwater_dt))
-            @test isa(getproperty(dvwater_dt, field), MVector{soil.ground.ms,FT})
+            @test isa(getproperty(dvwater_dt, field), Vector{FT})
             @test all(getproperty(dvwater_dt, field) .== 0)
         end
 
         for field in Symbol.(roof_fields(dVwater_dt))
-            @test isa(getproperty(dvwater_dt, field), MVector{soil.roof.ms,FT})
+            @test isa(getproperty(dvwater_dt, field), Vector{FT})
             @test all(getproperty(dvwater_dt, field) .== 0)
         end
     end
@@ -163,12 +163,12 @@ soil = initialize_soil_parameters(Float64, input_data["soil"])
 
         # Test all fields are accessible
         for field in Symbol.(ground_fields(Owater))
-            @test isa(getproperty(owater, field), MVector{soil.ground.ms,FT})
+            @test isa(getproperty(owater, field), Vector{FT})
             @test all(getproperty(owater, field) .== 0)
         end
 
         for field in Symbol.(roof_fields(Owater))
-            @test isa(getproperty(owater, field), MVector{soil.roof.ms,FT})
+            @test isa(getproperty(owater, field), Vector{FT})
             @test all(getproperty(owater, field) .== 0)
         end
     end
@@ -179,12 +179,12 @@ soil = initialize_soil_parameters(Float64, input_data["soil"])
 
         # Test all fields are accessible, have correct dimensions and initialized to zero
         for field in Symbol.(ground_fields(OSwater))
-            @test isa(getproperty(oswater, field), MVector{soil.ground.ms,FT})
+            @test isa(getproperty(oswater, field), Vector{FT})
             @test all(getproperty(oswater, field) .== 0)
         end
 
         for field in Symbol.(roof_fields(OSwater))
-            @test isa(getproperty(oswater, field), MVector{soil.roof.ms,FT})
+            @test isa(getproperty(oswater, field), Vector{FT})
             @test all(getproperty(oswater, field) .== 0)
         end
     end
@@ -196,7 +196,7 @@ soil = initialize_soil_parameters(Float64, input_data["soil"])
 
         # Test all fields are accessible, have correct dimensions and initialized to zero
         for field in Symbol.(ground_fields(Qinlat))
-            @test isa(getproperty(qinlat, field), MVector{soil.ground.ms,FT})
+            @test isa(getproperty(qinlat, field), Vector{FT})
             @test all(getproperty(qinlat, field) .== 0)
         end
     end
@@ -208,12 +208,12 @@ soil = initialize_soil_parameters(Float64, input_data["soil"])
 
         # Test all fields are accessible, have correct dimensions and initialized to zero
         for field in Symbol.(ground_fields(ExWater))
-            @test isa(getproperty(exwater, field), MVector{soil.ground.ms,FT})
+            @test isa(getproperty(exwater, field), Vector{FT})
             @test all(getproperty(exwater, field) .== 0)
         end
 
         for field in Symbol.(roof_fields(ExWater))
-            @test isa(getproperty(exwater, field), MVector{soil.roof.ms,FT})
+            @test isa(getproperty(exwater, field), Vector{FT})
             @test all(getproperty(exwater, field) .== 0)
         end
     end

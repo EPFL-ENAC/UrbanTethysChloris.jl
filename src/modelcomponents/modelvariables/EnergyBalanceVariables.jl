@@ -149,9 +149,9 @@ Optical properties for indoor building surfaces.
 """
 Base.@kwdef mutable struct SolverVariables{FT<:AbstractFloat} <: AbstractModelVariables{FT}
     Success::Bool
-    ValuesEB::MVector{22,FT}
-    Tsolver::MVector{22,FT}
-    YfunctionOutput::MVector{22,FT}
+    ValuesEB::Vector{FT}
+    Tsolver::Vector{FT}
+    YfunctionOutput::Vector{FT}
 end
 
 function SolverVariables(::Type{FT}) where {FT<:AbstractFloat}
@@ -165,7 +165,7 @@ function TethysChlorisCore.preprocess_fields(
 
     for field in String.(fieldnames(SolverVariables))
         if field != "Success"
-            processed[field] = zero(MVector{22,FT})
+            processed[field] = zeros(FT, 22)
         else
             processed[field] = false
         end

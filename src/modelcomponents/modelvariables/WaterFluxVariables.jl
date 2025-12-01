@@ -253,11 +253,11 @@ Water volume in soil for different urban surfaces.
 """
 Base.@kwdef mutable struct Vwater{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    VRoofSoilVeg::MVector{MR,FT}
-    VGroundSoilImp::MVector{MG,FT}
-    VGroundSoilBare::MVector{MG,FT}
-    VGroundSoilVeg::MVector{MG,FT}
-    VGroundSoilTot::MVector{MG,FT}
+    VRoofSoilVeg::Vector{FT}
+    VGroundSoilImp::Vector{FT}
+    VGroundSoilBare::Vector{FT}
+    VGroundSoilVeg::Vector{FT}
+    VGroundSoilTot::Vector{FT}
 end
 
 function Vwater(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:AbstractFloat}
@@ -289,11 +289,11 @@ Change in water volume in soil for different urban surfaces.
 # Same names as Vwater
 Base.@kwdef mutable struct dVwater_dt{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    dVRoofSoilVeg_dt::MVector{MR,FT}
-    dVGroundSoilImp_dt::MVector{MG,FT}
-    dVGroundSoilBare_dt::MVector{MG,FT}
-    dVGroundSoilVeg_dt::MVector{MG,FT}
-    dVGroundSoilTot_dt::MVector{MG,FT}
+    dVRoofSoilVeg_dt::Vector{FT}
+    dVGroundSoilImp_dt::Vector{FT}
+    dVGroundSoilBare_dt::Vector{FT}
+    dVGroundSoilVeg_dt::Vector{FT}
+    dVGroundSoilTot_dt::Vector{FT}
 end
 
 function ground_fields(::Type{dVwater_dt})
@@ -335,11 +335,11 @@ Soil moisture in different soil layers for urban surfaces.
 # Same names as Vwater
 Base.@kwdef mutable struct Owater{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    OwRoofSoilVeg::MVector{MR,FT}
-    OwGroundSoilImp::MVector{MG,FT}
-    OwGroundSoilBare::MVector{MG,FT}
-    OwGroundSoilVeg::MVector{MG,FT}
-    OwGroundSoilTot::MVector{MG,FT}
+    OwRoofSoilVeg::Vector{FT}
+    OwGroundSoilImp::Vector{FT}
+    OwGroundSoilBare::Vector{FT}
+    OwGroundSoilVeg::Vector{FT}
+    OwGroundSoilTot::Vector{FT}
 end
 
 function roof_fields(::Type{Owater})
@@ -371,11 +371,11 @@ Additional soil moisture variables for urban surfaces.
 # Same names as Vwater
 Base.@kwdef mutable struct OSwater{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    OSwRoofSoilVeg::MVector{MR,FT}
-    OSwGroundSoilImp::MVector{MG,FT}
-    OSwGroundSoilBare::MVector{MG,FT}
-    OSwGroundSoilVeg::MVector{MG,FT}
-    OSwGroundSoilTot::MVector{MG,FT}
+    OSwRoofSoilVeg::Vector{FT}
+    OSwGroundSoilImp::Vector{FT}
+    OSwGroundSoilBare::Vector{FT}
+    OSwGroundSoilVeg::Vector{FT}
+    OSwGroundSoilTot::Vector{FT}
 end
 
 function roof_fields(::Type{OSwater})
@@ -409,15 +409,15 @@ Lateral soil water flux variables.
 - `Qin_veg`: Total lateral water flux to vegetated soil [mm/h]
 """
 Base.@kwdef mutable struct Qinlat{FT<:AbstractFloat,MG} <: AbstractLayeredSoilVariables{FT}
-    Qin_bare2imp::MVector{MG,FT}
-    Qin_veg2imp::MVector{MG,FT}
-    Qin_veg2bare::MVector{MG,FT}
-    Qin_imp2bare::MVector{MG,FT}
-    Qin_bare2veg::MVector{MG,FT}
-    Qin_imp2veg::MVector{MG,FT}
-    Qin_imp::MVector{MG,FT}
-    Qin_bare::MVector{MG,FT}
-    Qin_veg::MVector{MG,FT}
+    Qin_bare2imp::Vector{FT}
+    Qin_veg2imp::Vector{FT}
+    Qin_veg2bare::Vector{FT}
+    Qin_imp2bare::Vector{FT}
+    Qin_bare2veg::Vector{FT}
+    Qin_imp2veg::Vector{FT}
+    Qin_imp::Vector{FT}
+    Qin_bare::Vector{FT}
+    Qin_veg::Vector{FT}
 end
 
 function ground_fields(::Type{Qinlat})
@@ -458,16 +458,16 @@ Extractable water for plants from soil.
 # Same names as SoilPotW
 Base.@kwdef mutable struct ExWater{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    ExWaterRoofVeg_H::MVector{MR,FT}
-    ExWaterRoofVeg_L::MVector{MR,FT}
-    ExWaterGroundImp_H::MVector{MG,FT}
-    ExWaterGroundImp_L::MVector{MG,FT}
-    ExWaterGroundBare_H::MVector{MG,FT}
-    ExWaterGroundBare_L::MVector{MG,FT}
-    ExWaterGroundVeg_H::MVector{MG,FT}
-    ExWaterGroundVeg_L::MVector{MG,FT}
-    ExWaterGroundTot_H::MVector{MG,FT}
-    ExWaterGroundTot_L::MVector{MG,FT}
+    ExWaterRoofVeg_H::Vector{FT}
+    ExWaterRoofVeg_L::Vector{FT}
+    ExWaterGroundImp_H::Vector{FT}
+    ExWaterGroundImp_L::Vector{FT}
+    ExWaterGroundBare_H::Vector{FT}
+    ExWaterGroundBare_L::Vector{FT}
+    ExWaterGroundVeg_H::Vector{FT}
+    ExWaterGroundVeg_L::Vector{FT}
+    ExWaterGroundTot_H::Vector{FT}
+    ExWaterGroundTot_L::Vector{FT}
 end
 
 function roof_fields(::Type{ExWater})

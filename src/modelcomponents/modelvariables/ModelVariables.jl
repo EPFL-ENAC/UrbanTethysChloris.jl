@@ -43,7 +43,7 @@ function allocate_fields!(
     vector_length::Signed,
 ) where {FT<:AbstractFloat,T<:AbstractLayeredSoilVariables}
     for field in fields
-        x[field] = zero(MVector{vector_length,FT})
+        x[field] = zeros(FT, vector_length)
     end
 end
 
