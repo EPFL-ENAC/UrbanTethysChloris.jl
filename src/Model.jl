@@ -72,6 +72,9 @@ function initialize!(
     model::Model{FT}, forcing::ModelComponents.ForcingInputs.ForcingInputSet{FT,1}
 ) where {FT<:AbstractFloat}
 
+    # Initialize all vegetation and soil temperatures with atmospheric temperature
+    initialize!(model.variables.temperature.tempvec, model.forcing.meteorological.Tatm)
+
     # Initializes all dampening temperature with the nanmean T_atm
     initialize!(model.variables.temperature.tempdamp, forcing.meteorological.Tatm)
 
@@ -92,6 +95,17 @@ function initialize!(
         model.forcing.meteorological.Tatm,
         model.forcing.meteorological.q_atm,
     )
+
+    return nothing
+end
+
+function initialize!(
+    x::ModelComponents.ModelVariables.TempVec{FT}, Tatm::FT
+) where {FT<:AbstractFloat}
+    # set all layers off all fields to mean_Tatm
+    for field in fieldnames(typeof(x))
+        setproperty!(x, field, Tatm)
+    end
 
     return nothing
 end
