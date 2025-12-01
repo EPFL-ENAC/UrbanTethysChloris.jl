@@ -53,6 +53,12 @@ Base.@kwdef struct MeteorologicalInputs{FT<:AbstractFloat,N} <:
     SunDSM_MRT::FT
     cp_atm::Array{FT,N}
     rho_atm::Array{FT,N}
+    AtmRelative::Array{FT,N}
+    AtmSpecific::Array{FT,N}
+    AtmVapourPre::Array{FT,N}
+    AtmRelativeSat::Array{FT,N}
+    AtmSpecificSat::Array{FT,N}
+    AtmVapourPreSat::Array{FT,N}
 end
 
 const SCALAR_METEO_FIELDS = [:Zatm, :Catm_CO2, :Catm_O2, :SunDSM_MRT]
@@ -62,7 +68,22 @@ function get_scalar_fields(::Type{MeteorologicalInputs})
 end
 
 function TethysChlorisCore.get_calculated_fields(::Type{MeteorologicalInputs})
-    return [:esat_Tatm, :ea, :q_atm, :qSat_atm, :SW_dir, :SW_diff, :cp_atm, :rho_atm]
+    return [
+        :esat_Tatm,
+        :ea,
+        :q_atm,
+        :qSat_atm,
+        :SW_dir,
+        :SW_diff,
+        :cp_atm,
+        :rho_atm,
+        :AtmRelative,
+        :AtmSpecific,
+        :AtmVapourPre,
+        :AtmRelativeSat,
+        :AtmSpecificSat,
+        :AtmVapourPreSat,
+    ]
 end
 
 function MeteorologicalInputs(
@@ -118,6 +139,13 @@ function TethysChlorisCore.preprocess_fields(
     processed["rho_atm"] =
         (processed["Pre"] ./ (287.04 .* processed["Tatm"])) .*
         (1.0 .- (processed["ea"] ./ processed["Pre"]) .* (1.0 - 0.622))
+
+    processed["AtmRelative"] = processed["rel_hum"]
+    processed["AtmSpecific"] = processed["q_atm"]
+    processed["AtmVapourPre"] = processed["ea"]
+    processed["AtmRelativeSat"] = ones(size(processed["ea"]))
+    processed["AtmSpecificSat"] = processed["qSat_atm"]
+    processed["AtmVapourPreSat"] = processed["esat_Tatm"]
 
     return processed
 end
