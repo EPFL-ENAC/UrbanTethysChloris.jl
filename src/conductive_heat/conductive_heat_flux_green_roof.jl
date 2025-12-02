@@ -34,15 +34,15 @@ Calculate conductive heat flux through a green roof.
 function conductive_heat_flux_green_roof(
     TemperatureR::Vector{FT},
     TemperatureB::Vector{FT},
-    TempVec_ittm::NamedTuple,
-    Anthropogenic::NamedTuple,
-    Owater::NamedTuple,
+    TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
+    Anthropogenic::ModelComponents.ForcingInputs.AnthropogenicInputs{FT,0},
+    Owater::ModelComponents.ModelVariables.Owater{FT,MR,MG},
     ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
     ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     ParThermalRoof::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
     ParCalculation::NamedTuple,
     BEM_on::Bool,
-) where {FT<:AbstractFloat}
+) where {FT<:AbstractFloat,MR,MG}
     # Extract all input parameters
     Troof = TemperatureR[2]
     Tint = TemperatureR[4]
