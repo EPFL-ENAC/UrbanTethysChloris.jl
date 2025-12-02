@@ -14,106 +14,22 @@ using ...TestUtils:
     create_hvac_parameters,
     create_window_parameters,
     create_thermal_building
+using UrbanTethysChloris.ModelComponents.ModelVariables:
+    TempVec,
+    TempVecB,
+    Humidity,
+    Interception,
+    ExWater,
+    Vwater,
+    Owater,
+    SoilPotW,
+    CiCO2Leaf,
+    TempDamp
+using UrbanTethysChloris.ModelComponents.ForcingInputs:
+    MeteorologicalInputs, AnthropogenicInputs, SunPositionInputs, HVACSchedule
 
 FT = Float64
 input_vars, output_vars = load_matlab_data("fSolver_Tot.json")
-
-TempVec_ittm = (;
-    TWallSun=input_vars["TempVec_ittm"]["TWallSun"],
-    TWallShade=input_vars["TempVec_ittm"]["TWallShade"],
-    TWallIntSun=input_vars["TempVec_ittm"]["TWallIntSun"],
-    TWallIntShade=input_vars["TempVec_ittm"]["TWallIntShade"],
-    TGroundImp=input_vars["TempVec_ittm"]["TGroundImp"],
-    TGroundBare=input_vars["TempVec_ittm"]["TGroundBare"],
-    TGroundVeg=input_vars["TempVec_ittm"]["TGroundVeg"],
-    TTree=input_vars["TempVec_ittm"]["TTree"],
-    TCanyon=input_vars["TempVec_ittm"]["TCanyon"],
-    TRoofVeg=input_vars["TempVec_ittm"]["TRoofVeg"],
-    TRoofIntVeg=input_vars["TempVec_ittm"]["TRoofIntVeg"],
-    TRoofIntImp=input_vars["TempVec_ittm"]["TRoofIntImp"],
-)
-
-TempVecB_ittm = (;
-    Tbin=input_vars["TempVecB_ittm"]["Tbin"],
-    qbin=input_vars["TempVecB_ittm"]["qbin"],
-    Tinground=input_vars["TempVecB_ittm"]["Tinground"],
-    Tintmass=input_vars["TempVecB_ittm"]["Tintmass"],
-    Tinwallsun=input_vars["TempVecB_ittm"]["Tinwallsun"],
-    Tinwallshd=input_vars["TempVecB_ittm"]["Tinwallshd"],
-    Tceiling=input_vars["TempVecB_ittm"]["Tceiling"],
-)
-
-Humidity_ittm = (; CanyonSpecific=input_vars["Humidity_ittm"]["CanyonSpecific"])
-
-MeteoData = (;
-    SW_dir=FT(input_vars["MeteoData"]["SW_dir"]),
-    SW_diff=FT(input_vars["MeteoData"]["SW_diff"]),
-    LWR=input_vars["MeteoData"]["LWR"],
-    Rain=input_vars["MeteoData"]["Rain"],
-    Tatm=input_vars["MeteoData"]["Tatm"],
-    Pre=input_vars["MeteoData"]["Pre"],
-    ea=input_vars["MeteoData"]["ea"],
-    Zatm=FT(input_vars["MeteoData"]["Zatm"]),
-    Uatm=input_vars["MeteoData"]["Uatm"],
-    q_atm=input_vars["MeteoData"]["q_atm"],
-    Catm_O2=FT(input_vars["MeteoData"]["Catm_O2"]),
-    Catm_CO2=FT(input_vars["MeteoData"]["Catm_CO2"]),
-)
-
-Int_ittm = (;
-    IntGroundImp=input_vars["Int_ittm"]["IntGroundImp"],
-    IntGroundVegPlant=input_vars["Int_ittm"]["IntGroundVegPlant"],
-    IntGroundVegGround=input_vars["Int_ittm"]["IntGroundVegGround"],
-    IntTree=input_vars["Int_ittm"]["IntTree"],
-    IntGroundBare=input_vars["Int_ittm"]["IntGroundBare"],
-    IntRoofImp=input_vars["Int_ittm"]["IntRoofImp"],
-    IntRoofVegPlant=input_vars["Int_ittm"]["IntRoofVegPlant"],
-    IntRoofVegGround=input_vars["Int_ittm"]["IntRoofVegGround"],
-)
-
-ExWater_ittm = (;
-    ExWaterGroundImp_H=vec(input_vars["ExWater_ittm"]["ExWaterGroundImp_H"]),
-    ExWaterGroundBare_H=vec(input_vars["ExWater_ittm"]["ExWaterGroundBare_H"]),
-    ExWaterGroundVeg_H=vec(input_vars["ExWater_ittm"]["ExWaterGroundVeg_H"]),
-    ExWaterGroundVeg_L=vec(input_vars["ExWater_ittm"]["ExWaterGroundVeg_L"]),
-    ExWaterRoofVeg_L=vec(input_vars["ExWater_ittm"]["ExWaterRoofVeg_L"]),
-)
-
-Vwater_ittm = (;
-    VGroundSoilVeg=vec(input_vars["Vwater_ittm"]["VGroundSoilVeg"]),
-    VGroundSoilImp=vec(input_vars["Vwater_ittm"]["VGroundSoilImp"]),
-    VGroundSoilBare=vec(input_vars["Vwater_ittm"]["VGroundSoilBare"]),
-    VRoofSoilVeg=vec(input_vars["Vwater_ittm"]["VRoofSoilVeg"]),
-)
-
-Owater_ittm = (;
-    OwGroundSoilVeg=vec(input_vars["Owater_ittm"]["OwGroundSoilVeg"]),
-    OwGroundSoilBare=vec(input_vars["Owater_ittm"]["OwGroundSoilBare"]),
-    OwGroundSoilImp=vec(input_vars["Owater_ittm"]["OwGroundSoilImp"]),
-    OwRoofSoilVeg=vec(input_vars["Owater_ittm"]["OwRoofSoilVeg"]),
-)
-
-SoilPotW_ittm = (;
-    SoilPotWGroundVeg_L=input_vars["SoilPotW_ittm"]["SoilPotWGroundVeg_L"],
-    SoilPotWGroundTot_H=input_vars["SoilPotW_ittm"]["SoilPotWGroundTot_H"],
-    SoilPotWRoofVeg_L=input_vars["SoilPotW_ittm"]["SoilPotWRoofVeg_L"],
-)
-
-CiCO2Leaf_ittm = (;
-    CiCO2LeafGroundVegSun=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafGroundVegSun"],
-    CiCO2LeafGroundVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafGroundVegShd"],
-    CiCO2LeafTreeSun=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafTreeSun"],
-    CiCO2LeafTreeShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafTreeShd"],
-    CiCO2LeafRoofVegSun=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegSun"],
-    CiCO2LeafRoofVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegShd"],
-)
-
-TempDamp_ittm = (;
-    TDampGroundImp=input_vars["TempDamp_ittm"]["TDampGroundImp"],
-    TDampGroundBare=input_vars["TempDamp_ittm"]["TDampGroundBare"],
-    TDampGroundVeg=input_vars["TempDamp_ittm"]["TDampGroundVeg"],
-    TDampGroundBuild=input_vars["TempDamp_ittm"]["TDampGroundBuild"],
-)
 
 view_factor = ViewFactor{FT}(;
     F_gs_nT=input_vars["ViewFactor"]["F_gs_nT"],
@@ -351,19 +267,6 @@ ParVegRoof = create_height_dependent_vegetation_parameters(
     ZRmax=FT.([input_vars["ParVegRoof"]["ZRmax"]]),
 )
 
-SunPosition = (;
-    theta_n=input_vars["SunPosition"]["theta_n"],
-    theta_Z=input_vars["SunPosition"]["theta_Z"],
-)
-
-HumidityAtm = (; AtmVapourPreSat=input_vars["HumidityAtm"]["AtmVapourPreSat"])
-
-Anthropogenic = (;
-    Qf_canyon=input_vars["Anthropogenic"]["Qf_canyon"],
-    Tb=input_vars["Anthropogenic"]["Tb"],
-    Waterf_roof=input_vars["Anthropogenic"]["Waterf_roof"],
-)
-
 ParCalculation = (;
     dth=Int(input_vars["ParCalculation"]["dth"]),
     dts=Int(input_vars["ParCalculation"]["dts"]),
@@ -466,15 +369,49 @@ rsTreePreCalc = (;
     Ci_shd_H=input_vars["rsTreePreCalc"]["Ci_shd_H"],
 )
 
-HVACSchedule = (;
-    Hequip=FT(input_vars["HVACSchedule"]["Hequip"]),
-    Hpeople=FT(input_vars["HVACSchedule"]["Hpeople"]),
-    LEequip=FT(input_vars["HVACSchedule"]["LEequip"]),
-    LEpeople=FT(input_vars["HVACSchedule"]["LEpeople"]),
-    AirConRoomFraction=FT(input_vars["HVACSchedule"]["AirConRoomFraction"]),
-)
+@testset "Composite types" begin
+    TempVec_ittm = TempVec(FT, input_vars["TempVec_ittm"])
+    TempVecB_ittm = TempVecB(FT, input_vars["TempVecB_ittm"])
+    Humidity_ittm = Humidity(FT, input_vars["Humidity_ittm"])
+    Int_ittm = Interception(FT, input_vars["Int_ittm"])
+    ExWater_ittm = ExWater(FT, input_vars["ExWater_ittm"])
+    Vwater_ittm = Vwater(FT, input_vars["Vwater_ittm"])
+    Owater_ittm = Owater(FT, input_vars["Owater_ittm"])
+    SoilPotW_ittm = SoilPotW(FT, input_vars["SoilPotW_ittm"])
+    CiCO2Leaf_ittm = CiCO2Leaf(FT, input_vars["CiCO2Leaf_ittm"])
+    TempDamp_ittm = TempDamp(FT, input_vars["TempDamp_ittm"])
+    MeteoData = (;
+        SW_dir=FT(input_vars["MeteoData"]["SW_dir"]),
+        SW_diff=FT(input_vars["MeteoData"]["SW_diff"]),
+        LWR=input_vars["MeteoData"]["LWR"],
+        Rain=input_vars["MeteoData"]["Rain"],
+        Tatm=input_vars["MeteoData"]["Tatm"],
+        Pre=input_vars["MeteoData"]["Pre"],
+        ea=input_vars["MeteoData"]["ea"],
+        Zatm=FT(input_vars["MeteoData"]["Zatm"]),
+        Uatm=input_vars["MeteoData"]["Uatm"],
+        q_atm=input_vars["MeteoData"]["q_atm"],
+        Catm_O2=FT(input_vars["MeteoData"]["Catm_O2"]),
+        Catm_CO2=FT(input_vars["MeteoData"]["Catm_CO2"]),
+    )
+    MeteoData = MeteorologicalInputs(
+        FT,
+        input_vars["MeteoData"],
+        input_vars["HumidityAtm"],
+        input_vars["ParCalculation"]["cp_atm"],
+        input_vars["ParCalculation"]["rho_atm"],
+    )
+    HumidityAtm = MeteorologicalInputs(
+        FT,
+        input_vars["MeteoData"],
+        input_vars["HumidityAtm"],
+        input_vars["ParCalculation"]["cp_atm"],
+        input_vars["ParCalculation"]["rho_atm"],
+    )
+    SunPosition = SunPositionInputs(FT, input_vars["SunPosition"])
+    Anthropogenic = AnthropogenicInputs(FT, input_vars["Anthropogenic"])
+    HVAC_Schedule = HVACSchedule(FT, input_vars["HVACSchedule"])
 
-@testset "MATLAB" begin
     T, fval, exitflag = f_solver_tot(
         TempVec_ittm,
         TempVecB_ittm,
@@ -519,15 +456,193 @@ HVACSchedule = (;
         TempVecB_ittm2Ext,
         Meteo_ittm,
         Bool(input_vars["RESPreCalc"]),
-        FT(input_vars["fconvPreCalc"]),
+        Bool(input_vars["fconvPreCalc"]),
         FT(input_vars["fconv"]),
         rsRoofPreCalc,
         rsGroundPreCalc,
         rsTreePreCalc,
-        HVACSchedule,
+        HVAC_Schedule,
     )
 
     @test T ≈ vec(output_vars["T"]) atol=1e-10
     @test fval ≈ vec(output_vars["fval"]) atol=1e-10
     @test exitflag == output_vars["exitflag"]
+end
+
+@testset "Named tuples" begin
+    TempVec_ittm = (;
+        TWallSun=input_vars["TempVec_ittm"]["TWallSun"],
+        TWallShade=input_vars["TempVec_ittm"]["TWallShade"],
+        TWallIntSun=input_vars["TempVec_ittm"]["TWallIntSun"],
+        TWallIntShade=input_vars["TempVec_ittm"]["TWallIntShade"],
+        TGroundImp=input_vars["TempVec_ittm"]["TGroundImp"],
+        TGroundBare=input_vars["TempVec_ittm"]["TGroundBare"],
+        TGroundVeg=input_vars["TempVec_ittm"]["TGroundVeg"],
+        TTree=input_vars["TempVec_ittm"]["TTree"],
+        TCanyon=input_vars["TempVec_ittm"]["TCanyon"],
+        TRoofVeg=input_vars["TempVec_ittm"]["TRoofVeg"],
+        TRoofIntVeg=input_vars["TempVec_ittm"]["TRoofIntVeg"],
+        TRoofIntImp=input_vars["TempVec_ittm"]["TRoofIntImp"],
+    )
+
+    TempVecB_ittm = (;
+        Tbin=input_vars["TempVecB_ittm"]["Tbin"],
+        qbin=input_vars["TempVecB_ittm"]["qbin"],
+        Tinground=input_vars["TempVecB_ittm"]["Tinground"],
+        Tintmass=input_vars["TempVecB_ittm"]["Tintmass"],
+        Tinwallsun=input_vars["TempVecB_ittm"]["Tinwallsun"],
+        Tinwallshd=input_vars["TempVecB_ittm"]["Tinwallshd"],
+        Tceiling=input_vars["TempVecB_ittm"]["Tceiling"],
+    )
+
+    Humidity_ittm = (; CanyonSpecific=input_vars["Humidity_ittm"]["CanyonSpecific"])
+
+    MeteoData = (;
+        SW_dir=FT(input_vars["MeteoData"]["SW_dir"]),
+        SW_diff=FT(input_vars["MeteoData"]["SW_diff"]),
+        LWR=input_vars["MeteoData"]["LWR"],
+        Rain=input_vars["MeteoData"]["Rain"],
+        Tatm=input_vars["MeteoData"]["Tatm"],
+        Pre=input_vars["MeteoData"]["Pre"],
+        ea=input_vars["MeteoData"]["ea"],
+        Zatm=FT(input_vars["MeteoData"]["Zatm"]),
+        Uatm=input_vars["MeteoData"]["Uatm"],
+        q_atm=input_vars["MeteoData"]["q_atm"],
+        Catm_O2=FT(input_vars["MeteoData"]["Catm_O2"]),
+        Catm_CO2=FT(input_vars["MeteoData"]["Catm_CO2"]),
+    )
+
+    Int_ittm = (;
+        IntGroundImp=input_vars["Int_ittm"]["IntGroundImp"],
+        IntGroundVegPlant=input_vars["Int_ittm"]["IntGroundVegPlant"],
+        IntGroundVegGround=input_vars["Int_ittm"]["IntGroundVegGround"],
+        IntTree=input_vars["Int_ittm"]["IntTree"],
+        IntGroundBare=input_vars["Int_ittm"]["IntGroundBare"],
+        IntRoofImp=input_vars["Int_ittm"]["IntRoofImp"],
+        IntRoofVegPlant=input_vars["Int_ittm"]["IntRoofVegPlant"],
+        IntRoofVegGround=input_vars["Int_ittm"]["IntRoofVegGround"],
+    )
+
+    ExWater_ittm = (;
+        ExWaterGroundImp_H=vec(input_vars["ExWater_ittm"]["ExWaterGroundImp_H"]),
+        ExWaterGroundBare_H=vec(input_vars["ExWater_ittm"]["ExWaterGroundBare_H"]),
+        ExWaterGroundVeg_H=vec(input_vars["ExWater_ittm"]["ExWaterGroundVeg_H"]),
+        ExWaterGroundVeg_L=vec(input_vars["ExWater_ittm"]["ExWaterGroundVeg_L"]),
+        ExWaterRoofVeg_L=vec(input_vars["ExWater_ittm"]["ExWaterRoofVeg_L"]),
+    )
+
+    Vwater_ittm = (;
+        VGroundSoilVeg=vec(input_vars["Vwater_ittm"]["VGroundSoilVeg"]),
+        VGroundSoilImp=vec(input_vars["Vwater_ittm"]["VGroundSoilImp"]),
+        VGroundSoilBare=vec(input_vars["Vwater_ittm"]["VGroundSoilBare"]),
+        VRoofSoilVeg=vec(input_vars["Vwater_ittm"]["VRoofSoilVeg"]),
+    )
+
+    Owater_ittm = (;
+        OwGroundSoilVeg=vec(input_vars["Owater_ittm"]["OwGroundSoilVeg"]),
+        OwGroundSoilBare=vec(input_vars["Owater_ittm"]["OwGroundSoilBare"]),
+        OwGroundSoilImp=vec(input_vars["Owater_ittm"]["OwGroundSoilImp"]),
+        OwRoofSoilVeg=vec(input_vars["Owater_ittm"]["OwRoofSoilVeg"]),
+    )
+
+    SoilPotW_ittm = (;
+        SoilPotWGroundVeg_L=input_vars["SoilPotW_ittm"]["SoilPotWGroundVeg_L"],
+        SoilPotWGroundTot_H=input_vars["SoilPotW_ittm"]["SoilPotWGroundTot_H"],
+        SoilPotWRoofVeg_L=input_vars["SoilPotW_ittm"]["SoilPotWRoofVeg_L"],
+    )
+
+    CiCO2Leaf_ittm = (;
+        CiCO2LeafGroundVegSun=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafGroundVegSun"],
+        CiCO2LeafGroundVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafGroundVegShd"],
+        CiCO2LeafTreeSun=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafTreeSun"],
+        CiCO2LeafTreeShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafTreeShd"],
+        CiCO2LeafRoofVegSun=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegSun"],
+        CiCO2LeafRoofVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegShd"],
+    )
+
+    TempDamp_ittm = (;
+        TDampGroundImp=input_vars["TempDamp_ittm"]["TDampGroundImp"],
+        TDampGroundBare=input_vars["TempDamp_ittm"]["TDampGroundBare"],
+        TDampGroundVeg=input_vars["TempDamp_ittm"]["TDampGroundVeg"],
+        TDampGroundBuild=input_vars["TempDamp_ittm"]["TDampGroundBuild"],
+    )
+
+    SunPosition = (;
+        theta_n=input_vars["SunPosition"]["theta_n"],
+        theta_Z=input_vars["SunPosition"]["theta_Z"],
+    )
+
+    HumidityAtm = (; AtmVapourPreSat=input_vars["HumidityAtm"]["AtmVapourPreSat"])
+
+    Anthropogenic = (;
+        Qf_canyon=input_vars["Anthropogenic"]["Qf_canyon"],
+        Tb=input_vars["Anthropogenic"]["Tb"],
+        Waterf_roof=input_vars["Anthropogenic"]["Waterf_roof"],
+    )
+
+    HVACSchedule = (;
+        Hequip=FT(input_vars["HVACSchedule"]["Hequip"]),
+        Hpeople=FT(input_vars["HVACSchedule"]["Hpeople"]),
+        LEequip=FT(input_vars["HVACSchedule"]["LEequip"]),
+        LEpeople=FT(input_vars["HVACSchedule"]["LEpeople"]),
+        AirConRoomFraction=FT(input_vars["HVACSchedule"]["AirConRoomFraction"]),
+    )
+
+    @testset "MATLAB" begin
+        T, fval, exitflag = f_solver_tot(
+            TempVec_ittm,
+            TempVecB_ittm,
+            Humidity_ittm,
+            MeteoData,
+            Int_ittm,
+            ExWater_ittm,
+            Vwater_ittm,
+            Owater_ittm,
+            SoilPotW_ittm,
+            CiCO2Leaf_ittm,
+            TempDamp_ittm,
+            view_factor,
+            Gemeotry_m,
+            FractionsGround,
+            FractionsRoof,
+            WallLayers,
+            ParSoilGround,
+            ParInterceptionTree,
+            PropOpticalGround,
+            PropOpticalWall,
+            PropOpticalTree,
+            ParThermalGround,
+            ParThermalWall,
+            ParVegGround,
+            ParVegTree,
+            ParSoilRoof,
+            PropOpticalRoof,
+            ParThermalRoof,
+            ParVegRoof,
+            SunPosition,
+            HumidityAtm,
+            Anthropogenic,
+            ParCalculation,
+            PropOpticalIndoors,
+            ParHVAC,
+            ParThermalBulidFloor,
+            ParWindows,
+            Bool(input_vars["BEM_on"]),
+            TempVec_ittm2Ext,
+            Humidity_ittm2Ext,
+            TempVecB_ittm2Ext,
+            Meteo_ittm,
+            Bool(input_vars["RESPreCalc"]),
+            FT(input_vars["fconvPreCalc"]),
+            FT(input_vars["fconv"]),
+            rsRoofPreCalc,
+            rsGroundPreCalc,
+            rsTreePreCalc,
+            HVACSchedule,
+        )
+
+        @test T ≈ vec(output_vars["T"]) atol=1e-10
+        @test fval ≈ vec(output_vars["fval"]) atol=1e-10
+        @test exitflag == output_vars["exitflag"]
+    end
 end
