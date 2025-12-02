@@ -136,11 +136,10 @@ function TethysChlorisCore.preprocess_fields(
     processed["SW_diff"][update_SW] += processed["SW_dir"][update_SW]
     processed["SW_dir"][update_SW] .= 0.0
 
-    processed["cp_atm"] =
-        1005.0 .+ (((processed["Tatm"] .- 273.15) .+ 23.15) .^ 2) .+ 3364.0
+    processed["cp_atm"] = 1005 .+ (((processed["Tatm"] .- 273.15) .+ 23.15) .^ 2) / 3364
     processed["rho_atm"] =
         (processed["Pre"] ./ (287.04 .* processed["Tatm"])) .*
-        (1.0 .- (processed["ea"] ./ processed["Pre"]) .* (1.0 - 0.622))
+        (1 .- (processed["ea"] ./ processed["Pre"]) .* (1 - 0.622))
 
     processed["AtmRelative"] = processed["rel_hum"]
     processed["AtmSpecific"] = processed["q_atm"]
