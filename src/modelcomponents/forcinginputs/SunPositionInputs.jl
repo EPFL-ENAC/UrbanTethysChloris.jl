@@ -42,6 +42,17 @@ function SunPositionInputs(
     )
 end
 
+function SunPositionInputs(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return SunPositionInputs{FT,0}(;
+        t_bef=FT(data["t_bef"]),
+        t_aft=FT(data["t_aft"]),
+        theta_Z=fill(FT(data["theta_Z"]), ()),
+        theta_n=fill(FT(data["theta_n"]), ()),
+        zeta_S=fill(FT(data["zeta_S"]), ()),
+        TimeOfMaxSolAlt=fill(FT(data["TimeOfMaxSolAlt"]), ()),
+    )
+end
+
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT},
     ::Type{SunPositionInputs},

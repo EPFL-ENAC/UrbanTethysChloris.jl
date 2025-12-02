@@ -40,6 +40,25 @@ function TempVec(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, TempVec, Dict{String,Any}())
 end
 
+function TempVec(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return TempVec{FT}(;
+        TRoofImp=data["TRoofImp"],
+        TRoofVeg=data["TRoofVeg"],
+        TRoofIntImp=data["TRoofIntImp"],
+        TRoofIntVeg=data["TRoofIntVeg"],
+        TGroundImp=data["TGroundImp"],
+        TGroundBare=data["TGroundBare"],
+        TGroundVeg=data["TGroundVeg"],
+        TTree=data["TTree"],
+        TWallSun=data["TWallSun"],
+        TWallShade=data["TWallShade"],
+        TWallIntSun=data["TWallIntSun"],
+        TWallIntShade=data["TWallIntShade"],
+        TCanyon=data["TCanyon"],
+        Tatm=data["Tatm"],
+    )
+end
+
 """
     TempDamp{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -62,6 +81,16 @@ end
 
 function TempDamp(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, TempDamp, Dict{String,Any}())
+end
+
+function TempDamp(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return TempDamp{FT}(;
+        TDampGroundImp=data["TDampGroundImp"],
+        TDampGroundBare=data["TDampGroundBare"],
+        TDampGroundVeg=data["TDampGroundVeg"],
+        TDampTree=data["TDampTree"],
+        TDampGroundBuild=data["TDampGroundBuild"],
+    )
 end
 
 """

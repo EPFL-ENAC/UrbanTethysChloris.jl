@@ -26,6 +26,16 @@ function HVACSchedule(::Type{FT}, ::TimeSeries, data::NCDataset) where {FT<:Abst
     return initialize(FT, HVACSchedule, data, (FT, dimension_value(TimeSeries())))
 end
 
+function HVACSchedule(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return HVACSchedule{FT,0}(;
+        Hequip=fill(FT(data["Hequip"]), ()),
+        Hpeople=fill(FT(data["Hpeople"]), ()),
+        LEequip=fill(FT(data["LEequip"]), ()),
+        LEpeople=fill(FT(data["LEpeople"]), ()),
+        AirConRoomFraction=fill(FT(data["AirConRoomFraction"]), ()),
+    )
+end
+
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT}, ::Type{HVACSchedule}, data::NCDataset, params::Tuple
 ) where {FT<:AbstractFloat}

@@ -28,6 +28,19 @@ end
 function TempVecB(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, TempVecB, Dict{String,Any}())
 end
+
+function TempVecB(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return TempVecB{FT}(;
+        Tceiling=data["Tceiling"],
+        Tinwallsun=data["Tinwallsun"],
+        Tinwallshd=data["Tinwallshd"],
+        Twindows=data["Twindows"],
+        Tinground=data["Tinground"],
+        Tintmass=data["Tintmass"],
+        Tbin=data["Tbin"],
+        qbin=data["qbin"],
+    )
+end
 """
     HumidityBuilding{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 

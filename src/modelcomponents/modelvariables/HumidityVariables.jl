@@ -30,10 +30,28 @@ Base.@kwdef mutable struct Humidity{FT<:AbstractFloat} <: AbstractModelVariables
     AtmRelativeSat::FT
     AtmSpecificSat::FT
     AtmVapourPreSat::FT
+    # Could be missing q2m, technically assigned in  Humidity_ittm.q2m = Results2m.q2m(1,:,ittm); WHY?
 end
 
 function Humidity(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Humidity, Dict{String,Any}())
+end
+
+function Humidity(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return Humidity{FT}(;
+        CanyonRelative=data["CanyonRelative"],
+        CanyonSpecific=data["CanyonSpecific"],
+        CanyonVapourPre=data["CanyonVapourPre"],
+        CanyonRelativeSat=data["CanyonRelativeSat"],
+        CanyonSpecificSat=data["CanyonSpecificSat"],
+        CanyonVapourPreSat=data["CanyonVapourPreSat"],
+        AtmRelative=data["AtmRelative"],
+        AtmSpecific=data["AtmSpecific"],
+        AtmVapourPre=data["AtmVapourPre"],
+        AtmRelativeSat=data["AtmRelativeSat"],
+        AtmSpecificSat=data["AtmSpecificSat"],
+        AtmVapourPreSat=data["AtmVapourPreSat"],
+    )
 end
 
 """

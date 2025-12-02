@@ -96,6 +96,47 @@ function MeteorologicalInputs(
     )
 end
 
+function MeteorologicalInputs(
+    ::Type{FT},
+    meteo_data::AbstractDict,
+    humidity_data::AbstractDict,
+    cp_atm::FT,
+    rho_atm::FT,
+) where {FT<:AbstractFloat}
+    return MeteorologicalInputs{FT,0}(;
+        LWR_in=fill(FT(meteo_data["LWR"]), ()),
+        LWR=fill(FT(meteo_data["LWR"]), ()),
+        SAB1_in=fill(FT(NaN), ()),
+        SAB2_in=fill(FT(NaN), ()),
+        SAD1_in=fill(FT(NaN), ()),
+        SAD2_in=fill(FT(NaN), ()),
+        Tatm=fill(FT(meteo_data["Tatm"]), ()),
+        Uatm=fill(FT(meteo_data["Uatm"]), ()),
+        Pre=fill(FT(meteo_data["Pre"]), ()),
+        Rain=fill(FT(meteo_data["Rain"]), ()),
+        rel_hum=fill(FT(meteo_data["rel_hum"]), ()),
+        datetime=fill(DateTime(today()), ()), # default to today
+        Zatm=FT(meteo_data["Zatm"]),
+        Catm_CO2=FT(meteo_data["Catm_CO2"]),
+        Catm_O2=FT(meteo_data["Catm_O2"]),
+        SunDSM_MRT=FT(meteo_data["SunDSM_MRT"]),
+        SW_dir=fill(meteo_data["SW_dir"], ()),
+        SW_diff=fill(meteo_data["SW_diff"], ()),
+        q_atm=fill(meteo_data["q_atm"], ()),
+        ea=fill(meteo_data["ea"], ()),
+        esat_Tatm=fill(meteo_data["esat_Tatm"], ()),
+        qSat_atm=fill(humidity_data["AtmSpecificSat"], ()),
+        AtmRelative=fill(humidity_data["AtmRelative"], ()),
+        AtmSpecific=fill(humidity_data["AtmSpecific"], ()),
+        AtmVapourPre=fill(humidity_data["AtmVapourPre"], ()),
+        AtmRelativeSat=fill(humidity_data["AtmRelativeSat"], ()),
+        AtmSpecificSat=fill(humidity_data["AtmSpecificSat"], ()),
+        AtmVapourPreSat=fill(humidity_data["AtmVapourPreSat"], ()),
+        cp_atm=fill(cp_atm, ()),
+        rho_atm=fill(rho_atm, ()),
+    )
+end
+
 function TethysChlorisCore.preprocess_fields(
     ::Type{FT},
     ::Type{MeteorologicalInputs},
