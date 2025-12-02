@@ -8,12 +8,15 @@ function run_simulation(
     BEM_on::Bool=true,
     WallLayers::NamedTuple=(; dz1_wall=FT(0.1), dz2_wall=FT(0.1)),
     ParInterceptionTree::NamedTuple=(; Sp_In=FT(0.2)),
+    ViewFactor::RayTracing.ViewFactor{FT}=nothing,
 ) where {FT<:AbstractFloat}
 
     # view factor
-    ViewFactor, ViewFactorPoint = RayTracing.view_factors_canyon(
-        model.parameters.urbangeometry, model.parameters.person, mc_sample_size, n_rays
-    )
+    if isnothing(ViewFactor)
+        ViewFactor, ViewFactorPoint = RayTracing.view_factors_canyon(
+            model.parameters.urbangeometry, model.parameters.person, mc_sample_size, n_rays
+        )
+    end
 
     # initialize Vwater and Owater
     # TODO: initialize in initialize! function?
