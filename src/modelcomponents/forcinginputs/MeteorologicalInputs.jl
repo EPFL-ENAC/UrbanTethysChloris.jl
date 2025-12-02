@@ -47,6 +47,7 @@ Base.@kwdef struct MeteorologicalInputs{FT<:AbstractFloat,N} <:
     qSat_atm::Array{FT,N}
     SW_dir::Array{FT,N}
     SW_diff::Array{FT,N}
+    LWR::Array{FT,N}
     Zatm::FT
     Catm_CO2::FT
     Catm_O2::FT
@@ -83,6 +84,7 @@ function TethysChlorisCore.get_calculated_fields(::Type{MeteorologicalInputs})
         :AtmRelativeSat,
         :AtmSpecificSat,
         :AtmVapourPreSat,
+        :LWR,
     ]
 end
 
@@ -146,6 +148,7 @@ function TethysChlorisCore.preprocess_fields(
     processed["AtmRelativeSat"] = ones(size(processed["ea"]))
     processed["AtmSpecificSat"] = processed["qSat_atm"]
     processed["AtmVapourPreSat"] = processed["esat_Tatm"]
+    processed["LWR"] = processed["LWR_in"]
 
     return processed
 end
