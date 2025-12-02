@@ -66,6 +66,21 @@ function run_simulation(
                 model.parameters.surfacefractions.roof,
                 model.variables.environmentalconditions.resistance,
             )
+        else
+            fconv = FT(NaN)
+            rsRoofPreCalc = (;)
+            rsGroundPreCalc = (;)
+            rsTreePreCalc = (;)
         end
+
+        ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(
+            model.parameters.building_energy.hvac,
+            model.variables.buildingenergymodel.TempVecB,
+            model.variables.temperature.tempvec,
+            model.variables.humidity.Humidity,
+            model.forcing.meteorological,
+            model.parameters.urbangeometry,
+            BEM_on,
+        )
     end
 end
