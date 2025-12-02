@@ -92,18 +92,21 @@ data["vegetation"]["ground"]["ZR95"] = [250.0]
 
 ## Tree
 data["vegetation"]["tree"] = copy(data["vegetation"]["roof"])
-data["vegetation"]["tree"]["ZR95"] = [1000.0]
+
 data["vegetation"]["tree"]["LAI"] = 5.0
 data["vegetation"]["tree"]["SAI"] = 0.2
-data["vegetation"]["tree"]["hc"] = NaN
+data["vegetation"]["tree"]["d_leaf"] = 4.0
 data["vegetation"]["tree"]["ZR95"] = [1000.0]
 data["vegetation"]["tree"]["Rrootl"] = [4000.0]
 data["vegetation"]["tree"]["PsiL50"] = [-3.0]
 data["vegetation"]["tree"]["a1"] = 9.0
 data["vegetation"]["tree"]["DSE"] = 0.649
 data["vegetation"]["tree"]["Ha"] = 76.0
+data["vegetation"]["tree"]["Knit"] = 0.35
+data["vegetation"]["tree"]["Psi_sto_50"] = -2.2
 data["vegetation"]["tree"]["Sl"] = 0.024
 data["vegetation"]["tree"]["SPARTREE"] = 2
+data["vegetation"]["tree"]["hc"] = NaN
 
 # Thermal properties
 data["thermal"] = Dict{String,Any}()
@@ -116,7 +119,9 @@ data["thermal"]["tree"] = Dict{String,Any}("Cthermal_leaf" => 640.0)
 
 data["optical"] = Dict{String,Any}()
 data["optical"]["wall"] = Dict{String,Any}("albedo" => 0.4, "emissivity" => 0.95)
-data["optical"]["tree"] = Dict{String,Any}("albedo" => 0.2, "emissivity" => 0.95)
+data["optical"]["tree"] = Dict{String,Any}(
+    "albedo" => 0.2, "emissivity" => 0.994483435579239
+)
 
 LAI_R = data["vegetation"]["roof"]["LAI"]
 SAI_R = data["vegetation"]["roof"]["SAI"]
@@ -296,7 +301,7 @@ defVar(ds, "Uatm", input_data["Windspeed"], ("hours",))
 defVar(ds, "Pre", input_data["Pressure_Pa"], ("hours",))
 defVar(ds, "Rain", input_data["Precipitation"], ("hours",))
 defVar(ds, "rel_hum", input_data["RelativeHumidity"], ("hours",))
-defVar(ds, "Zatm", 30.0, ())
+defVar(ds, "Zatm", 25.0, ())
 defVar(ds, "Catm_CO2", 400.0, ())
 defVar(ds, "Catm_O2", 210000.0, ())
 defVar(ds, "SunDSM_MRT", NaN, ())

@@ -27,7 +27,7 @@ optical:
     aimp: 0.1
     eimp: 0.95
   tree:
-    emissivity: 0.95
+    emissivity: 0.994483435579239
     albedo: 0.2
   wall:
     emissivity: 0.95
@@ -110,7 +110,7 @@ vegetation:
   tree:
     ZRmax:
       - .NaN
-    Psi_sto_50: -3.0
+    Psi_sto_50: -2.2
     SPARTREE: 2
     ZR95:
       - 1000.0
@@ -119,13 +119,13 @@ vegetation:
     a1: 9.0
     ZR50:
       - .NaN
-    d_leaf: 0.8
+    d_leaf: 4.0
     Vmax: 68.0
     CASE_ROOT: 1
     Rrootl:
       - 4000.0
     FI: 0.081
-    Knit: 0.15
+    Knit: 0.35
     mSl: 0.0
     go: 0.01
     Do: 1000.0
