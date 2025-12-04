@@ -133,6 +133,8 @@ end
 function initialize!(
     x::ModelComponents.ModelVariables.Humidity{FT}, AtmSpecific::FT
 ) where {FT<:AbstractFloat}
+    # q2m is technically initialize as MeteoData.q_atm but this corresponds to
+    # AtmSpecific, so we use AtmSpecific here for simplicity
     setproperty!(x, :CanyonSpecific, AtmSpecific)
 
     return nothing
