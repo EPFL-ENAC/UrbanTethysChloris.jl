@@ -508,7 +508,7 @@ function water_canyon(
 
         sol = solve(
             ODEProblem(
-                (dV, V, p, t) -> Soil.soil_moistures_rich_comp_lat2(
+                (V, p, t) -> Soil.soil_moistures_rich_comp_lat2(
                     V,
                     dz[i],
                     SPAR,
@@ -545,7 +545,7 @@ function water_canyon(
 
         sol = solve(
             ODEProblem(
-                (dV, V, p, t) -> Soil.soil_moistures_rich_comp_lat3(
+                (V, p, t) -> Soil.soil_moistures_rich_comp_lat3(
                     V,
                     dz[i],
                     SPAR,
