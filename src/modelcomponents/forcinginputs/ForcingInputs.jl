@@ -40,6 +40,19 @@ function Base.getindex(
     return scalar_type(; fieldvals...)
 end
 
+function Base.show(
+    io::IO, obj::T
+) where {FT<:AbstractFloat,T<:Abstract1PForcingInputs{FT,0}}
+    println(io, "$(typeof(obj)):")
+    for field in fieldnames(typeof(obj))
+        # if field in SCALAR_METEO_FIELDS
+        println(io, "  $field: ", getproperty(obj, field))
+        # else
+        #     println(io, "  $field: ", getproperty(obj, field)[])
+        # end
+    end
+end
+
 include("MeteorologicalInputs.jl")
 export MeteorologicalInputs
 include("AnthropogenicInputs.jl")
