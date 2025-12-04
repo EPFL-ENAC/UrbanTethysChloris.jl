@@ -486,6 +486,21 @@ function Qinlat(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:Abstra
     return initialize(FT, Qinlat, Dict{String,Any}(), (FT, soil.ground.ms), soil, args...)
 end
 
+function Qinlat(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    MG = length(data["Qin_bare2imp"])
+    return Qinlat{FT,MG}(;
+        Qin_bare2imp=data["Qin_bare2imp"],
+        Qin_veg2imp=data["Qin_veg2imp"],
+        Qin_veg2bare=data["Qin_veg2bare"],
+        Qin_imp2bare=data["Qin_imp2bare"],
+        Qin_bare2veg=data["Qin_bare2veg"],
+        Qin_imp2veg=data["Qin_imp2veg"],
+        Qin_imp=data["Qin_imp"],
+        Qin_bare=data["Qin_bare"],
+        Qin_veg=data["Qin_veg"],
+    )
+end
+
 """
     ExWater{FT<:AbstractFloat, MR, MG} <: AbstractLayeredSoilVariables{FT}
 
