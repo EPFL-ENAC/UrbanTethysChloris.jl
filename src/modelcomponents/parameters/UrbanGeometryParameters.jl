@@ -55,6 +55,30 @@ function initialize_urbangeometry_parameters(
     return initialize(FT, UrbanGeometryParameters, data, (FT,))
 end
 
+function UrbanGeometryParameters(FT, Gemeotry_m::AbstractDict)
+    return UrbanGeometryParameters{FT}(;
+        Height_canyon=FT(Gemeotry_m["Height_canyon"]),
+        Width_canyon=FT(Gemeotry_m["Width_canyon"]),
+        Width_roof=FT(Gemeotry_m["Width_roof"]),
+        Height_tree=FT(Gemeotry_m["Height_tree"]),
+        Radius_tree=FT(Gemeotry_m["Radius_tree"]),
+        Distance_tree=FT(Gemeotry_m["Distance_tree"]),
+        Hcan_max=FT(Gemeotry_m["Hcan_max"]),
+        Hcan_std=FT(Gemeotry_m["Hcan_std"]),
+        trees=false,
+        ftree=FT(NaN),
+        hcanyon=FT(NaN),
+        wcanyon=FT(NaN),
+        wroof=FT(NaN),
+        htree=FT(NaN),
+        radius_tree=FT(NaN),
+        distance_tree=FT(NaN),
+        ratio=FT(NaN),
+        wcanyon_norm=FT(NaN),
+        wroof_norm=FT(NaN),
+    )
+end
+
 function UrbanGeometryParameters(
     FT, Gemeotry_m::AbstractDict, geometry::AbstractDict, ParTree::AbstractDict
 )
