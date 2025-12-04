@@ -90,6 +90,44 @@ function initialize_heightdependent_vegetationparameters(
     return initialize(FT, HeightDependentVegetationParameters, data, (FT,))
 end
 
+function HeightDependentVegetationParameters(
+    ::Type{FT}, data::AbstractDict
+) where {FT<:AbstractFloat}
+    return HeightDependentVegetationParameters{FT}(
+        FT(data["LAI"]),
+        FT(data["SAI"]),
+        FT(get(data, "hc", zero(FT))),
+        FT(get(data, "h_disp", zero(FT))),
+        FT(data["d_leaf"]),
+        data["CASE_ROOT"],
+        FT.([data["ZR95"]]),
+        FT.([data["ZR50"]]),
+        FT.([data["ZRmax"]]),
+        FT.([data["Rrootl"]]),
+        FT.([data["PsiL50"]]),
+        FT.([data["PsiX50"]]),
+        data["FI"],
+        data["Do"],
+        data["a1"],
+        data["go"],
+        data["CT"],
+        data["DSE"],
+        data["Ha"],
+        data["gmes"],
+        data["rjv"],
+        data["Kopt"],
+        data["Knit"],
+        data["Vmax"],
+        data["mSl"],
+        data["e_rel"],
+        data["e_relN"],
+        data["Psi_sto_00"],
+        data["Psi_sto_50"],
+        data["Sl"],
+        get(data, "SPARTREE", 1),
+    )
+end
+
 function TethysChlorisCore.get_optional_fields(::Type{HeightDependentVegetationParameters})
     return [:SPARTREE]
 end

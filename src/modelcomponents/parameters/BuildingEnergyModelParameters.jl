@@ -30,6 +30,19 @@ function initialize_indooropticalproperties(
     return initialize(FT, IndoorOpticalProperties, data)
 end
 
+function IndoorOpticalProperties(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return IndoorOpticalProperties{FT}(
+        data["abc"],
+        data["abw"],
+        data["abg"],
+        data["abm"],
+        data["ec"],
+        data["eg"],
+        data["ew"],
+        data["em"],
+    )
+end
+
 """
     ThermalBuilding{FT<:AbstractFloat} <: AbstractParameters{FT}
 
@@ -66,6 +79,21 @@ function initialize_thermalbuildingparameters(
     return initialize(FT, ThermalBuilding, data)
 end
 
+function ThermalBuilding(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return ThermalBuilding{FT}(
+        data["IntMassOn"],
+        data["FloorHeight"],
+        data["dzFloor"],
+        data["dzWall"],
+        data["lan_ground_floor"],
+        data["cv_ground_floor"],
+        data["lan_floor_IntMass"],
+        data["cv_floor_IntMass"],
+        data["lan_wall_IntMass"],
+        data["cv_wall_IntMass"],
+    )
+end
+
 """
     WindowParameters{FT<:AbstractFloat} <: AbstractParameters{FT}
 
@@ -100,6 +128,21 @@ function initialize_windowparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
     return initialize(FT, WindowParameters, data)
+end
+
+function WindowParameters(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return WindowParameters{FT}(
+        Int(data["WindowsOn"]),
+        data["GlazingRatio"],
+        data["Uvalue"],
+        data["lan_windows"],
+        data["cv_glass"],
+        data["dztot"],
+        data["SHGC"],
+        data["SolarTransmittance"],
+        data["SolarAbsorptivity"],
+        data["SolarAlbedo"],
+    )
 end
 
 """
@@ -148,6 +191,25 @@ function initialize_hvacparameters(
     ::Type{FT}, data::Dict{String,Any}
 ) where {FT<:AbstractFloat}
     return initialize(FT, HVACParameters, data)
+end
+
+function HVACParameters(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return HVACParameters{FT}(
+        data["ACon"],
+        data["AC_onCool"],
+        data["AC_onDehum"],
+        data["MasterOn"],
+        data["Heatingon"],
+        data["TsetpointCooling"],
+        data["TsetpointHeating"],
+        data["RHsetpointCooling"],
+        data["RHsetpointHeating"],
+        data["ACH"],
+        data["COPAC"],
+        data["COPHeat"],
+        data["f_ACLatentToQ"],
+        data["q_RHspCooling"],
+    )
 end
 
 """

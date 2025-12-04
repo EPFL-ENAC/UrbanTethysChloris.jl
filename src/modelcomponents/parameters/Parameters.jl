@@ -3,6 +3,14 @@ module Parameters
 using TethysChlorisCore
 using TethysChlorisCore.ModelComponents
 
+# Technically type piracy?
+function Base.show(io::IO, obj::Union{AbstractParameters,AbstractHeightDependentParameters})
+    print(io, typeof(obj))
+    for field in fieldnames(typeof(obj))
+        print(io, "\n", field, ": ", getfield(obj, field))
+    end
+end
+
 include("PersonParameters.jl")
 include("SurfaceFractions.jl")
 export LocationSpecificSurfaceFractions

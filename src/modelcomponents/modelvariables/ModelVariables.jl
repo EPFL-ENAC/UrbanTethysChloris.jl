@@ -92,6 +92,13 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
+function Base.show(io::IO, obj::AbstractModelVariables)
+    print(io, typeof(obj))
+    for field in fieldnames(typeof(obj))
+        print(io, "\n", field, ": ", getfield(obj, field))
+    end
+end
+
 include("BuildingEnergyModelVariables.jl")
 export TempVecB, HumidityBuilding, HbuildInt, LEbuildInt, GbuildInt, SWRabsB, LWRabsB
 export BEMWasteHeat, BEMEnergyUse, ParACHeat_ts, BuildingEnergyModelVariables

@@ -12,6 +12,14 @@ function initialize_locationspecific_surfacefractions(
     return initialize(FT, LocationSpecificSurfaceFractions, data)
 end
 
+function LocationSpecificSurfaceFractions(
+    ::Type{FT}, data::AbstractDict
+) where {FT<:AbstractFloat}
+    return LocationSpecificSurfaceFractions{FT}(
+        data["fveg"], get(data, "fbare", FT(NaN)), data["fimp"], data["Per_runoff"]
+    )
+end
+
 function TethysChlorisCore.get_optional_fields(::Type{LocationSpecificSurfaceFractions})
     return [:fbare]
 end

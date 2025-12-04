@@ -55,6 +55,32 @@ function initialize_urbangeometry_parameters(
     return initialize(FT, UrbanGeometryParameters, data, (FT,))
 end
 
+function UrbanGeometryParameters(
+    FT, Gemeotry_m::AbstractDict, geometry::AbstractDict, ParTree::AbstractDict
+)
+    return UrbanGeometryParameters{FT}(;
+        Height_canyon=FT(Gemeotry_m["Height_canyon"]),
+        Width_canyon=FT(Gemeotry_m["Width_canyon"]),
+        Width_roof=FT(Gemeotry_m["Width_roof"]),
+        Height_tree=FT(Gemeotry_m["Height_tree"]),
+        Radius_tree=FT(Gemeotry_m["Radius_tree"]),
+        Distance_tree=FT(Gemeotry_m["Distance_tree"]),
+        Hcan_max=FT(Gemeotry_m["Hcan_max"]),
+        Hcan_std=FT(Gemeotry_m["Hcan_std"]),
+        trees=Bool(ParTree["trees"]),
+        ftree=FT(ParTree["ftree"]),
+        hcanyon=FT(geometry["hcanyon"]),
+        wcanyon=FT(geometry["wcanyon"]),
+        wroof=FT(geometry["wroof"]),
+        htree=FT(geometry["htree"]),
+        radius_tree=FT(geometry["radius_tree"]),
+        distance_tree=FT(geometry["distance_tree"]),
+        ratio=FT(geometry["ratio"]),
+        wcanyon_norm=FT(geometry["wcanyon_norm"]),
+        wroof_norm=FT(geometry["wroof_norm"]),
+    )
+end
+
 function TethysChlorisCore.get_calculated_fields(::Type{UrbanGeometryParameters})
     return [
         :hcanyon,
