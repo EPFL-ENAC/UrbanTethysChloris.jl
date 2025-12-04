@@ -41,9 +41,13 @@ function Base.getindex(
 end
 
 include("MeteorologicalInputs.jl")
+export MeteorologicalInputs
 include("AnthropogenicInputs.jl")
+export AnthropogenicInputs
 include("SunPositionInputs.jl")
+export SunPositionInputs
 include("HVACSchedule.jl")
+export HVACSchedule
 include("ForcingInputSet.jl")
 
 export ForcingInputSet
