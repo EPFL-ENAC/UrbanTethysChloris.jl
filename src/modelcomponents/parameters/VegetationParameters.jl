@@ -96,7 +96,7 @@ function HeightDependentVegetationParameters(
     return HeightDependentVegetationParameters{FT}(
         FT(data["LAI"]),
         FT(data["SAI"]),
-        FT(get(data, "hc", zero(FT))),
+        FT(get(data, "hc", FT(NaN))),
         FT(get(data, "h_disp", zero(FT))),
         FT(data["d_leaf"]),
         data["CASE_ROOT"],
@@ -132,6 +132,12 @@ function TethysChlorisCore.get_optional_fields(::Type{HeightDependentVegetationP
     return [:SPARTREE]
 end
 
+function TethysChlorisCore.get_calculated_fields(
+    ::Type{HeightDependentVegetationParameters}
+)
+    return [:h_disp]
+end
+
 function TethysChlorisCore.validate_fields(
     ::Type{HeightDependentVegetationParameters}, data::Dict{String,Any}
 )
@@ -144,6 +150,23 @@ function TethysChlorisCore.validate_fields(
     if data["LAI"] <= 0.0
         throw(ArgumentError("LAI must be > 0"))
     end
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT},
+    ::Type{HeightDependentVegetationParameters},
+    data::Dict{String,Any},
+    params::Tuple,
+) where {FT<:AbstractFloat}
+    processed = copy(data)
+
+    if !isnan(processed["hc"])
+        processed["h_disp"] = processed["hc"] * 2 / 3
+    else
+        processed["h_disp"] = zero(FT)
+    end
+
+    return processed
 end
 
 """

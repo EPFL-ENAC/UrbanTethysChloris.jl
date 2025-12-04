@@ -142,7 +142,6 @@ vegetation:
     PsiX50:
       - -4.5
     Psi_sto_00: -0.5
-    h_disp: 0.09999999999999999
     LAI: 5.0
     gmes: .inf
 thermal:

@@ -107,6 +107,8 @@ data["vegetation"]["tree"]["Psi_sto_50"] = -2.2
 data["vegetation"]["tree"]["Sl"] = 0.024
 data["vegetation"]["tree"]["SPARTREE"] = 2
 data["vegetation"]["tree"]["hc"] = NaN
+# remove h_disp for trees since hc is NaN
+delete!(data["vegetation"]["tree"], "h_disp")
 
 # Thermal properties
 data["thermal"] = Dict{String,Any}()
