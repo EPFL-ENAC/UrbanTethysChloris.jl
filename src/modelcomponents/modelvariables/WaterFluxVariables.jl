@@ -122,6 +122,17 @@ function Runon(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Runon, Dict{String,Any}())
 end
 
+function Runon(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return Runon{FT}(;
+        RunonRoofTot=data["RunonRoofTot"],
+        RunoffRoofTot=data["RunoffRoofTot"],
+        RunonGroundTot=data["RunonGroundTot"],
+        RunoffGroundTot=data["RunoffGroundTot"],
+        RunonUrban=data["RunonUrban"],
+        RunoffUrban=data["RunoffUrban"],
+    )
+end
+
 """
     Leakage{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
