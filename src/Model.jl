@@ -103,6 +103,8 @@ function initialize!(
     x::ModelComponents.ModelVariables.TempVec{FT}, Tatm::FT
 ) where {FT<:AbstractFloat}
     # set all layers off all fields to mean_Tatm
+    # T2m is technically initialize as Results2m.T2m[1] for the first timestep, but this is
+    # actually MeteoData.Tatm[1], so we use Tatm here for simplicity
     for field in fieldnames(typeof(x))
         setproperty!(x, field, Tatm)
     end

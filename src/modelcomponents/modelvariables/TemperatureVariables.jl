@@ -34,6 +34,7 @@ Base.@kwdef mutable struct TempVec{FT<:AbstractFloat} <: AbstractModelVariables{
     TWallIntShade::FT
     TCanyon::FT
     Tatm::FT
+    T2m::FT
 end
 
 function TempVec(::Type{FT}) where {FT<:AbstractFloat}
@@ -56,6 +57,7 @@ function TempVec(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
         TWallIntShade=data["TWallIntShade"],
         TCanyon=data["TCanyon"],
         Tatm=data["Tatm"],
+        T2m=data["T2m"],
     )
 end
 
