@@ -44,11 +44,13 @@ function run_simulation(
     # Meteo_ittm
     ParCalculation = (;
         dth=1.0,
-        dts=3600.0,
+        dts=3600,
         row=1000.0,
         cp_atm=model.forcing.meteorological.cp_atm,
         rho_atm=model.forcing.meteorological.rho_atm,
     )
+
+    Ttot, fval, exitflag = nothing, nothing, nothing
 
     for i in 1:NN
         @info "Starting iteration $i / $NN"
@@ -143,16 +145,19 @@ function run_simulation(
             BEM_on,
         )
 
+        EnergyUse = (;);
+
         for HVACittm in 1:2
             if BEM_on && HVACittm == 2
-                if !ParHVACorig.Acon && !ParHVACorig.Heatingon
-                    continue
-                end
-
-                ## Add complete logic with EnergyUse (named tuple created at end of first iteration)
+                @infiltrate
+                ParHVAC = update_hvac_parameters(
+                    ParHVACorig,
+                    ParHVAC,
+                    EnergyUse,
+                    model.variables.buildingenergymodel.TempVecB.Tbin,
+                    model.variables.buildingenergymodel.TempVecB.qbin,
+                )
             end
-            @info RESPreCalc fconvPreCalc BEM_on fconv
-
             Ttot, fval, exitflag = f_solver_tot(
                 model.variables.temperature.tempvec,
                 model.variables.buildingenergymodel.TempVecB,
