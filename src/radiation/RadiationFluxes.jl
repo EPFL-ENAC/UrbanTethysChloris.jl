@@ -24,6 +24,7 @@ Base.@kwdef struct RadiationFluxes{FT<:AbstractFloat}
     TotalCanyon::FT
 end
 
+# TODO: replace by `diff`, instead of overloading `-`
 function Base.:-(a::RadiationFluxes{FT}, b::RadiationFluxes{FT}) where {FT<:AbstractFloat}
     RadiationFluxes{FT}(;
         GroundImp=(a.GroundImp - b.GroundImp),
@@ -35,6 +36,41 @@ function Base.:-(a::RadiationFluxes{FT}, b::RadiationFluxes{FT}) where {FT<:Abst
         TotalGround=(a.TotalGround - b.TotalGround),
         TotalCanyon=(a.TotalCanyon - b.TotalCanyon),
     )
+end
+
+function RadiationFluxes(::Type{FT}) where {FT<:AbstractFloat}
+    RadiationFluxes{FT}(;
+        GroundImp=zero(FT),
+        GroundBare=zero(FT),
+        GroundVeg=zero(FT),
+        Tree=zero(FT),
+        WallSun=zero(FT),
+        WallShade=zero(FT),
+        TotalGround=zero(FT),
+        TotalCanyon=zero(FT),
+    )
+end
+
+function RadiationFluxes(
+    ::Type{FT}, data::AbstractDict, prefix::String=""
+) where {FT<:AbstractFloat}
+    return RadiationFluxes{FT}(;
+        GroundImp=FT(data[prefix * "GroundImp"]),
+        GroundBare=FT(data[prefix * "GroundBare"]),
+        GroundVeg=FT(data[prefix * "GroundVeg"]),
+        Tree=FT(data[prefix * "Tree"]),
+        WallSun=FT(data[prefix * "WallSun"]),
+        WallShade=FT(data[prefix * "WallShade"]),
+        TotalGround=FT(data[prefix * "TotalGround"]),
+        TotalCanyon=FT(data[prefix * "TotalCanyon"]),
+    )
+end
+
+function Base.show(io::IO, obj::RadiationFluxes)
+    print(io, typeof(obj))
+    for field in fieldnames(typeof(obj))
+        print(io, "\n", field, ": ", getfield(obj, field))
+    end
 end
 
 """
