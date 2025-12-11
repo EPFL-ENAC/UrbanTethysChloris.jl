@@ -14,8 +14,12 @@ function update_hvac_parameters(
     Tbin_r = round(Tbin; digits=4)
     qbin_r = round(qbin; digits=8)
 
+    # Switch on or off HVAC based on temperature and humidity thresholds. Humidity threshold
+    # is currently turned off as we assume that AC is switched on mostly for cooling purposes
+    # and not for dehumidification.
     if ParHVACorig.ACon && Tbin_r>(ParHVAC.TsetpointCooling+0.01) ||
         qbin_r>(ParHVAC.q_RHspCooling+10^-6)
+        # Switch on AC based on exceedance of set-point temperature or humidity
         ACon = 1;
         AC_onCool = 1;
         AC_onDehum = 1;
@@ -37,6 +41,7 @@ function update_hvac_parameters(
     elseif ParHVACorig.Heatingon &&
         Tbin_r<(ParHVAC.TsetpointHeating-0.01) &&
         round(EnergyUse.EnergyForHeating)==0
+        # Switch on heating based on not reaching the set-point temperature
         ACon = 0;
         AC_onCool = 0;
         AC_onDehum = 0;
@@ -44,6 +49,7 @@ function update_hvac_parameters(
         MasterOn = 1;
     end
 
+    # Switch off HVAC because of negative energy consumption
     if ParHVACorig.ACon==1 && EnergyUse.EnergyForAC_H<-10^-6 ||
         EnergyUse.EnergyForAC_LE<-10^-6
         if EnergyUse.EnergyForAC_H<-10^-6 && EnergyUse.EnergyForAC_LE<-10^-6
