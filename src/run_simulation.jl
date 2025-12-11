@@ -328,7 +328,7 @@ function run_simulation(
             )
         end
 
-        @infiltrate
+        # @infiltrate
         # MRT
         Tmrt, BoleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = MeanRadiantTemperature.mean_radiant_temperature(
             SWRout_t,
@@ -345,6 +345,14 @@ function run_simulation(
         # the hour as an integer (10 for 10:30).
 
         # Wind profile output
+        u_ZPerson = Resistance.wind_profile_point_output(
+            model.parameters.person.HeightWind,
+            model.parameters.urbangeometry,
+            model.parameters.vegetation.tree,
+            model.forcing.meteorological,
+            model.parameters.surfacefractions.ground,
+            model.parameters.vegetation.ground,
+        )
 
         # UTCI
 
