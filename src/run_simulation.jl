@@ -58,6 +58,8 @@ function run_simulation(
 
     SWRout_t = Radiation.RadiationFluxes(FT)
     LWRout_t = Radiation.RadiationFluxes(FT)
+    T2m = FT(NaN)
+    RH_T2m = FT(NaN)
 
     for i in 1:NN
         @info "Starting iteration $i / $NN"
@@ -156,7 +158,6 @@ function run_simulation(
 
         for HVACittm in 1:2
             if BEM_on && HVACittm == 2
-                # @infiltrate
                 ParHVAC = update_hvac_parameters(
                     ParHVACorig,
                     ParHVAC,
@@ -328,8 +329,6 @@ function run_simulation(
             )
         end
 
-        # @infiltrate
-        # MRT
         Tmrt, BoleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = MeanRadiantTemperature.mean_radiant_temperature(
             SWRout_t,
             LWRout_t,
@@ -344,7 +343,6 @@ function run_simulation(
         # TODO: check whether we should be using the hour as a float (e.g. 10.5 for 10:30) or
         # the hour as an integer (10 for 10:30).
 
-        # Wind profile output
         u_ZPerson = Resistance.wind_profile_point_output(
             model.parameters.person.HeightWind,
             model.parameters.urbangeometry,
@@ -354,7 +352,9 @@ function run_simulation(
             model.parameters.vegetation.ground,
         )
 
-        # UTCI
+        UTCI_approx = OutdoorThermalComfort.utci_approx(
+            T2m - FT(273.15), RH_T2m * 100, Tmrt, u_ZPerson
+        )
 
         # Assign outputs
     end
