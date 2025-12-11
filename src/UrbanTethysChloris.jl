@@ -9,6 +9,7 @@ using Roots
 using NCDatasets
 using YAML
 using NaNMath: NaNMath
+using Infiltrator
 
 include(joinpath("soil", "Soil.jl"))
 using .Soil
@@ -19,14 +20,15 @@ using .ModelComponents
 include(joinpath("ray_tracing", "RayTracing.jl"))
 using .RayTracing
 
-include(joinpath("mean_radiant_temperature", "MeanRadiantTemperature.jl"))
-using .MeanRadiantTemperature
-
 include(joinpath("outdoor_thermal_comfort", "OutdoorThermalComfort.jl"))
 using .OutdoorThermalComfort
 
 include(joinpath("radiation", "Radiation.jl"))
 using .Radiation
+
+# Depends on Radiation, RayTracing
+include(joinpath("mean_radiant_temperature", "MeanRadiantTemperature.jl"))
+using .MeanRadiantTemperature
 
 include(joinpath("conductive_heat", "ConductiveHeat.jl"))
 using .ConductiveHeat
@@ -55,6 +57,7 @@ include("eb_wb_roof.jl")
 include("eb_solver_urban_climate_building_energy_model.jl")
 include("f_solver_tot.jl")
 include("eb_wb_canyon.jl")
+include("update_hvac_parameters.jl")
 include("run_simulation.jl")
 export run_simulation
 

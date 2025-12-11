@@ -11,6 +11,7 @@ model, forcing = create_model(FT, ncdf_path, yaml_path);
 
 initialize!(model, forcing)
 
+using UrbanTethysChloris.RayTracing: ViewFactor, ViewFactorPoint
 view_factor = ViewFactor{FT}(;
     F_gs_nT=0.38030860180886683,
     F_gw_nT=0.3098456990955666,
@@ -33,6 +34,16 @@ view_factor = ViewFactor{FT}(;
     F_tw_T=0.2690851190794379,
     F_ts_T=0.2604360812554992,
     F_tt_T=0.04638785143304075,
-)
+);
 
-run_simulation(model; NN=10, ViewFactor=view_factor)
+view_factor_point = ViewFactorPoint{Float64}(;
+    F_pg=0.38348258706467636,
+    F_pwLeft=0.21121890547263672,
+    F_pwRight=0.2085671641791044,
+    F_ps=0.15139303482587063,
+    F_pt=0.045338308457711474,
+);
+
+Ttot, fval, exitflag = run_simulation(
+    model; NN=1, ViewFactors=(view_factor, view_factor_point)
+)

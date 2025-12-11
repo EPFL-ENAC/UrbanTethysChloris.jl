@@ -8,14 +8,18 @@ function run_simulation(
     BEM_on::Bool=true,
     WallLayers::NamedTuple=(; dz1_wall=FT(0.1), dz2_wall=FT(0.1)),
     ParInterceptionTree::NamedTuple=(; Sp_In=FT(0.2)),
-    ViewFactor::RayTracing.ViewFactor{FT}=nothing,
+    ViewFactors::Union{
+        Tuple{RayTracing.ViewFactor{FT},RayTracing.ViewFactorPoint{FT}},Nothing
+    }=nothing,
 ) where {FT<:AbstractFloat}
 
     # view factor
-    if isnothing(ViewFactor)
+    if isnothing(ViewFactors)
         ViewFactor, ViewFactorPoint = RayTracing.view_factors_canyon(
             model.parameters.urbangeometry, model.parameters.person, mc_sample_size, n_rays
         )
+    else
+        ViewFactor, ViewFactorPoint = ViewFactors
     end
 
     # initialize Vwater and Owater
@@ -51,6 +55,9 @@ function run_simulation(
     )
 
     Ttot, fval, exitflag = nothing, nothing, nothing
+
+    SWRout_t = Radiation.RadiationFluxes(FT)
+    LWRout_t = Radiation.RadiationFluxes(FT)
 
     for i in 1:NN
         @info "Starting iteration $i / $NN"
@@ -149,7 +156,7 @@ function run_simulation(
 
         for HVACittm in 1:2
             if BEM_on && HVACittm == 2
-                @infiltrate
+                # @infiltrate
                 ParHVAC = update_hvac_parameters(
                     ParHVACorig,
                     ParHVAC,
@@ -321,7 +328,21 @@ function run_simulation(
             )
         end
 
+        @infiltrate
         # MRT
+        Tmrt, BoleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = MeanRadiantTemperature.mean_radiant_temperature(
+            SWRout_t,
+            LWRout_t,
+            model.forcing.meteorological,
+            ViewFactorPoint,
+            model.parameters.vegetation.tree,
+            model.parameters.urbangeometry,
+            model.forcing.sunposition,
+            model.parameters.person,
+            FT(Dates.hour(model.forcing.datetime[])),
+        )
+        # TODO: check whether we should be using the hour as a float (e.g. 10.5 for 10:30) or
+        # the hour as an integer (10 for 10:30).
 
         # Wind profile output
 
