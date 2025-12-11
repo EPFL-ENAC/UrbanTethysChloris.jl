@@ -12,6 +12,7 @@ function Base.show(io::IO, obj::Union{AbstractParameters,AbstractHeightDependent
 end
 
 include("PersonParameters.jl")
+export PersonParameters
 include("SurfaceFractions.jl")
 export LocationSpecificSurfaceFractions
 include("ThermalProperties.jl")
