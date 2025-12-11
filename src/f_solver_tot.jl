@@ -277,7 +277,7 @@ function f_solver_tot(
 
     Ts[1], fvals[1], exitflags[1] = lsqnonlin(TemperatureTot)
 
-    if sum(abs.(fvals[1]) .> 0.1) == 0
+    if sum(abs.(fvals[1])) > 0.1
         return Ts[1], fvals[1], exitflags[1]
     end
 
