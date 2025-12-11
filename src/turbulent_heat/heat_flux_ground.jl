@@ -384,7 +384,7 @@ function heat_flux_ground(
     )
 
     # Calculate aerodynamic and stomata resistances
-    Opt_CR = one(FT)  # [ppm] Numerical tolerance for internal CO2 computation
+    Opt_CR = eps(FT)  # [ppm] Numerical tolerance for internal CO2 computation
 
     rap_can, rap_Htree, rap_Htree_In, rap_2m, rap_2m_In, rap_Zp3, rap_Zp3_In, u_Hcan, u_Htree, u_Zp2, u_Zp3, uref_und, alpha = in_canyon_aerodynamic_resistance(
         Uatm,
@@ -1115,7 +1115,7 @@ function heat_flux_ground(
     )
 
     # Calculate aerodynamic and stomata resistances
-    Opt_CR = one(FT)  # [ppm] Numerical tolerance for internal CO2 computation
+    Opt_CR = eps(FT)  # [ppm] Numerical tolerance for internal CO2 computation
 
     rap_can, rap_Htree, rap_Htree_In, rap_2m, rap_2m_In, rap_Zp3, rap_Zp3_In, u_Hcan, u_Htree, u_Zp2, u_Zp3, uref_und, alpha = in_canyon_aerodynamic_resistance(
         Uatm,

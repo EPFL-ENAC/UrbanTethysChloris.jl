@@ -96,7 +96,7 @@ function precalculate_stomatal_resistance_roof(
     PAR_shd = Fshd * SWRabs_diff
 
     # Calculate stomatal resistance using canopy_resistance_an_evolution
-    Opt_CR = 1.0  # Numerical tolerance for internal CO2 computation
+    Opt_CR = eps(FT)  # Numerical tolerance for internal CO2 computation
     rs_sun, rs_shd, Ci_sun, Ci_shd, _, _, _, _ = canopy_resistance_an_evolution(
         PAR_sun,
         PAR_shd,
@@ -204,7 +204,7 @@ function precalculate_stomatal_resistance_roof(
     PAR_shd = Fshd * SWRabs_diff
 
     # Calculate stomatal resistance using canopy_resistance_an_evolution
-    Opt_CR = 1.0  # Numerical tolerance for internal CO2 computation
+    Opt_CR = eps(FT) # Numerical tolerance for internal CO2 computation
     rs_sun, rs_shd, Ci_sun, Ci_shd, _, _, _, _ = canopy_resistance_an_evolution(
         PAR_sun,
         PAR_shd,

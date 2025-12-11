@@ -202,7 +202,7 @@ function precalculate_stomatal_resistance_ground_tree(
     PAR_shd_L = Cveg * (Fshd_L * SWRdiff_abs_groundveg)
 
     # Calculate stomatal resistances
-    Opt_CR = FT(1)  # Numerical tolerance for internal CO2 computation
+    Opt_CR = eps(FT) # Numerical tolerance for internal CO2 computation
 
     # Initialize return values
     rs_sun_H = Inf
@@ -443,7 +443,7 @@ function precalculate_stomatal_resistance_ground_tree(
     PAR_shd_L = Cveg * (Fshd_L * SWRdiff_abs_groundveg)
 
     # Calculate stomatal resistances
-    Opt_CR = FT(1)  # Numerical tolerance for internal CO2 computation
+    Opt_CR = eps(FT) # Numerical tolerance for internal CO2 computation
 
     # Initialize return values
     rs_sun_H = Inf

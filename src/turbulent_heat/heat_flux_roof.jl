@@ -277,7 +277,7 @@ function heat_flux_roof(
                 rjv_roof,
                 mSl_roof,
                 Sl_roof,
-                FT(1),  # Numerical tolerance
+                eps(FT),  # Numerical tolerance
             )
         else
             rs_sun = Inf
@@ -617,7 +617,7 @@ function heat_flux_roof(
                 rjv_roof,
                 mSl_roof,
                 Sl_roof,
-                FT(1),  # Numerical tolerance
+                eps(FT),  # Numerical tolerance
             )
         else
             rs_sun = Inf
