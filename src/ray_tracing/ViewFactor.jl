@@ -198,6 +198,16 @@ Base.@kwdef struct ViewFactorPoint{FT<:AbstractFloat} <: AbstractViewFactor{FT}
     F_pwRight::FT
 end
 
+function ViewFactorPoint(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return ViewFactorPoint{FT}(;
+        F_pg=FT(data["F_pg"]),
+        F_ps=FT(data["F_ps"]),
+        F_pt=FT(data["F_pt"]),
+        F_pwLeft=FT(data["F_pwLeft"]),
+        F_pwRight=FT(data["F_pwRight"]),
+    )
+end
+
 """
     ViewFactorInternal{FT<:AbstractFloat} <: AbstractViewFactor{FT}
 
