@@ -95,6 +95,15 @@ function TempDamp(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
     )
 end
 
+# Necessary to avoid a reference assignment
+function update!(x::TempDamp{FT}, y::TempDamp{FT}) where {FT<:AbstractFloat}
+    x.TDampGroundImp = y.TDampGroundImp
+    x.TDampGroundBare = y.TDampGroundBare
+    x.TDampGroundVeg = y.TDampGroundVeg
+    x.TDampTree = y.TDampTree
+    x.TDampGroundBuild = y.TDampGroundBuild
+end
+
 """
     MRT{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 

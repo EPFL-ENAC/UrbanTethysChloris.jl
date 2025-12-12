@@ -55,6 +55,22 @@ function Humidity(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
     )
 end
 
+function update!(dest::Humidity{FT}, src::Humidity{FT}) where {FT<:AbstractFloat}
+    dest.CanyonRelative = src.CanyonRelative
+    dest.CanyonSpecific = src.CanyonSpecific
+    dest.CanyonVapourPre = src.CanyonVapourPre
+    dest.CanyonRelativeSat = src.CanyonRelativeSat
+    dest.CanyonSpecificSat = src.CanyonSpecificSat
+    dest.CanyonVapourPreSat = src.CanyonVapourPreSat
+    dest.AtmRelative = src.AtmRelative
+    dest.AtmSpecific = src.AtmSpecific
+    dest.AtmVapourPre = src.AtmVapourPre
+    dest.AtmRelativeSat = src.AtmRelativeSat
+    dest.AtmSpecificSat = src.AtmSpecificSat
+    dest.AtmVapourPreSat = src.AtmVapourPreSat
+    dest.q2m = src.q2m
+end
+
 """
     Results2m{FT<:AbstractFloat} <: AbstractResults2m{FT}
 

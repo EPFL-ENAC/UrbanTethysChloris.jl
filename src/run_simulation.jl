@@ -54,6 +54,8 @@ function run_simulation(
         rho_atm=model.forcing.meteorological.rho_atm,
     )
 
+    Humidity_t = deepcopy(model.variables.humidity.Humidity)
+
     Ttot, fval, exitflag = nothing, nothing, nothing
 
     TempVec_ittm2Ext = ExtrapolatedTempVec(model.variables.temperature.tempvec)
@@ -66,10 +68,16 @@ function run_simulation(
     T2m = FT(NaN)
     RH_T2m = FT(NaN)
 
-    for i in 1:NN
-        @info "Starting iteration $i / $NN"
-
-
+    TempDamp_t = deepcopy(model.variables.temperature.tempdamp)
+    RES_t = deepcopy(model.variables.environmentalconditions.resistance)
+    Interception_t = deepcopy(model.variables.waterflux.Interception)
+    ExWater_t = deepcopy(model.variables.waterflux.ExWater)
+    Owater_t = deepcopy(model.variables.waterflux.Owater)
+    SoilPotW_t = deepcopy(model.variables.waterflux.SoilPotW)
+    CiCO2Leaf_t = deepcopy(model.variables.waterflux.CiCO2Leaf)
+    Runon_t = deepcopy(model.variables.waterflux.Runon)
+    Qinlat_t = deepcopy(model.variables.waterflux.Qinlat)
+    Owater_t = deepcopy(model.variables.waterflux.Owater)
 
     for i in 1:NN
         @info "Starting iteration $i / $NN"
@@ -299,6 +307,136 @@ function run_simulation(
                 BEM_on,
                 model.forcing.hvacschedule,
             )
+
+            Humidity_t.CanyonRelative = HumidityCan.CanyonRelative
+            Humidity_t.CanyonSpecific = HumidityCan.CanyonSpecific
+            Humidity_t.CanyonVapourPre = HumidityCan.CanyonVapourPre
+            Humidity_t.CanyonRelativeSat = HumidityCan.CanyonRelativeSat
+            Humidity_t.CanyonSpecificSat = HumidityCan.CanyonSpecificSat
+            Humidity_t.CanyonVapourPreSat = HumidityCan.CanyonVapourPreSat
+            Humidity_t.AtmRelative = model.forcing.meteorological.AtmRelative
+            Humidity_t.AtmSpecific = model.forcing.meteorological.AtmSpecific
+            Humidity_t.AtmVapourPre = model.forcing.meteorological.AtmVapourPre
+            Humidity_t.AtmRelativeSat = model.forcing.meteorological.AtmRelativeSat
+            Humidity_t.AtmSpecificSat = model.forcing.meteorological.AtmSpecificSat
+            Humidity_t.AtmVapourPreSat = model.forcing.meteorological.AtmVapourPreSat
+
+            # TODO: modify the structure in-place
+            TempDamp_t.TDampGroundImp = TDampGroundImp
+            TempDamp_t.TDampGroundBare = TDampGroundBare
+            TempDamp_t.TDampGroundVeg = TDampGroundVeg
+            TempDamp_t.TDampTree = TDampTree
+            TempDamp_t.TDampGroundBuild = TDampGroundBuild
+
+            # RES
+            RES_t.raRooftoAtm = raRooftoAtm
+            RES_t.raCanyontoAtm = raCanyontoAtm
+            RES_t.rap_LRoof = rap_LRoof
+            RES_t.rb_LRoof = rb_LRoof
+            RES_t.r_soilRoof = r_soilRoof
+            RES_t.rs_sunRoof = rs_sunRoof
+            RES_t.rs_shdRoof = rs_shdRoof
+            RES_t.raCanyontoAtmOrig = raCanyontoAtmOrig
+            RES_t.rap_can = rap_can
+            RES_t.rap_Htree_In = rap_Htree_In
+            RES_t.rb_HGround = rb_HGround
+            RES_t.rb_LGround = rb_LGround
+            RES_t.r_soilGroundbare = r_soilGroundbare
+            RES_t.r_soilGroundveg = r_soilGroundveg
+            RES_t.alp_soilGroundbare = alp_soilGroundbare
+            RES_t.alp_soilGroundveg = alp_soilGroundveg
+            RES_t.rs_sunGround = rs_sunGround
+            RES_t.rs_shdGround = rs_shdGround
+            RES_t.rs_sunTree = rs_sunTree
+            RES_t.rs_shdTree = rs_shdTree
+            RES_t.RES_w1 = RES_w1
+            RES_t.RES_w2 = RES_w2
+            RES_t.rap_W1_In = rap_W1_In
+            RES_t.rap_W2_In = rap_W2_In
+            RES_t.rap_Zp1 = rap_Zp1
+
+            # Interception
+            Interception_t.IntRoofImp = IntRoofImp
+            Interception_t.IntRoofVegPlant = IntRoofVegPlant
+            Interception_t.IntRoofVegGround = IntRoofVegGround
+            Interception_t.IntRooftot = IntRooftot
+            Interception_t.IntGroundVegPlant = IntGroundVegPlant
+            Interception_t.IntGroundImp = IntGroundImp
+            Interception_t.IntGroundBare = IntGroundBare
+            Interception_t.IntGroundVegGround = IntGroundVegGround
+            Interception_t.IntTree = IntTree
+
+            # ExWater
+            @infiltrate
+            ExWater_t.ExWaterRoofVeg_H[:] = ExWaterRoofVeg_H
+            ExWater_t.ExWaterRoofVeg_L[:] = ExWaterRoofVeg_L
+            ExWater_t.ExWaterGroundImp_H[:] = ExWaterGroundImp_H
+            ExWater_t.ExWaterGroundImp_L[:] = ExWaterGroundImp_L
+            ExWater_t.ExWaterGroundBare_H[:] = ExWaterGroundBare_H
+            ExWater_t.ExWaterGroundBare_L[:] = ExWaterGroundBare_L
+            ExWater_t.ExWaterGroundVeg_H[:] = ExWaterGroundVeg_H
+            ExWater_t.ExWaterGroundVeg_L[:] = ExWaterGroundVeg_L
+            ExWater_t.ExWaterGroundTot_H[:] = ExWaterGroundTot_H
+            ExWater_t.ExWaterGroundTot_L[:] = ExWaterGroundTot_L
+
+            # Vwater
+            # Need to update all fields
+            ExWater_t.VRoofSoilVeg[:] = VRoofSoilVeg
+            ExWater_t.VGroundSoilImp[:] = VGroundSoilImp
+            ExWater_t.VGroundSoilBare[:] = VGroundSoilBare
+            ExWater_t.VGroundSoilVeg[:] = VGroundSoilVeg
+            ExWater_t.VGroundSoilTot[:] = VGroundSoilTot
+
+            # Owater
+            # Owater_t was never created?
+            Owater_t.OwRoofSoilVeg[:] = OwRoofSoilVeg
+            Owater_t.OwGroundSoilImp[:] = OwGroundSoilImp
+            Owater_t.OwGroundSoilBare[:] = OwGroundSoilBare
+            Owater_t.OwGroundSoilVeg[:] = OwGroundSoilVeg
+            OWater_t.OwGroundSoilTot[:] = OwGroundSoilTot
+
+            # SoilPotW
+            SoilPotW_t.SoilPotWRoofVeg_H[:] = SoilPotWRoofVeg_H[] # technically a matrix
+            SoilPotW_t.SoilPotWRoofVeg_L[:] = SoilPotWRoofVeg_L[] # vector
+            SoilPotW_t.SoilPotWGroundImp_H[:] = SoilPotWGroundImp_H
+            SoilPotW_t.SoilPotWGroundImp_L[:] = SoilPotWGroundImp_L
+            SoilPotW_t.SoilPotWGroundBare_H[:] = SoilPotWGroundBare_H
+            SoilPotW_t.SoilPotWGroundBare_L[:] = SoilPotWGroundBare_L
+            SoilPotW_t.SoilPotWGroundVeg_H[:] = SoilPotWGroundVeg_H
+            SoilPotW_t.SoilPotWGroundVeg_L[:] = SoilPotWGroundVeg_L
+            SoilPotW_t.SoilPotWGroundTot_L[:] = SoilPotWGroundTot_L
+            SoilPotW_t.SoilPotWGroundTot_H[:] = SoilPotWGroundTot_H
+
+            # CiCO2Leaf
+            CiCO2Leaf_t.CiCO2LeafRoofVegSun = CiCO2LeafRoofVegSun
+            CiCO2Leaf_t.CiCO2LeafRoofVegShd = CiCO2LeafRoofVegShd
+            CiCO2Leaf_t.CiCO2LeafGroundVegSun = CiCO2LeafGroundVegSun
+            CiCO2Leaf_t.CiCO2LeafGroundVegShd = CiCO2LeafGroundVegShd
+            CiCO2Leaf_t.CiCO2LeafTreeSun = CiCO2LeafTreeSun
+            CiCO2Leaf_t.CiCO2LeafTreeShd = CiCO2LeafTreeShd
+
+            # Runon
+            Runon_t.RunonRoofTot = RunonRoofTot
+            Runon_t.RunoffRoofTot = RunoffRoofTot
+            Runon_t.RunonGroundTot = RunonGroundTot
+            Runon_t.RunoffGroundTot = RunoffGroundTot
+            Runon_t.RunonUrbanTot = urban_average(
+                RunonRoofTot, RunonGroundTot, model.parameters.urbangeometry
+            )
+            Runon_t.RunoffUrbanTot = urban_average(
+                RunoffRoofTot, RunoffGroundTot, model.parameters.urbangeometry
+            )
+
+            # Qinlat
+            Qinlat_t.Qin_bare2imp = Qin_bare2imp
+            Qinlat_t.Qin_veg2imp = Qin_veg2imp
+            Qinlat_t.Qin_veg2bare = Qin_veg2bare
+            Qinlat_t.Qin_imp2bare = Qin_imp2bare
+            Qinlat_t.Qin_bare2veg = Qin_bare2veg
+            Qinlat_t.Qin_imp2veg = Qin_imp2veg
+            Qinlat_t.Qin_imp = Qin_imp
+            Qinlat_t.Qin_bare = Qin_bare
+            Qinlat_t.Qin_veg = Qin_veg
         end
 
         Tmrt, BoleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = MeanRadiantTemperature.mean_radiant_temperature(
@@ -329,6 +467,36 @@ function run_simulation(
         )
 
         # Assign outputs
+        # Urban average store in *TotalUrban field, which is not part of the RadiationFluxes
+        # composite type
+
+        # tempvec - already done higher
+
+        # tempdamp
+        update!(model.variables.temperature.tempdamp, TempDamp_t)
+
+        # Humidity - careful, update! already exists
+        update!(model.variables.humidity.Humidity, Humidity_t)
+
+        # TempVecB - already done higher
+
+        # Resistance
+        update!(model.variables.environmentalconditions.resistance, RES_t)
+
+        # Water fluxes
+        update!(model.variables.waterflux.Interception, Interception_t)
+        update!(model.variables.waterflux.ExWater, ExWater_t)
+        update!(model.variables.waterflux.Vwater, ExWater_t)
+        update!(
+            model.variables.waterflux.Owater,
+            Owater_t,
+            model.parameters.soil.roof,
+            model.parameters.soil.ground,
+        )
+        update!(model.variables.waterflux.SoilPotW, SoilPotW_t)
+        update!(model.variables.waterflux.CiCO2Leaf, CiCO2Leaf_t)
+        update!(model.variables.waterflux.Runon, Runon_t)
+        update!(model.variables.waterflux.Qinlat, Qinlat_t)
     end
     return Ttot, fval, exitflag
 end
@@ -422,4 +590,15 @@ function building_temperature(
     TB[8] = tempvecB.qbin
 
     return TB
+end
+
+function urban_average(
+    roof::FT,
+    canyon::FT,
+    urbangeometry::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+) where {FT<:AbstractFloat}
+    froof = urbangeometry.wroof_norm
+    fcanyon = urbangeometry.wcanyon_norm
+
+    return roof * froof + canyon * fcanyon
 end

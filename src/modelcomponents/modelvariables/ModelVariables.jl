@@ -4,6 +4,7 @@ using TethysChlorisCore
 using TethysChlorisCore.ModelComponents
 using ..Parameters:
     SoilParameters,
+    VegetatedSoilParameters,
     VegetationParameters,
     HeightDependentVegetationParameters,
     VegetatedSoilParameters
