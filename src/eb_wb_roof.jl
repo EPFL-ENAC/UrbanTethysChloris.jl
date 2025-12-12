@@ -343,8 +343,8 @@ function eb_wb_roof(
     dInt_dtRooftot =
         dInt_dtRoofImp * FractionsRoof.fimp +
         (dInt_dtRoofVegPlant + dInt_dtRoofVegGround) * FractionsRoof.fveg
-    ExWaterRoof_H = fill(FT(NaN), 1, ParSoilRoof.ms)
-    SoilPotWRoof_H = fill(FT(NaN), 1, 1)
+    ExWaterRoof_H = fill(FT(NaN), ParSoilRoof.ms)
+    SoilPotWRoof_H = FT(NaN)
 
     return (;
         SWRabsRoofImp,
@@ -638,8 +638,10 @@ function eb_wb_roof(
     dInt_dtRooftot =
         dInt_dtRoofImp * FractionsRoof.fimp +
         (dInt_dtRoofVegPlant + dInt_dtRoofVegGround) * FractionsRoof.fveg
-    ExWaterRoof_H = fill(FT(NaN), 1, ParSoilRoof.ms)
-    SoilPotWRoof_H = fill(FT(NaN), 1, 1)
+    ExWaterRoof_H = fill(FT(NaN), ParSoilRoof.ms)
+    SoilPotWRoof_H = fill(FT(NaN), 1)
+
+    @infiltrate
 
     return (;
         SWRabsRoofImp,

@@ -396,16 +396,16 @@ function run_simulation(
             OWater_t.OwGroundSoilTot[:] = OwGroundSoilTot
 
             # SoilPotW
-            SoilPotW_t.SoilPotWRoofVeg_H[:] = SoilPotWRoofVeg_H[] # technically a matrix
-            SoilPotW_t.SoilPotWRoofVeg_L[:] = SoilPotWRoofVeg_L[] # vector
-            SoilPotW_t.SoilPotWGroundImp_H[:] = SoilPotWGroundImp_H
-            SoilPotW_t.SoilPotWGroundImp_L[:] = SoilPotWGroundImp_L
-            SoilPotW_t.SoilPotWGroundBare_H[:] = SoilPotWGroundBare_H
-            SoilPotW_t.SoilPotWGroundBare_L[:] = SoilPotWGroundBare_L
-            SoilPotW_t.SoilPotWGroundVeg_H[:] = SoilPotWGroundVeg_H
-            SoilPotW_t.SoilPotWGroundVeg_L[:] = SoilPotWGroundVeg_L
-            SoilPotW_t.SoilPotWGroundTot_L[:] = SoilPotWGroundTot_L
-            SoilPotW_t.SoilPotWGroundTot_H[:] = SoilPotWGroundTot_H
+            SoilPotW_t.SoilPotWRoofVeg_H = SoilPotWRoofVeg_H
+            SoilPotW_t.SoilPotWRoofVeg_L = SoilPotWRoofVeg_L
+            SoilPotW_t.SoilPotWGroundImp_H = SoilPotWGroundImp_H
+            SoilPotW_t.SoilPotWGroundImp_L = SoilPotWGroundImp_L
+            SoilPotW_t.SoilPotWGroundBare_H = SoilPotWGroundBare_H
+            SoilPotW_t.SoilPotWGroundBare_L = SoilPotWGroundBare_L
+            SoilPotW_t.SoilPotWGroundVeg_H = SoilPotWGroundVeg_H
+            SoilPotW_t.SoilPotWGroundVeg_L = SoilPotWGroundVeg_L
+            SoilPotW_t.SoilPotWGroundTot_L = SoilPotWGroundTot_L
+            SoilPotW_t.SoilPotWGroundTot_H = SoilPotWGroundTot_H
 
             # CiCO2Leaf
             CiCO2Leaf_t.CiCO2LeafRoofVegSun = CiCO2LeafRoofVegSun

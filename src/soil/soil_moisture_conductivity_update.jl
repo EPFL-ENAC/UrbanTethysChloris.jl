@@ -142,5 +142,7 @@ function soil_moisture_conductivity_update(
     # Calculate hydraulic conductivity and soil water potential
     Ko, Psi_soil = conductivity_suction(SPAR, Ks_Zs, Osat, Ohy, L, Pe, O33, alpVG, nVG, O)
 
-    return V, O, OS, Psi_soil, Psi_s_H, Psi_s_L, Exwat_H, Exwat_L, Ko
+    # In UrbanTethysChloris, there is only one crown area, so Psi_s_* are scalars and
+    # Exwat_* are vectors of size (ms,)
+    return V, O, OS, Psi_soil, Psi_s_H[], Psi_s_L[], vec(Exwat_H), vec(Exwat_L), Ko
 end
