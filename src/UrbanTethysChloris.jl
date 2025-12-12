@@ -10,6 +10,7 @@ using NCDatasets
 using YAML
 using NaNMath: NaNMath
 using Infiltrator
+using StaticArraysCore
 
 include(joinpath("soil", "Soil.jl"))
 using .Soil
@@ -50,6 +51,8 @@ include("set_sun_variables.jl")
 
 include("Model.jl")
 export create_model, initialize!
+
+include("extrapolate.jl")
 
 include("eb_solver_canyon.jl")
 include("eb_solver_roof.jl")

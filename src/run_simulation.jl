@@ -56,6 +56,11 @@ function run_simulation(
 
     Ttot, fval, exitflag = nothing, nothing, nothing
 
+    TempVec_ittm2Ext = ExtrapolatedTempVec(model.variables.temperature.tempvec)
+    Humidity_ittm2Ext = ExtrapolatedHumidity(model.variables.humidity.Humidity)
+    TempVecB_ittm2Ext = ExtrapolatedTempVecB(model.variables.buildingenergymodel.TempVecB)
+    Meteo_ittm = Meteotm1(model.forcing.meteorological)
+
     SWRout_t = Radiation.RadiationFluxes(FT)
     LWRout_t = Radiation.RadiationFluxes(FT)
     T2m = FT(NaN)
@@ -64,53 +69,20 @@ function run_simulation(
     for i in 1:NN
         @info "Starting iteration $i / $NN"
 
-        # Hard-code ittm2Ext with values from first iteration, keep as named tuple for dev
-        TempVec_ittm2Ext = (;
-            TRoofImp=fill(model.variables.temperature.tempvec.TRoofImp, 4),
-            TRoofVeg=fill(model.variables.temperature.tempvec.TRoofVeg, 4),
-            TRoofIntImp=fill(model.variables.temperature.tempvec.TRoofIntImp, 4),
-            TRoofIntVeg=fill(model.variables.temperature.tempvec.TRoofIntVeg, 4),
-            TGroundImp=fill(model.variables.temperature.tempvec.TGroundImp, 4),
-            TGroundBare=fill(model.variables.temperature.tempvec.TGroundBare, 4),
-            TGroundVeg=fill(model.variables.temperature.tempvec.TGroundVeg, 4),
-            TTree=fill(model.variables.temperature.tempvec.TTree, 4),
-            TWallSun=fill(model.variables.temperature.tempvec.TWallSun, 4),
-            TWallShade=fill(model.variables.temperature.tempvec.TWallShade, 4),
-            TWallIntSun=fill(model.variables.temperature.tempvec.TWallIntSun, 4),
-            TWallIntShade=fill(model.variables.temperature.tempvec.TWallIntShade, 4),
-            TCanyon=fill(model.variables.temperature.tempvec.TCanyon, 4),
-            Tatm=fill(model.variables.temperature.tempvec.Tatm, 4),
-        )
 
-        Humidity_ittm2Ext = (;
-            CanyonRelative=fill(model.variables.humidity.Humidity.CanyonRelative, 4),
-            CanyonSpecific=fill(model.variables.humidity.Humidity.CanyonSpecific, 4),
-            CanyonVapourPre=fill(model.variables.humidity.Humidity.CanyonVapourPre, 4),
-            CanyonRelativeSat=fill(model.variables.humidity.Humidity.CanyonRelativeSat, 4),
-            CanyonSpecificSat=fill(model.variables.humidity.Humidity.CanyonSpecificSat, 4),
-            CanyonVapourPreSat=fill(
-                model.variables.humidity.Humidity.CanyonVapourPreSat, 4
-            ),
-            AtmRelative=fill(model.variables.humidity.Humidity.AtmRelative, 4),
-            AtmSpecific=fill(model.variables.humidity.Humidity.AtmSpecific, 4),
-            AtmVapourPre=fill(model.variables.humidity.Humidity.AtmVapourPre, 4),
-            AtmRelativeSat=fill(model.variables.humidity.Humidity.AtmRelativeSat, 4),
-            AtmSpecificSat=fill(model.variables.humidity.Humidity.AtmSpecificSat, 4),
-            AtmVapourPreSat=fill(model.variables.humidity.Humidity.AtmVapourPreSat, 4),
-        )
 
-        TempVecB_ittm2Ext = (;
-            Tceiling=fill(model.variables.buildingenergymodel.TempVecB.Tceiling, 4),
-            Tinwallsun=fill(model.variables.buildingenergymodel.TempVecB.Tinwallsun, 4),
-            Tinwallshd=fill(model.variables.buildingenergymodel.TempVecB.Tinwallshd, 4),
-            Twindows=fill(model.variables.buildingenergymodel.TempVecB.Twindows, 4),
-            Tinground=fill(model.variables.buildingenergymodel.TempVecB.Tinground, 4),
-            Tintmass=fill(model.variables.buildingenergymodel.TempVecB.Tintmass, 4),
-            Tbin=fill(model.variables.buildingenergymodel.TempVecB.Tbin, 4),
-            qbin=fill(model.variables.buildingenergymodel.TempVecB.qbin, 4),
-        )
+    for i in 1:NN
+        @info "Starting iteration $i / $NN"
 
-        Meteo_ittm = (; SWRin=zeros(FT, 2), Rain=zeros(FT, 2))
+        if i > 1
+            update!(Meteo_ittm, model.forcing.meteorological)
+        end
+
+        if i > 2
+            extrapolate!(TempVec_ittm2Ext, model.variables.temperature.tempvec)
+            extrapolate!(Humidity_ittm2Ext, model.variables.humidity.Humidity)
+            extrapolate!(TempVecB_ittm2Ext, model.variables.buildingenergymodel.TempVecB)
+        end
 
         if RESPreCalc || fconvPreCalc
             fconv, rsRoofPreCalc, rsGroundPreCalc, rsTreePreCalc = Resistance.precalculate_for_faster_numerical_solution(
