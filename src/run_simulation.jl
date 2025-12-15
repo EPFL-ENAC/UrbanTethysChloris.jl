@@ -77,7 +77,7 @@ function run_simulation(
     CiCO2Leaf_t = deepcopy(model.variables.waterflux.CiCO2Leaf)
     Runon_t = deepcopy(model.variables.waterflux.Runon)
     Qinlat_t = deepcopy(model.variables.waterflux.Qinlat)
-    Owater_t = deepcopy(model.variables.waterflux.Owater)
+    Vwater_t = deepcopy(model.variables.waterflux.Vwater)
 
     for i in 1:NN
         @info "Starting iteration $i / $NN"
@@ -367,7 +367,6 @@ function run_simulation(
             Interception_t.IntTree = IntTree
 
             # ExWater
-            @infiltrate
             ExWater_t.ExWaterRoofVeg_H[:] = ExWaterRoofVeg_H
             ExWater_t.ExWaterRoofVeg_L[:] = ExWaterRoofVeg_L
             ExWater_t.ExWaterGroundImp_H[:] = ExWaterGroundImp_H
@@ -381,19 +380,18 @@ function run_simulation(
 
             # Vwater
             # Need to update all fields
-            ExWater_t.VRoofSoilVeg[:] = VRoofSoilVeg
-            ExWater_t.VGroundSoilImp[:] = VGroundSoilImp
-            ExWater_t.VGroundSoilBare[:] = VGroundSoilBare
-            ExWater_t.VGroundSoilVeg[:] = VGroundSoilVeg
-            ExWater_t.VGroundSoilTot[:] = VGroundSoilTot
+            Vwater_t.VRoofSoilVeg[:] = VRoofSoilVeg
+            Vwater_t.VGroundSoilImp[:] = VGroundSoilImp
+            Vwater_t.VGroundSoilBare[:] = VGroundSoilBare
+            Vwater_t.VGroundSoilVeg[:] = VGroundSoilVeg
+            Vwater_t.VGroundSoilTot[:] = VGroundSoilTot
 
             # Owater
-            # Owater_t was never created?
             Owater_t.OwRoofSoilVeg[:] = OwRoofSoilVeg
             Owater_t.OwGroundSoilImp[:] = OwGroundSoilImp
             Owater_t.OwGroundSoilBare[:] = OwGroundSoilBare
             Owater_t.OwGroundSoilVeg[:] = OwGroundSoilVeg
-            OWater_t.OwGroundSoilTot[:] = OwGroundSoilTot
+            Owater_t.OwGroundSoilTot[:] = OwGroundSoilTot
 
             # SoilPotW
             SoilPotW_t.SoilPotWRoofVeg_H = SoilPotWRoofVeg_H

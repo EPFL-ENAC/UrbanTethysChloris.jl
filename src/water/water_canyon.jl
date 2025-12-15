@@ -920,12 +920,12 @@ function water_canyon(
     WB_Soil_gveg = WB_Soil_gveg1
 
     # Update total values and rescale
-    V = nansum(hcat(fimp * V_gimp, fbare * V_gbare, fveg * V_gveg), 2)
-    O = nansum(hcat(fimp * O_gimp, fbare * O_gbare, fveg * O_gveg), 2)
-    OS = nansum(hcat(fimp * OS_gimp, fbare * OS_gbare, fveg * OS_gveg), 2)
-    Lk = nansum(hcat(fimp * Lk_gimp, fbare * Lk_gbare, fveg * Lk_gveg), 2)
-    Rd = nansum(hcat(fimp * Rd_gimp, fbare * Rd_gbare, fveg * Rd_gveg), 2)
-    dV_dt = nansum(hcat(fimp * dV_dt_gimp, fbare * dV_dt_gbare, fveg * dV_dt_gveg), 2)
+    V = vec(nansum(hcat(fimp * V_gimp, fbare * V_gbare, fveg * V_gveg), 2))
+    O = vec(nansum(hcat(fimp * O_gimp, fbare * O_gbare, fveg * O_gveg), 2))
+    OS = nansum([fimp * OS_gimp, fbare * OS_gbare, fveg * OS_gveg])
+    Lk = nansum([fimp * Lk_gimp, fbare * Lk_gbare, fveg * Lk_gveg])
+    Rd = nansum([fimp * Rd_gimp, fbare * Rd_gbare, fveg * Rd_gveg])
+    dV_dt = nansum([fimp * dV_dt_gimp, fbare * dV_dt_gbare, fveg * dV_dt_gveg])
 
     # Rescale first two layers
     V[1:2] ./= (fbare + fveg)
