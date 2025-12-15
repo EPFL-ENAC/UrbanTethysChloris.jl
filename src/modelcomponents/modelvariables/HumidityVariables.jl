@@ -55,6 +55,11 @@ function Humidity(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
     )
 end
 
+function update!(x::Humidity{FT}, Humiditytot::Vector{FT}) where {FT<:AbstractFloat}
+    x.CanyonSpecific = Humiditytot[14]
+    return nothing
+end
+
 function update!(dest::Humidity{FT}, src::Humidity{FT}) where {FT<:AbstractFloat}
     dest.CanyonRelative = src.CanyonRelative
     dest.CanyonSpecific = src.CanyonSpecific

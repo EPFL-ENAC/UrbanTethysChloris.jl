@@ -123,5 +123,6 @@ include("ModelVariableSet.jl")
 
 export Humidity, TempVec, TempVecB
 export ModelVariableSet
+export update!
 
 end

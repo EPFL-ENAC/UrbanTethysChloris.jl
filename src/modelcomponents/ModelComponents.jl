@@ -20,5 +20,6 @@ using .ModelVariables
 
 export initialize_parameter_set, ModelVariableSet
 export ParameterSet, ForcingInputSet, ModelVariableSet
+export update!
 
 end

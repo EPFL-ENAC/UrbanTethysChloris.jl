@@ -485,60 +485,21 @@ function run_simulation(
         # Water fluxes
         update!(model.variables.waterflux.Interception, Interception_t)
         update!(model.variables.waterflux.ExWater, ExWater_t)
-        update!(model.variables.waterflux.Vwater, ExWater_t)
+        update!(model.variables.waterflux.Vwater, Vwater_t)
         update!(
             model.variables.waterflux.Owater,
             Owater_t,
             model.parameters.soil.roof,
             model.parameters.soil.ground,
+            O33,
         )
         update!(model.variables.waterflux.SoilPotW, SoilPotW_t)
         update!(model.variables.waterflux.CiCO2Leaf, CiCO2Leaf_t)
         update!(model.variables.waterflux.Runon, Runon_t)
         update!(model.variables.waterflux.Qinlat, Qinlat_t)
     end
+
     return Ttot, fval, exitflag
-end
-
-function update!(
-    x::ModelComponents.ModelVariables.TempVec{FT}, Ttot::Vector{FT}
-) where {FT<:AbstractFloat}
-    x.TRoofImp = Ttot[1]
-    x.TRoofVeg = Ttot[2]
-    x.TRoofIntImp = Ttot[3]
-    x.TRoofIntVeg = Ttot[4]
-    x.TGroundImp = Ttot[5]
-    x.TGroundBare = Ttot[6]
-    x.TGroundVeg = Ttot[7]
-    x.TWallSun = Ttot[8]
-    x.TWallShade = Ttot[9]
-    x.TTree = Ttot[10]
-    x.TWallIntSun = Ttot[11]
-    x.TWallIntShade = Ttot[12]
-    x.TCanyon = Ttot[13]
-
-    return nothing
-end
-
-function update!(
-    x::ModelComponents.ModelVariables.Humidity{FT}, Humiditytot::Vector{FT}
-) where {FT<:AbstractFloat}
-    x.CanyonSpecific = Humiditytot[14]
-    return nothing
-end
-
-function update!(
-    x::ModelComponents.ModelVariables.TempVecB{FT}, Ttot::Vector{FT}
-) where {FT<:AbstractFloat}
-    x.Tceiling = Ttot[15]
-    x.Tinwallsun = Ttot[16]
-    x.Tinwallshd = Ttot[17]
-    x.Twindows = Ttot[18]
-    x.Tinground = Ttot[19]
-    x.Tintmass = Ttot[20]
-    x.Tbin = Ttot[21]
-    x.qbin = Ttot[22]
-    return nothing
 end
 
 function roof_temperature(

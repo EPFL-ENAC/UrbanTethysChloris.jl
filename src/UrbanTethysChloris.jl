@@ -17,6 +17,7 @@ using .Soil
 
 include(joinpath("modelcomponents", "ModelComponents.jl"))
 using .ModelComponents
+import .ModelComponents: update!
 
 include(joinpath("ray_tracing", "RayTracing.jl"))
 using .RayTracing
@@ -53,6 +54,7 @@ include("Model.jl")
 export create_model, initialize!
 
 include("extrapolate.jl")
+export update!
 
 include("eb_solver_canyon.jl")
 include("eb_solver_roof.jl")

@@ -240,4 +240,6 @@ function update!(
     SWRin = x.SAB1_in + x.SAB2_in + x.SAD1_in + x.SAD2_in
     y.SWRin = SVector{2,FT}(y.SWRin[2], SWRin)
     y.Rain = SVector{2,FT}(y.Rain[2], x.Rain)
+
+    return nothing
 end

@@ -61,6 +61,24 @@ function TempVec(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
     )
 end
 
+function update!(x::TempVec{FT}, Ttot::Vector{FT}) where {FT<:AbstractFloat}
+    x.TRoofImp = Ttot[1]
+    x.TRoofVeg = Ttot[2]
+    x.TRoofIntImp = Ttot[3]
+    x.TRoofIntVeg = Ttot[4]
+    x.TGroundImp = Ttot[5]
+    x.TGroundBare = Ttot[6]
+    x.TGroundVeg = Ttot[7]
+    x.TWallSun = Ttot[8]
+    x.TWallShade = Ttot[9]
+    x.TTree = Ttot[10]
+    x.TWallIntSun = Ttot[11]
+    x.TWallIntShade = Ttot[12]
+    x.TCanyon = Ttot[13]
+
+    return nothing
+end
+
 """
     TempDamp{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
