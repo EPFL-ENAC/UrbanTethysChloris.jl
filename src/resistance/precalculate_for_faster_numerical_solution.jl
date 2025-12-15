@@ -124,7 +124,7 @@ function precalculate_for_faster_numerical_solution(
             zoh_town = zom_town / FT(10)       # Heat roughness length of canyon
 
             fconv, _, _, _ = enhancement_factor_ra_pleim(
-                RES.raCanyontoAtmOrig[ittn - 1, 1, ittm],
+                RES.raCanyontoAtmOrig,
                 zom_town,
                 zoh_town,
                 dcan,
