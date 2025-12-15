@@ -445,6 +445,7 @@ function update!(
     src::Owater{FT,MR,MG},
     roof::VegetatedSoilParameters{FT},
     ground::VegetatedSoilParameters{FT},
+    O33::NamedTuple,
 ) where {FT<:AbstractFloat,MR,MG}
     dest.OwRoofSoilVeg .= src.OwRoofSoilVeg
     dest.OwGroundSoilImp .= src.OwGroundSoilImp
@@ -453,14 +454,14 @@ function update!(
     dest.OwGroundSoilTot .= src.OwGroundSoilTot
 
     if roof.FixSM
-        r = roof.O33
+        r = O33.roof
         SMReplace = fill(false, MR)
         SMReplace[roof.FixSM_LayerStart:roof.FixSM_LayerEnd] .= true
         dest.OwRoofSoilVeg[SMReplace .&& dest.OwRoofSoilVeg .< r] .= r
     end
 
     if ground.FixSM
-        r = ground.O33
+        r = O33.ground
         SMReplace = fill(false, MG)
         SMReplace[ground.FixSM_LayerStart:ground.FixSM_LayerEnd] .= true
         dest.OwGroundSoilImp[SMReplace .&& dest.OwGroundSoilImp .< r] .= r
@@ -468,6 +469,8 @@ function update!(
         dest.OwGroundSoilVeg[SMReplace .&& dest.OwGroundSoilVeg .< r] .= r
         dest.OwGroundSoilTot[SMReplace .&& dest.OwGroundSoilTot .< r] .= r
     end
+
+    return nothing
 end
 """
     OSwater{FT<:AbstractFloat, MR, MG} <: AbstractLayeredSoilVariables{FT}

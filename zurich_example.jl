@@ -1,17 +1,10 @@
 using UrbanTethysChloris
+using UrbanTethysChloris.RayTracing: ViewFactor, ViewFactorPoint
 using YAML
 using NCDatasets
 
 FT = Float64
 
-yaml_path = joinpath(@__DIR__, "data", "parameters.yaml")
-ncdf_path = joinpath(@__DIR__, "data", "input_data.nc")
-
-model, forcing = create_model(FT, ncdf_path, yaml_path);
-
-initialize!(model, forcing)
-
-using UrbanTethysChloris.RayTracing: ViewFactor, ViewFactorPoint
 view_factor = ViewFactor{FT}(;
     F_gs_nT=0.38030860180886683,
     F_gw_nT=0.3098456990955666,
@@ -44,6 +37,17 @@ view_factor_point = ViewFactorPoint{Float64}(;
     F_pt=0.045338308457711474,
 );
 
+yaml_path = joinpath(@__DIR__, "data", "parameters.yaml")
+ncdf_path = joinpath(@__DIR__, "data", "input_data.nc")
+
+model, forcing = create_model(FT, ncdf_path, yaml_path);
+O33 = (
+    roof=model.variables.waterflux.Owater.OwRoofSoilVeg[1],
+    ground=model.variables.waterflux.Owater.OwGroundSoilVeg[1],
+)
+
+initialize!(model, forcing)
+
 Ttot, fval, exitflag = run_simulation(
-    model; NN=1, ViewFactors=(view_factor, view_factor_point)
+    model; NN=1, ViewFactors=(view_factor, view_factor_point), O33=O33
 )

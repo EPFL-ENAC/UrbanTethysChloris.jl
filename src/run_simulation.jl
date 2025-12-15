@@ -11,6 +11,7 @@ function run_simulation(
     ViewFactors::Union{
         Tuple{RayTracing.ViewFactor{FT},RayTracing.ViewFactorPoint{FT}},Nothing
     }=nothing,
+    O33::NamedTuple=(roof=FT(0.0), ground=FT(0.0)),
 ) where {FT<:AbstractFloat}
 
     # view factor
