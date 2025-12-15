@@ -693,8 +693,8 @@ function water_canyon(
         return sum(filter(!isnan, x))
     end
 
-    function nansum(x, dims)
-        return sum(filter(!isnan, x); dims=dims)
+    function nansum(arr, dims)
+        return sum(x -> !isnan(x) * x, arr; dims=dims)
     end
 
     dV_dt_gimpTot = nansum(V_gimp2) - nansum(Vtm1_imp)
@@ -1640,8 +1640,8 @@ function water_canyon(
         return sum(filter(!isnan, x))
     end
 
-    function nansum(x, dims)
-        return sum(filter(!isnan, x); dims=dims)
+    function nansum(arr, dims)
+        return sum(x -> !isnan(x) * x, arr; dims=dims)
     end
 
     dV_dt_gimpTot = nansum(V_gimp2) - nansum(Vtm1_imp)
