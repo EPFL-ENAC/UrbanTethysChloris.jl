@@ -1085,7 +1085,7 @@ function water_canyon(
         WBIndv,
         WBTot,
         Runoff,
-        Runon_ittm,
+        Runon,
         Etot,
         DeepGLk,
         StorageTot,

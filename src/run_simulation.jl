@@ -420,10 +420,10 @@ function run_simulation(
             Runon_t.RunoffRoofTot = RunoffRoofTot
             Runon_t.RunonGroundTot = RunonGroundTot
             Runon_t.RunoffGroundTot = RunoffGroundTot
-            Runon_t.RunonUrbanTot = urban_average(
+            Runon_t.RunonUrban = urban_average(
                 RunonRoofTot, RunonGroundTot, model.parameters.urbangeometry
             )
-            Runon_t.RunoffUrbanTot = urban_average(
+            Runon_t.RunoffUrban = urban_average(
                 RunoffRoofTot, RunoffGroundTot, model.parameters.urbangeometry
             )
 
