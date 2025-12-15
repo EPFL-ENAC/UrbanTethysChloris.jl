@@ -139,6 +139,29 @@ function run_simulation(
 
         for HVACittm in 1:2
             if BEM_on && HVACittm == 2
+                if !ParHVACorig.ACon && !ParHVACorig.Heatingon
+                    continue
+                end
+
+                if EnergyUse.EnergyForAC_H>-10^-6 &&
+                    EnergyUse.EnergyForAC_LE>-10^-6 &&
+                    EnergyUse.EnergyForHeating>-10^-6
+                    if ParHVAC.ACon &&
+                        round(
+                            model.variables.buildingenergymodel.TempVecB.Tbin; digits=4
+                        )<(ParHVAC.TsetpointCooling+0.01) &&
+                        round(
+                            model.variables.buildingenergymodel.TempVecB.qbin; digits=8
+                        )<(ParHVAC.q_RHspCooling+10^-6)
+                        continue
+                    elseif ParHVAC.Heatingon &&
+                        round(
+                        model.variables.buildingenergymodel.TempVecB.Tbin; digits=4
+                    )>(ParHVAC.TsetpointHeating-0.01)
+                        continue
+                    end
+                end
+
                 ParHVAC = update_hvac_parameters(
                     ParHVACorig,
                     ParHVAC,
@@ -198,6 +221,8 @@ function run_simulation(
                 rsTreePreCalc,
                 model.forcing.hvacschedule,
             )
+
+            @info "Iteration $i, Ttot: $Ttot"
 
             update!(model.variables.temperature.tempvec, Ttot)
             update!(model.variables.humidity.Humidity, Ttot)
@@ -380,7 +405,6 @@ function run_simulation(
             ExWater_t.ExWaterGroundTot_L[:] = ExWaterGroundTot_L
 
             # Vwater
-            # Need to update all fields
             Vwater_t.VRoofSoilVeg[:] = VRoofSoilVeg
             Vwater_t.VGroundSoilImp[:] = VGroundSoilImp
             Vwater_t.VGroundSoilBare[:] = VGroundSoilBare
@@ -499,7 +523,7 @@ function run_simulation(
         update!(model.variables.waterflux.Qinlat, Qinlat_t)
     end
 
-    return Ttot, fval, exitflag
+    return nothing
 end
 
 function roof_temperature(
