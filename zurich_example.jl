@@ -48,6 +48,6 @@ O33 = (
 
 initialize!(model, forcing)
 
-Ttot, fval, exitflag = run_simulation(
-    model; NN=1, ViewFactors=(view_factor, view_factor_point), O33=O33
+run_simulation(
+    model; NN=20, ViewFactors=(view_factor, view_factor_point), O33=O33, fconvPreCalc=false
 )
