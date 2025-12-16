@@ -85,12 +85,9 @@ function run_simulation(
 
         if i > 1
             update!(Meteo_ittm, model.forcing.meteorological)
-        end
-
-        if i > 2
-            extrapolate!(TempVec_ittm2Ext, model.variables.temperature.tempvec)
-            extrapolate!(Humidity_ittm2Ext, model.variables.humidity.Humidity)
-            extrapolate!(TempVecB_ittm2Ext, model.variables.buildingenergymodel.TempVecB)
+            extrapolate!(TempVec_ittm2Ext, model.variables.temperature.tempvec, i)
+            extrapolate!(Humidity_ittm2Ext, model.variables.humidity.Humidity, i)
+            extrapolate!(TempVecB_ittm2Ext, model.variables.buildingenergymodel.TempVecB, i)
         end
 
         if RESPreCalc || fconvPreCalc

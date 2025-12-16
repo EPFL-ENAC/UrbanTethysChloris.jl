@@ -1,8 +1,26 @@
 abstract type AbstractExtrapoledModelVariables{FT<:AbstractFloat} end
 
-# Has to be done at the end of the loop. At that point in time, TempVec contains ittn, which will
-# turn into ittn-1, and y will, whereas the 2nd element of the SVector contains ittn-2
-# Should be equivalent to the "linear regression" extrapolation in the original UT&C code.
+"""
+    extrapolate!(y::AbstractExtrapoledModelVariables{FT}, x::T, i::Signed) where {FT<:AbstractFloat,T}
+
+Extrapolates the values in `x` into the extrapolated model variables `y`. The parameter `i`
+indicates the current iteration number. If `i > 2`, a linear extrapolation is performed
+based on the last two known values. If `i ≤ 2`, the values from `x` are simply duplicated to
+fill the extrapolated structure.
+"""
+function extrapolate!(
+    y::AbstractExtrapoledModelVariables{FT}, x::T, i::Signed
+) where {FT<:AbstractFloat,T}
+    if i > 2
+        extrapolate!(y, x)
+    else
+        for field in fieldnames(T)
+            tm1 = getfield(x, field)
+            setfield!(y, field, SVector{4,FT}(tm1, tm1, tm1, tm1))
+        end
+    end
+end
+
 function extrapolate!(
     y::AbstractExtrapoledModelVariables{FT}, x::T
 ) where {FT<:AbstractFloat,T}
