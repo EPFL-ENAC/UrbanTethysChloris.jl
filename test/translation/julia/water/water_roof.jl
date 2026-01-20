@@ -63,7 +63,7 @@ ParCalculation = (
     @test O ≈ vec(output_vars["O"]) atol = 0.05
     @test OS ≈ output_vars["OS"] atol = 0.05
     @test Lk ≈ output_vars["Lk"] atol = 0.05
-    @test Psi_s ≈ [output_vars["Psi_s"]] atol = 0.05
+    @test Psi_s ≈ output_vars["Psi_s"] atol = 0.05
     # @test all(Exwat .≈ vec(output_vars["Exwat"]))
     @test Rd == output_vars["Rd"]
     @test TEroof_veg_out == output_vars["TEroof_veg"]
@@ -124,7 +124,7 @@ end
     @test O ≈ vec(output_vars["O"]) atol = 0.05
     @test OS ≈ output_vars["OS"] atol = 0.05
     @test Lk ≈ output_vars["Lk"] atol = 0.05
-    @test Psi_s ≈ [output_vars["Psi_s"]] atol = 0.05
+    @test Psi_s ≈ output_vars["Psi_s"] atol = 0.05
     # @test all(Exwat .≈ vec(output_vars["Exwat"]))
     @test Rd == output_vars["Rd"]
     @test TEroof_veg_out == output_vars["TEroof_veg"]

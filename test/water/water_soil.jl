@@ -75,8 +75,8 @@ FT = Float64
         odetol
     @test OS ≈ 0.279079730128859 atol = odetol
     @test Lk ≈ 0.017134579640331 atol = odetol
-    @test all(isnan.(Psi_s_H))
-    @test Psi_s_L ≈ [-0.033225482352765] atol = odetol
+    @test isnan.(Psi_s_H)
+    @test Psi_s_L ≈ -0.033225482352765 atol = odetol
     @test all(Exwat_H .== 0)
     @test Rd == 0
     @test TE_L == 0

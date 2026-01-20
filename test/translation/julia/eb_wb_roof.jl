@@ -2,6 +2,8 @@ using Test
 using MAT
 using UrbanTethysChloris: eb_wb_roof
 using UrbanTethysChloris.ModelComponents.Parameters
+using UrbanTethysChloris.ModelComponents.ForcingInputs
+using UrbanTethysChloris.ModelComponents.ModelVariables
 using ....TestUtils: load_matlab_data
 
 FT = Float64
@@ -174,7 +176,7 @@ rsRoofPreCalc = (;
 
     # Test water potentials and CO2
     # @test results.ExWaterRoof_L ≈ vec(output_vars["ExWaterRoof_L"]) # not working
-    @test results.SoilPotWRoof_L ≈ [output_vars["SoilPotWRoof_L"]] atol = 0.05
+    @test results.SoilPotWRoof_L ≈ output_vars["SoilPotWRoof_L"] atol = 0.05
     @test results.CiCO2LeafRoofVegSun ≈ output_vars["CiCO2LeafRoofVegSun"]
     @test results.CiCO2LeafRoofVegShd ≈ output_vars["CiCO2LeafRoofVegShd"]
 
@@ -362,7 +364,7 @@ end
 
     # Test water potentials and CO2
     # @test results.ExWaterRoof_L ≈ vec(output_vars["ExWaterRoof_L"]) # not working
-    @test results.SoilPotWRoof_L ≈ [output_vars["SoilPotWRoof_L"]] atol = 0.05
+    @test results.SoilPotWRoof_L ≈ output_vars["SoilPotWRoof_L"] atol = 0.05
     @test results.CiCO2LeafRoofVegSun ≈ output_vars["CiCO2LeafRoofVegSun"]
     @test results.CiCO2LeafRoofVegShd ≈ output_vars["CiCO2LeafRoofVegShd"]
 

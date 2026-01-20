@@ -1,5 +1,7 @@
 using Test
 using UrbanTethysChloris: f_solver_tot
+using UrbanTethysChloris: ExtrapolatedTempVec, ExtrapolatedHumidity, ExtrapolatedTempVecB
+using UrbanTethysChloris: Meteotm1
 using UrbanTethysChloris.RayTracing: ViewFactor
 using ...TestUtils: load_matlab_data
 using UrbanTethysChloris.ModelComponents.Parameters
@@ -43,35 +45,6 @@ ParCalculation = (;
     dth=Int(input_vars["ParCalculation"]["dth"]),
     dts=Int(input_vars["ParCalculation"]["dts"]),
     row=FT(input_vars["ParCalculation"]["row"]),
-)
-TempVec_ittm2Ext = (;
-    TWallSun=input_vars["TempVec_ittm2Ext"]["TWallSun"],
-    TWallShade=input_vars["TempVec_ittm2Ext"]["TWallShade"],
-    TWallIntSun=input_vars["TempVec_ittm2Ext"]["TWallIntSun"],
-    TWallIntShade=input_vars["TempVec_ittm2Ext"]["TWallIntShade"],
-    TGroundImp=input_vars["TempVec_ittm2Ext"]["TGroundImp"],
-    TGroundBare=input_vars["TempVec_ittm2Ext"]["TGroundBare"],
-    TGroundVeg=input_vars["TempVec_ittm2Ext"]["TGroundVeg"],
-    TTree=input_vars["TempVec_ittm2Ext"]["TTree"],
-    TCanyon=input_vars["TempVec_ittm2Ext"]["TCanyon"],
-    TRoofVeg=input_vars["TempVec_ittm2Ext"]["TRoofVeg"],
-    TRoofIntVeg=input_vars["TempVec_ittm2Ext"]["TRoofIntVeg"],
-    TRoofIntImp=input_vars["TempVec_ittm2Ext"]["TRoofIntImp"],
-    TRoofImp=input_vars["TempVec_ittm2Ext"]["TRoofImp"],
-)
-Humidity_ittm2Ext = (; CanyonSpecific=input_vars["Humidity_ittm2Ext"]["CanyonSpecific"],)
-TempVecB_ittm2Ext = (;
-    Tbin=input_vars["TempVecB_ittm2Ext"]["Tbin"],
-    qbin=input_vars["TempVecB_ittm2Ext"]["qbin"],
-    Tinground=input_vars["TempVecB_ittm2Ext"]["Tinground"],
-    Tintmass=input_vars["TempVecB_ittm2Ext"]["Tintmass"],
-    Tinwallsun=input_vars["TempVecB_ittm2Ext"]["Tinwallsun"],
-    Tinwallshd=input_vars["TempVecB_ittm2Ext"]["Tinwallshd"],
-    Tceiling=input_vars["TempVecB_ittm2Ext"]["Tceiling"],
-    Twindows=input_vars["TempVecB_ittm2Ext"]["Twindows"],
-)
-Meteo_ittm = (;
-    SWRin=FT.(input_vars["Meteo_ittm"]["SWRin"]), Rain=FT.(input_vars["Meteo_ittm"]["Rain"])
 )
 
 rsRoofPreCalc = (;
@@ -123,6 +96,53 @@ rsTreePreCalc = (;
     SunPosition = SunPositionInputs(FT, input_vars["SunPosition"])
     Anthropogenic = AnthropogenicInputs(FT, input_vars["Anthropogenic"])
     HVAC_Schedule = HVACSchedule(FT, input_vars["HVACSchedule"])
+
+    TempVec_ittm2Ext = ExtrapolatedTempVec{FT}(
+        TWallSun=input_vars["TempVec_ittm2Ext"]["TWallSun"],
+        TWallShade=input_vars["TempVec_ittm2Ext"]["TWallShade"],
+        TWallIntSun=input_vars["TempVec_ittm2Ext"]["TWallIntSun"],
+        TWallIntShade=input_vars["TempVec_ittm2Ext"]["TWallIntShade"],
+        TGroundImp=input_vars["TempVec_ittm2Ext"]["TGroundImp"],
+        TGroundBare=input_vars["TempVec_ittm2Ext"]["TGroundBare"],
+        TGroundVeg=input_vars["TempVec_ittm2Ext"]["TGroundVeg"],
+        TTree=input_vars["TempVec_ittm2Ext"]["TTree"],
+        TCanyon=input_vars["TempVec_ittm2Ext"]["TCanyon"],
+        TRoofVeg=input_vars["TempVec_ittm2Ext"]["TRoofVeg"],
+        TRoofIntVeg=input_vars["TempVec_ittm2Ext"]["TRoofIntVeg"],
+        TRoofIntImp=input_vars["TempVec_ittm2Ext"]["TRoofIntImp"],
+        TRoofImp=input_vars["TempVec_ittm2Ext"]["TRoofImp"],
+        Tatm=fill(zero(FT), 4),
+        T2m=fill(zero(FT), 4),
+    )
+    Humidity_ittm2Ext = ExtrapolatedHumidity{FT}(
+        CanyonSpecific=input_vars["Humidity_ittm2Ext"]["CanyonSpecific"],
+        CanyonRelative=fill(zero(FT), 4),
+        CanyonVapourPre=fill(zero(FT), 4),
+        CanyonRelativeSat=fill(zero(FT), 4),
+        CanyonSpecificSat=fill(zero(FT), 4),
+        CanyonVapourPreSat=fill(zero(FT), 4),
+        AtmRelative=fill(zero(FT), 4),
+        AtmSpecific=fill(zero(FT), 4),
+        AtmVapourPre=fill(zero(FT), 4),
+        AtmRelativeSat=fill(zero(FT), 4),
+        AtmSpecificSat=fill(zero(FT), 4),
+        AtmVapourPreSat=fill(zero(FT), 4),
+        q2m=fill(zero(FT), 4),
+    )
+    TempVecB_ittm2Ext = ExtrapolatedTempVecB{FT}(
+        Tbin=input_vars["TempVecB_ittm2Ext"]["Tbin"],
+        qbin=input_vars["TempVecB_ittm2Ext"]["qbin"],
+        Tinground=input_vars["TempVecB_ittm2Ext"]["Tinground"],
+        Tintmass=input_vars["TempVecB_ittm2Ext"]["Tintmass"],
+        Tinwallsun=input_vars["TempVecB_ittm2Ext"]["Tinwallsun"],
+        Tinwallshd=input_vars["TempVecB_ittm2Ext"]["Tinwallshd"],
+        Tceiling=input_vars["TempVecB_ittm2Ext"]["Tceiling"],
+        Twindows=input_vars["TempVecB_ittm2Ext"]["Twindows"],
+    )
+    Meteo_ittm = (;
+        SWRin=FT.(input_vars["Meteo_ittm"]["SWRin"]),
+        Rain=FT.(input_vars["Meteo_ittm"]["Rain"]),
+    )
 
     T, fval, exitflag = f_solver_tot(
         TempVec_ittm,
@@ -298,6 +318,39 @@ end
         LEequip=FT(input_vars["HVACSchedule"]["LEequip"]),
         LEpeople=FT(input_vars["HVACSchedule"]["LEpeople"]),
         AirConRoomFraction=FT(input_vars["HVACSchedule"]["AirConRoomFraction"]),
+    )
+
+    TempVec_ittm2Ext = (;
+        TWallSun=input_vars["TempVec_ittm2Ext"]["TWallSun"],
+        TWallShade=input_vars["TempVec_ittm2Ext"]["TWallShade"],
+        TWallIntSun=input_vars["TempVec_ittm2Ext"]["TWallIntSun"],
+        TWallIntShade=input_vars["TempVec_ittm2Ext"]["TWallIntShade"],
+        TGroundImp=input_vars["TempVec_ittm2Ext"]["TGroundImp"],
+        TGroundBare=input_vars["TempVec_ittm2Ext"]["TGroundBare"],
+        TGroundVeg=input_vars["TempVec_ittm2Ext"]["TGroundVeg"],
+        TTree=input_vars["TempVec_ittm2Ext"]["TTree"],
+        TCanyon=input_vars["TempVec_ittm2Ext"]["TCanyon"],
+        TRoofVeg=input_vars["TempVec_ittm2Ext"]["TRoofVeg"],
+        TRoofIntVeg=input_vars["TempVec_ittm2Ext"]["TRoofIntVeg"],
+        TRoofIntImp=input_vars["TempVec_ittm2Ext"]["TRoofIntImp"],
+        TRoofImp=input_vars["TempVec_ittm2Ext"]["TRoofImp"],
+    )
+    Humidity_ittm2Ext = (;
+        CanyonSpecific=input_vars["Humidity_ittm2Ext"]["CanyonSpecific"],
+    )
+    TempVecB_ittm2Ext = (;
+        Tbin=input_vars["TempVecB_ittm2Ext"]["Tbin"],
+        qbin=input_vars["TempVecB_ittm2Ext"]["qbin"],
+        Tinground=input_vars["TempVecB_ittm2Ext"]["Tinground"],
+        Tintmass=input_vars["TempVecB_ittm2Ext"]["Tintmass"],
+        Tinwallsun=input_vars["TempVecB_ittm2Ext"]["Tinwallsun"],
+        Tinwallshd=input_vars["TempVecB_ittm2Ext"]["Tinwallshd"],
+        Tceiling=input_vars["TempVecB_ittm2Ext"]["Tceiling"],
+        Twindows=input_vars["TempVecB_ittm2Ext"]["Twindows"],
+    )
+    Meteo_ittm = (;
+        SWRin=FT.(input_vars["Meteo_ittm"]["SWRin"]),
+        Rain=FT.(input_vars["Meteo_ittm"]["Rain"]),
     )
 
     T, fval, exitflag = f_solver_tot(
