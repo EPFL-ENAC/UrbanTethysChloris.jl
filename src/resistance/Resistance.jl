@@ -5,6 +5,7 @@ using ..ModelComponents
 using ..RayTracing
 using ..Soil
 using ..Radiation
+using ..UrbanTethysChloris: Model
 
 include("aerodynamic_resistance.jl")
 include("backcalculate_obhukov_length.jl")

@@ -6,6 +6,7 @@ using ..ConductiveHeat: soil_heat
 using ..RayTracing: view_factor_internal
 using ..Radiation
 using LinearAlgebra
+using ..UrbanTethysChloris: Model
 
 include("ac_heating.jl")
 include("conductive_heat_flux_building_floor.jl")

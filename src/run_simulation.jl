@@ -93,28 +93,7 @@ function run_simulation(
 
         if RESPreCalc || fconvPreCalc
             fconv, rsRoofPreCalc, rsGroundPreCalc, rsTreePreCalc = Resistance.precalculate_for_faster_numerical_solution(
-                i,
-                1,
-                model.variables.temperature.tempvec,
-                model.variables.humidity.Humidity,
-                model.parameters.vegetation.ground,
-                model.variables.waterflux.SoilPotW,
-                model.variables.waterflux.CiCO2Leaf,
-                model.forcing.meteorological,
-                model.parameters.urbangeometry,
-                model.parameters.surfacefractions.ground,
-                model.parameters.optical.ground,
-                model.parameters.optical.wall,
-                model.parameters.optical.tree,
-                model.parameters.vegetation.tree,
-                model.forcing.sunposition,
-                ViewFactor,
-                model.parameters.building_energy.windows,
-                BEM_on,
-                model.parameters.vegetation.roof,
-                model.parameters.optical.roof,
-                model.parameters.surfacefractions.roof,
-                model.variables.environmentalconditions.resistance,
+                model, i, 1, ViewFactor, BEM_on
             )
         else
             fconv = FT(NaN)
@@ -123,15 +102,7 @@ function run_simulation(
             rsTreePreCalc = (;)
         end
 
-        ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(
-            model.parameters.building_energy.hvac,
-            model.variables.buildingenergymodel.TempVecB,
-            model.variables.temperature.tempvec,
-            model.variables.humidity.Humidity,
-            model.forcing.meteorological,
-            model.parameters.urbangeometry,
-            BEM_on,
-        )
+        ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(model, BEM_on)
 
         EnergyUse = (;);
 
@@ -169,43 +140,12 @@ function run_simulation(
                 )
             end
             Ttot, fval, exitflag = f_solver_tot(
-                model.variables.temperature.tempvec,
-                model.variables.buildingenergymodel.TempVecB,
-                model.variables.humidity.Humidity,
-                model.forcing.meteorological,
-                model.variables.waterflux.Interception,
-                model.variables.waterflux.ExWater,
-                model.variables.waterflux.Vwater,
-                model.variables.waterflux.Owater,
-                model.variables.waterflux.SoilPotW,
-                model.variables.waterflux.CiCO2Leaf,
-                model.variables.temperature.tempdamp,
+                model,
                 ViewFactor,
-                model.parameters.urbangeometry,
-                model.parameters.surfacefractions.ground,
-                model.parameters.surfacefractions.roof,
                 WallLayers,
-                model.parameters.soil.ground,
                 ParInterceptionTree,
-                model.parameters.optical.ground,
-                model.parameters.optical.wall,
-                model.parameters.optical.tree,
-                model.parameters.thermal.ground,
-                model.parameters.thermal.wall,
-                model.parameters.vegetation.ground,
-                model.parameters.vegetation.tree,
-                model.parameters.soil.roof,
-                model.parameters.optical.roof,
-                model.parameters.thermal.roof,
-                model.parameters.vegetation.roof,
-                model.forcing.sunposition,
-                model.forcing.meteorological,
-                model.forcing.anthropogenic,
                 ParCalculation,
-                model.parameters.building_energy.indoor_optical,
                 ParHVAC,
-                model.parameters.building_energy.thermal,
-                model.parameters.building_energy.windows,
                 BEM_on,
                 TempVec_ittm2Ext,
                 Humidity_ittm2Ext,
@@ -217,7 +157,6 @@ function run_simulation(
                 rsRoofPreCalc,
                 rsGroundPreCalc,
                 rsTreePreCalc,
-                model.forcing.hvacschedule,
             )
 
             @info "Iteration $i, Ttot: $Ttot"
@@ -233,76 +172,25 @@ function run_simulation(
             TB = building_temperature(model.variables.buildingenergymodel.TempVecB)
 
             SWRabsRoofImp, SWRabsRoofVeg, SWRabsTotalRoof, SWRoutRoofImp, SWRoutRoofVeg, SWRoutTotalRoof, SWRinRoofImp, SWRinRoofVeg, SWRinTotalRoof, SWREBRoofImp, SWREBRoofVeg, SWREBTotalRoof, LWRabsRoofVeg, LWRabsRoofImp, LWRabsTotalRoof, LWRoutRoofVeg, LWRoutRoofImp, LWRoutTotalRoof, LWRinRoofImp, LWRinRoofVeg, LWRinTotalRoof, LWREBRoofImp, LWREBRoofVeg, LWREBTotalRoof, HfluxRoofImp, HfluxRoofVeg, HfluxRoof, LEfluxRoofImp, LEfluxRoofVegInt, LEfluxRoofVegPond, LEfluxRoofVegSoil, LTEfluxRoofVeg, LEfluxRoofVeg, LEfluxRoof, G1RoofImp, G2RoofImp, dsRoofImp, G1RoofVeg, G2RoofVeg, dsRoofVeg, G1Roof, G2Roof, dsRoof, raRooftoAtm, rb_LRoof, rap_LRoof, r_soilRoof, rs_sunRoof, rs_shdRoof, EfluxRoofImp, EfluxRoofVegInt, EfluxRoofVegPond, EfluxRoofVegSoil, TEfluxRoofVeg, EfluxRoofVeg, EfluxRoof, QRoofImp, QRoofVegDrip, QRoofVegPond, LkRoofImp, LkRoofVeg, LkRoof, QRoofVegSoil, RunoffRoofTot, RunonRoofTot, IntRoofImp, IntRoofVegPlant, IntRoofVegGround, dInt_dtRoofImp, dInt_dtRoofVegPlant, dInt_dtRoofVegGround, IntRooftot, dInt_dtRooftot, dVRoofSoilVeg_dt, fRoofVeg, VRoofSoilVeg, OwRoofSoilVeg, OSwRoofSoilVeg, ExWaterRoofVeg_H, SoilPotWRoofVeg_H, SoilPotWRoofVeg_L, ExWaterRoofVeg_L, CiCO2LeafRoofVegSun, CiCO2LeafRoofVegShd, WBRoofVegInVeg, WBRoofVegInGround, WBRoofVegSoil, EBRoofImp, EBRoofVeg, Yroof, WBRoofImp, WBRoofVeg, WBRoofTot = eb_wb_roof(
-                TR,
-                TB,
-                model.variables.temperature.tempvec,
-                model.forcing.meteorological,
-                model.variables.waterflux.Interception,
-                model.variables.waterflux.ExWater,
-                model.variables.waterflux.Vwater,
-                model.variables.waterflux.Owater,
-                model.variables.waterflux.SoilPotW,
-                model.variables.waterflux.CiCO2Leaf,
-                model.variables.waterflux.Runon,
-                model.parameters.urbangeometry,
-                model.parameters.surfacefractions.roof,
-                model.parameters.soil.roof,
-                model.parameters.optical.roof,
-                model.parameters.thermal.roof,
-                model.parameters.vegetation.roof,
-                model.forcing.meteorological,
-                model.forcing.anthropogenic,
-                ParCalculation,
-                BEM_on,
-                RESPreCalc,
-                rsRoofPreCalc,
+                TR, TB, model, ParCalculation, BEM_on, RESPreCalc, rsRoofPreCalc
             )
 
             SWRin_t, SWRout_t, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, SWREB_t, albedo_canyon, LWRin_t, LWRout_t, LWRabs_t, LWREB_t, HfluxGroundImp, HfluxGroundBare, HfluxGroundVeg, HfluxTree, HfluxGround, EfluxGroundImp, EfluxGroundBarePond, EfluxGroundBareSoil, EfluxGroundVegInt, EfluxGroundVegPond, EfluxGroundVegSoil, TEfluxGroundVeg, EfluxTreeInt, TEfluxTree, EfluxGroundBare, EfluxGroundVeg, EfluxGround, EfluxTree, LEfluxGroundImp, LEfluxGroundBarePond, LEfluxGroundBareSoil, LEfluxGroundVegInt, LEfluxGroundVegPond, LEfluxGroundVegSoil, LTEfluxGroundVeg, LEfluxTreeInt, LTEfluxTree, LEfluxGroundBare, LEfluxGroundVeg, LEfluxGround, LEfluxTree, CiCO2LeafTreeSun, CiCO2LeafTreeShd, CiCO2LeafGroundVegSun, CiCO2LeafGroundVegShd, raCanyontoAtm, raCanyontoAtmOrig, rap_can, rap_Htree_In, rb_HGround, rb_LGround, r_soilGroundbare, r_soilGroundveg, alp_soilGroundbare, alp_soilGroundveg, rs_sunGround, rs_shdGround, rs_sunTree, rs_shdTree, Fsun_L, Fshd_L, dw_L, RES_w1, RES_w2, rap_W1_In, rap_W2_In, rap_Zp1, HfluxWallSun, HfluxWallShade, EfluxWallSun, EfluxWallShade, LEfluxWallSun, LEfluxWallShade, HfluxCanyon, LEfluxCanyon, EfluxCanyon, G1WallSun, G2WallSun, dsWallSun, G1WallShade, G2WallShade, dsWallShade, G1GroundImp, TDampGroundImp, G1GroundBare, TDampGroundBare, G1GroundVeg, TDampGroundVeg, GTree, TDampTree, G1Ground, G1Canyon, G2Canyon, dsGroundImp, dsGroundBare, dsGroundVeg, dsTree, dsCanyonAir, Ycanyon, QTree, IntTree, dInt_dtTree, QGroundVegDrip, IntGroundVegPlant, dInt_dtGroundVegPlant, QGroundImp, IntGroundImp, dInt_dtGroundImp, fGroundImp, QGroundBarePond, IntGroundBare, dInt_dtGroundBare, fGroundBare, QGroundVegPond, IntGroundVegGround, dInt_dtGroundVegGround, fGroundVeg, VGroundSoilImp, OwGroundSoilImp, OSwGroundSoilImp, LkGroundImp, SoilPotWGroundImp_H, SoilPotWGroundImp_L, ExWaterGroundImp_H, ExWaterGroundImp_L, Rd_gimp, TEgveg_imp, TEtree_imp, Egimp_soil, dVGroundSoilImp_dt, Psi_Soil_gimp, Kf_gimp, VGroundSoilBare, OwGroundSoilBare, OSwGroundSoilBare, LkGroundBare, SoilPotWGroundBare_H, SoilPotWGroundBare_L, ExWaterGroundBare_H, ExWaterGroundBare_L, QGroundBareSoil, TEgveg_bare, TEtree_bare, Egbare_Soil, dVGroundSoilBare_dt, Psi_soil_gbare, Kf_gbare, VGroundSoilVeg, OwGroundSoilVeg, OSwGroundSoilVeg, LkGroundVeg, SoilPotWGroundVeg_H, SoilPotWGroundVeg_L, ExWaterGroundVeg_H, ExWaterGroundVeg_L, QGroundVegSoil, TEgveg_veg, TEtree_veg, Egveg_Soil, dVGroundSoilVeg_dt, Psi_soil_gveg, Kf_gveg, Qin_imp, Qin_bare, Qin_veg, Qin_bare2imp, Qin_bare2veg, Qin_imp2bare, Qin_imp2veg, Qin_veg2imp, Qin_veg2bare, VGroundSoilTot, OwGroundSoilTot, OSwGroundSoilTot, LkGround, Rd, dVGroundSoilTot_dt, SoilPotWGroundTot_L, ExWaterGroundTot_L, TEgveg_tot, SoilPotWGroundTot_H, ExWaterGroundTot_H, TEtree_tot, EB_TEtree, EB_TEgveg, WBIndv, WBTot, RunoffGroundTot, RunonGroundTot, Etot, DeepGLk, StorageTot, EBGroundImp, EBGroundBare, EBGroundVeg, EBTree, EBWallSun, EBWallShade, EBWallSunInt, EBWallShadeInt, EBCanyonT, EBCanyonQ, HumidityCan, HumidityAtm, u_Hcan, u_Zref_und, T2m, q2m, e_T2m, RH_T2m, qcan, e_Tcan, RH_Tcan, DHi, Himp_2m, Hbare_2m, Hveg_2m, Hwsun_2m, Hwshade_2m, Hcan_2m, DEi, Eimp_2m, Ebare_soil_2m, Eveg_int_2m, Eveg_soil_2m, TEveg_2m, Ecan_2m, dS_H_air, dS_LE_air = eb_wb_canyon(
                 TC,
                 TB,
-                model.variables.temperature.tempvec,
-                model.variables.humidity.Humidity,
-                model.forcing.meteorological,
-                model.variables.waterflux.Interception,
-                model.variables.waterflux.ExWater,
-                model.variables.waterflux.Vwater,
-                model.variables.waterflux.Owater,
-                model.variables.waterflux.SoilPotW,
-                model.variables.waterflux.CiCO2Leaf,
-                model.variables.temperature.tempdamp,
-                model.variables.waterflux.Runon,
-                model.variables.waterflux.Qinlat,
+                model,
                 ViewFactor,
-                model.parameters.urbangeometry,
-                model.parameters.surfacefractions.ground,
                 WallLayers,
-                model.parameters.soil.ground,
                 ParInterceptionTree,
-                model.parameters.optical.ground,
-                model.parameters.optical.wall,
-                model.parameters.optical.tree,
-                model.parameters.thermal.ground,
-                model.parameters.thermal.wall,
-                model.parameters.vegetation.ground,
-                model.parameters.vegetation.tree,
-                model.forcing.sunposition,
-                model.forcing.meteorological,
-                model.forcing.anthropogenic,
                 ParCalculation,
-                model.variables.buildingenergymodel.TempVecB,
                 G2Roof,
-                model.parameters.building_energy.indoor_optical,
                 ParHVAC,
-                model.parameters.building_energy.thermal,
-                model.parameters.building_energy.windows,
                 BEM_on,
                 RESPreCalc,
                 fconvPreCalc,
                 fconv,
                 rsGroundPreCalc,
                 rsTreePreCalc,
-                model.forcing.hvacschedule,
             )
 
             SWRinWsun = SWRabs_t.WallSun
@@ -311,25 +199,16 @@ function run_simulation(
             HbuildIntc, LEbuildIntc, GbuildIntc, SWRabsBc, LWRabsBc, TDampGroundBuild, WasteHeat, EnergyUse, HumidBuilding, ParACHeat_t, YBuildInt = BuildingEnergyModel.eb_solver_building_output(
                 TC,
                 TB,
-                model.variables.buildingenergymodel.TempVecB,
-                model.variables.temperature.tempvec,
-                model.variables.humidity.Humidity,
-                model.forcing.meteorological,
+                model,
                 SWRinWsun,
                 SWRinWshd,
                 G2Roof,
                 G2WallSun,
                 G2WallShade,
-                model.variables.temperature.tempdamp,
                 SWRabs_t,
-                model.parameters.urbangeometry,
-                model.parameters.building_energy.indoor_optical,
                 ParHVAC,
                 ParCalculation,
-                model.parameters.building_energy.thermal,
-                model.parameters.building_energy.windows,
                 BEM_on,
-                model.forcing.hvacschedule,
             )
 
             Humidity_t.CanyonRelative = HumidityCan.CanyonRelative
@@ -461,27 +340,12 @@ function run_simulation(
         end
 
         Tmrt, BoleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = MeanRadiantTemperature.mean_radiant_temperature(
-            SWRout_t,
-            LWRout_t,
-            model.forcing.meteorological,
-            ViewFactorPoint,
-            model.parameters.vegetation.tree,
-            model.parameters.urbangeometry,
-            model.forcing.sunposition,
-            model.parameters.person,
-            FT(Dates.hour(model.forcing.datetime[])),
+            SWRout_t, LWRout_t, model, ViewFactorPoint
         )
         # TODO: check whether we should be using the hour as a float (e.g. 10.5 for 10:30) or
         # the hour as an integer (10 for 10:30).
 
-        u_ZPerson = Resistance.wind_profile_point_output(
-            model.parameters.person.HeightWind,
-            model.parameters.urbangeometry,
-            model.parameters.vegetation.tree,
-            model.forcing.meteorological,
-            model.parameters.surfacefractions.ground,
-            model.parameters.vegetation.ground,
-        )
+        u_ZPerson = Resistance.wind_profile_point_output(model)
 
         UTCI_approx = OutdoorThermalComfort.utci_approx(
             T2m - FT(273.15), RH_T2m * 100, Tmrt, u_ZPerson

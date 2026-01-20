@@ -150,6 +150,42 @@ Calculate energy balance for roof surfaces.
 function eb_wb_roof(
     TemperatureR::Vector{FT},
     TemperatureB::Vector{FT},
+    model::Model{FT},
+    ParCalculation::NamedTuple,
+    BEM_on::Bool,
+    RESPreCalc::Bool,
+    rsRoofPreCalc::NamedTuple,
+) where {FT<:AbstractFloat}
+    return eb_wb_roof(
+        TemperatureR,
+        TemperatureB,
+        model.variables.temperature.tempvec,
+        model.forcing.meteorological,
+        model.variables.waterflux.Interception,
+        model.variables.waterflux.ExWater,
+        model.variables.waterflux.Vwater,
+        model.variables.waterflux.Owater,
+        model.variables.waterflux.SoilPotW,
+        model.variables.waterflux.CiCO2Leaf,
+        model.variables.waterflux.Runon,
+        model.parameters.urbangeometry,
+        model.parameters.surfacefractions.roof,
+        model.parameters.soil.roof,
+        model.parameters.optical.roof,
+        model.parameters.thermal.roof,
+        model.parameters.vegetation.roof,
+        model.forcing.meteorological,
+        model.forcing.anthropogenic,
+        ParCalculation,
+        BEM_on,
+        RESPreCalc,
+        rsRoofPreCalc,
+    )
+end
+
+function eb_wb_roof(
+    TemperatureR::Vector{FT},
+    TemperatureB::Vector{FT},
     TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
     MeteoData::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0},
     Int_ittm::ModelComponents.ModelVariables.Interception{FT},

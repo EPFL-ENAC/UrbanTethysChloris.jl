@@ -39,6 +39,24 @@ Calculate mean radiant temperature for a person in an urban canyon.
 function mean_radiant_temperature(
     SWRout_t::Radiation.RadiationFluxes{FT},
     LWRout_t::Radiation.RadiationFluxes{FT},
+    model::Model{FT},
+    ViewFactorPoint::ViewFactorPoint{FT},
+) where {FT<:AbstractFloat}
+    return mean_radiant_temperature(
+        SWRout_t,
+        LWRout_t,
+        model.forcing.meteorological,
+        ViewFactorPoint,
+        model.parameters.vegetation.tree,
+        model.parameters.urbangeometry,
+        model.forcing.sunposition,
+        model.parameters.person,
+        FT(hour(model.forcing)),
+    )
+end
+function mean_radiant_temperature(
+    SWRout_t::Radiation.RadiationFluxes{FT},
+    LWRout_t::Radiation.RadiationFluxes{FT},
     MeteoData::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0},
     ViewFactorPoint::ViewFactorPoint{FT},
     ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},

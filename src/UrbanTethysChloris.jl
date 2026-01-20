@@ -19,6 +19,9 @@ include(joinpath("modelcomponents", "ModelComponents.jl"))
 using .ModelComponents
 import .ModelComponents: update!
 
+include("Model.jl")
+export create_model, initialize!
+
 include(joinpath("ray_tracing", "RayTracing.jl"))
 using .RayTracing
 
@@ -49,9 +52,6 @@ using .Water
 
 include("incoming_longwave.jl")
 include("set_sun_variables.jl")
-
-include("Model.jl")
-export create_model, initialize!
 
 include("extrapolate.jl")
 export update!

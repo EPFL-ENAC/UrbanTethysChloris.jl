@@ -71,6 +71,39 @@ Calculate enhancement factor and precalculate stomatal resistances for faster nu
   - `Ci_shd_H`: Internal CO2 concentration for shaded leaves [ppm]
 """
 function precalculate_for_faster_numerical_solution(
+    model::Model{FT},
+    ittn::Int,
+    ittm::Int,
+    ViewFactor::RayTracing.ViewFactor{FT},
+    BEM_on::Bool,
+) where {FT<:AbstractFloat}
+    return precalculate_for_faster_numerical_solution(
+        ittn,
+        ittm,
+        model.variables.temperature.tempvec,
+        model.variables.humidity.Humidity,
+        model.parameters.vegetation.ground,
+        model.variables.waterflux.SoilPotW,
+        model.variables.waterflux.CiCO2Leaf,
+        model.forcing.meteorological,
+        model.parameters.urbangeometry,
+        model.parameters.surfacefractions.ground,
+        model.parameters.optical.ground,
+        model.parameters.optical.wall,
+        model.parameters.optical.tree,
+        model.parameters.vegetation.tree,
+        model.forcing.sunposition,
+        ViewFactor,
+        model.parameters.building_energy.windows,
+        BEM_on,
+        model.parameters.vegetation.roof,
+        model.parameters.optical.roof,
+        model.parameters.surfacefractions.roof,
+        model.variables.environmentalconditions.resistance,
+    )
+end
+
+function precalculate_for_faster_numerical_solution(
     ittn::Int,
     ittm::Int,
     TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},

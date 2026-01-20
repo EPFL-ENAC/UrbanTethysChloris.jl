@@ -23,6 +23,17 @@ Calculate wind speed at a specific height in urban canyon.
 # Returns
 - `u_Zp`: Wind speed at height Zp [m/s]
 """
+function wind_profile_point_output(model::Model{FT}) where {FT<:AbstractFloat}
+    return wind_profile_point_output(
+        model.parameters.person.HeightWind,
+        model.parameters.urbangeometry,
+        model.parameters.vegetation.tree,
+        model.forcing.meteorological,
+        model.parameters.surfacefractions.ground,
+        model.parameters.vegetation.ground,
+    )
+end
+
 function wind_profile_point_output(
     Zp::FT,
     Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
