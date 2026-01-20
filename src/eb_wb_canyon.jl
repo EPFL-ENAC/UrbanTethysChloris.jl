@@ -592,8 +592,6 @@ function eb_wb_canyon(
 
     q2m = find_zero(t2m_closure, TemperatureC[10]; xrtol=eps(FT))
 
-    # println("q2m: $q2m")
-
     DEi, Eimp_2m, Ebare_soil_2m, Eveg_int_2m, Eveg_soil_2m, TEveg_2m, Ecan_2m, q2m, e_T2m, RH_T2m, qcan, e_Tcan, RH_Tcan = TurbulentHeat.air_humidity_2m_output(
         q2m,
         T2m,
@@ -1384,8 +1382,6 @@ function eb_wb_canyon(
     end
 
     q2m = find_zero(t2m_closure, TemperatureC[10]; xrtol=eps(FT))
-
-    # println("q2m: $q2m")
 
     DEi, Eimp_2m, Ebare_soil_2m, Eveg_int_2m, Eveg_soil_2m, TEveg_2m, Ecan_2m, q2m, e_T2m, RH_T2m, qcan, e_Tcan, RH_Tcan = TurbulentHeat.air_humidity_2m_output(
         q2m,

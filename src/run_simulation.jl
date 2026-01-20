@@ -1,5 +1,6 @@
 function run_simulation(
-    model::Model{FT};
+    model::Model{FT},
+    forcing::UrbanTethysChloris.ModelComponents.ForcingInputSet{FT,1};
     NN::Signed=nothing,
     mc_sample_size::Int=1000,
     n_rays::Int=200,
@@ -518,6 +519,9 @@ function run_simulation(
         update!(model.variables.waterflux.CiCO2Leaf, CiCO2Leaf_t)
         update!(model.variables.waterflux.Runon, Runon_t)
         update!(model.variables.waterflux.Qinlat, Qinlat_t)
+
+        # Update forcing parameters for the next step
+        model.forcing = forcing[i + 1]
     end
 
     return nothing

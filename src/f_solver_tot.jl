@@ -151,6 +151,7 @@ function f_solver_tot(
     exitflags = Vector{Bool}(undef, 6)
 
     # Attempt 1: Use previous timestep as initial guess
+    # @infiltrate
     if BEM_on
         TemperatureTot = [
             TempVec_ittm2Ext.TRoofImp[3],
@@ -277,10 +278,6 @@ function f_solver_tot(
 
     Ts[1], fvals[1], exitflags[1] = lsqnonlin(TemperatureTot)
 
-    if sum(abs.(fvals[1])) > 0.1
-        return Ts[1], fvals[1], exitflags[1]
-    end
-
     # If first attempt failed, try with different initial conditions
     if maximum(abs.(fvals[1])) > 0.1
         # Additional attempts with different initial conditions
@@ -291,7 +288,7 @@ function f_solver_tot(
             r[21] = rand(FT)
             r[14] = -1e-4
             r[22] = -1e-4
-        elseif Meteo_ittm.SWRin[2] <= Meteo_ittm.SWRin[1]
+        elseif Meteo_ittm.SWRin[2] ≤ Meteo_ittm.SWRin[1]
             r = -3 .* rand(FT, 22)
             r[13] = -rand(FT)
             r[21] = -rand(FT)
@@ -326,7 +323,7 @@ function f_solver_tot(
                 TempVecB_ittm2Ext.Tinground[3] + r[19],
                 TempVecB_ittm2Ext.Tintmass[3] + r[20],
                 TempVecB_ittm2Ext.Tbin[3] + r[21],
-                min(FT(0), Humidity_ittm2Ext.qbin[3] + r[22]),
+                min(FT(0), TempVecB_ittm2Ext.qbin[3] + r[22]),
             ]
         else
             TemperatureTot = [
@@ -355,7 +352,14 @@ function f_solver_tot(
             ]
         end
 
-        Ts[2], fvals[2], exitflags[2] = lsqnonlin(TemperatureTot)
+        Ts[2], fvals[2], exitflags[2] = try
+            lsqnonlin(TemperatureTot)
+        catch e
+            @warn "lsqnonlin failed in attempt 2 with error: $e"
+            (fill(typemax(FT), 22), fill(typemax(FT), 22), false)
+        end
+
+        # Ts[2], fvals[2], exitflags[2] = lsqnonlin(TemperatureTot)
 
         ran_simulation[2] = true
     end
@@ -365,9 +369,6 @@ function f_solver_tot(
         # Attempt 3: Retry with atmospheric forcing
         if BEM_on
             TemperatureTot = [
-                TT,
-                TT,
-                TT,
                 TT,
                 TT,
                 TT,
@@ -612,6 +613,7 @@ function f_solver_tot(
     T = Ts[best_idx]
     fval = fvals[best_idx]
     exitflag = exitflags[best_idx]
+    @debug "f_solver_tot selected attempt $best_idx with max abs fval = $(maximum(abs.(fval)))"
 
     return T, fval, exitflag
 end
