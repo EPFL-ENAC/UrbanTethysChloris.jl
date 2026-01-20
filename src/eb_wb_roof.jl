@@ -677,8 +677,6 @@ function eb_wb_roof(
     ExWaterRoof_H = fill(FT(NaN), ParSoilRoof.ms)
     SoilPotWRoof_H = fill(FT(NaN), 1)
 
-    @infiltrate
-
     return (;
         SWRabsRoofImp,
         SWRabsRoofVeg,

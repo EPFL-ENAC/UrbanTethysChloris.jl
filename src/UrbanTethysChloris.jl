@@ -9,7 +9,6 @@ using Roots
 using NCDatasets
 using YAML
 using NaNMath: NaNMath
-using Infiltrator
 using StaticArraysCore
 
 include(joinpath("soil", "Soil.jl"))
