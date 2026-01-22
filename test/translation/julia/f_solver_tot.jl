@@ -139,7 +139,7 @@ rsTreePreCalc = (;
         Tceiling=input_vars["TempVecB_ittm2Ext"]["Tceiling"],
         Twindows=input_vars["TempVecB_ittm2Ext"]["Twindows"],
     )
-    Meteo_ittm = (;
+    Meteo_ittm = Meteotm1{FT}(
         SWRin=FT.(input_vars["Meteo_ittm"]["SWRin"]),
         Rain=FT.(input_vars["Meteo_ittm"]["Rain"]),
     )
