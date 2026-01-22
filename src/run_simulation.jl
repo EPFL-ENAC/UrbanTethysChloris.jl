@@ -159,8 +159,6 @@ function run_simulation(
                 rsTreePreCalc,
             )
 
-            @info "Iteration $i, Ttot: $Ttot"
-
             update!(model.variables.temperature.tempvec, Ttot)
             update!(model.variables.humidity.Humidity, Ttot)
             update!(model.variables.buildingenergymodel.TempVecB, Ttot)
