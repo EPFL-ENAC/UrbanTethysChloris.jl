@@ -35,5 +35,5 @@ end
 end
 
 @safetestset "Translation" begin
-    include(joinpath("translation", "julia", "UrbanTethysChloris.jl"))
+    include(joinpath("translation", "UrbanTethysChloris.jl"))
 end
