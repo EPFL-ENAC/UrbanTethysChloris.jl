@@ -122,6 +122,28 @@ function Runon(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Runon, Dict{String,Any}())
 end
 
+function Runon(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return Runon{FT}(;
+        RunonRoofTot=data["RunonRoofTot"],
+        RunoffRoofTot=data["RunoffRoofTot"],
+        RunonGroundTot=data["RunonGroundTot"],
+        RunoffGroundTot=data["RunoffGroundTot"],
+        RunonUrban=data["RunonUrban"],
+        RunoffUrban=data["RunoffUrban"],
+    )
+end
+
+function update!(dest::Runon{FT}, src::Runon{FT}) where {FT<:AbstractFloat}
+    dest.RunonRoofTot = src.RunonRoofTot
+    dest.RunoffRoofTot = src.RunoffRoofTot
+    dest.RunonGroundTot = src.RunonGroundTot
+    dest.RunoffGroundTot = src.RunoffGroundTot
+    dest.RunonUrban = src.RunonUrban
+    dest.RunoffUrban = src.RunoffUrban
+
+    return nothing
+end
+
 """
     Leakage{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -182,6 +204,33 @@ end
 
 function Interception(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Interception, Dict{String,Any}())
+end
+
+function Interception(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return Interception{FT}(;
+        IntRoofImp=data["IntRoofImp"],
+        IntRoofVegPlant=data["IntRoofVegPlant"],
+        IntRoofVegGround=data["IntRoofVegGround"],
+        IntRooftot=data["IntRooftot"],
+        IntGroundImp=data["IntGroundImp"],
+        IntGroundBare=data["IntGroundBare"],
+        IntGroundVegPlant=data["IntGroundVegPlant"],
+        IntGroundVegGround=data["IntGroundVegGround"],
+        IntTree=data["IntTree"],
+    )
+end
+
+function update!(dest::Interception{FT}, src::Interception{FT}) where {FT<:AbstractFloat}
+    dest.IntRoofImp = src.IntRoofImp
+    dest.IntRoofVegPlant = src.IntRoofVegPlant
+    dest.IntRoofVegGround = src.IntRoofVegGround
+    dest.IntRooftot = src.IntRooftot
+    dest.IntGroundImp = src.IntGroundImp
+    dest.IntGroundBare = src.IntGroundBare
+    dest.IntGroundVegPlant = src.IntGroundVegPlant
+    dest.IntGroundVegGround = src.IntGroundVegGround
+    dest.IntTree = src.IntTree
+    return nothing
 end
 
 """
@@ -253,11 +302,11 @@ Water volume in soil for different urban surfaces.
 """
 Base.@kwdef mutable struct Vwater{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    VRoofSoilVeg::MVector{MR,FT}
-    VGroundSoilImp::MVector{MG,FT}
-    VGroundSoilBare::MVector{MG,FT}
-    VGroundSoilVeg::MVector{MG,FT}
-    VGroundSoilTot::MVector{MG,FT}
+    VRoofSoilVeg::Vector{FT}
+    VGroundSoilImp::Vector{FT}
+    VGroundSoilBare::Vector{FT}
+    VGroundSoilVeg::Vector{FT}
+    VGroundSoilTot::Vector{FT}
 end
 
 function Vwater(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:AbstractFloat}
@@ -274,6 +323,29 @@ function roof_fields(::Type{Vwater})
     return ["VRoofSoilVeg"]
 end
 
+function Vwater(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    MR = length(data["VRoofSoilVeg"])
+    MG = length(data["VGroundSoilImp"])
+    return Vwater{FT,MR,MG}(;
+        VRoofSoilVeg=data["VRoofSoilVeg"],
+        VGroundSoilImp=data["VGroundSoilImp"],
+        VGroundSoilBare=data["VGroundSoilBare"],
+        VGroundSoilVeg=data["VGroundSoilVeg"],
+        VGroundSoilTot=data["VGroundSoilTot"],
+    )
+end
+
+function update!(
+    dest::Vwater{FT,MR,MG}, src::Vwater{FT,MR,MG}
+) where {FT<:AbstractFloat,MR,MG}
+    dest.VRoofSoilVeg .= src.VRoofSoilVeg
+    dest.VGroundSoilImp .= src.VGroundSoilImp
+    dest.VGroundSoilBare .= src.VGroundSoilBare
+    dest.VGroundSoilVeg .= src.VGroundSoilVeg
+    dest.VGroundSoilTot .= src.VGroundSoilTot
+
+    return nothing
+end
 """
     dVwater_dt{FT<:AbstractFloat, MR, MG} <: AbstractLayeredSoilVariables{FT}
 
@@ -289,11 +361,11 @@ Change in water volume in soil for different urban surfaces.
 # Same names as Vwater
 Base.@kwdef mutable struct dVwater_dt{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    dVRoofSoilVeg_dt::MVector{MR,FT}
-    dVGroundSoilImp_dt::MVector{MG,FT}
-    dVGroundSoilBare_dt::MVector{MG,FT}
-    dVGroundSoilVeg_dt::MVector{MG,FT}
-    dVGroundSoilTot_dt::MVector{MG,FT}
+    dVRoofSoilVeg_dt::Vector{FT}
+    dVGroundSoilImp_dt::Vector{FT}
+    dVGroundSoilBare_dt::Vector{FT}
+    dVGroundSoilVeg_dt::Vector{FT}
+    dVGroundSoilTot_dt::Vector{FT}
 end
 
 function ground_fields(::Type{dVwater_dt})
@@ -335,11 +407,11 @@ Soil moisture in different soil layers for urban surfaces.
 # Same names as Vwater
 Base.@kwdef mutable struct Owater{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    OwRoofSoilVeg::MVector{MR,FT}
-    OwGroundSoilImp::MVector{MG,FT}
-    OwGroundSoilBare::MVector{MG,FT}
-    OwGroundSoilVeg::MVector{MG,FT}
-    OwGroundSoilTot::MVector{MG,FT}
+    OwRoofSoilVeg::Vector{FT}
+    OwGroundSoilImp::Vector{FT}
+    OwGroundSoilBare::Vector{FT}
+    OwGroundSoilVeg::Vector{FT}
+    OwGroundSoilTot::Vector{FT}
 end
 
 function roof_fields(::Type{Owater})
@@ -356,6 +428,50 @@ function Owater(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:Abstra
     )
 end
 
+function Owater(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    MR = length(data["OwRoofSoilVeg"])
+    MG = length(data["OwGroundSoilImp"])
+    return Owater{FT,MR,MG}(;
+        OwRoofSoilVeg=data["OwRoofSoilVeg"],
+        OwGroundSoilImp=data["OwGroundSoilImp"],
+        OwGroundSoilBare=data["OwGroundSoilBare"],
+        OwGroundSoilVeg=data["OwGroundSoilVeg"],
+        OwGroundSoilTot=data["OwGroundSoilTot"],
+    )
+end
+
+function update!(
+    dest::Owater{FT,MR,MG},
+    src::Owater{FT,MR,MG},
+    roof::VegetatedSoilParameters{FT},
+    ground::VegetatedSoilParameters{FT},
+    O33::NamedTuple,
+) where {FT<:AbstractFloat,MR,MG}
+    dest.OwRoofSoilVeg .= src.OwRoofSoilVeg
+    dest.OwGroundSoilImp .= src.OwGroundSoilImp
+    dest.OwGroundSoilBare .= src.OwGroundSoilBare
+    dest.OwGroundSoilVeg .= src.OwGroundSoilVeg
+    dest.OwGroundSoilTot .= src.OwGroundSoilTot
+
+    if roof.FixSM
+        r = O33.roof
+        SMReplace = fill(false, MR)
+        SMReplace[roof.FixSM_LayerStart:roof.FixSM_LayerEnd] .= true
+        dest.OwRoofSoilVeg[SMReplace .&& dest.OwRoofSoilVeg .< r] .= r
+    end
+
+    if ground.FixSM
+        r = O33.ground
+        SMReplace = fill(false, MG)
+        SMReplace[ground.FixSM_LayerStart:ground.FixSM_LayerEnd] .= true
+        dest.OwGroundSoilImp[SMReplace .&& dest.OwGroundSoilImp .< r] .= r
+        dest.OwGroundSoilBare[SMReplace .&& dest.OwGroundSoilBare .< r] .= r
+        dest.OwGroundSoilVeg[SMReplace .&& dest.OwGroundSoilVeg .< r] .= r
+        dest.OwGroundSoilTot[SMReplace .&& dest.OwGroundSoilTot .< r] .= r
+    end
+
+    return nothing
+end
 """
     OSwater{FT<:AbstractFloat, MR, MG} <: AbstractLayeredSoilVariables{FT}
 
@@ -371,11 +487,11 @@ Additional soil moisture variables for urban surfaces.
 # Same names as Vwater
 Base.@kwdef mutable struct OSwater{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    OSwRoofSoilVeg::MVector{MR,FT}
-    OSwGroundSoilImp::MVector{MG,FT}
-    OSwGroundSoilBare::MVector{MG,FT}
-    OSwGroundSoilVeg::MVector{MG,FT}
-    OSwGroundSoilTot::MVector{MG,FT}
+    OSwRoofSoilVeg::Vector{FT}
+    OSwGroundSoilImp::Vector{FT}
+    OSwGroundSoilBare::Vector{FT}
+    OSwGroundSoilVeg::Vector{FT}
+    OSwGroundSoilTot::Vector{FT}
 end
 
 function roof_fields(::Type{OSwater})
@@ -409,15 +525,15 @@ Lateral soil water flux variables.
 - `Qin_veg`: Total lateral water flux to vegetated soil [mm/h]
 """
 Base.@kwdef mutable struct Qinlat{FT<:AbstractFloat,MG} <: AbstractLayeredSoilVariables{FT}
-    Qin_bare2imp::MVector{MG,FT}
-    Qin_veg2imp::MVector{MG,FT}
-    Qin_veg2bare::MVector{MG,FT}
-    Qin_imp2bare::MVector{MG,FT}
-    Qin_bare2veg::MVector{MG,FT}
-    Qin_imp2veg::MVector{MG,FT}
-    Qin_imp::MVector{MG,FT}
-    Qin_bare::MVector{MG,FT}
-    Qin_veg::MVector{MG,FT}
+    Qin_bare2imp::Vector{FT}
+    Qin_veg2imp::Vector{FT}
+    Qin_veg2bare::Vector{FT}
+    Qin_imp2bare::Vector{FT}
+    Qin_bare2veg::Vector{FT}
+    Qin_imp2veg::Vector{FT}
+    Qin_imp::Vector{FT}
+    Qin_bare::Vector{FT}
+    Qin_veg::Vector{FT}
 end
 
 function ground_fields(::Type{Qinlat})
@@ -436,6 +552,35 @@ end
 
 function Qinlat(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:AbstractFloat}
     return initialize(FT, Qinlat, Dict{String,Any}(), (FT, soil.ground.ms), soil, args...)
+end
+
+function Qinlat(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    MG = length(data["Qin_bare2imp"])
+    return Qinlat{FT,MG}(;
+        Qin_bare2imp=data["Qin_bare2imp"],
+        Qin_veg2imp=data["Qin_veg2imp"],
+        Qin_veg2bare=data["Qin_veg2bare"],
+        Qin_imp2bare=data["Qin_imp2bare"],
+        Qin_bare2veg=data["Qin_bare2veg"],
+        Qin_imp2veg=data["Qin_imp2veg"],
+        Qin_imp=data["Qin_imp"],
+        Qin_bare=data["Qin_bare"],
+        Qin_veg=data["Qin_veg"],
+    )
+end
+
+function update!(dest::Qinlat{FT,MG}, src::Qinlat{FT,MG}) where {FT<:AbstractFloat,MG}
+    dest.Qin_bare2imp .= src.Qin_bare2imp
+    dest.Qin_veg2imp .= src.Qin_veg2imp
+    dest.Qin_veg2bare .= src.Qin_veg2bare
+    dest.Qin_imp2bare .= src.Qin_imp2bare
+    dest.Qin_bare2veg .= src.Qin_bare2veg
+    dest.Qin_imp2veg .= src.Qin_imp2veg
+    dest.Qin_imp .= src.Qin_imp
+    dest.Qin_bare .= src.Qin_bare
+    dest.Qin_veg .= src.Qin_veg
+
+    return nothing
 end
 
 """
@@ -458,16 +603,16 @@ Extractable water for plants from soil.
 # Same names as SoilPotW
 Base.@kwdef mutable struct ExWater{FT<:AbstractFloat,MR,MG} <:
                            AbstractLayeredSoilVariables{FT}
-    ExWaterRoofVeg_H::MVector{MR,FT}
-    ExWaterRoofVeg_L::MVector{MR,FT}
-    ExWaterGroundImp_H::MVector{MG,FT}
-    ExWaterGroundImp_L::MVector{MG,FT}
-    ExWaterGroundBare_H::MVector{MG,FT}
-    ExWaterGroundBare_L::MVector{MG,FT}
-    ExWaterGroundVeg_H::MVector{MG,FT}
-    ExWaterGroundVeg_L::MVector{MG,FT}
-    ExWaterGroundTot_H::MVector{MG,FT}
-    ExWaterGroundTot_L::MVector{MG,FT}
+    ExWaterRoofVeg_H::Vector{FT}
+    ExWaterRoofVeg_L::Vector{FT}
+    ExWaterGroundImp_H::Vector{FT}
+    ExWaterGroundImp_L::Vector{FT}
+    ExWaterGroundBare_H::Vector{FT}
+    ExWaterGroundBare_L::Vector{FT}
+    ExWaterGroundVeg_H::Vector{FT}
+    ExWaterGroundVeg_L::Vector{FT}
+    ExWaterGroundTot_H::Vector{FT}
+    ExWaterGroundTot_L::Vector{FT}
 end
 
 function roof_fields(::Type{ExWater})
@@ -491,6 +636,40 @@ function ExWater(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:Abstr
     return initialize(
         FT, ExWater, Dict{String,Any}(), (FT, soil.roof.ms, soil.ground.ms), soil, args...
     )
+end
+
+function ExWater(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    MR = length(data["ExWaterRoofVeg_H"])
+    MG = length(data["ExWaterGroundImp_H"])
+    return ExWater{FT,MR,MG}(;
+        ExWaterRoofVeg_H=data["ExWaterRoofVeg_H"],
+        ExWaterRoofVeg_L=data["ExWaterRoofVeg_L"],
+        ExWaterGroundImp_H=data["ExWaterGroundImp_H"],
+        ExWaterGroundImp_L=data["ExWaterGroundImp_L"],
+        ExWaterGroundBare_H=data["ExWaterGroundBare_H"],
+        ExWaterGroundBare_L=data["ExWaterGroundBare_L"],
+        ExWaterGroundVeg_H=data["ExWaterGroundVeg_H"],
+        ExWaterGroundVeg_L=data["ExWaterGroundVeg_L"],
+        ExWaterGroundTot_H=data["ExWaterGroundTot_H"],
+        ExWaterGroundTot_L=data["ExWaterGroundTot_L"],
+    )
+end
+
+function update!(
+    dest::ExWater{FT,MR,MG}, src::ExWater{FT,MR,MG}
+) where {FT<:AbstractFloat,MR,MG}
+    dest.ExWaterRoofVeg_H .= src.ExWaterRoofVeg_H
+    dest.ExWaterRoofVeg_L .= src.ExWaterRoofVeg_L
+    dest.ExWaterGroundImp_H .= src.ExWaterGroundImp_H
+    dest.ExWaterGroundImp_L .= src.ExWaterGroundImp_L
+    dest.ExWaterGroundBare_H .= src.ExWaterGroundBare_H
+    dest.ExWaterGroundBare_L .= src.ExWaterGroundBare_L
+    dest.ExWaterGroundVeg_H .= src.ExWaterGroundVeg_H
+    dest.ExWaterGroundVeg_L .= src.ExWaterGroundVeg_L
+    dest.ExWaterGroundTot_H .= src.ExWaterGroundTot_H
+    dest.ExWaterGroundTot_L .= src.ExWaterGroundTot_L
+
+    return nothing
 end
 
 """
@@ -527,6 +706,36 @@ function SoilPotW(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, SoilPotW, Dict{String,Any}())
 end
 
+function SoilPotW(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return SoilPotW{FT}(;
+        SoilPotWRoofVeg_H=data["SoilPotWRoofVeg_H"],
+        SoilPotWRoofVeg_L=data["SoilPotWRoofVeg_L"],
+        SoilPotWGroundImp_H=data["SoilPotWGroundImp_H"],
+        SoilPotWGroundImp_L=data["SoilPotWGroundImp_L"],
+        SoilPotWGroundBare_H=data["SoilPotWGroundBare_H"],
+        SoilPotWGroundBare_L=data["SoilPotWGroundBare_L"],
+        SoilPotWGroundVeg_H=data["SoilPotWGroundVeg_H"],
+        SoilPotWGroundVeg_L=data["SoilPotWGroundVeg_L"],
+        SoilPotWGroundTot_H=data["SoilPotWGroundTot_H"],
+        SoilPotWGroundTot_L=data["SoilPotWGroundTot_L"],
+    )
+end
+
+function update!(dest::SoilPotW{FT}, src::SoilPotW{FT}) where {FT<:AbstractFloat}
+    dest.SoilPotWRoofVeg_H = src.SoilPotWRoofVeg_H
+    dest.SoilPotWRoofVeg_L = src.SoilPotWRoofVeg_L
+    dest.SoilPotWGroundImp_H = src.SoilPotWGroundImp_H
+    dest.SoilPotWGroundImp_L = src.SoilPotWGroundImp_L
+    dest.SoilPotWGroundBare_H = src.SoilPotWGroundBare_H
+    dest.SoilPotWGroundBare_L = src.SoilPotWGroundBare_L
+    dest.SoilPotWGroundVeg_H = src.SoilPotWGroundVeg_H
+    dest.SoilPotWGroundVeg_L = src.SoilPotWGroundVeg_L
+    dest.SoilPotWGroundTot_H = src.SoilPotWGroundTot_H
+    dest.SoilPotWGroundTot_L = src.SoilPotWGroundTot_L
+
+    return nothing
+end
+
 """
     CiCO2Leaf{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -553,6 +762,27 @@ function CiCO2Leaf(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, CiCO2Leaf, Dict{String,Any}(), (FT,))
 end
 
+function CiCO2Leaf(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return CiCO2Leaf{FT}(;
+        CiCO2LeafRoofVegSun=data["CiCO2LeafRoofVegSun"],
+        CiCO2LeafRoofVegShd=data["CiCO2LeafRoofVegShd"],
+        CiCO2LeafGroundVegSun=data["CiCO2LeafGroundVegSun"],
+        CiCO2LeafGroundVegShd=data["CiCO2LeafGroundVegShd"],
+        CiCO2LeafTreeSun=data["CiCO2LeafTreeSun"],
+        CiCO2LeafTreeShd=data["CiCO2LeafTreeShd"],
+    )
+end
+
+function update!(dest::CiCO2Leaf{FT}, src::CiCO2Leaf{FT}) where {FT<:AbstractFloat}
+    dest.CiCO2LeafRoofVegSun = src.CiCO2LeafRoofVegSun
+    dest.CiCO2LeafRoofVegShd = src.CiCO2LeafRoofVegShd
+    dest.CiCO2LeafGroundVegSun = src.CiCO2LeafGroundVegSun
+    dest.CiCO2LeafGroundVegShd = src.CiCO2LeafGroundVegShd
+    dest.CiCO2LeafTreeSun = src.CiCO2LeafTreeSun
+    dest.CiCO2LeafTreeShd = src.CiCO2LeafTreeShd
+
+    return nothing
+end
 """
     WaterFluxVariables{FT<:AbstractFloat, MR, MG} <: AbstractModelVariableSet{FT}
 

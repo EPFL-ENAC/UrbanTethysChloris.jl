@@ -72,6 +72,185 @@ function water_roof(
     Eroof_ground::FT,
     Eroof_soil::FT,
     TEroof_veg::FT,
+    MeteoData::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0},
+    Int_ittm::ModelComponents.ModelVariables.Interception{FT},
+    Owater_ittm::ModelComponents.ModelVariables.Owater{FT,MR,MG},
+    Runon_ittm::ModelComponents.ModelVariables.Runon{FT},
+    FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions,
+    ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
+    ParCalculation::NamedTuple,
+    ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+    Anthropogenic::ModelComponents.ForcingInputs.AnthropogenicInputs{FT,0},
+) where {FT<:AbstractFloat,MR,MG}
+    # Extract parameters from NamedTuples
+    Rain = MeteoData.Rain
+    In_imp_tm1 = Int_ittm.IntRoofImp
+    In_veg_tm1 = Int_ittm.IntRoofVegPlant
+    In_ground_tm1 = Int_ittm.IntRoofVegGround
+    Otm1 = Owater_ittm.OwRoofSoilVeg
+    Runon_tm1 = Runon_ittm.RunonRoofTot
+
+    Per_runoff = FractionsRoof.Per_runoff
+    fveg = FractionsRoof.fveg
+    fimp = FractionsRoof.fimp
+
+    In_max_imp = ParSoilRoof.In_max_imp
+    In_max_ground = ParSoilRoof.In_max_ground
+    K_imp = ParSoilRoof.Kimp
+    Sp_In = ParSoilRoof.Sp_In
+    Zs = ParSoilRoof.Zs
+    Pcla = ParSoilRoof.Pcla
+    Psan = ParSoilRoof.Psan
+    Porg = ParSoilRoof.Porg
+    Kfc = ParSoilRoof.Kfc
+    Phy = ParSoilRoof.Phy
+    SPAR = ParSoilRoof.SPAR
+    Kbot = ParSoilRoof.Kbot
+
+    dth = ParCalculation.dth
+    row = ParCalculation.row
+
+    LAI = ParVegRoof.LAI
+    SAI = ParVegRoof.SAI
+    Rrootl = ParVegRoof.Rrootl
+    PsiL50 = ParVegRoof.PsiL50
+    PsiX50 = ParVegRoof.PsiX50
+    CASE_ROOT = ParVegRoof.CASE_ROOT
+    ZR95 = ParVegRoof.ZR95
+    ZR50 = ParVegRoof.ZR50
+    ZRmax = ParVegRoof.ZRmax
+
+    # Calculate water fluxes
+    q_runon_imp, In_imp, dIn_imp_dt, Lk_imp, WBalance_In_imp = water_impervious(
+        Rain, Runon_tm1, Eroof_imp, In_imp_tm1, dth, row, In_max_imp, K_imp
+    )
+
+    q_runon_veg, In_veg, dIn_veg_dt, WBalance_In_veg = water_vegetation(
+        Rain, Eroof_veg, In_veg_tm1, Sp_In, LAI, SAI, row, dth
+    )
+
+    q_runon_ground, In_ground, dIn_ground_dt, f_ground, WBalance_In_ground = water_ground(
+        q_runon_veg + Anthropogenic.Waterf_roof,
+        Runon_tm1,
+        Eroof_ground,
+        Otm1,
+        In_ground_tm1,
+        In_max_ground,
+        Pcla,
+        Psan,
+        Porg,
+        Kfc,
+        Phy,
+        SPAR,
+        Kbot,
+        CASE_ROOT,
+        CASE_ROOT,
+        [0.0],
+        ZR95,
+        [0.0],
+        ZR50,
+        [0.0],
+        ZRmax,
+        Zs,
+        dth,
+        row,
+    )
+
+    V, O, OS, Lk, _, Psi_s, _, Exwat, Rd, TEroof_veg, _, Eroof_soil, dV_dt, WBalance_soil, Psi_soil, Ko = water_soil(
+        Otm1,
+        f_ground,
+        zero(FT),
+        TEroof_veg,
+        Eroof_soil,
+        zeros(FT, length(Zs)),
+        dth,
+        Pcla,
+        Psan,
+        Porg,
+        Kfc,
+        Phy,
+        SPAR,
+        Kbot,
+        CASE_ROOT,
+        CASE_ROOT,
+        [0.0],
+        ZR95,
+        [0.0],
+        ZR50,
+        [0.0],
+        ZRmax,
+        [0.0],
+        Rrootl,
+        [0.0],
+        PsiL50,
+        [0.0],
+        PsiX50,
+        Zs,
+        row,
+    )
+
+    # Calculate runoff and runon
+    Runoff = Per_runoff * (fimp * q_runon_imp + fveg * (q_runon_ground + Rd))  # [mm/dth]
+    Runon = (1 - Per_runoff) * (fimp * q_runon_imp + fveg * (q_runon_ground + Rd))  # [mm/dth]
+
+    # Water balance checks
+    WBalance_imp_tot =
+        Rain + Runon_tm1 - Eroof_imp * dth * 3600 * 1000 / row - q_runon_imp -
+        Lk_imp * dth - dIn_imp_dt
+
+    WBalance_veg_tot =
+        Rain + Runon_tm1 + Anthropogenic.Waterf_roof -
+        (Eroof_veg + Eroof_ground + Eroof_soil + TEroof_veg) * dth * 3600 * 1000 / row -
+        Lk * dth - q_runon_ground - Rd - dIn_veg_dt - dIn_ground_dt - dV_dt
+
+    E_tot =
+        (fimp * Eroof_imp + fveg * (Eroof_veg + Eroof_ground + Eroof_soil + TEroof_veg)) *
+        3600 *
+        1000 / row  # [mm/h]
+    Leak_tot = fimp * Lk_imp + fveg * Lk  # [mm/h]
+    Storage_tot = fimp * dIn_imp_dt + fveg * (dIn_veg_dt + dIn_ground_dt + dV_dt)  # [mm/dth]
+
+    WBalance_tot =
+        Rain + Runon_tm1 + fveg * Anthropogenic.Waterf_roof - E_tot * dth - Leak_tot * dth -
+        Runoff - Runon - Storage_tot
+
+    return q_runon_imp,
+    In_imp,
+    dIn_imp_dt,
+    Lk_imp,
+    q_runon_veg,
+    In_veg,
+    dIn_veg_dt,
+    q_runon_ground,
+    In_ground,
+    dIn_ground_dt,
+    dV_dt,
+    f_ground,
+    V,
+    O,
+    OS,
+    Lk,
+    Psi_s,
+    Exwat,
+    Rd,
+    TEroof_veg,
+    Eroof_soil,
+    Runoff,
+    Runon,
+    WBalance_In_imp,
+    WBalance_In_veg,
+    WBalance_In_ground,
+    WBalance_soil,
+    WBalance_imp_tot,
+    WBalance_veg_tot,
+    WBalance_tot
+end
+function water_roof(
+    Eroof_imp::FT,
+    Eroof_veg::FT,
+    Eroof_ground::FT,
+    Eroof_soil::FT,
+    TEroof_veg::FT,
     MeteoData::NamedTuple,
     Int_ittm::NamedTuple,
     Owater_ittm::NamedTuple,

@@ -19,6 +19,23 @@ function initialize_locationspecific_thermalproperties(
     return initialize(FT, LocationSpecificThermalProperties, data, (FT,))
 end
 
+function LocationSpecificThermalProperties(
+    ::Type{FT}, data::AbstractDict, suffix::String=""
+) where {FT<:AbstractFloat}
+    stripped_data = suffix == "" ? data : Dict{String,Any}()  # Initialize empty dict if suffix is provided
+    if suffix != ""
+        for (key, value) in data
+            if endswith(key, suffix)
+                new_key = replace(key, suffix => "")
+                stripped_data[new_key] = value
+            end
+        end
+    end
+    return LocationSpecificThermalProperties{FT}(
+        stripped_data["lan_dry"], stripped_data["cv_s"]
+    )
+end
+
 function TethysChlorisCore.get_required_fields(::Type{LocationSpecificThermalProperties})
     return [:lan_dry, :cv_s]
 end

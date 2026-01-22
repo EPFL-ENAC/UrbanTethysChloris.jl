@@ -47,12 +47,19 @@ Base.@kwdef struct MeteorologicalInputs{FT<:AbstractFloat,N} <:
     qSat_atm::Array{FT,N}
     SW_dir::Array{FT,N}
     SW_diff::Array{FT,N}
+    LWR::Array{FT,N}
     Zatm::FT
     Catm_CO2::FT
     Catm_O2::FT
     SunDSM_MRT::FT
     cp_atm::Array{FT,N}
     rho_atm::Array{FT,N}
+    AtmRelative::Array{FT,N}
+    AtmSpecific::Array{FT,N}
+    AtmVapourPre::Array{FT,N}
+    AtmRelativeSat::Array{FT,N}
+    AtmSpecificSat::Array{FT,N}
+    AtmVapourPreSat::Array{FT,N}
 end
 
 const SCALAR_METEO_FIELDS = [:Zatm, :Catm_CO2, :Catm_O2, :SunDSM_MRT]
@@ -62,7 +69,23 @@ function get_scalar_fields(::Type{MeteorologicalInputs})
 end
 
 function TethysChlorisCore.get_calculated_fields(::Type{MeteorologicalInputs})
-    return [:esat_Tatm, :ea, :q_atm, :qSat_atm, :SW_dir, :SW_diff, :cp_atm, :rho_atm]
+    return [
+        :esat_Tatm,
+        :ea,
+        :q_atm,
+        :qSat_atm,
+        :SW_dir,
+        :SW_diff,
+        :cp_atm,
+        :rho_atm,
+        :AtmRelative,
+        :AtmSpecific,
+        :AtmVapourPre,
+        :AtmRelativeSat,
+        :AtmSpecificSat,
+        :AtmVapourPreSat,
+        :LWR,
+    ]
 end
 
 function MeteorologicalInputs(
@@ -70,6 +93,84 @@ function MeteorologicalInputs(
 ) where {FT<:AbstractFloat}
     return initialize(
         FT, MeteorologicalInputs, data, (FT, dimension_value(TimeSeries())), theta_Z
+    )
+end
+
+function MeteorologicalInputs(
+    ::Type{FT},
+    meteo_data::AbstractDict,
+    humidity_data::AbstractDict,
+    cp_atm::FT,
+    rho_atm::FT,
+) where {FT<:AbstractFloat}
+    return MeteorologicalInputs{FT,0}(;
+        LWR_in=fill(FT(meteo_data["LWR"]), ()),
+        LWR=fill(FT(meteo_data["LWR"]), ()),
+        SAB1_in=fill(FT(NaN), ()),
+        SAB2_in=fill(FT(NaN), ()),
+        SAD1_in=fill(FT(NaN), ()),
+        SAD2_in=fill(FT(NaN), ()),
+        Tatm=fill(FT(meteo_data["Tatm"]), ()),
+        Uatm=fill(FT(meteo_data["Uatm"]), ()),
+        Pre=fill(FT(meteo_data["Pre"]), ()),
+        Rain=fill(FT(meteo_data["Rain"]), ()),
+        rel_hum=fill(FT(meteo_data["rel_hum"]), ()),
+        datetime=fill(DateTime(today()), ()), # default to today
+        Zatm=FT(meteo_data["Zatm"]),
+        Catm_CO2=FT(meteo_data["Catm_CO2"]),
+        Catm_O2=FT(meteo_data["Catm_O2"]),
+        SunDSM_MRT=FT(meteo_data["SunDSM_MRT"]),
+        SW_dir=fill(meteo_data["SW_dir"], ()),
+        SW_diff=fill(meteo_data["SW_diff"], ()),
+        q_atm=fill(meteo_data["q_atm"], ()),
+        ea=fill(meteo_data["ea"], ()),
+        esat_Tatm=fill(meteo_data["esat_Tatm"], ()),
+        qSat_atm=fill(humidity_data["AtmSpecificSat"], ()),
+        AtmRelative=fill(humidity_data["AtmRelative"], ()),
+        AtmSpecific=fill(humidity_data["AtmSpecific"], ()),
+        AtmVapourPre=fill(humidity_data["AtmVapourPre"], ()),
+        AtmRelativeSat=fill(humidity_data["AtmRelativeSat"], ()),
+        AtmSpecificSat=fill(humidity_data["AtmSpecificSat"], ()),
+        AtmVapourPreSat=fill(humidity_data["AtmVapourPreSat"], ()),
+        cp_atm=fill(cp_atm, ()),
+        rho_atm=fill(rho_atm, ()),
+    )
+end
+
+function MeteorologicalInputs(
+    ::Type{FT}, meteo_data::AbstractDict
+) where {FT<:AbstractFloat}
+    return MeteorologicalInputs{FT,0}(;
+        LWR_in=fill(FT(meteo_data["LWR"]), ()),
+        LWR=fill(FT(meteo_data["LWR"]), ()),
+        SAB1_in=fill(FT(NaN), ()),
+        SAB2_in=fill(FT(NaN), ()),
+        SAD1_in=fill(FT(NaN), ()),
+        SAD2_in=fill(FT(NaN), ()),
+        Tatm=fill(FT(meteo_data["Tatm"]), ()),
+        Uatm=fill(FT(meteo_data["Uatm"]), ()),
+        Pre=fill(FT(meteo_data["Pre"]), ()),
+        Rain=fill(FT(meteo_data["Rain"]), ()),
+        rel_hum=fill(FT(meteo_data["rel_hum"]), ()),
+        datetime=fill(DateTime(today()), ()), # default to today
+        Zatm=FT(meteo_data["Zatm"]),
+        Catm_CO2=FT(meteo_data["Catm_CO2"]),
+        Catm_O2=FT(meteo_data["Catm_O2"]),
+        SunDSM_MRT=FT(meteo_data["SunDSM_MRT"]),
+        SW_dir=fill(meteo_data["SW_dir"], ()),
+        SW_diff=fill(meteo_data["SW_diff"], ()),
+        q_atm=fill(meteo_data["q_atm"], ()),
+        ea=fill(meteo_data["ea"], ()),
+        esat_Tatm=fill(meteo_data["esat_Tatm"], ()),
+        qSat_atm=fill(FT(NaN), ()),
+        AtmRelative=fill(FT(NaN), ()),
+        AtmSpecific=fill(FT(NaN), ()),
+        AtmVapourPre=fill(FT(NaN), ()),
+        AtmRelativeSat=fill(FT(NaN), ()),
+        AtmSpecificSat=fill(FT(NaN), ()),
+        AtmVapourPreSat=fill(FT(NaN), ()),
+        cp_atm=fill(FT(NaN), ()),
+        rho_atm=fill(FT(NaN), ()),
     )
 end
 
@@ -113,11 +214,18 @@ function TethysChlorisCore.preprocess_fields(
     processed["SW_diff"][update_SW] += processed["SW_dir"][update_SW]
     processed["SW_dir"][update_SW] .= 0.0
 
-    processed["cp_atm"] =
-        1005.0 .+ (((processed["Tatm"] .- 273.15) .+ 23.15) .^ 2) .+ 3364.0
+    processed["cp_atm"] = 1005 .+ (((processed["Tatm"] .- 273.15) .+ 23.15) .^ 2) / 3364
     processed["rho_atm"] =
         (processed["Pre"] ./ (287.04 .* processed["Tatm"])) .*
-        (1.0 .- (processed["ea"] ./ processed["Pre"]) .* (1.0 - 0.622))
+        (1 .- (processed["ea"] ./ processed["Pre"]) .* (1 - 0.622))
+
+    processed["AtmRelative"] = processed["rel_hum"]
+    processed["AtmSpecific"] = processed["q_atm"]
+    processed["AtmVapourPre"] = processed["ea"]
+    processed["AtmRelativeSat"] = ones(size(processed["ea"]))
+    processed["AtmSpecificSat"] = processed["qSat_atm"]
+    processed["AtmVapourPreSat"] = processed["esat_Tatm"]
+    processed["LWR"] = processed["LWR_in"]
 
     return processed
 end

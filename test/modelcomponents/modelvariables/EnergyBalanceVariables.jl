@@ -46,11 +46,11 @@ FT = Float64
         solver_vars = SolverVariables(FT)
         @test solver_vars isa SolverVariables{FT}
         @test solver_vars.Success === false
-        @test solver_vars.ValuesEB isa MVector{22,FT}
+        @test solver_vars.ValuesEB isa Vector{FT}
         @test all(solver_vars.ValuesEB .== 0)
-        @test solver_vars.Tsolver isa MVector{22,FT}
+        @test solver_vars.Tsolver isa Vector{FT}
         @test all(solver_vars.Tsolver .== 0)
-        @test solver_vars.YfunctionOutput isa MVector{22,FT}
+        @test solver_vars.YfunctionOutput isa Vector{FT}
         @test all(solver_vars.YfunctionOutput .== 0)
     end
 end

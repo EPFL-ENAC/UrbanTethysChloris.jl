@@ -67,3 +67,7 @@ function Base.getindex(obj::T, idx::Int) where {FT<:AbstractFloat,T<:ForcingInpu
     end
     return scalar_type(; fieldvals...)
 end
+
+function Dates.hour(forcing::ForcingInputSet{FT,0}) where {FT<:AbstractFloat}
+    return Dates.hour(forcing.datetime[])
+end

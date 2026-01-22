@@ -30,10 +30,50 @@ Base.@kwdef mutable struct Humidity{FT<:AbstractFloat} <: AbstractModelVariables
     AtmRelativeSat::FT
     AtmSpecificSat::FT
     AtmVapourPreSat::FT
+    q2m::FT
 end
 
 function Humidity(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Humidity, Dict{String,Any}())
+end
+
+function Humidity(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return Humidity{FT}(;
+        CanyonRelative=data["CanyonRelative"],
+        CanyonSpecific=data["CanyonSpecific"],
+        CanyonVapourPre=data["CanyonVapourPre"],
+        CanyonRelativeSat=data["CanyonRelativeSat"],
+        CanyonSpecificSat=data["CanyonSpecificSat"],
+        CanyonVapourPreSat=data["CanyonVapourPreSat"],
+        AtmRelative=data["AtmRelative"],
+        AtmSpecific=data["AtmSpecific"],
+        AtmVapourPre=data["AtmVapourPre"],
+        AtmRelativeSat=data["AtmRelativeSat"],
+        AtmSpecificSat=data["AtmSpecificSat"],
+        AtmVapourPreSat=data["AtmVapourPreSat"],
+        q2m=data["q2m"],
+    )
+end
+
+function update!(x::Humidity{FT}, Humiditytot::Vector{FT}) where {FT<:AbstractFloat}
+    x.CanyonSpecific = Humiditytot[14]
+    return nothing
+end
+
+function update!(dest::Humidity{FT}, src::Humidity{FT}) where {FT<:AbstractFloat}
+    dest.CanyonRelative = src.CanyonRelative
+    dest.CanyonSpecific = src.CanyonSpecific
+    dest.CanyonVapourPre = src.CanyonVapourPre
+    dest.CanyonRelativeSat = src.CanyonRelativeSat
+    dest.CanyonSpecificSat = src.CanyonSpecificSat
+    dest.CanyonVapourPreSat = src.CanyonVapourPreSat
+    dest.AtmRelative = src.AtmRelative
+    dest.AtmSpecific = src.AtmSpecific
+    dest.AtmVapourPre = src.AtmVapourPre
+    dest.AtmRelativeSat = src.AtmRelativeSat
+    dest.AtmSpecificSat = src.AtmSpecificSat
+    dest.AtmVapourPreSat = src.AtmVapourPreSat
+    dest.q2m = src.q2m
 end
 
 """

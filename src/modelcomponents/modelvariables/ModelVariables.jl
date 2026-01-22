@@ -4,6 +4,7 @@ using TethysChlorisCore
 using TethysChlorisCore.ModelComponents
 using ..Parameters:
     SoilParameters,
+    VegetatedSoilParameters,
     VegetationParameters,
     HeightDependentVegetationParameters,
     VegetatedSoilParameters
@@ -43,7 +44,7 @@ function allocate_fields!(
     vector_length::Signed,
 ) where {FT<:AbstractFloat,T<:AbstractLayeredSoilVariables}
     for field in fields
-        x[field] = zero(MVector{vector_length,FT})
+        x[field] = zeros(FT, vector_length)
     end
 end
 
@@ -92,17 +93,36 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
+function Base.show(io::IO, obj::AbstractModelVariables)
+    print(io, typeof(obj))
+    for field in fieldnames(typeof(obj))
+        print(io, "\n", field, ": ", getfield(obj, field))
+    end
+end
+
 include("BuildingEnergyModelVariables.jl")
+export TempVecB, HumidityBuilding, HbuildInt, LEbuildInt, GbuildInt, SWRabsB, LWRabsB
+export BEMWasteHeat, BEMEnergyUse, ParACHeat_ts, BuildingEnergyModelVariables
 include("EnergyBalanceVariables.jl")
+export WBRoof, WBCanyonIndv, WBCanyonTot, EB, SolverVariables, EnergyBalanceVariables
 include("EnvironmentalConditions.jl")
+export Wind, LAITimeSeries, Resistance, EnvironmentalConditions
 include("HeatFluxVariables.jl")
+export Hflux, LEflux, Gflux, dStorage, Results2mEnergyFluxes, HeatFluxVariables
 include("HumidityVariables.jl")
+export Humidity, Results2m, HumidityVariables
 include("RadiationFluxVariables.jl")
+export AbsorbedRadiationFluxVariablesSubset,
+    DefaultRadiationFluxVariablesSubset, AlbedoOutput, RadiationFluxVariables
 include("TemperatureVariables.jl")
+export TempVec, TempDamp, MRT, ThermalComfort, TemperatureVariables
 include("WaterFluxVariables.jl")
+export Eflux, Runoff, Runon, Leakage, Interception, dInt_dt, Infiltration, Vwater
+export dVwater_dt, Owater, OSwater, Qinlat, ExWater, SoilPotW, CiCO2Leaf, WaterFluxVariables
 include("ModelVariableSet.jl")
 
 export Humidity, TempVec, TempVecB
 export ModelVariableSet
+export update!
 
 end

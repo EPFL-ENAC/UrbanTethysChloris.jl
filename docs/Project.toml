@@ -11,6 +11,7 @@ NaNMath = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 OrdinaryDiffEqRosenbrock = "43230ef6-c299-4910-a778-202eb28ce4ce"
 Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 TethysChlorisCore = "c22758e7-e854-5bdb-8df2-7602c47a9d98"
 UrbanTethysChloris = "8ae36e77-b357-5cab-a873-ceeadc1a5254"
 

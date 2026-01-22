@@ -157,8 +157,8 @@ input_vars, output_vars = load_matlab_data("water_functions.WaterCanyon.json")
     @test results.O_gimp ≈ output_vars["O_gimp"] atol = 1e-5
     @test results.OS_gimp ≈ output_vars["OS_gimp"] atol = 1e-5
     @test results.Lk_gimp ≈ output_vars["Lk_gimp"]
-    @test results.Psi_s_H_gimp ≈ [output_vars["Psi_s_H_gimp"]] atol = 1e-10
-    @test results.Psi_s_L_gimp ≈ [output_vars["Psi_s_L_gimp"]] atol = 1e-6
+    @test results.Psi_s_H_gimp ≈ output_vars["Psi_s_H_gimp"] atol = 1e-6
+    @test results.Psi_s_L_gimp ≈ output_vars["Psi_s_L_gimp"] atol = 1e-6
     # @test results.Exwat_H_gimp ≈ output_vars["Exwat_H_gimp"]
     # @test results.Exwat_L_gimp ≈ output_vars["Exwat_L_gimp"]
     @test results.Rd_gimp ≈ output_vars["Rd_gimp"]
@@ -173,8 +173,8 @@ input_vars, output_vars = load_matlab_data("water_functions.WaterCanyon.json")
     @test results.O_gbare ≈ output_vars["O_gbare"] atol = 0.005
     @test results.OS_gbare ≈ output_vars["OS_gbare"] atol = 0.001
     @test results.Lk_gbare ≈ output_vars["Lk_gbare"]
-    @test results.Psi_s_H_gbare ≈ [output_vars["Psi_s_H_gbare"]] atol = 1e-6
-    @test results.Psi_s_L_gbare ≈ [output_vars["Psi_s_L_gbare"]] atol = 1e-5
+    @test results.Psi_s_H_gbare ≈ output_vars["Psi_s_H_gbare"] atol = 1e-6
+    @test results.Psi_s_L_gbare ≈ output_vars["Psi_s_L_gbare"] atol = 1e-5
     # # @test results.Exwat_H_gbare ≈ output_vars["Exwat_H_gbare"]
     # # @test results.Exwat_L_gbare ≈ output_vars["Exwat_L_gbare"]
     # @test results.Rd_gbare ≈ output_vars["Rd_gbare"]

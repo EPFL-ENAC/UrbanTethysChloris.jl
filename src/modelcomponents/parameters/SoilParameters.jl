@@ -47,6 +47,41 @@ function initialize_vegetated_soilparameters(
     return initialize(FT, VegetatedSoilParameters, data, (FT,))
 end
 
+function VegetatedSoilParameters(
+    ::Type{FT}, data::AbstractDict, suffix::String=""
+) where {FT<:AbstractFloat}
+    # remove suffix from keys
+    stripped_data = Dict{String,Any}()
+    for (k, v) in data
+        if endswith(k, suffix)
+            new_key = replace(k, suffix => "")
+            stripped_data[new_key] = v
+        end
+    end
+    return VegetatedSoilParameters{FT}(
+        data["Pcla"],
+        data["Psan"],
+        data["Porg"],
+        data["In_max_imp"],
+        get(data, "In_max_ground", FT(NaN)),
+        get(data, "In_max_underveg", FT(NaN)),
+        get(data, "In_max_bare", FT(NaN)),
+        data["Sp_In"],
+        data["Kimp"],
+        data["Kfc"],
+        data["Phy"],
+        data["SPAR"],
+        data["Kbot"],
+        get(data, "dz1", FT(NaN)),
+        get(data, "dz2", FT(NaN)),
+        data["Zs"],
+        data["ms"],
+        stripped_data["FixSM"],
+        stripped_data["FixSM_LayerStart"],
+        stripped_data["FixSM_LayerEnd"],
+    )
+end
+
 function TethysChlorisCore.get_calculated_fields(::Type{VegetatedSoilParameters})
     return [:ms]
 end

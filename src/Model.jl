@@ -72,6 +72,9 @@ function initialize!(
     model::Model{FT}, forcing::ModelComponents.ForcingInputs.ForcingInputSet{FT,1}
 ) where {FT<:AbstractFloat}
 
+    # Initialize all vegetation and soil temperatures with atmospheric temperature
+    initialize!(model.variables.temperature.tempvec, model.forcing.meteorological.Tatm)
+
     # Initializes all dampening temperature with the nanmean T_atm
     initialize!(model.variables.temperature.tempdamp, forcing.meteorological.Tatm)
 
@@ -97,6 +100,19 @@ function initialize!(
 end
 
 function initialize!(
+    x::ModelComponents.ModelVariables.TempVec{FT}, Tatm::FT
+) where {FT<:AbstractFloat}
+    # set all layers off all fields to mean_Tatm
+    # T2m is technically initialize as Results2m.T2m[1] for the first timestep, but this is
+    # actually MeteoData.Tatm[1], so we use Tatm here for simplicity
+    for field in fieldnames(typeof(x))
+        setproperty!(x, field, Tatm)
+    end
+
+    return nothing
+end
+
+function initialize!(
     x::ModelComponents.ModelVariables.TempVecB{FT}, Tatm::FT, AtmSpecific::FT
 ) where {FT<:AbstractFloat}
     temperature_fields = [
@@ -117,7 +133,10 @@ end
 function initialize!(
     x::ModelComponents.ModelVariables.Humidity{FT}, AtmSpecific::FT
 ) where {FT<:AbstractFloat}
+    # q2m is technically initialize as MeteoData.q_atm but this corresponds to
+    # AtmSpecific, so we use AtmSpecific here for simplicity
     setproperty!(x, :CanyonSpecific, AtmSpecific)
+    setproperty!(x, :q2m, AtmSpecific)
 
     return nothing
 end

@@ -20,6 +20,10 @@ function initialize_simple_opticalproperties(
     return initialize(FT, SimpleOpticalProperties, data)
 end
 
+function SimpleOpticalProperties(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return SimpleOpticalProperties{FT}(data["albedo"], data["emissivity"])
+end
+
 """
     VegetatedOpticalProperties{FT<:AbstractFloat} <: AbstractParameters{FT}
 
@@ -49,6 +53,21 @@ function initialize_vegetated_opticalproperties(
     ::Type{FT}, data::Dict{String,Any}, fractions::LocationSpecificSurfaceFractions{FT}
 ) where {FT<:AbstractFloat}
     return initialize(FT, VegetatedOpticalProperties, data, (FT,), fractions)
+end
+
+function VegetatedOpticalProperties(
+    ::Type{FT}, data::AbstractDict
+) where {FT<:AbstractFloat}
+    return VegetatedOpticalProperties{FT}(
+        data["aveg"],
+        data["aimp"],
+        get(data, "abare", FT(NaN)),
+        data["albedo"],
+        data["eveg"],
+        data["eimp"],
+        get(data, "ebare", FT(NaN)),
+        data["emissivity"],
+    )
 end
 
 function TethysChlorisCore.get_optional_fields(::Type{VegetatedOpticalProperties})

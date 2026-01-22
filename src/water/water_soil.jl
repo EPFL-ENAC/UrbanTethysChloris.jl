@@ -263,12 +263,14 @@ function water_soil(
     TE_L = TE_L / (3600 * 1000 / row)      # [kg/m²s]
     TE_H = TE_H / (3600 * 1000 / row)      # [kg/m²s]
 
+    # In UrbanTethysChloris, there is only one crown area, so Psi_s_* are scalars and
+    # Exwat_* are vectors of size (ms,)
     return V,
     O,
     OS,
     Lk,
-    Psi_s_H,
-    Psi_s_L,
+    Psi_s_H[],
+    Psi_s_L[],
     vec(Exwat_H),
     vec(Exwat_L),
     Rd,

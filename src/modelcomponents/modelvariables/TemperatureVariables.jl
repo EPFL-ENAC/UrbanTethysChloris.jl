@@ -34,10 +34,49 @@ Base.@kwdef mutable struct TempVec{FT<:AbstractFloat} <: AbstractModelVariables{
     TWallIntShade::FT
     TCanyon::FT
     Tatm::FT
+    T2m::FT
 end
 
 function TempVec(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, TempVec, Dict{String,Any}())
+end
+
+function TempVec(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return TempVec{FT}(;
+        TRoofImp=data["TRoofImp"],
+        TRoofVeg=data["TRoofVeg"],
+        TRoofIntImp=data["TRoofIntImp"],
+        TRoofIntVeg=data["TRoofIntVeg"],
+        TGroundImp=data["TGroundImp"],
+        TGroundBare=data["TGroundBare"],
+        TGroundVeg=data["TGroundVeg"],
+        TTree=data["TTree"],
+        TWallSun=data["TWallSun"],
+        TWallShade=data["TWallShade"],
+        TWallIntSun=data["TWallIntSun"],
+        TWallIntShade=data["TWallIntShade"],
+        TCanyon=data["TCanyon"],
+        Tatm=data["Tatm"],
+        T2m=data["T2m"],
+    )
+end
+
+function update!(x::TempVec{FT}, Ttot::Vector{FT}) where {FT<:AbstractFloat}
+    x.TRoofImp = Ttot[1]
+    x.TRoofVeg = Ttot[2]
+    x.TRoofIntImp = Ttot[3]
+    x.TRoofIntVeg = Ttot[4]
+    x.TGroundImp = Ttot[5]
+    x.TGroundBare = Ttot[6]
+    x.TGroundVeg = Ttot[7]
+    x.TWallSun = Ttot[8]
+    x.TWallShade = Ttot[9]
+    x.TTree = Ttot[10]
+    x.TWallIntSun = Ttot[11]
+    x.TWallIntShade = Ttot[12]
+    x.TCanyon = Ttot[13]
+
+    return nothing
 end
 
 """
@@ -62,6 +101,25 @@ end
 
 function TempDamp(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, TempDamp, Dict{String,Any}())
+end
+
+function TempDamp(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return TempDamp{FT}(;
+        TDampGroundImp=data["TDampGroundImp"],
+        TDampGroundBare=data["TDampGroundBare"],
+        TDampGroundVeg=data["TDampGroundVeg"],
+        TDampTree=data["TDampTree"],
+        TDampGroundBuild=data["TDampGroundBuild"],
+    )
+end
+
+# Necessary to avoid a reference assignment
+function update!(x::TempDamp{FT}, y::TempDamp{FT}) where {FT<:AbstractFloat}
+    x.TDampGroundImp = y.TDampGroundImp
+    x.TDampGroundBare = y.TDampGroundBare
+    x.TDampGroundVeg = y.TDampGroundVeg
+    x.TDampTree = y.TDampTree
+    x.TDampGroundBuild = y.TDampGroundBuild
 end
 
 """

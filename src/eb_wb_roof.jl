@@ -150,6 +150,337 @@ Calculate energy balance for roof surfaces.
 function eb_wb_roof(
     TemperatureR::Vector{FT},
     TemperatureB::Vector{FT},
+    model::Model{FT},
+    ParCalculation::NamedTuple,
+    BEM_on::Bool,
+    RESPreCalc::Bool,
+    rsRoofPreCalc::NamedTuple,
+) where {FT<:AbstractFloat}
+    return eb_wb_roof(
+        TemperatureR,
+        TemperatureB,
+        model.variables.temperature.tempvec,
+        model.forcing.meteorological,
+        model.variables.waterflux.Interception,
+        model.variables.waterflux.ExWater,
+        model.variables.waterflux.Vwater,
+        model.variables.waterflux.Owater,
+        model.variables.waterflux.SoilPotW,
+        model.variables.waterflux.CiCO2Leaf,
+        model.variables.waterflux.Runon,
+        model.parameters.urbangeometry,
+        model.parameters.surfacefractions.roof,
+        model.parameters.soil.roof,
+        model.parameters.optical.roof,
+        model.parameters.thermal.roof,
+        model.parameters.vegetation.roof,
+        model.forcing.meteorological,
+        model.forcing.anthropogenic,
+        ParCalculation,
+        BEM_on,
+        RESPreCalc,
+        rsRoofPreCalc,
+    )
+end
+
+function eb_wb_roof(
+    TemperatureR::Vector{FT},
+    TemperatureB::Vector{FT},
+    TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
+    MeteoData::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0},
+    Int_ittm::ModelComponents.ModelVariables.Interception{FT},
+    ExWater_ittm::ModelComponents.ModelVariables.ExWater{FT,MR,MG},
+    Vwater_ittm::ModelComponents.ModelVariables.Vwater{FT,MR,MG},
+    Owater_ittm::ModelComponents.ModelVariables.Owater{FT,MR,MG},
+    SoilPotW_ittm::ModelComponents.ModelVariables.SoilPotW{FT},
+    CiCO2Leaf_ittm::ModelComponents.ModelVariables.CiCO2Leaf{FT},
+    Runon_ittm::ModelComponents.ModelVariables.Runon{FT},
+    Geometry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
+    FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
+    ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
+    PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties,
+    ParThermalRoof::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
+    ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
+    HumidityAtm::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0},
+    Anthropogenic::ModelComponents.ForcingInputs.AnthropogenicInputs{FT,0},
+    ParCalculation::NamedTuple,
+    BEM_on::Bool,
+    RESPreCalc::Bool,
+    rsRoofPreCalc::NamedTuple,
+) where {FT<:AbstractFloat,MR,MG}
+    # TemperatureR(1) = Troof_imp
+    # TemperatureR(2) = Troof_veg
+    # TemperatureR(3) = Troof_interior_imp
+    # TemperatureR(4) = Troof_interior_veg
+
+    # Shortwave radiation
+    SWRabs_dir_veg = (1 - PropOpticalRoof.aveg) * MeteoData.SW_dir  # Absorbed direct shortwave radiation by vegetated roof [W/m²]
+    SWRabs_diff_veg = (1 - PropOpticalRoof.aveg) * MeteoData.SW_diff  # Absorbed diffuse shortwave radiation by vegetated roof [W/m²]
+    SWRabsRoofVeg = (1 - PropOpticalRoof.aveg) * (MeteoData.SW_dir + MeteoData.SW_diff)  # Absorbed total shortwave radiation by vegetated roof [W/m²]
+    SWRabsRoofImp = (1 - PropOpticalRoof.aimp) * (MeteoData.SW_dir + MeteoData.SW_diff)  # Absorbed total shortwave radiation by impervious roof [W/m²]
+    SWRabsTotalRoof =
+        SWRabsRoofImp * FractionsRoof.fimp + SWRabsRoofVeg * FractionsRoof.fveg
+
+    SWRoutRoofImp = PropOpticalRoof.aimp * (MeteoData.SW_dir + MeteoData.SW_diff)
+    SWRoutRoofVeg = PropOpticalRoof.aveg * (MeteoData.SW_dir + MeteoData.SW_diff)
+    SWRoutTotalRoof =
+        SWRoutRoofImp * FractionsRoof.fimp + SWRoutRoofVeg * FractionsRoof.fveg
+
+    SWRinRoofImp = (MeteoData.SW_dir + MeteoData.SW_diff)
+    SWRinRoofVeg = (MeteoData.SW_dir + MeteoData.SW_diff)
+    SWRinTotalRoof = (MeteoData.SW_dir + MeteoData.SW_diff)
+
+    SWREBRoofImp = SWRinRoofImp - SWRoutRoofImp - SWRabsRoofImp
+    SWREBRoofVeg = SWRinRoofVeg - SWRoutRoofVeg - SWRabsRoofVeg
+    SWREBTotalRoof = SWRinTotalRoof - SWRoutTotalRoof - SWRabsTotalRoof
+
+    # Longwave radiation
+    bolzm = FT(5.67e-8)  # Stefan-Boltzmann constant [W*m^-2*K^-4]
+    LWRabsRoofVeg =
+        MeteoData.LWR - (
+            PropOpticalRoof.eveg * bolzm * (TemperatureR[2])^4 +
+            (1 - PropOpticalRoof.eveg) * MeteoData.LWR
+        )  # Total absorbed longwave radiation by vegetated roof [W/m²]
+    LWRabsRoofImp =
+        MeteoData.LWR - (
+            PropOpticalRoof.eimp * bolzm * (TemperatureR[1])^4 +
+            (1 - PropOpticalRoof.eimp) * MeteoData.LWR
+        )  # Total absorbed longwave radiation by impervious roof [W/m²]
+    LWRabsTotalRoof =
+        LWRabsRoofImp * FractionsRoof.fimp + LWRabsRoofVeg * FractionsRoof.fveg
+
+    LWRoutRoofVeg =
+        PropOpticalRoof.eveg * bolzm * (TemperatureR[2])^4 +
+        (1 - PropOpticalRoof.eveg) * MeteoData.LWR
+    LWRoutRoofImp =
+        PropOpticalRoof.eimp * bolzm * (TemperatureR[1])^4 +
+        (1 - PropOpticalRoof.eimp) * MeteoData.LWR
+    LWRoutTotalRoof =
+        LWRoutRoofImp * FractionsRoof.fimp + LWRoutRoofVeg * FractionsRoof.fveg
+
+    LWRinRoofImp = MeteoData.LWR
+    LWRinRoofVeg = MeteoData.LWR
+    LWRinTotalRoof = MeteoData.LWR
+
+    LWREBRoofImp = LWRinRoofImp - LWRoutRoofImp - LWRabsRoofImp
+    LWREBRoofVeg = LWRinRoofVeg - LWRoutRoofVeg - LWRabsRoofVeg
+    LWREBTotalRoof = LWRinTotalRoof - LWRoutTotalRoof - LWRabsTotalRoof
+
+    # Sensible and latent heat
+    HfluxRoofImp, HfluxRoofVeg, EfluxRoofImp, EfluxRoofVegInt, EfluxRoofVegPond, EfluxRoofVegSoil, TEfluxRoofVeg, LEfluxRoofImp, LEfluxRoofVegInt, LEfluxRoofVegPond, LEfluxRoofVegSoil, LTEfluxRoofVeg, CiCO2LeafRoofVegSun, CiCO2LeafRoofVegShd, raRooftoAtm, rb_LRoof, rap_LRoof, r_soilRoof, rs_sunRoof, rs_shdRoof = TurbulentHeat.heat_flux_roof(
+        TemperatureR,
+        TempVec_ittm,
+        MeteoData,
+        HumidityAtm,
+        ParVegRoof,
+        FractionsRoof,
+        Geometry_m,
+        ParSoilRoof,
+        ParCalculation,
+        SoilPotW_ittm,
+        Owater_ittm,
+        Vwater_ittm,
+        ExWater_ittm,
+        Int_ittm,
+        CiCO2Leaf_ittm,
+        SWRabs_dir_veg,
+        SWRabs_diff_veg,
+        RESPreCalc,
+        rsRoofPreCalc,
+    )
+
+    HfluxRoof = HfluxRoofImp * FractionsRoof.fimp + HfluxRoofVeg * FractionsRoof.fveg
+    LEfluxRoofVeg =
+        LEfluxRoofVegInt + LEfluxRoofVegPond + LEfluxRoofVegSoil + LTEfluxRoofVeg
+    LEfluxRoof = LEfluxRoofImp * FractionsRoof.fimp + LEfluxRoofVeg * FractionsRoof.fveg
+    EfluxRoofVeg = EfluxRoofVegInt + EfluxRoofVegPond + EfluxRoofVegSoil + TEfluxRoofVeg
+    EfluxRoof = EfluxRoofImp * FractionsRoof.fimp + EfluxRoofVeg * FractionsRoof.fveg
+
+    # Conductive heat fluxes roof
+    # Impervious conductive heat flux
+    G1RoofImp, G2RoofImp, dsRoofImp = ConductiveHeat.conductive_heat_flux_roof_imp(
+        TemperatureR,
+        TemperatureB,
+        TempVec_ittm,
+        Anthropogenic,
+        ParThermalRoof,
+        ParSoilRoof,
+        ParCalculation,
+        BEM_on,
+    )
+
+    # Conductive heat flux of green roof
+    G1RoofVeg, G2RoofVeg, dsRoofVeg = ConductiveHeat.conductive_heat_flux_green_roof(
+        TemperatureR,
+        TemperatureB,
+        TempVec_ittm,
+        Anthropogenic,
+        Owater_ittm,
+        ParVegRoof,
+        ParSoilRoof,
+        ParThermalRoof,
+        ParCalculation,
+        BEM_on,
+    )
+
+    G1Roof = G1RoofImp * FractionsRoof.fimp + G1RoofVeg * FractionsRoof.fveg
+    G2Roof = G2RoofImp * FractionsRoof.fimp + G2RoofVeg * FractionsRoof.fveg
+    dsRoof = dsRoofImp * FractionsRoof.fimp + dsRoofVeg * FractionsRoof.fveg
+
+    # Energy balance
+    Yroof = zeros(FT, 4)
+
+    if FractionsRoof.fimp > 0
+        Yroof[1] = SWRabsRoofImp + LWRabsRoofImp - HfluxRoofImp - G1RoofImp - LEfluxRoofImp  # Energy budget impervious roof
+        Yroof[3] = G1RoofImp - G2RoofImp - dsRoofImp  # Energy budget concrete mass roof
+    else
+        Yroof[1] = TemperatureR[1] - FT(273.15)
+        Yroof[3] = TemperatureR[3] - FT(273.15)
+    end
+
+    if FractionsRoof.fveg > 0
+        Yroof[2] =
+            SWRabsRoofVeg + LWRabsRoofVeg - HfluxRoofVeg - G1RoofVeg - LEfluxRoofVegInt -
+            LEfluxRoofVegPond - LEfluxRoofVegSoil - LTEfluxRoofVeg  # Energy budget vegetated roof
+        Yroof[4] = G1RoofVeg - G2RoofVeg - dsRoofVeg  # Energy budget concrete mass roof
+    else
+        Yroof[2] = TemperatureR[2] - FT(273.15)
+        Yroof[4] = TemperatureR[4] - FT(273.15)
+    end
+
+    EBRoofImp =
+        SWRabsRoofImp + LWRabsRoofImp - HfluxRoofImp - G2RoofImp - dsRoofImp - LEfluxRoofImp
+    EBRoofVeg =
+        SWRabsRoofVeg + LWRabsRoofVeg - HfluxRoofVeg - G2RoofVeg - dsRoofVeg -
+        LEfluxRoofVegInt - LEfluxRoofVegPond - LEfluxRoofVegSoil - LTEfluxRoofVeg
+
+    # Water fluxes and water balance
+    QRoofImp, IntRoofImp, dInt_dtRoofImp, LkRoofImp, QRoofVegDrip, IntRoofVegPlant, dInt_dtRoofVegPlant, QRoofVegPond, IntRoofVegGround, dInt_dtRoofVegGround, dVRoofSoil_dt, fRoofVeg, VRoofSoil, OwRoofSoil, OSwRoofSoil, LkRoofVeg, SoilPotWRoof_L, ExWaterRoof_L, QRoofVegSoil, TEfluxRoofVeg, EfluxRoofVegSoil, RunoffRoofTot, RunonRoofTot, WBRoofVegInVeg, WBRoofVegInGround, WBRoofVegSoil, WBRoofImp, WBRoofVeg, WBRoofTot = Water.water_roof(
+        EfluxRoofImp,
+        EfluxRoofVegInt,
+        EfluxRoofVegPond,
+        EfluxRoofVegSoil,
+        TEfluxRoofVeg,
+        MeteoData,
+        Int_ittm,
+        Owater_ittm,
+        Runon_ittm,
+        FractionsRoof,
+        ParSoilRoof,
+        ParCalculation,
+        ParVegRoof,
+        Anthropogenic,
+    )
+
+    LkRoof = LkRoofImp * FractionsRoof.fimp + LkRoofVeg * FractionsRoof.fveg
+    IntRooftot =
+        IntRoofImp * FractionsRoof.fimp +
+        (IntRoofVegPlant + IntRoofVegGround) * FractionsRoof.fveg
+    dInt_dtRooftot =
+        dInt_dtRoofImp * FractionsRoof.fimp +
+        (dInt_dtRoofVegPlant + dInt_dtRoofVegGround) * FractionsRoof.fveg
+    ExWaterRoof_H = fill(FT(NaN), ParSoilRoof.ms)
+    SoilPotWRoof_H = FT(NaN)
+
+    return (;
+        SWRabsRoofImp,
+        SWRabsRoofVeg,
+        SWRabsTotalRoof,
+        SWRoutRoofImp,
+        SWRoutRoofVeg,
+        SWRoutTotalRoof,
+        SWRinRoofImp,
+        SWRinRoofVeg,
+        SWRinTotalRoof,
+        SWREBRoofImp,
+        SWREBRoofVeg,
+        SWREBTotalRoof,
+        LWRabsRoofVeg,
+        LWRabsRoofImp,
+        LWRabsTotalRoof,
+        LWRoutRoofVeg,
+        LWRoutRoofImp,
+        LWRoutTotalRoof,
+        LWRinRoofImp,
+        LWRinRoofVeg,
+        LWRinTotalRoof,
+        LWREBRoofImp,
+        LWREBRoofVeg,
+        LWREBTotalRoof,
+        HfluxRoofImp,
+        HfluxRoofVeg,
+        HfluxRoof,
+        LEfluxRoofImp,
+        LEfluxRoofVegInt,
+        LEfluxRoofVegPond,
+        LEfluxRoofVegSoil,
+        LTEfluxRoofVeg,
+        LEfluxRoofVeg,
+        LEfluxRoof,
+        G1RoofImp,
+        G2RoofImp,
+        dsRoofImp,
+        G1RoofVeg,
+        G2RoofVeg,
+        dsRoofVeg,
+        G1Roof,
+        G2Roof,
+        dsRoof,
+        raRooftoAtm,
+        rb_LRoof,
+        rap_LRoof,
+        r_soilRoof,
+        rs_sunRoof,
+        rs_shdRoof,
+        EfluxRoofImp,
+        EfluxRoofVegInt,
+        EfluxRoofVegPond,
+        EfluxRoofVegSoil,
+        TEfluxRoofVeg,
+        EfluxRoofVeg,
+        EfluxRoof,
+        QRoofImp,
+        QRoofVegDrip,
+        QRoofVegPond,
+        LkRoofImp,
+        LkRoofVeg,
+        LkRoof,
+        QRoofVegSoil,
+        RunoffRoofTot,
+        RunonRoofTot,
+        IntRoofImp,
+        IntRoofVegPlant,
+        IntRoofVegGround,
+        dInt_dtRoofImp,
+        dInt_dtRoofVegPlant,
+        dInt_dtRoofVegGround,
+        IntRooftot,
+        dInt_dtRooftot,
+        dVRoofSoil_dt,
+        fRoofVeg,
+        VRoofSoil,
+        OwRoofSoil,
+        OSwRoofSoil,
+        ExWaterRoof_H,
+        SoilPotWRoof_H,
+        SoilPotWRoof_L,
+        ExWaterRoof_L,
+        CiCO2LeafRoofVegSun,
+        CiCO2LeafRoofVegShd,
+        WBRoofVegInVeg,
+        WBRoofVegInGround,
+        WBRoofVegSoil,
+        EBRoofImp,
+        EBRoofVeg,
+        Yroof,
+        WBRoofImp,
+        WBRoofVeg,
+        WBRoofTot,
+    )
+end
+function eb_wb_roof(
+    TemperatureR::Vector{FT},
+    TemperatureB::Vector{FT},
     TempVec_ittm::NamedTuple,
     MeteoData::NamedTuple,
     Int_ittm::NamedTuple,
@@ -343,8 +674,8 @@ function eb_wb_roof(
     dInt_dtRooftot =
         dInt_dtRoofImp * FractionsRoof.fimp +
         (dInt_dtRoofVegPlant + dInt_dtRoofVegGround) * FractionsRoof.fveg
-    ExWaterRoof_H = fill(FT(NaN), 1, ParSoilRoof.ms)
-    SoilPotWRoof_H = fill(FT(NaN), 1, 1)
+    ExWaterRoof_H = fill(FT(NaN), ParSoilRoof.ms)
+    SoilPotWRoof_H = fill(FT(NaN), 1)
 
     return (;
         SWRabsRoofImp,
@@ -427,8 +758,8 @@ function eb_wb_roof(
         OSwRoofSoil,
         ExWaterRoof_H,
         SoilPotWRoof_H,
-        ExWaterRoof_L,
         SoilPotWRoof_L,
+        ExWaterRoof_L,
         CiCO2LeafRoofVegSun,
         CiCO2LeafRoofVegShd,
         WBRoofVegInVeg,

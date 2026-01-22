@@ -24,6 +24,16 @@ function initialize_person_parameters(
     return initialize(FT, PersonParameters, data, (FT,))
 end
 
+function PersonParameters(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return PersonParameters{FT}(;
+        PositionPx=FT(data["PositionPx"]),
+        PositionPz=FT(data["PositionPz"]),
+        PersonWidth=FT(data["PersonWidth"]),
+        PersonHeight=FT(data["PersonHeight"]),
+        HeightWind=FT(data["HeightWind"]),
+    )
+end
+
 function TethysChlorisCore.validate_fields(::Type{PersonParameters}, data::Dict{String,Any})
     check_extraneous_fields(PersonParameters, data)
 

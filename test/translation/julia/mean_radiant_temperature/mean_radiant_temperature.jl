@@ -1,19 +1,18 @@
 using Test
 using MAT
+using UrbanTethysChloris.Radiation: RadiationFluxes
+using UrbanTethysChloris.ModelComponents.ForcingInputs
+using UrbanTethysChloris.ModelComponents.Parameters
 using UrbanTethysChloris.MeanRadiantTemperature: mean_radiant_temperature
 using UrbanTethysChloris.RayTracing: ViewFactorPoint
-using ....TestUtils:
-    create_urban_geometry_parameters,
-    create_height_dependent_vegetation_parameters,
-    load_matlab_data
+using ....TestUtils: create_urban_geometry_parameters, load_matlab_data
 
 FT = Float64
 input_vars, output_vars = load_matlab_data("MRT.MeanRadiantTemperature.json")
 
 # Create parameter structs
-ParVegTree = create_height_dependent_vegetation_parameters(
-    FT; LAI=FT(input_vars["ParVegTree"]["LAI"]), Kopt=input_vars["ParVegTree"]["Kopt"]
-)
+ParVegTree = HeightDependentVegetationParameters(FT, input_vars["ParVegTree"])
+vfp = ViewFactorPoint(FT, input_vars["ViewFactorPoint"])
 
 Geometry_m = create_urban_geometry_parameters(
     FT;
@@ -26,49 +25,73 @@ Geometry_m = create_urban_geometry_parameters(
     Width_canyon=input_vars["Gemeotry_m"]["Width_canyon"],
 )
 
-SunPosition = (;
-    theta_Z=input_vars["SunPosition"]["theta_Z"],
-    theta_n=input_vars["SunPosition"]["theta_n"],
-    zeta_S=input_vars["SunPosition"]["zeta_S"],
-    TimeOfMaxSolAlt=input_vars["SunPosition"]["TimeOfMaxSolAlt"],
-    Datam=FT.(vec(input_vars["SunPosition"]["Datam"])),
-)
+@testset "Composite types" begin
+    SunPosition = SunPositionInputs(FT, input_vars["SunPosition"])
+    MeteoData = MeteorologicalInputs(FT, input_vars["MeteoData"])
+    Person = PersonParameters(FT, input_vars["Person"])
+    SWRout_t = RadiationFluxes(FT, input_vars["SWRout_t"], "SWRout")
+    LWRout_t = RadiationFluxes(FT, input_vars["LWRout_t"], "LWRout")
+    TimeHr = FT(input_vars["SunPosition"]["Datam"][4])
 
-Person = (;
-    PositionPz=input_vars["Person"]["PositionPz"],
-    PositionPx=input_vars["Person"]["PositionPx"],
-)
+    Tmrt, BooleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = mean_radiant_temperature(
+        SWRout_t,
+        LWRout_t,
+        MeteoData,
+        vfp,
+        ParVegTree,
+        Geometry_m,
+        SunPosition,
+        Person,
+        TimeHr,
+    )
 
-SWRout_t = (;
-    SWRoutTotalGround=input_vars["SWRout_t"]["SWRoutTotalGround"],
-    SWRoutTree=input_vars["SWRout_t"]["SWRoutTree"],
-    SWRoutWallSun=input_vars["SWRout_t"]["SWRoutWallSun"],
-    SWRoutWallShade=input_vars["SWRout_t"]["SWRoutWallShade"],
-)
+    @test Tmrt ≈ output_vars["Tmrt"]
+    @test BooleanInSun ≈ output_vars["BoleanInSun"]
+    @test SWRdir_Person ≈ output_vars["SWRdir_Person"]
+    @test SWRdir_in_top ≈ output_vars["SWRdir_in_top"]
+    @test SWRdir_in_bottom ≈ output_vars["SWRdir_in_bottom"]
+    @test SWRdir_in_east ≈ output_vars["SWRdir_in_east"]
+    @test SWRdir_in_south ≈ output_vars["SWRdir_in_south"]
+    @test SWRdir_in_west ≈ output_vars["SWRdir_in_west"]
+    @test SWRdir_in_north ≈ output_vars["SWRdir_in_north"]
+    @test SWRdiff_Person ≈ output_vars["SWRdiff_Person"]
+    @test LWR_Person ≈ output_vars["LWR_Person"]
+end
+@testset "Named tuples" begin
+    SunPosition = (;
+        theta_Z=input_vars["SunPosition"]["theta_Z"],
+        theta_n=input_vars["SunPosition"]["theta_n"],
+        zeta_S=input_vars["SunPosition"]["zeta_S"],
+        TimeOfMaxSolAlt=input_vars["SunPosition"]["TimeOfMaxSolAlt"],
+        Datam=FT.(vec(input_vars["SunPosition"]["Datam"])),
+    )
 
-LWRout_t = (;
-    LWRoutTotalGround=input_vars["LWRout_t"]["LWRoutTotalGround"],
-    LWRoutTree=input_vars["LWRout_t"]["LWRoutTree"],
-    LWRoutWallSun=input_vars["LWRout_t"]["LWRoutWallSun"],
-    LWRoutWallShade=input_vars["LWRout_t"]["LWRoutWallShade"],
-)
+    Person = (;
+        PositionPz=input_vars["Person"]["PositionPz"],
+        PositionPx=input_vars["Person"]["PositionPx"],
+    )
 
-MeteoData = (;
-    SW_dir=FT(input_vars["MeteoData"]["SW_dir"]),
-    SW_diff=input_vars["MeteoData"]["SW_diff"],
-    LWR=input_vars["MeteoData"]["LWR"],
-    SunDSM_MRT=input_vars["MeteoData"]["SunDSM_MRT"],
-)
+    SWRout_t = (;
+        SWRoutTotalGround=input_vars["SWRout_t"]["SWRoutTotalGround"],
+        SWRoutTree=input_vars["SWRout_t"]["SWRoutTree"],
+        SWRoutWallSun=input_vars["SWRout_t"]["SWRoutWallSun"],
+        SWRoutWallShade=input_vars["SWRout_t"]["SWRoutWallShade"],
+    )
 
-vfp = ViewFactorPoint{FT}(;
-    F_pg=input_vars["ViewFactorPoint"]["F_pg"],
-    F_ps=input_vars["ViewFactorPoint"]["F_ps"],
-    F_pt=input_vars["ViewFactorPoint"]["F_pt"],
-    F_pwLeft=input_vars["ViewFactorPoint"]["F_pwLeft"],
-    F_pwRight=input_vars["ViewFactorPoint"]["F_pwRight"],
-)
+    LWRout_t = (;
+        LWRoutTotalGround=input_vars["LWRout_t"]["LWRoutTotalGround"],
+        LWRoutTree=input_vars["LWRout_t"]["LWRoutTree"],
+        LWRoutWallSun=input_vars["LWRout_t"]["LWRoutWallSun"],
+        LWRoutWallShade=input_vars["LWRout_t"]["LWRoutWallShade"],
+    )
 
-@testset "MATLAB" begin
+    MeteoData = (;
+        SW_dir=FT(input_vars["MeteoData"]["SW_dir"]),
+        SW_diff=input_vars["MeteoData"]["SW_diff"],
+        LWR=input_vars["MeteoData"]["LWR"],
+        SunDSM_MRT=input_vars["MeteoData"]["SunDSM_MRT"],
+    )
+
     Tmrt, BooleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = mean_radiant_temperature(
         SWRout_t, LWRout_t, MeteoData, vfp, ParVegTree, Geometry_m, SunPosition, Person
     )

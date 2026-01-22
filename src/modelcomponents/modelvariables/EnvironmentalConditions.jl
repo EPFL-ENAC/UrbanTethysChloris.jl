@@ -96,6 +96,34 @@ function Resistance(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Resistance, Dict{String,Any}())
 end
 
+function update!(x::Resistance{FT}, y::Resistance{FT}) where {FT<:AbstractFloat}
+    x.raRooftoAtm = y.raRooftoAtm
+    x.raCanyontoAtmOrig = y.raCanyontoAtmOrig
+    x.rap_LRoof = y.rap_LRoof
+    x.rb_LRoof = y.rb_LRoof
+    x.r_soilRoof = y.r_soilRoof
+    x.rs_sunRoof = y.rs_sunRoof
+    x.rs_shdRoof = y.rs_shdRoof
+    x.raCanyontoAtm = y.raCanyontoAtm
+    x.rap_can = y.rap_can
+    x.rap_Htree_In = y.rap_Htree_In
+    x.rb_HGround = y.rb_HGround
+    x.rb_LGround = y.rb_LGround
+    x.r_soilGroundbare = y.r_soilGroundbare
+    x.r_soilGroundveg = y.r_soilGroundveg
+    x.alp_soilGroundbare = y.alp_soilGroundbare
+    x.alp_soilGroundveg = y.alp_soilGroundveg
+    x.rs_sunGround = y.rs_sunGround
+    x.rs_shdGround = y.rs_shdGround
+    x.rs_sunTree = y.rs_sunTree
+    x.rs_shdTree = y.rs_shdTree
+    x.RES_w1 = y.RES_w1
+    x.RES_w2 = y.RES_w2
+    x.rap_W1_In = y.rap_W1_In
+    x.rap_W2_In = y.rap_W2_In
+    x.rap_Zp1 = y.rap_Zp1
+end
+
 """
     EnvironmentalConditionSet{FT<:AbstractFloat} <: AbstractModelVariableSet{FT}
 

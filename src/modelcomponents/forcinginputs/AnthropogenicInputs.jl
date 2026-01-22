@@ -28,6 +28,17 @@ function AnthropogenicInputs(
     )
 end
 
+function AnthropogenicInputs(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return AnthropogenicInputs{FT,0}(;
+        Tb=fill(data["Tb"], ()),
+        Qf_canyon=fill(FT(data["Qf_canyon"]), ()),
+        Qf_roof=fill(FT(data["Qf_roof"]), ()),
+        Waterf_canyonVeg=fill(FT(data["Waterf_canyonVeg"]), ()),
+        Waterf_canyonBare=fill(FT(data["Waterf_canyonBare"]), ()),
+        Waterf_roof=fill(FT(data["Waterf_roof"]), ()),
+    )
+end
+
 function TethysChlorisCore.get_required_fields(::Type{AnthropogenicInputs})
     return [:Tbmin, :Tbmax]
 end

@@ -145,6 +145,39 @@ function ViewFactor(
     )
 end
 
+function ViewFactor(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return ViewFactor{FT}(;
+        F_gs_nT=FT(data["F_gs_nT"]),
+        F_gw_nT=FT(data["F_gw_nT"]),
+        F_ww_nT=FT(data["F_ww_nT"]),
+        F_wg_nT=FT(data["F_wg_nT"]),
+        F_ws_nT=FT(data["F_ws_nT"]),
+        F_sg_nT=FT(data["F_sg_nT"]),
+        F_sw_nT=FT(data["F_sw_nT"]),
+        F_gs_T=FT(data["F_gs_T"]),
+        F_gt_T=FT(data["F_gt_T"]),
+        F_gw_T=FT(data["F_gw_T"]),
+        F_ww_T=FT(data["F_ww_T"]),
+        F_wt_T=FT(data["F_wt_T"]),
+        F_wg_T=FT(data["F_wg_T"]),
+        F_ws_T=FT(data["F_ws_T"]),
+        F_sg_T=FT(data["F_sg_T"]),
+        F_sw_T=FT(data["F_sw_T"]),
+        F_st_T=FT(data["F_st_T"]),
+        F_tg_T=FT(data["F_tg_T"]),
+        F_tw_T=FT(data["F_tw_T"]),
+        F_ts_T=FT(data["F_ts_T"]),
+        F_tt_T=FT(data["F_tt_T"]),
+    )
+end
+
+function Base.show(io::IO, vf::AbstractViewFactor)
+    print(io, typeof(vf), ":\n")
+    for field in fieldnames(typeof(vf))
+        print(io, "  ", field, ": ", getfield(vf, field), "\n")
+    end
+end
+
 """
     ViewFactorPoint{FT<:AbstractFloat} <: AbstractViewFactor{FT}
 
@@ -163,6 +196,16 @@ Base.@kwdef struct ViewFactorPoint{FT<:AbstractFloat} <: AbstractViewFactor{FT}
     F_pt::FT
     F_pwLeft::FT
     F_pwRight::FT
+end
+
+function ViewFactorPoint(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
+    return ViewFactorPoint{FT}(;
+        F_pg=FT(data["F_pg"]),
+        F_ps=FT(data["F_ps"]),
+        F_pt=FT(data["F_pt"]),
+        F_pwLeft=FT(data["F_pwLeft"]),
+        F_pwRight=FT(data["F_pwRight"]),
+    )
 end
 
 """
