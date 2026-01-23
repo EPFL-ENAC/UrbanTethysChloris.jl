@@ -81,6 +81,8 @@ function run_simulation(
     Qinlat_t = deepcopy(model.variables.waterflux.Qinlat)
     Vwater_t = deepcopy(model.variables.waterflux.Vwater)
 
+    results = create_results_struct(FT, NN)
+
     for i in 1:NN
         @info "Starting iteration $i / $NN"
 
@@ -382,11 +384,13 @@ function run_simulation(
         update!(model.variables.waterflux.Runon, Runon_t)
         update!(model.variables.waterflux.Qinlat, Qinlat_t)
 
+        store_results!(results, model, i)
+
         # Update forcing parameters for the next step
         model.forcing = forcing[i + 1]
     end
 
-    return nothing
+    return results
 end
 
 function roof_temperature(
@@ -448,4 +452,103 @@ function urban_average(
     fcanyon = urbangeometry.wcanyon_norm
 
     return roof * froof + canyon * fcanyon
+end
+
+function create_results_struct(::Type{FT}, NN::Signed) where {FT<:AbstractFloat}
+    results = Dict{String,Any}(
+        "TRoofImp" => zeros(FT, NN),
+        "TRoofVeg" => zeros(FT, NN),
+        "TRoofIntImp" => zeros(FT, NN),
+        "TRoofIntVeg" => zeros(FT, NN),
+        "TGroundImp" => zeros(FT, NN),
+        "TGroundBare" => zeros(FT, NN),
+        "TGroundVeg" => zeros(FT, NN),
+        "TTree" => zeros(FT, NN),
+        "TWallSun" => zeros(FT, NN),
+        "TWallShade" => zeros(FT, NN),
+        "TWallIntSun" => zeros(FT, NN),
+        "TWallIntShade" => zeros(FT, NN),
+        "TCanyon" => zeros(FT, NN),
+        "Tatm" => zeros(FT, NN),
+        "T2m" => zeros(FT, NN),
+        "RH_T2m" => zeros(FT, NN),
+        "Tmrt" => zeros(FT, NN),
+        "RHbin" => zeros(FT, NN),
+        "UTCI" => zeros(FT, NN),
+        "Tbin" => zeros(FT, NN),
+    )
+
+    return results
+end
+
+function store_results!(
+    results::Dict{String,Any}, model::Model{FT}, i::Signed
+) where {FT<:AbstractFloat}
+    store_results!(results, model.variables.temperature.tempvec, i)
+    store_results!(results, model.variables.buildingenergymodel.HumidityBuilding, i)
+    store_results!(results, model.variables.temperature.mrt, i)
+    store_results!(results, model.variables.temperature.thermalcomfort, i)
+    store_results!(results, model.variables.buildingenergymodel.TempVecB, i)
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    TempVec::ModelComponents.ModelVariables.TempVec{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["TRoofImp"][i] = TempVec.TRoofImp
+    results["TRoofVeg"][i] = TempVec.TRoofVeg
+    results["TRoofIntImp"][i] = TempVec.TRoofIntImp
+    results["TRoofIntVeg"][i] = TempVec.TRoofIntVeg
+    results["TGroundImp"][i] = TempVec.TGroundImp
+    results["TGroundBare"][i] = TempVec.TGroundBare
+    results["TGroundVeg"][i] = TempVec.TGroundVeg
+    results["TTree"][i] = TempVec.TTree
+    results["TWallSun"][i] = TempVec.TWallSun
+    results["TWallShade"][i] = TempVec.TWallShade
+    results["TWallIntSun"][i] = TempVec.TWallIntSun
+    results["TWallIntShade"][i] = TempVec.TWallIntShade
+    results["TCanyon"][i] = TempVec.TCanyon
+    results["Tatm"][i] = TempVec.Tatm
+    results["T2m"][i] = TempVec.T2m
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    HumidityBuilding::ModelComponents.ModelVariables.HumidityBuilding{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["RHbin"][i] = HumidityBuilding.RHbin
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    ThermalComfort::ModelComponents.ModelVariables.ThermalComfort{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["UTCI"][i] = ThermalComfort.UTCI
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any}, MRT::ModelComponents.ModelVariables.MRT{FT}, i::Signed
+) where {FT<:AbstractFloat}
+    results["Tmrt"][i] = MRT.Tmrt
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    TempVecB::ModelComponents.ModelVariables.TempVecB{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["Tbin"][i] = TempVecB.Tbin
+
+    return nothing
 end
