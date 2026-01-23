@@ -10,6 +10,10 @@ using NCDatasets
 using YAML
 using NaNMath: NaNMath
 using StaticArraysCore
+using DataFrames: DataFrame, select, combine, groupby, Not
+using DataFramesMeta: @chain
+using Plots: plot, plot!
+using LaTeXStrings: @L_str
 
 include(joinpath("soil", "Soil.jl"))
 using .Soil
@@ -64,5 +68,8 @@ include("eb_wb_canyon.jl")
 include("update_hvac_parameters.jl")
 include("run_simulation.jl")
 export run_simulation
+
+include("urban_climate_variables.jl")
+export urban_climate_variables
 
 end

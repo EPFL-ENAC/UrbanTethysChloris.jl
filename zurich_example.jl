@@ -48,7 +48,7 @@ O33 = (
 
 initialize!(model, forcing)
 
-NN = 100
+NN = 4000
 results = run_simulation(
     model,
     forcing;
@@ -57,3 +57,5 @@ results = run_simulation(
     O33=O33,
     fconvPreCalc=false,
 )
+
+x, x_day, x_month, fig1, fig2 = urban_climate_variables(results, model, forcing, NN)
