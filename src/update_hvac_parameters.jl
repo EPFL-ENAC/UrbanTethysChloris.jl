@@ -25,10 +25,11 @@ function update_hvac_parameters(
         AC_onDehum = 1;
         Heatingon = 0;
         MasterOn = 1;
-        if qbin_r<(ParHVAC.q_RHspCooling+10^-6) && round(EnergyUse.EnergyForAC_LE, 1)==0
+        if qbin_r<(ParHVAC.q_RHspCooling+10^-6) &&
+            round(EnergyUse.EnergyForAC_LE; digits=1)==0
             AC_onDehum = 0;
         elseif Tbin_r<(ParHVAC.TsetpointCooling+0.01) &&
-            round(EnergyUse.EnergyForAC_H, 1)==0
+            round(EnergyUse.EnergyForAC_H; digits=1)==0
             AC_onCool = 0;
         end
     elseif ParHVACorig.ACon &&
