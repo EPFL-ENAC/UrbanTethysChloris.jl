@@ -295,7 +295,7 @@ function eb_wb_canyon(
         SWRabsWallShadeExt=SWRabs_t.WallShade
     end
 
-    if abs(SWRabsWallSunTransmitted - SWRabs_t.WallSun) > 10^-8
+    if abs(SWRabsWallSunExt+SWRabsWallSunTransmitted - SWRabs_t.WallSun) > 10^-8
         @warn "Warning"
     elseif abs(SWRabsWallShadeExt + SWRabsWallShadeTransmitted - SWRabs_t.WallShade) > 10^-8
         @warn "Warning"
