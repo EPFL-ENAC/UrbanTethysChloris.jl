@@ -82,8 +82,11 @@ Nonlinear system solver for the coupled energy balance equations.
 21. TBin: Indoor air temperature
 22. qBin: Indoor specific humidity
 """
-function f_solver_tot(
+function f_solver_tot!(
     model::Model{FT},
+    TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
+    TempVecB_ittm::ModelComponents.ModelVariables.TempVecB{FT},
+    Humidity_ittm::ModelComponents.ModelVariables.Humidity{FT},
     ViewFactor::RayTracing.ViewFactor{FT},
     WallLayers::NamedTuple,
     ParInterceptionTree::NamedTuple,
@@ -103,10 +106,10 @@ function f_solver_tot(
     iterations::Int=500,
     f_tol::Real=1e-10,
 ) where {FT<:AbstractFloat}
-    return f_solver_tot(
-        model.variables.temperature.tempvec,
-        model.variables.buildingenergymodel.TempVecB,
-        model.variables.humidity.Humidity,
+    Ttot, fval, exitflag = f_solver_tot(
+        TempVec_ittm,
+        TempVecB_ittm,
+        Humidity_ittm,
         model.forcing.meteorological,
         model.variables.waterflux.Interception,
         model.variables.waterflux.ExWater,
@@ -156,6 +159,12 @@ function f_solver_tot(
         iterations,
         f_tol,
     )
+
+    model.variables.energybalance.Solver.Success = exitflag
+    model.variables.energybalance.Solver.ValuesEB = fval
+    model.variables.energybalance.Solver.Tsolver = Ttot
+
+    return Ttot
 end
 function f_solver_tot(
     TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},

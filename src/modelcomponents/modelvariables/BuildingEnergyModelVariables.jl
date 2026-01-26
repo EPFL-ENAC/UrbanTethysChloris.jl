@@ -54,6 +54,18 @@ function update!(x::TempVecB{FT}, Ttot::Vector{FT}) where {FT<:AbstractFloat}
     return nothing
 end
 
+function update!(x::TempVecB{FT}, x_new::TempVecB{FT}) where {FT<:AbstractFloat}
+    x.Tceiling = x_new.Tceiling
+    x.Tinwallsun = x_new.Tinwallsun
+    x.Tinwallshd = x_new.Tinwallshd
+    x.Twindows = x_new.Twindows
+    x.Tinground = x_new.Tinground
+    x.Tintmass = x_new.Tintmass
+    x.Tbin = x_new.Tbin
+    x.qbin = x_new.qbin
+    return nothing
+end
+
 """
     HumidityBuilding{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 

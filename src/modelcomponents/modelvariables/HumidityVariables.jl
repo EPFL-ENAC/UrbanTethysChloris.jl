@@ -60,6 +60,22 @@ function update!(x::Humidity{FT}, Humiditytot::Vector{FT}) where {FT<:AbstractFl
     return nothing
 end
 
+function update!(x::Humidity{FT}, y::Humidity{FT}) where {FT<:AbstractFloat}
+    x.CanyonRelative = y.CanyonRelative
+    x.CanyonSpecific = y.CanyonSpecific
+    x.CanyonVapourPre = y.CanyonVapourPre
+    x.CanyonRelativeSat = y.CanyonRelativeSat
+    x.CanyonSpecificSat = y.CanyonSpecificSat
+    x.CanyonVapourPreSat = y.CanyonVapourPreSat
+    x.AtmRelative = y.AtmRelative
+    x.AtmSpecific = y.AtmSpecific
+    x.AtmVapourPre = y.AtmVapourPre
+    x.AtmRelativeSat = y.AtmRelativeSat
+    x.AtmSpecificSat = y.AtmSpecificSat
+    x.AtmVapourPreSat = y.AtmVapourPreSat
+    x.q2m = y.q2m
+end
+
 function update!(dest::Humidity{FT}, src::Humidity{FT}) where {FT<:AbstractFloat}
     dest.CanyonRelative = src.CanyonRelative
     dest.CanyonSpecific = src.CanyonSpecific
