@@ -72,4 +72,7 @@ export run_simulation
 include("urban_climate_variables.jl")
 export urban_climate_variables
 
+include("plan_area_energy_balance_calculation.jl")
+export plan_area_energy_balance_calculation
+
 end

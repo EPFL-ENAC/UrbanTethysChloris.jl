@@ -82,6 +82,7 @@ function run_simulation(
     Vwater_t = deepcopy(model.variables.waterflux.Vwater)
 
     results = create_results_struct(FT, NN)
+    results["ViewFactor"] = ViewFactor
 
     for i in 1:NN
         @info "Starting iteration $i / $NN"
@@ -107,6 +108,11 @@ function run_simulation(
         ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(model, BEM_on)
 
         EnergyUse = (;);
+        Fluxes = nothing
+        LEbuildIntc = (;)
+        HbuildIntc = (;)
+        GbuildIntc = (;)
+        WasteHeat = (;)
 
         for HVACittm in 1:2
             if BEM_on && HVACittm == 2
@@ -337,6 +343,63 @@ function run_simulation(
             Qinlat_t.Qin_imp = Qin_imp
             Qinlat_t.Qin_bare = Qin_bare
             Qinlat_t.Qin_veg = Qin_veg
+
+            Fluxes = (;
+                SWRin_t,
+                SWRout_t,
+                SWRabs_t,
+                LWRin_t,
+                LWRout_t,
+                LWRabs_t,
+                SWRinTotalRoof,
+                SWRabsTotalRoof,
+                SWRoutTotalRoof,
+                LWRinTotalRoof,
+                LWRabsTotalRoof,
+                LWRoutTotalRoof,
+                SWRabsTotalUrban=urban_average(
+                    SWRabsTotalRoof, SWRabs_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                SWRinTotalUrban=urban_average(
+                    SWRinTotalRoof, SWRin_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                SWRoutTotalUrban=urban_average(
+                    SWRoutTotalRoof, SWRout_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                LWRabsTotalUrban=urban_average(
+                    LWRabsTotalRoof, LWRabs_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                LWRinTotalUrban=urban_average(
+                    LWRinTotalRoof, LWRin_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                LWRoutTotalUrban=urban_average(
+                    LWRoutTotalRoof, LWRout_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                LEfluxRoof,
+                HfluxRoof,
+                G1Roof,
+                G2Roof,
+                dsRoof,
+                LEfluxCanyon,
+                HfluxCanyon,
+                G1Canyon,
+                G2Canyon,
+                G1Ground,
+                G1WallSun,
+                G1WallShade,
+                dsWallSun,
+                dsWallShade,
+                dS_H_air,
+                dS_LE_air,
+                HfluxUrban=urban_average(
+                    HfluxRoof, HfluxCanyon, model.parameters.urbangeometry
+                ),
+                LEfluxUrban=urban_average(
+                    LEfluxRoof, LEfluxCanyon, model.parameters.urbangeometry
+                ),
+                G1Urban=urban_average(G1Roof, G1Canyon, model.parameters.urbangeometry),
+                G2Urban=urban_average(G2Roof, G2Canyon, model.parameters.urbangeometry),
+            )
         end
 
         Tmrt, BoleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = MeanRadiantTemperature.mean_radiant_temperature(
@@ -352,8 +415,9 @@ function run_simulation(
         )
 
         # Assign outputs
-        # Urban average store in *TotalUrban field, which is not part of the RadiationFluxes
-        # composite type
+        # TODO: add missing TotalRoof field to RadiationFluxes struct
+        # TODO: add urban average for Hflux, LEflux, Gflux
+        # TODO: implement energy balance check script as function
 
         # tempvec - already done higher
 
@@ -385,6 +449,11 @@ function run_simulation(
         update!(model.variables.waterflux.Qinlat, Qinlat_t)
 
         store_results!(results, model, i)
+        store_fluxes!(results, i, Fluxes)
+        store_GbuildInt!(results, i, GbuildIntc)
+        store_HbuildInt!(results, i, HbuildIntc)
+        store_LEbuildInt!(results, i, LEbuildIntc)
+        store_BEMWasteHeat!(results, i, WasteHeat)
 
         # Update forcing parameters for the next step
         model.forcing = forcing[i + 1]
@@ -476,6 +545,93 @@ function create_results_struct(::Type{FT}, NN::Signed) where {FT<:AbstractFloat}
         "RHbin" => zeros(FT, NN),
         "UTCI" => zeros(FT, NN),
         "Tbin" => zeros(FT, NN),
+        "ViewFactor" => nothing,
+        "SWRinGroundVeg" => zeros(FT, NN),
+        "SWRinGroundBare" => zeros(FT, NN),
+        "SWRinGroundImp" => zeros(FT, NN),
+        "SWRinWallShade" => zeros(FT, NN),
+        "SWRinWallSun" => zeros(FT, NN),
+        "SWRinTree" => zeros(FT, NN),
+        "SWRinTotalUrban" => zeros(FT, NN),
+        "SWRabsGroundVeg" => zeros(FT, NN),
+        "SWRabsGroundBare" => zeros(FT, NN),
+        "SWRabsGroundImp" => zeros(FT, NN),
+        "SWRabsWallShade" => zeros(FT, NN),
+        "SWRabsWallSun" => zeros(FT, NN),
+        "SWRabsTree" => zeros(FT, NN),
+        "SWRabsTotalUrban" => zeros(FT, NN),
+        "SWRoutGroundVeg" => zeros(FT, NN),
+        "SWRoutGroundBare" => zeros(FT, NN),
+        "SWRoutGroundImp" => zeros(FT, NN),
+        "SWRoutWallShade" => zeros(FT, NN),
+        "SWRoutWallSun" => zeros(FT, NN),
+        "SWRoutTree" => zeros(FT, NN),
+        "SWRoutTotalUrban" => zeros(FT, NN),
+        "LWRinGroundVeg" => zeros(FT, NN),
+        "LWRinGroundBare" => zeros(FT, NN),
+        "LWRinGroundImp" => zeros(FT, NN),
+        "LWRinWallShade" => zeros(FT, NN),
+        "LWRinWallSun" => zeros(FT, NN),
+        "LWRinTree" => zeros(FT, NN),
+        "LWRinTotalUrban" => zeros(FT, NN),
+        "LWRabsGroundVeg" => zeros(FT, NN),
+        "LWRabsGroundBare" => zeros(FT, NN),
+        "LWRabsGroundImp" => zeros(FT, NN),
+        "LWRabsWallShade" => zeros(FT, NN),
+        "LWRabsWallSun" => zeros(FT, NN),
+        "LWRabsTree" => zeros(FT, NN),
+        "LWRabsTotalUrban" => zeros(FT, NN),
+        "LWRoutGroundVeg" => zeros(FT, NN),
+        "LWRoutGroundBare" => zeros(FT, NN),
+        "LWRoutGroundImp" => zeros(FT, NN),
+        "LWRoutWallShade" => zeros(FT, NN),
+        "LWRoutWallSun" => zeros(FT, NN),
+        "LWRoutTree" => zeros(FT, NN),
+        "LWRoutTotalUrban" => zeros(FT, NN),
+        "SWRinTotalRoof" => zeros(FT, NN),
+        "SWRabsTotalRoof" => zeros(FT, NN),
+        "SWRoutTotalRoof" => zeros(FT, NN),
+        "LWRinTotalRoof" => zeros(FT, NN),
+        "LWRabsTotalRoof" => zeros(FT, NN),
+        "LWRoutTotalRoof" => zeros(FT, NN),
+        "LEfluxRoof" => zeros(FT, NN),
+        "HfluxRoof" => zeros(FT, NN),
+        "G1Roof" => zeros(FT, NN),
+        "G2Roof" => zeros(FT, NN),
+        "dsRoof" => zeros(FT, NN),
+        "LEfluxCanyon" => zeros(FT, NN),
+        "HfluxCanyon" => zeros(FT, NN),
+        "HfluxUrban" => zeros(FT, NN),
+        "LEfluxUrban" => zeros(FT, NN),
+        "G1Urban" => zeros(FT, NN),
+        "G2Urban" => zeros(FT, NN),
+        "G1Canyon" => zeros(FT, NN),
+        "G2Canyon" => zeros(FT, NN),
+        "G1Ground" => zeros(FT, NN),
+        "G1WallSun" => zeros(FT, NN),
+        "G1WallShade" => zeros(FT, NN),
+        "dsWallSun" => zeros(FT, NN),
+        "dsWallShade" => zeros(FT, NN),
+        "dS_H_air" => zeros(FT, NN),
+        "dS_LE_air" => zeros(FT, NN),
+        "SWRabsWallSunTransmitted" => zeros(FT, NN),
+        "SWRabsWallShadeTransmitted" => zeros(FT, NN),
+        "SWRabsTotalCanyon" => zeros(FT, NN),
+        "LWRabsTotalCanyon" => zeros(FT, NN),
+        "HbuildIntdSH_air" => zeros(FT, NN),
+        "LEbuildIntdSLE_air" => zeros(FT, NN),
+        "GbuildIntGfloor" => zeros(FT, NN),
+        "GbuildIntdSinternalMass" => zeros(FT, NN),
+        "WasteHeatTotAnthInput_URB" => zeros(FT, NN),
+        "WasteHeatWaterFromAC_Can" => zeros(FT, NN),
+        "WasteHeatSensibleFromVent_Can" => zeros(FT, NN),
+        "WasteHeatSensibleFromAC_Can" => zeros(FT, NN),
+        "WasteHeatSensibleFromHeat_Can" => zeros(FT, NN),
+        "WasteHeatLatentFromVent_Can" => zeros(FT, NN),
+        "WasteHeatLatentFromAC_Can" => zeros(FT, NN),
+        "WasteHeatLatentFromHeat_Can" => zeros(FT, NN),
+        "WasteHeatTotAnthInput_URB" => zeros(FT, NN),
+        "WasteHeatWaterFromAC_Can" => zeros(FT, NN),
     )
 
     return results
@@ -550,5 +706,70 @@ function store_results!(
 ) where {FT<:AbstractFloat}
     results["Tbin"][i] = TempVecB.Tbin
 
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    RadiationFluxes::Radiation.RadiationFluxes{FT},
+    i::Signed,
+    prefix::AbstractString,
+) where {FT<:AbstractFloat}
+    for field in propertynames(RadiationFluxes)
+        key_str = prefix * String(field)
+        if haskey(results, key_str)
+            val = getfield(RadiationFluxes, field)
+            results[key_str][i] = val
+        end
+    end
+    return nothing
+end
+
+function store_GbuildInt!(results::Dict{String,Any}, i::Signed, GbuildInt::NamedTuple)
+    results["GbuildIntGfloor"][i] = GbuildInt.Gfloor
+    results["GbuildIntdSinternalMass"][i] = GbuildInt.dSinternalMass
+    return nothing
+end
+
+function store_HbuildInt!(results::Dict{String,Any}, i::Signed, HbuildInt::NamedTuple)
+    results["HbuildIntdSH_air"][i] = HbuildInt.dSH_air
+    return nothing
+end
+
+function store_LEbuildInt!(results::Dict{String,Any}, i::Signed, LEbuildInt::NamedTuple)
+    results["LEbuildIntdSLE_air"][i] = LEbuildInt.dSLE_air
+    return nothing
+end
+
+# TODO: switch from NamedTuple to BEMWasteHeat composite type!
+function store_BEMWasteHeat!(results::Dict{String,Any}, i::Signed, WasteHeat::NamedTuple)
+    results["WasteHeatTotAnthInput_URB"][i] = WasteHeat.TotAnthInput_URB
+    results["WasteHeatWaterFromAC_Can"][i] = WasteHeat.WaterFromAC_Can
+    results["WasteHeatSensibleFromVent_Can"][i] = WasteHeat.SensibleFromVent_Can
+    results["WasteHeatSensibleFromAC_Can"][i] = WasteHeat.SensibleFromAC_Can
+    results["WasteHeatSensibleFromHeat_Can"][i] = WasteHeat.SensibleFromHeat_Can
+    results["WasteHeatLatentFromVent_Can"][i] = WasteHeat.LatentFromVent_Can
+    results["WasteHeatLatentFromAC_Can"][i] = WasteHeat.LatentFromAC_Can
+    results["WasteHeatLatentFromHeat_Can"][i] = WasteHeat.LatentFromHeat_Can
+    return nothing
+end
+
+function store_fluxes!(results::Dict{String,Any}, i::Signed, Fluxes::NamedTuple)
+    radiation_keys = [:SWRin_t, :SWRout_t, :SWRabs_t, :LWRin_t, :LWRout_t, :LWRabs_t]
+    keys_to_store = setdiff(keys(Fluxes), radiation_keys)
+    for key in keys_to_store
+        val = getproperty(Fluxes, key)
+        key_str = String(key)
+        if haskey(results, key_str)
+            # Assuming the vector is already allocated
+            results[key_str][i] = val
+        end
+    end
+
+    for key in radiation_keys
+        RadiationFluxes = getproperty(Fluxes, key)
+        prefix = split(String(key), "_")[1]
+        store_results!(results, RadiationFluxes, i, prefix)
+    end
     return nothing
 end
