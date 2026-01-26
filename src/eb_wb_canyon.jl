@@ -175,6 +175,14 @@ function eb_wb_canyon!(
     model.variables.energybalance.EB.EBCanyonT = results.EBCanyonT
     model.variables.energybalance.EB.EBCanyonQ = results.EBCanyonQ
 
+    model.variables.humidity.Results2m.T2m = results.T2m
+    model.variables.humidity.Results2m.q2m = results.q2m
+    model.variables.humidity.Results2m.e_T2m = results.e_T2m
+    model.variables.humidity.Results2m.RH_T2m = results.RH_T2m
+    model.variables.humidity.Results2m.qcan = results.qcan
+    model.variables.humidity.Results2m.e_Tcan = results.e_Tcan
+    model.variables.humidity.Results2m.RH_Tcan = results.RH_Tcan
+
     return results
 end
 

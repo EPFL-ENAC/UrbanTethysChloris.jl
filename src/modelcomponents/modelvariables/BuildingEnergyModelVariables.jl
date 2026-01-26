@@ -11,7 +11,7 @@ Building interior temperatures.
 - `Tinground`: Building interior ground/floor temperature [K]
 - `Tintmass`: Building interior internal heat storage element temperature [K]
 - `Tbin`: Building interior air temperature [K]
-- `qbin`: Building interior specific humidity [kg/kg]
+- `qbin`: Building interior specific humidity temperature [kg/kg]
 """
 Base.@kwdef mutable struct TempVecB{FT<:AbstractFloat} <: AbstractModelVariables{FT}
     Tceiling::FT
@@ -75,11 +75,13 @@ Building interior humidity variables.
 - `esatbin`: Saturation vapor pressure at building interior temperature [Pa]
 - `ebin`: Vapor pressure in building interior [Pa]
 - `RHbin`: Relative humidity in building interior [-]
+- `qbin`: Specific humidity in building interior [kg/kg]
 """
 Base.@kwdef mutable struct HumidityBuilding{FT<:AbstractFloat} <: AbstractModelVariables{FT}
     esatbin::FT
     ebin::FT
     RHbin::FT
+    qbin::FT
 end
 
 function HumidityBuilding(::Type{FT}) where {FT<:AbstractFloat}

@@ -78,7 +78,7 @@ function eb_solver_building_output(
     ParCalculation::NamedTuple,
     BEM_on::Bool,
 ) where {FT<:AbstractFloat}
-    return BuildingEnergyModel.eb_solver_building_output(
+    HbuildInt, LEbuildInt, GbuildInt, SWRabsB, LWRabsB, Tdpfloor, WasteHeat, EnergyUse, HumidityBuilding, ParACHeat, YBuildInt = BuildingEnergyModel.eb_solver_building_output(
         TemperatureC,
         TemperatureB,
         TempVecB_ittm,
@@ -101,6 +101,15 @@ function eb_solver_building_output(
         BEM_on,
         model.forcing.hvacschedule,
     )
+
+    model.variables.buildingenergymodel.HumidityBuilding.qbin = HumidityBuilding.qbin
+    model.variables.buildingenergymodel.HumidityBuilding.esatbin = HumidityBuilding.esatbin
+    model.variables.buildingenergymodel.HumidityBuilding.ebin = HumidityBuilding.ebin
+    model.variables.buildingenergymodel.HumidityBuilding.RHbin = HumidityBuilding.RHbin
+
+    return HbuildInt,
+    LEbuildInt, GbuildInt, SWRabsB, LWRabsB, Tdpfloor, WasteHeat, EnergyUse, ParACHeat,
+    YBuildInt
 end
 
 function eb_solver_building_output(
@@ -460,8 +469,6 @@ function eb_solver_building_output(
         EnergyForAC_LE=(HVACSchedule.AirConRoomFraction * EnergyUse.EnergyForAC_LE),
         EnergyForHeating=(HVACSchedule.AirConRoomFraction * EnergyUse.EnergyForHeating),
     )
-
-    # In case of no BEM
 
     if BEM_on
         # Prepare energy flux outputs

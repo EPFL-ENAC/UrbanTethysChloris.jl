@@ -220,7 +220,7 @@ function run_simulation(
             SWRinWsun = SWRabs_t.WallSun
             SWRinWshd = SWRabs_t.WallShade
 
-            HbuildIntc, LEbuildIntc, GbuildIntc, SWRabsBc, LWRabsBc, TDampGroundBuild, WasteHeat, EnergyUse, HumidBuilding, ParACHeat_t, YBuildInt = BuildingEnergyModel.eb_solver_building_output(
+            HbuildIntc, LEbuildIntc, GbuildIntc, SWRabsBc, LWRabsBc, TDampGroundBuild, WasteHeat, EnergyUse, ParACHeat_t, YBuildInt = BuildingEnergyModel.eb_solver_building_output(
                 model,
                 TC,
                 TB,
@@ -424,15 +424,15 @@ function run_simulation(
             )
         end
 
-        Tmrt, BoleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = MeanRadiantTemperature.mean_radiant_temperature(
-            SWRout_t, LWRout_t, model, ViewFactorPoint
+        Tmrt = MeanRadiantTemperature.mean_radiant_temperature!(
+            model, SWRout_t, LWRout_t, ViewFactorPoint
         )
         # TODO: check whether we should be using the hour as a float (e.g. 10.5 for 10:30) or
         # the hour as an integer (10 for 10:30).
 
         u_ZPerson = Resistance.wind_profile_point_output(model)
 
-        UTCI_approx = OutdoorThermalComfort.utci_approx(
+        model.variables.temperature.thermalcomfort.UTCI = OutdoorThermalComfort.utci_approx(
             T2m - FT(273.15), RH_T2m * 100, Tmrt, u_ZPerson
         )
 
@@ -444,7 +444,8 @@ function run_simulation(
         # TODO: add urban average for Hflux, LEflux, Gflux
         # TODO: implement energy balance check script as function
 
-        # tempvec - already done higher
+        # tempvec - already done
+        model.variables.temperature.tempvec.T2m = T2m
 
         # tempdamp
         update!(model.variables.temperature.tempdamp, TempDamp_t)
@@ -572,6 +573,7 @@ function create_results_struct(::Type{FT}, NN::Signed) where {FT<:AbstractFloat}
         "RH_T2m" => zeros(FT, NN),
         "Tmrt" => zeros(FT, NN),
         "RHbin" => zeros(FT, NN),
+        "qbin" => zeros(FT, NN),
         "UTCI" => zeros(FT, NN),
         "Tbin" => zeros(FT, NN),
         "ViewFactor" => nothing,
@@ -673,6 +675,7 @@ function store_results!(
     store_results!(results, model.variables.buildingenergymodel.HumidityBuilding, i)
     store_results!(results, model.variables.temperature.mrt, i)
     store_results!(results, model.variables.temperature.thermalcomfort, i)
+    store_results!(results, model.variables.humidity.Results2m, i)
     store_results!(results, model.variables.buildingenergymodel.TempVecB, i)
 end
 
@@ -706,6 +709,7 @@ function store_results!(
     i::Signed,
 ) where {FT<:AbstractFloat}
     results["RHbin"][i] = HumidityBuilding.RHbin
+    results["qbin"][i] = HumidityBuilding.qbin
 
     return nothing
 end
@@ -734,6 +738,17 @@ function store_results!(
     i::Signed,
 ) where {FT<:AbstractFloat}
     results["Tbin"][i] = TempVecB.Tbin
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    Results2m::ModelComponents.ModelVariables.Results2m{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["T2m"][i] = Results2m.T2m
+    results["RH_T2m"][i] = Results2m.RH_T2m
 
     return nothing
 end

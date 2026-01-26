@@ -36,13 +36,13 @@ Calculate mean radiant temperature for a person in an urban canyon.
 - `SWRdiff_Person::FT`: Diffuse shortwave radiation on person [W/m²]
 - `LWR_Person::FT`: Longwave radiation on person [W/m²]
 """
-function mean_radiant_temperature(
+function mean_radiant_temperature!(
+    model::Model{FT},
     SWRout_t::Radiation.RadiationFluxes{FT},
     LWRout_t::Radiation.RadiationFluxes{FT},
-    model::Model{FT},
     ViewFactorPoint::ViewFactorPoint{FT},
 ) where {FT<:AbstractFloat}
-    return mean_radiant_temperature(
+    Tmrt, BooleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = mean_radiant_temperature(
         SWRout_t,
         LWRout_t,
         model.forcing.meteorological,
@@ -53,6 +53,20 @@ function mean_radiant_temperature(
         model.parameters.person,
         FT(hour(model.forcing)),
     )
+
+    model.variables.temperature.mrt.Tmrt = Tmrt
+    model.variables.temperature.mrt.BoleanInSun = BooleanInSun
+    model.variables.temperature.mrt.SWRdir_Person = SWRdir_Person
+    model.variables.temperature.mrt.SWRdir_in_top = SWRdir_in_top
+    model.variables.temperature.mrt.SWRdir_in_bottom = SWRdir_in_bottom
+    model.variables.temperature.mrt.SWRdir_in_east = SWRdir_in_east
+    model.variables.temperature.mrt.SWRdir_in_south = SWRdir_in_south
+    model.variables.temperature.mrt.SWRdir_in_west = SWRdir_in_west
+    model.variables.temperature.mrt.SWRdir_in_north = SWRdir_in_north
+    model.variables.temperature.mrt.SWRdiff_Person = SWRdiff_Person
+    model.variables.temperature.mrt.LWR_Person = LWR_Person
+
+    return Tmrt
 end
 function mean_radiant_temperature(
     SWRout_t::Radiation.RadiationFluxes{FT},
