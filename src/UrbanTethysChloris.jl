@@ -75,4 +75,8 @@ export urban_climate_variables
 include("plan_area_energy_balance_calculation.jl")
 export plan_area_energy_balance_calculation
 
+include("post_calculate_soil_moisture_change.jl")
+include("water_balance_components.jl")
+export water_balance_components
+
 end

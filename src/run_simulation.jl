@@ -86,8 +86,11 @@ function run_simulation(
     Qinlat_t = deepcopy(model.variables.waterflux.Qinlat)
     Vwater_t = deepcopy(model.variables.waterflux.Vwater)
 
-    results = create_results_struct(FT, NN)
+    results = create_results_struct(
+        FT, NN, model.parameters.soil.roof.ms, model.parameters.soil.ground.ms
+    )
     results["ViewFactor"] = ViewFactor
+    results["OwaterInitial"] = OwaterInitial
 
     for i in 1:NN
         @info "Starting iteration $i / $NN"
@@ -114,6 +117,7 @@ function run_simulation(
 
         EnergyUse = (;);
         Fluxes = nothing
+        WaterFluxes = nothing
         LEbuildIntc = (;)
         HbuildIntc = (;)
         GbuildIntc = (;)
@@ -422,6 +426,77 @@ function run_simulation(
                 G1Urban=urban_average(G1Roof, G1Canyon, model.parameters.urbangeometry),
                 G2Urban=urban_average(G2Roof, G2Canyon, model.parameters.urbangeometry),
             )
+
+            # Store water balance components
+            Runon_nt = (;
+                RunoffRoofTot,
+                RunoffGroundTot,
+                RunoffUrban=Runon_t.RunoffUrban,
+                RunonRoofTot,
+                RunonGroundTot,
+                RunonUrban=Runon_t.RunonUrban,
+            )
+
+            Leakage_nt = (;
+                LkRoof,
+                LkGround,
+                LkUrban=urban_average(LkRoof, LkGround, model.parameters.urbangeometry),
+            )
+
+            LEflux_nt = (;
+                LEfluxRoofImp,
+                LEfluxRoofVegInt,
+                LEfluxRoofVegPond,
+                LEfluxRoofVegSoil,
+                LTEfluxRoofVeg,
+                LEfluxGroundImp,
+                LEfluxGroundBarePond,
+                LEfluxGroundBareSoil,
+                LEfluxGroundVegInt,
+                LEfluxGroundVegPond,
+                LEfluxGroundVegSoil,
+                LTEfluxGroundVeg,
+                LEfluxTreeInt,
+                LTEfluxTree,
+            )
+
+            dVwater_dt_nt = (; dVRoofSoilVeg_dt, dVGroundSoilTot_dt)
+
+            dInt_dt_nt = (;
+                dInt_dtRoofVegPlant,
+                dInt_dtGroundVegPlant,
+                dInt_dtTree,
+                dInt_dtRoofVegGround,
+                dInt_dtRoofImp,
+                dInt_dtGroundVegGround,
+                dInt_dtGroundBare,
+                dInt_dtGroundImp,
+            )
+
+            Int_nt = (;
+                IntRooftot,
+                IntGroundImp,
+                IntGroundBare,
+                IntGroundVegPlant,
+                IntGroundVegGround,
+                IntTree,
+            )
+
+            LEbuildInt_nt = (;
+                LEpeople=LEbuildIntc.LEpeople,
+                LEequip=LEbuildIntc.LEequip,
+                LEvent=LEbuildIntc.LEvent,
+            )
+
+            WaterFluxes = (
+                Runon=Runon_nt,
+                Leakage=Leakage_nt,
+                LEflux=LEflux_nt,
+                dVwater_dt=dVwater_dt_nt,
+                dInt_dt=dInt_dt_nt,
+                Int=Int_nt,
+                LEbuildInt=LEbuildInt_nt,
+            )
         end
 
         Tmrt = MeanRadiantTemperature.mean_radiant_temperature!(
@@ -484,6 +559,8 @@ function run_simulation(
         store_HbuildInt!(results, i, HbuildIntc)
         store_LEbuildInt!(results, i, LEbuildIntc)
         store_BEMWasteHeat!(results, i, WasteHeat)
+
+        store_water_fluxes!(results, i, WaterFluxes)
 
         # Update forcing parameters for the next step
         model.forcing = forcing[i + 1]
@@ -553,7 +630,9 @@ function urban_average(
     return roof * froof + canyon * fcanyon
 end
 
-function create_results_struct(::Type{FT}, NN::Signed) where {FT<:AbstractFloat}
+function create_results_struct(
+    ::Type{FT}, NN::Signed, MR::Signed, MG::Signed
+) where {FT<:AbstractFloat}
     results = Dict{String,Any}(
         "TRoofImp" => zeros(FT, NN),
         "TRoofVeg" => zeros(FT, NN),
@@ -663,6 +742,59 @@ function create_results_struct(::Type{FT}, NN::Signed) where {FT<:AbstractFloat}
         "WasteHeatLatentFromHeat_Can" => zeros(FT, NN),
         "WasteHeatTotAnthInput_URB" => zeros(FT, NN),
         "WasteHeatWaterFromAC_Can" => zeros(FT, NN),
+        # Water balance components - Runoff and leakage
+        "RunoffRoofTot" => zeros(FT, NN),
+        "RunoffGroundTot" => zeros(FT, NN),
+        "RunoffUrban" => zeros(FT, NN),
+        "LkRoof" => zeros(FT, NN),
+        "LkGround" => zeros(FT, NN),
+        "LkUrban" => zeros(FT, NN),
+        # Water balance components - LE fluxes by source
+        "LEfluxRoofImp" => zeros(FT, NN),
+        "LEfluxRoofVegInt" => zeros(FT, NN),
+        "LEfluxRoofVegPond" => zeros(FT, NN),
+        "LEfluxRoofVegSoil" => zeros(FT, NN),
+        "LTEfluxRoofVeg" => zeros(FT, NN),
+        "LEfluxGroundImp" => zeros(FT, NN),
+        "LEfluxGroundBarePond" => zeros(FT, NN),
+        "LEfluxGroundBareSoil" => zeros(FT, NN),
+        "LEfluxGroundVegInt" => zeros(FT, NN),
+        "LEfluxGroundVegPond" => zeros(FT, NN),
+        "LEfluxGroundVegSoil" => zeros(FT, NN),
+        "LTEfluxGroundVeg" => zeros(FT, NN),
+        "LEfluxTreeInt" => zeros(FT, NN),
+        "LTEfluxTree" => zeros(FT, NN),
+        # Water balance components - Building LE
+        "LEbuildIntLEpeople" => zeros(FT, NN),
+        "LEbuildIntLEequip" => zeros(FT, NN),
+        "LEbuildIntLEvent" => zeros(FT, NN),
+        # Water balance components - Soil moisture change
+        "dVRoofSoilVeg_dt" => zeros(FT, NN),
+        "dVGroundSoilTot_dt" => zeros(FT, NN),
+        # Water balance components - Interception change
+        "dInt_dtRoofVegPlant" => zeros(FT, NN),
+        "dInt_dtGroundVegPlant" => zeros(FT, NN),
+        "dInt_dtTree" => zeros(FT, NN),
+        "dInt_dtRoofVegGround" => zeros(FT, NN),
+        "dInt_dtRoofImp" => zeros(FT, NN),
+        "dInt_dtGroundVegGround" => zeros(FT, NN),
+        "dInt_dtGroundBare" => zeros(FT, NN),
+        "dInt_dtGroundImp" => zeros(FT, NN),
+        # Water balance components - Runon
+        "RunonRoofTot" => zeros(FT, NN),
+        "RunonGroundTot" => zeros(FT, NN),
+        "RunonUrban" => zeros(FT, NN),
+        # Water balance components - Interception storage
+        "IntRooftot" => zeros(FT, NN),
+        "IntGroundImp" => zeros(FT, NN),
+        "IntGroundBare" => zeros(FT, NN),
+        "IntGroundVegPlant" => zeros(FT, NN),
+        "IntGroundVegGround" => zeros(FT, NN),
+        "IntTree" => zeros(FT, NN),
+        "OwRoofSoilVeg" => zeros(FT, MR, NN),
+        "OwGroundSoilImp" => zeros(FT, MG, NN),
+        "OwGroundSoilBare" => zeros(FT, MG, NN),
+        "OwGroundSoilVeg" => zeros(FT, MG, NN),
     )
 
     return results
@@ -677,6 +809,18 @@ function store_results!(
     store_results!(results, model.variables.temperature.thermalcomfort, i)
     store_results!(results, model.variables.humidity.Results2m, i)
     store_results!(results, model.variables.buildingenergymodel.TempVecB, i)
+    store_results!(results, model.variables.waterflux.Owater, i)
+end
+
+function store_results!(
+    results::Dict{String,Any}, Owater::ModelComponents.ModelVariables.Owater{FT}, i::Signed
+) where {FT<:AbstractFloat}
+    results["OwRoofSoilVeg"][:, i] = Owater.OwRoofSoilVeg
+    results["OwGroundSoilImp"][:, i] = Owater.OwGroundSoilImp
+    results["OwGroundSoilBare"][:, i] = Owater.OwGroundSoilBare
+    results["OwGroundSoilVeg"][:, i] = Owater.OwGroundSoilVeg
+
+    return nothing
 end
 
 function store_results!(
@@ -815,5 +959,109 @@ function store_fluxes!(results::Dict{String,Any}, i::Signed, Fluxes::NamedTuple)
         prefix = split(String(key), "_")[1]
         store_results!(results, RadiationFluxes, i, prefix)
     end
+    return nothing
+end
+
+function store_water_fluxes!(results::Dict{String,Any}, i::Signed, WaterFluxes::NamedTuple)
+    store_Runon!(results, i, WaterFluxes.Runon)
+    store_Leakage!(results, i, WaterFluxes.Leakage)
+    store_LEflux!(results, i, WaterFluxes.LEflux)
+    store_dVwater_dt!(results, i, WaterFluxes.dVwater_dt)
+    store_dInt_dt!(results, i, WaterFluxes.dInt_dt)
+    store_Int!(results, i, WaterFluxes.Int)
+    store_LEbuildInt_water!(results, i, WaterFluxes.LEbuildInt)
+
+    return nothing
+end
+
+function store_LEbuildInt_water!(
+    results::Dict{String,Any}, i::Signed, LEbuildInt::NamedTuple
+)
+    results["LEbuildIntLEpeople"][i] = LEbuildInt.LEpeople
+    results["LEbuildIntLEequip"][i] = LEbuildInt.LEequip
+    results["LEbuildIntLEvent"][i] = LEbuildInt.LEvent
+
+    return nothing
+end
+
+function store_Int!(results::Dict{String,Any}, i::Signed, Int::NamedTuple)
+    results["IntRooftot"][i] = Int.IntRooftot
+    results["IntGroundImp"][i] = Int.IntGroundImp
+    results["IntGroundBare"][i] = Int.IntGroundBare
+    results["IntGroundVegPlant"][i] = Int.IntGroundVegPlant
+    results["IntGroundVegGround"][i] = Int.IntGroundVegGround
+    results["IntTree"][i] = Int.IntTree
+
+    return nothing
+end
+
+function store_dInt_dt!(results::Dict{String,Any}, i::Signed, dInt_dt::NamedTuple)
+    # Interception change
+    dint_keys = [
+        :dInt_dtRoofVegPlant,
+        :dInt_dtGroundVegPlant,
+        :dInt_dtTree,
+        :dInt_dtRoofVegGround,
+        :dInt_dtRoofImp,
+        :dInt_dtGroundVegGround,
+        :dInt_dtGroundBare,
+        :dInt_dtGroundImp,
+    ]
+
+    for key in dint_keys
+        results[String(key)][i] = getfield(dInt_dt, key)
+    end
+
+    return nothing
+end
+
+function store_dVwater_dt!(results::Dict{String,Any}, i::Signed, dVwater_dt::NamedTuple)
+    results["dVRoofSoilVeg_dt"][i] = dVwater_dt.dVRoofSoilVeg_dt
+    results["dVGroundSoilTot_dt"][i] = dVwater_dt.dVGroundSoilTot_dt
+
+    return nothing
+end
+
+function store_LEflux!(results::Dict{String,Any}, i::Signed, LEflux::NamedTuple)
+    # LE fluxes by source
+    le_flux_keys = [
+        :LEfluxRoofImp,
+        :LEfluxRoofVegInt,
+        :LEfluxRoofVegPond,
+        :LEfluxRoofVegSoil,
+        :LTEfluxRoofVeg,
+        :LEfluxGroundImp,
+        :LEfluxGroundBarePond,
+        :LEfluxGroundBareSoil,
+        :LEfluxGroundVegInt,
+        :LEfluxGroundVegPond,
+        :LEfluxGroundVegSoil,
+        :LTEfluxGroundVeg,
+        :LEfluxTreeInt,
+        :LTEfluxTree,
+    ]
+    for key in le_flux_keys
+        results[String(key)][i] = getfield(LEflux, key)
+    end
+
+    return nothing
+end
+
+function store_Leakage!(results::Dict{String,Any}, i::Signed, Leakage::NamedTuple)
+    results["LkRoof"][i] = Leakage.LkRoof
+    results["LkGround"][i] = Leakage.LkGround
+    results["LkUrban"][i] = Leakage.LkUrban
+
+    return nothing
+end
+
+function store_Runon!(results::Dict{String,Any}, i::Signed, Runon::NamedTuple)
+    results["RunoffRoofTot"][i] = Runon.RunoffRoofTot
+    results["RunoffGroundTot"][i] = Runon.RunoffGroundTot
+    results["RunoffUrban"][i] = Runon.RunoffUrban
+    results["RunonRoofTot"][i] = Runon.RunonRoofTot
+    results["RunonGroundTot"][i] = Runon.RunonGroundTot
+    results["RunonUrban"][i] = Runon.RunonUrban
+
     return nothing
 end

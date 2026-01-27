@@ -19,6 +19,7 @@ Analogous to `PlanAreaEnergyBalanceCalculation.m` in the original MATLAB code.
 - `EnergyFluxCan`: Dictionary containing canyon energy flux components.
 - `EnergyFluxRoof`: Dictionary containing roof energy flux components.
 """
+#TODO: pass BEM_ON as argument?
 function plan_area_energy_balance_calculation(
     results::Dict{String,Any},
     model::Model{FT},
