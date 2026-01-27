@@ -129,16 +129,16 @@ function run_simulation(
                     continue
                 end
 
-                if EnergyUse.EnergyForAC_H>-10^-6 &&
-                    EnergyUse.EnergyForAC_LE>-10^-6 &&
-                    EnergyUse.EnergyForHeating>-10^-6
+                if EnergyUse.EnergyForAC_H>-1e-6 &&
+                    EnergyUse.EnergyForAC_LE>-1e-6 &&
+                    EnergyUse.EnergyForHeating>-1e-6
                     if ParHVAC.ACon &&
                         round(
                             model.variables.buildingenergymodel.TempVecB.Tbin; digits=4
                         )<(ParHVAC.TsetpointCooling+0.01) &&
                         round(
                             model.variables.buildingenergymodel.TempVecB.qbin; digits=8
-                        )<(ParHVAC.q_RHspCooling+10^-6)
+                        )<(ParHVAC.q_RHspCooling+1e-6)
                         continue
                     elseif ParHVAC.Heatingon &&
                         round(
@@ -740,8 +740,6 @@ function create_results_struct(
         "WasteHeatLatentFromVent_Can" => zeros(FT, NN),
         "WasteHeatLatentFromAC_Can" => zeros(FT, NN),
         "WasteHeatLatentFromHeat_Can" => zeros(FT, NN),
-        "WasteHeatTotAnthInput_URB" => zeros(FT, NN),
-        "WasteHeatWaterFromAC_Can" => zeros(FT, NN),
         # Water balance components - Runoff and leakage
         "RunoffRoofTot" => zeros(FT, NN),
         "RunoffGroundTot" => zeros(FT, NN),

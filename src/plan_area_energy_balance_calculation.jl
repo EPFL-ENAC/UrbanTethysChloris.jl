@@ -19,13 +19,12 @@ Analogous to `PlanAreaEnergyBalanceCalculation.m` in the original MATLAB code.
 - `EnergyFluxCan`: Dictionary containing canyon energy flux components.
 - `EnergyFluxRoof`: Dictionary containing roof energy flux components.
 """
-#TODO: pass BEM_ON as argument?
 function plan_area_energy_balance_calculation(
     results::Dict{String,Any},
     model::Model{FT},
     forcing::ModelComponents.ForcingInputSet{FT,1},
-    # figure::Bool,
     NN::Signed,
+    BEM_on::Bool=true,
 ) where {FT<:AbstractFloat}
 
     # Incoming radiation
@@ -60,8 +59,6 @@ function plan_area_energy_balance_calculation(
     Height_canyon = urbangeometry.hcanyon
     Width_canyon = urbangeometry.wcanyon
     Width_roof = urbangeometry.wroof
-
-    BEM_on = true # TODO: Determine from model or results?
 
     # Rescale tree absorbed radiation
     SWRabsTree = results["SWRabsTree"] / FT(pi) # Technically 4*rad/(4*rad*pi)
@@ -378,10 +375,10 @@ function plan_area_energy_balance_calculation(
           EnergyFluxUrban[:, "G1Building"] +
           EnergyFluxUrban[:, "dSdtBuildEnv"],
         Qanth=EnergyFluxUrban[:, "Qanth"],
-        QantACcondensation=EnergyFluxUrban[:, "QanthACcondensation"],
+        QanthACcondensation=EnergyFluxUrban[:, "QanthACcondensation"],
         EB=EnergyFluxUrban[:, "EB"],
         Albedo=EnergyFluxUrban[:, "UrbanAlbedo"],
-        BownRatio=EnergyFluxUrban[:, "Hflux"] ./ EnergyFluxUrban[:, "LEflux"],
+        BowenRatio=EnergyFluxUrban[:, "Hflux"] ./ EnergyFluxUrban[:, "LEflux"],
     )
 
     TTUrbanDiurnal = @chain TTUrban begin
@@ -490,7 +487,7 @@ function albedo_bowen_plots(
     # Diurnal Bowen Ratio (Median)
     p2 = plot(
         TTUrbanDiurnal.Hour,
-        TTUrbanDiurnalMedian.BownRatio;
+        TTUrbanDiurnalMedian.BowenRatio;
         label="Bowen ratio",
         color=:black,
         linewidth=1.5,
@@ -516,7 +513,7 @@ function albedo_bowen_plots(
     # Seasonal Bowen Ratio (Median)
     p4 = plot(
         TTUrbanSeasonal.Month,
-        TTUrbanSeasonalMedian.BownRatio;
+        TTUrbanSeasonalMedian.BowenRatio;
         label="Bowen ratio",
         color=:black,
         linewidth=1.5,
@@ -631,7 +628,7 @@ function energy_fluxes_plots(TTUrbanDiurnal::DataFrame, TTUrbanSeasonal::DataFra
     plot!(
         p3,
         TTUrbanDiurnal.Hour,
-        TTUrbanDiurnal.QantACcondensation;
+        TTUrbanDiurnal.QanthACcondensation;
         label="Q_f,AC,cond",
         color=:black,
         linestyle=:dash,
@@ -745,7 +742,7 @@ function energy_fluxes_plots(TTUrbanDiurnal::DataFrame, TTUrbanSeasonal::DataFra
     plot!(
         p6,
         TTUrbanSeasonal.Month,
-        TTUrbanSeasonal.QantACcondensation;
+        TTUrbanSeasonal.QanthACcondensation;
         label="Q_f,AC,cond",
         color=:black,
         linestyle=:dash,

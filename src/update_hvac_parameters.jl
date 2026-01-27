@@ -18,14 +18,14 @@ function update_hvac_parameters(
     # is currently turned off as we assume that AC is switched on mostly for cooling purposes
     # and not for dehumidification.
     if ParHVACorig.ACon && Tbin_r>(ParHVAC.TsetpointCooling+0.01) ||
-        qbin_r>(ParHVAC.q_RHspCooling+10^-6)
+        qbin_r>(ParHVAC.q_RHspCooling+1e-6)
         # Switch on AC based on exceedance of set-point temperature or humidity
         ACon = 1;
         AC_onCool = 1;
         AC_onDehum = 1;
         Heatingon = 0;
         MasterOn = 1;
-        if qbin_r<(ParHVAC.q_RHspCooling+10^-6) &&
+        if qbin_r<(ParHVAC.q_RHspCooling+1e-6) &&
             round(EnergyUse.EnergyForAC_LE; digits=1)==0
             AC_onDehum = 0;
         elseif Tbin_r<(ParHVAC.TsetpointCooling+0.01) &&
@@ -34,7 +34,7 @@ function update_hvac_parameters(
         end
     elseif ParHVACorig.ACon &&
         EnergyUse.EnergyForAC_H>0 &&
-        qbin_r>(ParHVAC.q_RHspCooling+10^-6)
+        qbin_r>(ParHVAC.q_RHspCooling+1e-6)
         ACon = 1;
         AC_onCool = 1;
         AC_onDehum = 1;
@@ -51,35 +51,35 @@ function update_hvac_parameters(
     end
 
     # Switch off HVAC because of negative energy consumption
-    if ParHVACorig.ACon==1 && EnergyUse.EnergyForAC_H<-10^-6 ||
-        EnergyUse.EnergyForAC_LE<-10^-6
-        if EnergyUse.EnergyForAC_H<-10^-6 && EnergyUse.EnergyForAC_LE<-10^-6
+    if ParHVACorig.ACon==1 && EnergyUse.EnergyForAC_H<-1e-6 ||
+        EnergyUse.EnergyForAC_LE<-1e-6
+        if EnergyUse.EnergyForAC_H<-1e-6 && EnergyUse.EnergyForAC_LE<-1e-6
             ACon = 0;
             AC_onCool = 0;
             AC_onDehum = 0;
             MasterOn = 1;
-        elseif EnergyUse.EnergyForAC_H<-10^-6 && EnergyUse.EnergyForAC_LE>10^-6
+        elseif EnergyUse.EnergyForAC_H<-1e-6 && EnergyUse.EnergyForAC_LE>1e-6
             ACon = 1;
             AC_onCool = 0;
             AC_onDehum = 1;
             MasterOn = 1;
-        elseif EnergyUse.EnergyForAC_H>10^-6 && EnergyUse.EnergyForAC_LE<-10^-6
+        elseif EnergyUse.EnergyForAC_H>1e-6 && EnergyUse.EnergyForAC_LE<-1e-6
             ACon = 1;
             AC_onCool = 1;
             AC_onDehum = 0;
             MasterOn = 1;
-        elseif EnergyUse.EnergyForAC_H<-10^-6 && EnergyUse.EnergyForAC_LE==0
+        elseif EnergyUse.EnergyForAC_H<-1e-6 && EnergyUse.EnergyForAC_LE==0
             ACon = 0;
             AC_onCool = 0;
             AC_onDehum = 0;
             MasterOn = 1;
-        elseif EnergyUse.EnergyForAC_LE<-10^-6 && EnergyUse.EnergyForAC_H==0
+        elseif EnergyUse.EnergyForAC_LE<-1e-6 && EnergyUse.EnergyForAC_H==0
             ACon = 0;
             AC_onCool = 0;
             AC_onDehum = 0;
             MasterOn = 1;
         end
-    elseif ParHVACorig.Heatingon==1 && EnergyUse.EnergyForHeating<-10^-6
+    elseif ParHVACorig.Heatingon==1 && EnergyUse.EnergyForHeating<-1e-6
         Heatingon = 0;
         MasterOn = 1;
     end
