@@ -1,6 +1,6 @@
 using Test
 using UrbanTethysChloris.ModelComponents: WaterFluxVariables, ExtendedOutputs, accessors
-using UrbanTethysChloris.Outputs: allocate_results
+using UrbanTethysChloris.Outputs: allocate_results, assign_results!
 using UrbanTethysChloris: _create_model
 using ..TestUtils: load_test_parameters, load_test_netcdf
 

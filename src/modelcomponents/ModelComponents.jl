@@ -81,19 +81,6 @@ bottom up by decreasing the output type until reaching `NoOutputs`.
 # Returns
 - `Dict{Symbol,Dict{Symbol,Function}}`: Nested dictionary of accessor functions
 """
-function accessors(::Type{ModelVariableSet}, ::Type{O}) where {O}
-    base = Dict{Symbol,Dict{Symbol,Function}}()
-
-    for field in fieldnames(ModelVariableSet)
-        component_type = fieldtype(ModelVariableSet, field)
-        component_accessors = accessors(component_type, O)
-        if !isempty(component_accessors)
-            merge!(base, component_accessors)
-        end
-    end
-    return base
-end
-
 function accessors(::Type{T}, ::Type{O}) where {T,O}
     fns = ModelComponents.outputs_to_save(T, O)
 

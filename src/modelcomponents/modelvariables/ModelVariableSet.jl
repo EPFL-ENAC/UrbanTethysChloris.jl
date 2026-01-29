@@ -74,3 +74,16 @@ for field in fieldnames(ModelVariableSet)
     component_type = fieldtype(ModelVariableSet, field)
     @eval ModelComponents.parent_accessor(::Type{$component_type}) = x -> x.variables.$field
 end
+
+function ModelComponents.accessors(::Type{ModelVariableSet}, ::Type{O}) where {O}
+    base = Dict{Symbol,Dict{Symbol,Function}}()
+
+    for field in fieldnames(ModelVariableSet)
+        component_type = fieldtype(ModelVariableSet, field)
+        component_accessors = ModelComponents.accessors(component_type, O)
+        if !isempty(component_accessors)
+            merge!(base, component_accessors)
+        end
+    end
+    return base
+end
