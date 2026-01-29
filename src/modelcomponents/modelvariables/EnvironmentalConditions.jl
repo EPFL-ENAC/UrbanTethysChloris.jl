@@ -161,3 +161,16 @@ function ModelComponents.outputs_to_save(
 )
     return (:resistance,)
 end
+
+function update!(
+    x::EnvironmentalConditions{FT}, results::NamedTuple, fn::EBWBRoofDispatcher
+) where {FT<:AbstractFloat}
+    x.resistance.raRooftoAtm = results.raRooftoAtm
+    x.resistance.rb_LRoof = results.rb_LRoof
+    x.resistance.rap_LRoof = results.rap_LRoof
+    x.resistance.r_soilRoof = results.r_soilRoof
+    x.resistance.rs_sunRoof = results.rs_sunRoof
+    x.resistance.rs_shdRoof = results.rs_shdRoof
+
+    return nothing
+end

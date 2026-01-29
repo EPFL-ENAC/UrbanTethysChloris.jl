@@ -8,10 +8,13 @@ using ..Parameters:
     VegetationParameters,
     HeightDependentVegetationParameters,
     VegetatedSoilParameters
+import ...UrbanTethysChloris:
+    EBWBRoofDispatcher, EBWBCanyonDispatcher, eb_wb_roof_dispatcher, eb_wb_canyon_dispatcher
 import ...UrbanTethysChloris.ModelComponents
 using ...UrbanTethysChloris.ModelComponents
 using StaticArrays
 
+using Infiltrator
 abstract type AbstractModelVariables{FT<:AbstractFloat} <:
               AbstractIndividualModelComponent{FT} end
 abstract type AbstractModelVariableSet{FT<:AbstractFloat} <: AbstractModelComponentSet{FT} end

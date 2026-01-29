@@ -221,3 +221,17 @@ function ModelComponents.outputs_to_save(
 )
     return (:WBRoof, :WBCanyonIndv, :WBCanyonTot, :EB)
 end
+
+function update!(x::EnergyBalanceVariables, results::NamedTuple, ::EBWBRoofDispatcher)
+    x.WBRoof.WBRoofVegInVeg = results.WBRoofVegInVeg
+    x.WBRoof.WBRoofVegInGround = results.WBRoofVegInGround
+    x.WBRoof.WBRoofVegSoil = results.WBRoofVegSoil
+    x.WBRoof.WBRoofImp = results.WBRoofImp
+    x.WBRoof.WBRoofVeg = results.WBRoofVeg
+    x.WBRoof.WBRoofTot = results.WBRoofTot
+    x.EB.EBRoofImp = results.EBRoofImp
+    x.EB.EBRoofVeg = results.EBRoofVeg
+    @views x.Solver.YfunctionOutput[1:4] = results.Yroof
+
+    return nothing
+end

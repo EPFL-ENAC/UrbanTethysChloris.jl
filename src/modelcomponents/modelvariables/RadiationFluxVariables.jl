@@ -23,7 +23,7 @@ Absorbed shortwave radiation for different urban surfaces.
 """
 Base.@kwdef mutable struct AbsorbedRadiationFluxVariablesSubset{FT<:AbstractFloat} <:
                            AbstractModelVariables{FT}
-    SWRabsRoofImp::FT
+    RoofImp::FT
     RoofVeg::FT
     TotalRoof::FT
     GroundImp::FT
@@ -125,7 +125,7 @@ Base.@kwdef struct RadiationFluxVariables{FT<:AbstractFloat} <: AbstractModelVar
     SWRin::DefaultRadiationFluxVariablesSubset{FT}
     SWRout::DefaultRadiationFluxVariablesSubset{FT}
     SWREB::DefaultRadiationFluxVariablesSubset{FT}
-    LWRabs::DefaultRadiationFluxVariablesSubset{FT}
+    LWRabs::DefaultRadiationFluxVariablesSubset{FT} # TOOO: check whether this should be absorbed or not
     LWRin::DefaultRadiationFluxVariablesSubset{FT}
     LWRout::DefaultRadiationFluxVariablesSubset{FT}
     LWREB::DefaultRadiationFluxVariablesSubset{FT}
@@ -168,4 +168,26 @@ function ModelComponents.outputs_to_save(
     ::Type{RadiationFluxVariables}, ::Type{ExtendedOutputs}
 )
     return (:SWRin, :SWRout, :SWREB, :LWRin, :LWRout, :LWREB)
+end
+
+# Refactor this for more general usage
+# TODO: move to a more general location
+function update!(
+    radiationflux::RadiationFluxVariables, results::NamedTuple, fn::EBWBRoofDispatcher
+)
+    radiation_fields = (:SWRabs, :SWRout, :SWRin, :SWREB, :LWRabs, :LWRout, :LWRin, :LWREB)
+
+    for field in radiation_fields
+        update!(getfield(radiationflux, field), String(field), results, fn)
+    end
+end
+function update!(
+    radiation_variables, prefix::String, results::NamedTuple, fn::EBWBRoofDispatcher
+)
+    fields = (:RoofImp, :RoofVeg, :TotalRoof)
+    for field in fields
+        setfield!(
+            radiation_variables, field, getfield(results, Symbol(prefix * string(field)))
+        )
+    end
 end

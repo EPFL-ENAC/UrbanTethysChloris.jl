@@ -274,3 +274,29 @@ function ModelComponents.outputs_to_save(
 )
     return (:Hflux, :LEflux, :Gflux, :dStorage, :Results2mEnergyFlux)
 end
+
+function update!(
+    heatfluxes::HeatFluxVariables{FT}, results::NamedTuple, fn::EBWBRoofDispatcher
+) where {FT<:AbstractFloat}
+    heatfluxes.Hflux.HfluxRoofImp = results.HfluxRoofImp
+    heatfluxes.Hflux.HfluxRoofVeg = results.HfluxRoofVeg
+    heatfluxes.Hflux.HfluxRoof = results.HfluxRoof
+    heatfluxes.LEflux.LEfluxRoofImp = results.LEfluxRoofImp
+    heatfluxes.LEflux.LEfluxRoofVegInt = results.LEfluxRoofVegInt
+    heatfluxes.LEflux.LEfluxRoofVegPond = results.LEfluxRoofVegPond
+    heatfluxes.LEflux.LEfluxRoofVegSoil = results.LEfluxRoofVegSoil
+    heatfluxes.LEflux.LTEfluxRoofVeg = results.LTEfluxRoofVeg
+    heatfluxes.LEflux.LEfluxRoofVeg = results.LEfluxRoofVeg
+    heatfluxes.LEflux.LEfluxRoof = results.LEfluxRoof
+    heatfluxes.Gflux.G1RoofImp = results.G1RoofImp
+    heatfluxes.Gflux.G2RoofImp = results.G2RoofImp
+    heatfluxes.Gflux.G1RoofVeg = results.G1RoofVeg
+    heatfluxes.Gflux.G2RoofVeg = results.G2RoofVeg
+    heatfluxes.Gflux.G1Roof = results.G1Roof
+    heatfluxes.Gflux.G2Roof = results.G2Roof
+    heatfluxes.dStorage.dsRoofImp = results.dsRoofImp
+    heatfluxes.dStorage.dsRoofVeg = results.dsRoofVeg
+    heatfluxes.dStorage.dsRoof = results.dsRoof
+
+    return nothing
+end

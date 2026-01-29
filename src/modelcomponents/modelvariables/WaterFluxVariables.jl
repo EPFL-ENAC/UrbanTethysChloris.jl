@@ -879,3 +879,44 @@ function ModelComponents.outputs_to_save(
 )
     return (:OSwater, :Qinlat, :ExWater, :CiCO2Leaf)
 end
+
+function update!(
+    x::WaterFluxVariables{FT}, results::NamedTuple, fn::EBWBRoofDispatcher
+) where {FT<:AbstractFloat}
+    x.Eflux.EfluxRoofImp = results.EfluxRoofImp
+    x.Eflux.EfluxRoofVegInt = results.EfluxRoofVegInt
+    x.Eflux.EfluxRoofVegPond = results.EfluxRoofVegPond
+    x.Eflux.EfluxRoofVegSoil = results.EfluxRoofVegSoil
+    x.Eflux.TEfluxRoofVeg = results.TEfluxRoofVeg
+    x.Eflux.EfluxRoofVeg = results.EfluxRoofVeg
+    x.Eflux.EfluxRoof = results.EfluxRoof
+    x.Runoff.QRoofImp = results.QRoofImp
+    x.Runoff.QRoofVegDrip = results.QRoofVegDrip
+    x.Runoff.QRoofVegPond = results.QRoofVegPond
+    x.Runoff.QRoofVegSoil = results.QRoofVegSoil
+    x.Leakage.LkRoofImp = results.LkRoofImp
+    x.Leakage.LkRoofVeg = results.LkRoofVeg
+    x.Leakage.LkRoof = results.LkRoof
+    x.Runon.RunoffRoofTot = results.RunoffRoofTot
+    x.Runon.RunonRoofTot = results.RunonRoofTot
+    x.Interception.IntRoofImp = results.IntRoofImp
+    x.Interception.IntRoofVegPlant = results.IntRoofVegPlant
+    x.Interception.IntRoofVegGround = results.IntRoofVegGround
+    x.Interception.IntRooftot = results.IntRooftot
+    x.dInt_dt.dInt_dtRoofImp = results.dInt_dtRoofImp
+    x.dInt_dt.dInt_dtRoofVegPlant = results.dInt_dtRoofVegPlant
+    x.dInt_dt.dInt_dtRoofVegGround = results.dInt_dtRoofVegGround
+    x.dInt_dt.dInt_dtRooftot = results.dInt_dtRooftot
+    x.Vwater.VRoofSoilVeg .= results.VRoofSoil
+    x.dVwater_dt.dVRoofSoilVeg_dt .= results.dVRoofSoil_dt
+    x.Owater.OwRoofSoilVeg .= results.OwRoofSoil
+    x.OSwater.OSwRoofSoilVeg .= results.OSwRoofSoil
+    x.ExWater.ExWaterRoofVeg_H .= results.ExWaterRoof_H
+    x.ExWater.ExWaterRoofVeg_L .= results.ExWaterRoof_L
+    x.SoilPotW.SoilPotWRoofVeg_H = results.SoilPotWRoof_H
+    x.SoilPotW.SoilPotWRoofVeg_L = results.SoilPotWRoof_L
+    x.CiCO2Leaf.CiCO2LeafRoofVegSun = results.CiCO2LeafRoofVegSun
+    x.CiCO2Leaf.CiCO2LeafRoofVegShd = results.CiCO2LeafRoofVegShd
+
+    return nothing
+end

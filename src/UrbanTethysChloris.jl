@@ -15,12 +15,18 @@ using DataFramesMeta: @chain
 using Plots: plot, plot!
 using LaTeXStrings: @L_str
 
+abstract type FunctionDispatcher end
+struct EBWBRoofDispatcher <: FunctionDispatcher end
+const eb_wb_roof_dispatcher = EBWBRoofDispatcher()
+
 include(joinpath("soil", "Soil.jl"))
 using .Soil
 
 include(joinpath("modelcomponents", "ModelComponents.jl"))
 using .ModelComponents
 import .ModelComponents: update!
+export no_outputs,
+    plot_outputs, essential_outputs, extended_energy_climate_outputs, extended_outputs
 
 include("Model.jl")
 export create_model, initialize!

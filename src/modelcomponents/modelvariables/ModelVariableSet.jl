@@ -87,3 +87,12 @@ function ModelComponents.accessors(::Type{ModelVariableSet}, ::Type{O}) where {O
     end
     return base
 end
+
+function update!(x::ModelVariableSet, results::NamedTuple, ::EBWBRoofDispatcher)
+    update!(x.radiationflux, results, eb_wb_roof_dispatcher)
+    update!(x.heatflux, results, eb_wb_roof_dispatcher)
+    update!(x.environmentalconditions, results, eb_wb_roof_dispatcher)
+    update!(x.waterflux, results, eb_wb_roof_dispatcher)
+    update!(x.energybalance, results, eb_wb_roof_dispatcher)
+    return nothing
+end

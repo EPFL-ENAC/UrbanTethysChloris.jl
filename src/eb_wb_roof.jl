@@ -183,17 +183,7 @@ function eb_wb_roof!(
         rsRoofPreCalc,
     )
 
-    model.variables.energybalance.EB.EBRoofImp = results.EBRoofImp
-    model.variables.energybalance.EB.EBRoofVeg = results.EBRoofVeg
-
-    model.variables.energybalance.WBRoof.WBRoofImp = results.WBRoofImp
-    model.variables.energybalance.WBRoof.WBRoofVegInVeg = results.WBRoofVegInVeg
-    model.variables.energybalance.WBRoof.WBRoofVegInGround = results.WBRoofVegInGround
-    model.variables.energybalance.WBRoof.WBRoofVegSoil = results.WBRoofVegSoil
-    model.variables.energybalance.WBRoof.WBRoofVeg = results.WBRoofVeg
-    model.variables.energybalance.WBRoof.WBRoofTot = results.WBRoofTot
-
-    @views model.variables.energybalance.Solver.YfunctionOutput[1:4] = results.Yroof
+    update!(model.variables, results, eb_wb_roof_dispatcher)
 
     return results
 end
