@@ -79,4 +79,7 @@ include("post_calculate_soil_moisture_change.jl")
 include("water_balance_components.jl")
 export water_balance_components
 
+include(joinpath("outputs", "Outputs.jl"))
+using .Outputs
+
 end

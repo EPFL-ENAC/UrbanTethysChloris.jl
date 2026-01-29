@@ -18,3 +18,6 @@ model.variables.waterflux.Runoff.QTree = 17
 @test x[:Runoff][:QTree](model) == 17
 
 results = allocate_results(WaterFluxVariables, ExtendedOutputs, model, 5)
+
+assign_results!(results, x, model, 2)
+@test results[:Runoff][:QTree][2] == 17

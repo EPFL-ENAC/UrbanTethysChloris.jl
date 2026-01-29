@@ -88,4 +88,48 @@ function _allocate_field_array(
     return zeros(FT, n_timesteps, N)
 end
 
+"""
+    assign_results!(
+        results::Dict{Symbol,Dict{Symbol,Array}},
+        accessors::Dict{Symbol,Dict{Symbol,Function}},
+        model::AbstractModel{FT},
+        timestep::Int,
+    ) where {FT}
+
+Assign the current model variable values to the results arrays at the specified timestep.
+
+# Arguments
+- `results::Dict{Symbol,Dict{Symbol,Array}}`: Nested dictionary of results arrays
+- `accessors::Dict{Symbol,Dict{Symbol,Function}}`: Nested dictionary of accessor functions
+- `model::AbstractModel{FT}`: The model instance
+- `timestep::Int`: The current timestep index
+"""
+function assign_results!(
+    results::Dict{Symbol,Dict{Symbol,Array}},
+    accessors::Dict{Symbol,Dict{Symbol,Function}},
+    model::AbstractModel{FT},
+    timestep::Int,
+) where {FT<:AbstractFloat}
+    for (component_field, component_accessors) in accessors
+        for (field, accessor) in component_accessors
+            _assign_field!(results[component_field][field], accessor(model), timestep)
+        end
+    end
+    return nothing
+end
+
+function _assign_field!(
+    field::AbstractVector, field_value::FT, timestep::Signed
+) where {FT<:AbstractFloat}
+    field[timestep] = field_value
+    return nothing
+end
+
+function _assign_field!(
+    field::AbstractMatrix, field_value::AbstractVector, timestep::Signed
+)
+    field[timestep, :] = field_value
+    return nothing
+end
+
 end
