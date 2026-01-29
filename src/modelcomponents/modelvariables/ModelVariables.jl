@@ -8,6 +8,7 @@ using ..Parameters:
     VegetationParameters,
     HeightDependentVegetationParameters,
     VegetatedSoilParameters
+import ...UrbanTethysChloris.ModelComponents
 using ...UrbanTethysChloris.ModelComponents
 using StaticArrays
 
