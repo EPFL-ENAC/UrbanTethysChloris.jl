@@ -149,3 +149,15 @@ function TethysChlorisCore.preprocess_fields(
     processed["resistance"] = Resistance(FT)
     return processed
 end
+
+function ModelComponents.outputs_to_save(
+    ::Type{EnvironmentalConditions}, ::Type{EssentialOutputs}
+)
+    return (:wind,)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{EnvironmentalConditions}, ::Type{ExtendedOutputs}
+)
+    return (:resistance,)
+end

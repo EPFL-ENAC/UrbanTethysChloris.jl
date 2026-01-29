@@ -209,3 +209,15 @@ function TethysChlorisCore.preprocess_fields(
     processed["Solver"] = SolverVariables(FT)
     return processed
 end
+
+function ModelComponents.outputs_to_save(
+    ::Type{EnergyBalanceVariables}, ::Type{EssentialOutputs}
+)
+    return (:Solver,)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{EnergyBalanceVariables}, ::Type{ExtendedOutputs}
+)
+    return (:WBRoof, :WBCanyonIndv, :WBCanyonTot, :EB)
+end

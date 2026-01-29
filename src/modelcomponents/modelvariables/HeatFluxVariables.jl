@@ -268,3 +268,9 @@ function TethysChlorisCore.preprocess_fields(
 
     return processed
 end
+
+function ModelComponents.outputs_to_save(
+    ::Type{HeatFluxVariables}, ::Type{ExtendedEnergyClimateOutputs}
+)
+    return (:Hflux, :LEflux, :Gflux, :dStorage, :Results2mEnergyFlux)
+end

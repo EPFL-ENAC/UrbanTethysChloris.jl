@@ -78,11 +78,24 @@ bottom up by decreasing the output type until reaching `NoOutputs`.
 # Returns
 - `Dict{Symbol,Dict{Symbol,Function}}`: Nested dictionary of accessor functions
 """
+function accessors(::Type{ModelVariableSet}, ::Type{O}) where {O}
+    base = Dict{Symbol,Dict{Symbol,Function}}()
+
+    for field in fieldnames(ModelVariableSet)
+        component_type = fieldtype(ModelVariableSet, field)
+        component_accessors = accessors(component_type, O)
+        if !isempty(component_accessors)
+            merge!(base, component_accessors)
+        end
+    end
+    return base
+end
+
 function accessors(::Type{T}, ::Type{O}) where {T,O}
     fns = ModelComponents.outputs_to_save(T, O)
 
     base = accessors(T, decrease(O))
-    if !isempty(fns)
+    if isa(fns, Symbol) || !isempty(fns)
         merge!(
             base, create_nested_accessor_dict(T, fns; parent_accessor=parent_accessor(T))
         )
@@ -114,6 +127,17 @@ Create a nested dictionary of accessor functions for type `T` for the specified 
 # Returns
 - `Dict{Symbol,Dict{Symbol,Function}}`: Nested dictionary of accessor functions
 """
+function create_nested_accessor_dict(
+    ::Type{T}, fn::Symbol; parent_accessor::Function=identity
+) where {T}
+    return Dict{Symbol,Dict{Symbol,Function}}(
+        fn => Dict{Symbol,Function}(
+            sub_fn => (x -> getfield(getfield(parent_accessor(x), fn), sub_fn)) for
+            sub_fn in fieldnames(fieldtype(T, fn))
+        ),
+    )
+end
+
 function create_nested_accessor_dict(
     ::Type{T}, fns::NTuple=fieldnames(T); parent_accessor::Function=identity
 ) where {T}

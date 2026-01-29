@@ -151,3 +151,21 @@ function TethysChlorisCore.preprocess_fields(
     processed["AlbedoOutput"] = AlbedoOutput(FT)
     return processed
 end
+
+function ModelComponents.outputs_to_save(
+    ::Type{RadiationFluxVariables}, ::Type{EssentialOutputs}
+)
+    return (:AlbedoOutput,)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{RadiationFluxVariables}, ::Type{ExtendedEnergyClimateOutputs}
+)
+    return (:SWRabs, :LWRabs)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{RadiationFluxVariables}, ::Type{ExtendedOutputs}
+)
+    return (:SWRin, :SWRout, :SWREB, :LWRin, :LWRout, :LWREB)
+end

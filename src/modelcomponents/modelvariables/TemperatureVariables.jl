@@ -219,3 +219,15 @@ function TethysChlorisCore.preprocess_fields(
     processed["thermalcomfort"] = ThermalComfort(FT)
     return processed
 end
+
+function ModelComponents.outputs_to_save(
+    ::Type{TemperatureVariables}, ::Type{EssentialOutputs}
+)
+    return (:tempvec, :mrt, :thermalcomfort)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{TemperatureVariables}, ::Type{ExtendedEnergyClimateOutputs}
+)
+    return (:tempdamp,)
+end

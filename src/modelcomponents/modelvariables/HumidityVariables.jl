@@ -132,3 +132,9 @@ function TethysChlorisCore.preprocess_fields(
 
     return processed
 end
+
+function ModelComponents.outputs_to_save(
+    ::Type{HumidityVariables}, ::Type{EssentialOutputs}
+)
+    return (:Humidity, :Results2m)
+end
