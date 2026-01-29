@@ -68,3 +68,9 @@ function TethysChlorisCore.preprocess_fields(
 
     return processed
 end
+
+# Automatically define parent accessors for all model variable components
+for field in fieldnames(ModelVariableSet)
+    component_type = fieldtype(ModelVariableSet, field)
+    @eval ModelComponents.parent_accessor(::Type{$component_type}) = x -> x.variables.$field
+end

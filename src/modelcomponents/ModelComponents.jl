@@ -55,6 +55,16 @@ function outputs_to_save(::Type{T}, ::Type{O}) where {T,O<:AbstractOutputsToSave
 end
 
 """
+    get_parent_accessor(::Type{T}) where {T}
+
+Get a function that navigates from a top-level model object to the parent of component `T`.
+Defaults to `identity`.
+"""
+function parent_accessor(::Type{T}) where {T}
+    return identity
+end
+
+"""
     accessors(T::Type{T}, O::Type{O}) where {T,O}
 
 Create a nested dictionary of accessor functions for type `T` corresponding to the outputs
@@ -73,7 +83,9 @@ function accessors(::Type{T}, ::Type{O}) where {T,O}
 
     base = accessors(T, decrease(O))
     if !isempty(fns)
-        merge!(base, create_nested_accessor_dict(T, fns))
+        merge!(
+            base, create_nested_accessor_dict(T, fns; parent_accessor=parent_accessor(T))
+        )
     end
     return base
 end
@@ -102,10 +114,12 @@ Create a nested dictionary of accessor functions for type `T` for the specified 
 # Returns
 - `Dict{Symbol,Dict{Symbol,Function}}`: Nested dictionary of accessor functions
 """
-function create_nested_accessor_dict(::Type{T}, fns::NTuple=fieldnames(T)) where {T}
+function create_nested_accessor_dict(
+    ::Type{T}, fns::NTuple=fieldnames(T); parent_accessor::Function=identity
+) where {T}
     return Dict{Symbol,Dict{Symbol,Function}}(
         fn => Dict{Symbol,Function}(
-            sub_fn => (x -> getfield(getfield(x, fn), sub_fn)) for
+            sub_fn => (x -> getfield(getfield(parent_accessor(x), fn), sub_fn)) for
             sub_fn in fieldnames(fieldtype(T, fn))
         ) for fn in fns
     )
