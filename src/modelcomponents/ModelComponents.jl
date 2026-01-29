@@ -27,6 +27,9 @@ const essential_outputs = EssentialOutputs()
 const extended_energy_climate_outputs = ExtendedEnergyClimateOutputs()
 const extended_outputs = ExtendedOutputs()
 
+export no_outputs,
+    plot_outputs, essential_outputs, extended_energy_climate_outputs, extended_outputs
+
 decrease(::Type{PlotOutputs}) = NoOutputs
 decrease(::Type{EssentialOutputs}) = PlotOutputs
 decrease(::Type{ExtendedEnergyClimateOutputs}) = EssentialOutputs

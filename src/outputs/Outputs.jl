@@ -2,7 +2,7 @@ module Outputs
 
 using ..UrbanTethysChloris: AbstractModel
 using ..UrbanTethysChloris.ModelComponents:
-    outputs_to_save, parent_accessor, decrease, NoOutputs, ModelVariableSet
+    outputs_to_save, parent_accessor, decrease, NoOutputs, ModelVariableSet, accessors
 using StaticArraysCore: SVector, MVector
 
 """
@@ -22,7 +22,7 @@ by dimensions matching the field type.
 - `Dict{Symbol,Dict{Symbol,Array}}`: Nested dictionary of pre-allocated arrays
 """
 function allocate_results(
-    ::Type{ModelVariableSet}, ::Type{O}, model::AbstractModel{FT}, n_timesteps::Int
+    ::Type{O}, model::AbstractModel{FT}, n_timesteps::Int
 ) where {O,FT<:AbstractFloat}
     base = Dict{Symbol,Dict{Symbol,Array}}()
     for field in fieldnames(ModelVariableSet)
@@ -141,5 +141,15 @@ function _assign_field!(
     field[timestep, :] = field_value
     return nothing
 end
+
+function prepare_results(
+    ::Type{O}, model::AbstractModel{FT}, n_timesteps::Int
+) where {O,FT<:AbstractFloat}
+    results = allocate_results(O, model, n_timesteps)
+    accessors_dict = accessors(ModelVariableSet, O)
+    return results, accessors_dict
+end
+
+export prepare_results, assign_results!
 
 end

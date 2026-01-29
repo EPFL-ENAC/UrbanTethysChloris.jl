@@ -49,7 +49,7 @@ O33 = (
 initialize!(model, forcing)
 
 NN = 100
-results = run_simulation(
+results, results_dict = run_simulation(
     model,
     forcing;
     NN=NN,

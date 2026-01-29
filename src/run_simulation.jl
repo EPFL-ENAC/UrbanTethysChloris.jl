@@ -13,6 +13,7 @@ function run_simulation(
         Tuple{RayTracing.ViewFactor{FT},RayTracing.ViewFactorPoint{FT}},Nothing
     }=nothing,
     O33::NamedTuple=(roof=FT(0.0), ground=FT(0.0)),
+    output_level::UrbanTethysChloris.ModelComponents.AbstractOutputsToSave=plot_outputs,
 ) where {FT<:AbstractFloat}
 
     # view factor
@@ -91,6 +92,8 @@ function run_simulation(
     )
     results["ViewFactor"] = ViewFactor
     results["OwaterInitial"] = OwaterInitial
+
+    results_dict, accessors = prepare_results(typeof(output_level), model, NN)
 
     for i in 1:NN
         @info "Starting iteration $i / $NN"
@@ -562,11 +565,13 @@ function run_simulation(
 
         store_water_fluxes!(results, i, WaterFluxes)
 
+        assign_results!(results_dict, accessors, model, i)
+
         # Update forcing parameters for the next step
         model.forcing = forcing[i + 1]
     end
 
-    return results
+    return results, results_dict
 end
 
 function roof_temperature(
