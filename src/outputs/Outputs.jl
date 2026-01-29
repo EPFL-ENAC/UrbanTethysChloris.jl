@@ -129,7 +129,7 @@ function assign_results!(
 end
 
 function _assign_field!(
-    field::AbstractVector, field_value::FT, timestep::Signed
+    field::AbstractVector, field_value::Number, timestep::Signed
 ) where {FT<:AbstractFloat}
     field[timestep] = field_value
     return nothing
