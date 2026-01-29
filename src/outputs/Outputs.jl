@@ -1,0 +1,91 @@
+module Outputs
+
+using ..UrbanTethysChloris: AbstractModel
+using ..UrbanTethysChloris.ModelComponents:
+    outputs_to_save, parent_accessor, decrease, NoOutputs
+using StaticArraysCore: SVector, MVector
+
+"""
+    allocate_results(::Type{T}, ::Type{O}, model::AbstractModel{FT}, n_timesteps::Int) where {T,O,FT}
+
+Allocate arrays for storing simulation results with the same nested structure as the
+accessor dictionary. Each array has a temporal dimension as the first dimension, followed
+by dimensions matching the field type.
+
+# Arguments
+- `T::Type{T}`: The model component type
+- `O::Type{O}`: The outputs to save type
+- `model::AbstractModel{FT}`: The model instance (used to extract type parameters)
+- `n_timesteps::Int`: Number of timesteps in the simulation
+
+# Returns
+- `Dict{Symbol,Dict{Symbol,Array}}`: Nested dictionary of pre-allocated arrays
+"""
+function allocate_results(
+    ::Type{T}, ::Type{O}, model::AbstractModel{FT}, n_timesteps::Int
+) where {T,O,FT<:AbstractFloat}
+    fns = outputs_to_save(T, O)
+
+    base = allocate_results(T, decrease(O), model, n_timesteps)
+    if !isempty(fns)
+        merge!(base, _allocate_component_results(T, fns, model, n_timesteps))
+    end
+    return base
+end
+
+function allocate_results(
+    ::Type{T}, ::Type{NoOutputs}, model::AbstractModel{FT}, n_timesteps::Int
+) where {T,FT<:AbstractFloat}
+    return Dict{Symbol,Dict{Symbol,Array}}()
+end
+
+function _allocate_component_results(
+    ::Type{T}, fns::NTuple, model::AbstractModel{FT}, n_timesteps::Int
+) where {T,FT<:AbstractFloat}
+    results = Dict{Symbol,Dict{Symbol,Array}}()
+    parent = parent_accessor(T)
+    parent_instance = parent(model)
+
+    for component_field in fns
+        component_type = fieldtype(T, component_field)
+        component_instance = getfield(parent_instance, component_field)
+        component_results = Dict{Symbol,Array}()
+
+        for field in fieldnames(component_type)
+            field_instance = getfield(component_instance, field)
+            component_results[field] = _allocate_field_array(
+                field_instance, FT, n_timesteps
+            )
+        end
+
+        results[component_field] = component_results
+    end
+
+    return results
+end
+
+function _allocate_field_array(
+    field_instance::FT, ::Type{FT}, n_timesteps::Int
+) where {FT<:AbstractFloat}
+    return zeros(FT, n_timesteps)
+end
+
+function _allocate_field_array(
+    field_instance::Vector{FT}, ::Type{FT}, n_timesteps::Int
+) where {FT<:AbstractFloat}
+    return zeros(FT, n_timesteps, length(field_instance))
+end
+
+function _allocate_field_array(
+    field_instance::SVector{N,FT}, ::Type{FT}, n_timesteps::Int
+) where {N,FT<:AbstractFloat}
+    return zeros(FT, n_timesteps, N)
+end
+
+function _allocate_field_array(
+    field_instance::MVector{N,FT}, ::Type{FT}, n_timesteps::Int
+) where {N,FT<:AbstractFloat}
+    return zeros(FT, n_timesteps, N)
+end
+
+end

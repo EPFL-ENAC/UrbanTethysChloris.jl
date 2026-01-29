@@ -124,6 +124,8 @@ function create_nested_accessor_dict(
         ) for fn in fns
     )
 end
+# TODO: instead of merging, accumulate the outputs to save, and then created the nested
+# accessor dict in one go.
 
 export outputs_to_save,
     EssentialOutputs, PlotOutputs, ExtendedEnergyClimateOutputs, ExtendedOutputs
