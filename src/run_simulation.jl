@@ -565,6 +565,8 @@ function run_simulation(
 
         store_water_fluxes!(results, i, WaterFluxes)
 
+        urban_averages!(model)
+
         assign_results!(results_dict, accessors, model, i)
 
         # Update forcing parameters for the next step
@@ -633,6 +635,88 @@ function urban_average(
     fcanyon = urbangeometry.wcanyon_norm
 
     return roof * froof + canyon * fcanyon
+end
+
+function urban_averages!(model::Model{FT}) where {FT<:AbstractFloat}
+    model.variables.waterflux.Runon.RunonUrban = urban_average(
+        model.variables.waterflux.Runon.RunonRoofTot,
+        model.variables.waterflux.Runon.RunonGroundTot,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.waterflux.Runon.RunoffUrban = urban_average(
+        model.variables.waterflux.Runon.RunoffRoofTot,
+        model.variables.waterflux.Runon.RunoffGroundTot,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.radiationflux.SWRabs.TotalUrban = urban_average(
+        model.variables.radiationflux.SWRabs.TotalRoof,
+        model.variables.radiationflux.SWRabs.TotalCanyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.radiationflux.SWRin.TotalUrban = urban_average(
+        model.variables.radiationflux.SWRin.TotalRoof,
+        model.variables.radiationflux.SWRin.TotalCanyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.radiationflux.SWRout.TotalUrban = urban_average(
+        model.variables.radiationflux.SWRout.TotalRoof,
+        model.variables.radiationflux.SWRout.TotalCanyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.radiationflux.LWRabs.TotalUrban = urban_average(
+        model.variables.radiationflux.LWRabs.TotalRoof,
+        model.variables.radiationflux.LWRabs.TotalCanyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.radiationflux.LWRin.TotalUrban = urban_average(
+        model.variables.radiationflux.LWRin.TotalRoof,
+        model.variables.radiationflux.LWRin.TotalCanyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.radiationflux.LWRout.TotalUrban = urban_average(
+        model.variables.radiationflux.LWRout.TotalRoof,
+        model.variables.radiationflux.LWRout.TotalCanyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.heatflux.Hflux.HfluxUrban = urban_average(
+        model.variables.heatflux.Hflux.HfluxRoof,
+        model.variables.heatflux.Hflux.HfluxCanyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.heatflux.LEflux.LEfluxUrban = urban_average(
+        model.variables.heatflux.LEflux.LEfluxRoof,
+        model.variables.heatflux.LEflux.LEfluxCanyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.heatflux.Gflux.G1Urban = urban_average(
+        model.variables.heatflux.Gflux.G1Roof,
+        model.variables.heatflux.Gflux.G1Canyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.heatflux.Gflux.G2Urban = urban_average(
+        model.variables.heatflux.Gflux.G2Roof,
+        model.variables.heatflux.Gflux.G2Canyon,
+        model.parameters.urbangeometry,
+    )
+
+    model.variables.waterflux.Leakage.LkUrban = urban_average(
+        model.variables.waterflux.Leakage.LkRoof,
+        model.variables.waterflux.Leakage.LkGround,
+        model.parameters.urbangeometry,
+    )
+
+    return nothing
 end
 
 function create_results_struct(
