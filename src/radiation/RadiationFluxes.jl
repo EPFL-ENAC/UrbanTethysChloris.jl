@@ -1,3 +1,5 @@
+abstract type AbstractRadiationFluxes{FT<:AbstractFloat} end
+
 """
     RadiationFluxes{FT<:AbstractFloat}
 
@@ -13,7 +15,7 @@ Structure representing radiation flux components in an urban canyon.
 - `TotalGround`: Total radiation for all ground surfaces [W/m²]
 - `TotalCanyon`: Total radiation for entire canyon [W/m²]
 """
-Base.@kwdef struct RadiationFluxes{FT<:AbstractFloat}
+Base.@kwdef struct RadiationFluxes{FT<:AbstractFloat} <: AbstractRadiationFluxes{FT}
     GroundImp::FT
     GroundBare::FT
     GroundVeg::FT
@@ -71,6 +73,56 @@ function Base.show(io::IO, obj::RadiationFluxes)
     for field in fieldnames(typeof(obj))
         print(io, "\n", field, ": ", getfield(obj, field))
     end
+end
+
+Base.@kwdef struct AbsorbedRadiationFluxes{FT<:AbstractFloat} <: AbstractRadiationFluxes{FT}
+    GroundImp::FT
+    GroundBare::FT
+    GroundVeg::FT
+    Tree::FT
+    WallSun::FT
+    WallShade::FT
+    TotalGround::FT
+    TotalCanyon::FT
+    absWindowsSun::FT
+    transWindowSun::FT
+    absWindowShade::FT
+    transWindowShade::FT
+    WallShadeExt::FT
+    WallSunExt::FT
+    WallShadeTransmitted::FT
+    WallSunTransmitted::FT
+end
+
+function AbsorbedRadiationFluxes(
+    x::RadiationFluxes{FT},
+    absWindowsSun::FT,
+    transWindowSun::FT,
+    absWindowShade::FT,
+    transWindowShade::FT,
+    WallSunTransmitted::FT,
+    WallShadeTransmitted::FT,
+    WallSunExt::FT,
+    WallShadeExt::FT,
+) where {FT<:AbstractFloat}
+    return AbsorbedRadiationFluxes{FT}(;
+        GroundImp=x.GroundImp,
+        GroundBare=x.GroundBare,
+        GroundVeg=x.GroundVeg,
+        Tree=x.Tree,
+        WallSun=x.WallSun,
+        WallShade=x.WallShade,
+        TotalGround=x.TotalGround,
+        TotalCanyon=x.TotalCanyon,
+        absWindowsSun=absWindowsSun,
+        transWindowSun=transWindowSun,
+        absWindowShade=absWindowShade,
+        transWindowShade=transWindowShade,
+        WallShadeTransmitted=WallShadeTransmitted,
+        WallSunTransmitted=WallSunTransmitted,
+        WallSunExt=WallSunExt,
+        WallShadeExt=WallShadeExt,
+    )
 end
 
 """

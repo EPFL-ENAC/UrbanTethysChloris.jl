@@ -902,7 +902,7 @@ end
 
 function store_results!(
     results::Dict{String,Any},
-    RadiationFluxes::Radiation.RadiationFluxes{FT},
+    RadiationFluxes::Radiation.AbstractRadiationFluxes{FT},
     i::Signed,
     prefix::AbstractString,
 ) where {FT<:AbstractFloat}

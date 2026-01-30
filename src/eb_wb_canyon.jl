@@ -295,6 +295,18 @@ function eb_wb_canyon(
         SWRabsWallShadeExt=SWRabs_t.WallShade
     end
 
+    SWRabs_t2 = AbsorbedRadiationFluxes(
+        SWRabs_t,
+        SWRabsWindowSun,
+        SWRtransWindowSun,
+        SWRabsWindowShade,
+        SWRtransWindowShade,
+        SWRabsWallSunTransmitted,
+        SWRabsWallShadeTransmitted,
+        SWRabsWallSunExt,
+        SWRabsWallShadeExt,
+    )
+
     if abs(SWRabsWallSunExt+SWRabsWallSunTransmitted - SWRabs_t.WallSun) > 1e-8
         @warn "Warning"
     elseif abs(SWRabsWallShadeExt + SWRabsWallShadeTransmitted - SWRabs_t.WallShade) > 1e-8
@@ -746,7 +758,7 @@ function eb_wb_canyon(
     return (;
         SWRin_t,
         SWRout_t,
-        SWRabs_t,
+        SWRabs_t=SWRabs_t2,
         SWRabsDir_t,
         SWRabsDiff_t,
         SWREB_t,
