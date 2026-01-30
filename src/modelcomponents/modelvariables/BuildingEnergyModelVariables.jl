@@ -284,14 +284,26 @@ AC parameters time series variables.
 - `Heat_on`: Indicating the timesteps in which heating is switched on
 """
 Base.@kwdef mutable struct ParACHeat_ts{FT<:AbstractFloat} <: AbstractModelVariables{FT}
-    AC_on::FT
-    AC_onCool::FT
-    AC_onDehum::FT
-    Heat_on::FT
+    AC_on::Bool
+    AC_onCool::Bool
+    AC_onDehum::Bool
+    Heat_on::Bool
 end
 
 function ParACHeat_ts(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, ParACHeat_ts, Dict{String,Any}())
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{ParACHeat_ts}, data::Dict{String,Any}, params::Tuple
+) where {FT<:AbstractFloat}
+    processed = Dict{String,Any}()
+
+    for field in String.(fieldnames(ParACHeat_ts))
+        processed[field] = false
+    end
+
+    return processed
 end
 
 """
