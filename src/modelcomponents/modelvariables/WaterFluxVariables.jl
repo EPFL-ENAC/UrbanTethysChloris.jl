@@ -347,7 +347,7 @@ function update!(
     return nothing
 end
 """
-    dVwater_dt{FT<:AbstractFloat, MR, MG} <: AbstractLayeredSoilVariables{FT}
+    dVwater_dt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Change in water volume in soil for different urban surfaces.
 
@@ -359,37 +359,26 @@ Change in water volume in soil for different urban surfaces.
 - `dVGroundSoilTot_dt`: Change in water volume in the different soil layers of ground total [mm per horizontal ground area]
 """
 # Same names as Vwater
-Base.@kwdef mutable struct dVwater_dt{FT<:AbstractFloat,MR,MG} <:
-                           AbstractLayeredSoilVariables{FT}
-    dVRoofSoilVeg_dt::Vector{FT}
-    dVGroundSoilImp_dt::Vector{FT}
-    dVGroundSoilBare_dt::Vector{FT}
-    dVGroundSoilVeg_dt::Vector{FT}
-    dVGroundSoilTot_dt::Vector{FT}
+Base.@kwdef mutable struct dVwater_dt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    dVRoofSoilVeg_dt::FT
+    dVGroundSoilImp_dt::FT
+    dVGroundSoilBare_dt::FT
+    dVGroundSoilVeg_dt::FT
+    dVGroundSoilTot_dt::FT
 end
 
 function ground_fields(::Type{dVwater_dt})
-    return [
-        "dVGroundSoilImp_dt",
-        "dVGroundSoilBare_dt",
-        "dVGroundSoilVeg_dt",
-        "dVGroundSoilTot_dt",
-    ]
+    return (
+        :dVGroundSoilImp_dt, :dVGroundSoilBare_dt, :dVGroundSoilVeg_dt, :dVGroundSoilTot_dt
+    )
 end
 
 function roof_fields(::Type{dVwater_dt})
-    return ["dVRoofSoilVeg_dt"]
+    return (:dVRoofSoilVeg_dt,)
 end
 
-function dVwater_dt(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        dVwater_dt,
-        Dict{String,Any}(),
-        (FT, soil.roof.ms, soil.ground.ms),
-        soil,
-        args...,
-    )
+function dVwater_dt(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, dVwater_dt, Dict{String,Any}())
 end
 
 """
@@ -473,7 +462,7 @@ function update!(
     return nothing
 end
 """
-    OSwater{FT<:AbstractFloat, MR, MG} <: AbstractLayeredSoilVariables{FT}
+    OSwater{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Additional soil moisture variables for urban surfaces.
 
@@ -485,27 +474,24 @@ Additional soil moisture variables for urban surfaces.
 - `OSwGroundSoilTot`: Additional soil moisture values for ground soil layers total [-]
 """
 # Same names as Vwater
-Base.@kwdef mutable struct OSwater{FT<:AbstractFloat,MR,MG} <:
-                           AbstractLayeredSoilVariables{FT}
-    OSwRoofSoilVeg::Vector{FT}
-    OSwGroundSoilImp::Vector{FT}
-    OSwGroundSoilBare::Vector{FT}
-    OSwGroundSoilVeg::Vector{FT}
-    OSwGroundSoilTot::Vector{FT}
+Base.@kwdef mutable struct OSwater{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    OSwRoofSoilVeg::FT
+    OSwGroundSoilImp::FT
+    OSwGroundSoilBare::FT
+    OSwGroundSoilVeg::FT
+    OSwGroundSoilTot::FT
 end
 
 function roof_fields(::Type{OSwater})
-    return ["OSwRoofSoilVeg"]
+    return (:OSwRoofSoilVeg,)
 end
 
 function ground_fields(::Type{OSwater})
-    return ["OSwGroundSoilImp", "OSwGroundSoilBare", "OSwGroundSoilVeg", "OSwGroundSoilTot"]
+    return (:OSwGroundSoilImp, :OSwGroundSoilBare, :OSwGroundSoilVeg, :OSwGroundSoilTot)
 end
 
-function OSwater(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:AbstractFloat}
-    return initialize(
-        FT, OSwater, Dict{String,Any}(), (FT, soil.roof.ms, soil.ground.ms), soil, args...
-    )
+function OSwater(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, OSwater, Dict{String,Any}())
 end
 
 """
@@ -815,9 +801,9 @@ Base.@kwdef struct WaterFluxVariables{FT<:AbstractFloat,MR,MG} <:
     dInt_dt::dInt_dt{FT}
     Infiltration::Infiltration{FT}
     Vwater::Vwater{FT,MR,MG}
-    dVwater_dt::dVwater_dt{FT,MR,MG}
+    dVwater_dt::dVwater_dt{FT}
     Owater::Owater{FT,MR,MG}
-    OSwater::OSwater{FT,MR,MG}
+    OSwater::OSwater{FT}
     Qinlat::Qinlat{FT,MG}
     ExWater::ExWater{FT,MR,MG}
     SoilPotW::SoilPotW{FT}
@@ -853,9 +839,9 @@ function TethysChlorisCore.preprocess_fields(
     processed["dInt_dt"] = dInt_dt(FT)
     processed["Infiltration"] = Infiltration(FT)
     processed["Vwater"] = Vwater(FT, soil)
-    processed["dVwater_dt"] = dVwater_dt(FT, soil)
+    processed["dVwater_dt"] = dVwater_dt(FT)
     processed["Owater"] = Owater(FT, soil)
-    processed["OSwater"] = OSwater(FT, soil)
+    processed["OSwater"] = OSwater(FT)
     processed["Qinlat"] = Qinlat(FT, soil)
     processed["ExWater"] = ExWater(FT, soil)
     processed["SoilPotW"] = SoilPotW(FT)
@@ -908,9 +894,9 @@ function update!(
     x.dInt_dt.dInt_dtRoofVegGround = results.dInt_dtRoofVegGround
     x.dInt_dt.dInt_dtRooftot = results.dInt_dtRooftot
     x.Vwater.VRoofSoilVeg .= results.VRoofSoil
-    x.dVwater_dt.dVRoofSoilVeg_dt .= results.dVRoofSoil_dt
+    x.dVwater_dt.dVRoofSoilVeg_dt = results.dVRoofSoil_dt
     x.Owater.OwRoofSoilVeg .= results.OwRoofSoil
-    x.OSwater.OSwRoofSoilVeg .= results.OSwRoofSoil
+    x.OSwater.OSwRoofSoilVeg = results.OSwRoofSoil
     x.ExWater.ExWaterRoofVeg_H .= results.ExWaterRoof_H
     x.ExWater.ExWaterRoofVeg_L .= results.ExWaterRoof_L
     x.SoilPotW.SoilPotWRoofVeg_H = results.SoilPotWRoof_H

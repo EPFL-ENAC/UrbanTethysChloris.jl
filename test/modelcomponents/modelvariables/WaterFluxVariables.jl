@@ -140,19 +140,19 @@ soil = initialize_soil_parameters(Float64, input_data["soil"])
     end
 
     @testset "dVwater_dt" begin
-        dvwater_dt = dVwater_dt(FT, soil)
+        dvwater_dt = dVwater_dt(FT)
 
-        @test dvwater_dt isa dVwater_dt{FT,soil.roof.ms,soil.ground.ms}
+        @test dvwater_dt isa dVwater_dt{FT}
 
         # Test all fields are accessible, have correct dimensions and initialized to zero
         for field in Symbol.(ground_fields(dVwater_dt))
-            @test isa(getproperty(dvwater_dt, field), Vector{FT})
-            @test all(getproperty(dvwater_dt, field) .== 0)
+            @test isa(getproperty(dvwater_dt, field), FT)
+            @test all(getproperty(dvwater_dt, field) == 0)
         end
 
         for field in Symbol.(roof_fields(dVwater_dt))
-            @test isa(getproperty(dvwater_dt, field), Vector{FT})
-            @test all(getproperty(dvwater_dt, field) .== 0)
+            @test isa(getproperty(dvwater_dt, field), FT)
+            @test all(getproperty(dvwater_dt, field) == 0)
         end
     end
 
@@ -173,19 +173,19 @@ soil = initialize_soil_parameters(Float64, input_data["soil"])
         end
     end
     @testset "OSwater" begin
-        oswater = OSwater(FT, soil)
+        oswater = OSwater(FT)
 
-        @test oswater isa OSwater{FT,soil.roof.ms,soil.ground.ms}
+        @test oswater isa OSwater{FT}
 
         # Test all fields are accessible, have correct dimensions and initialized to zero
         for field in Symbol.(ground_fields(OSwater))
-            @test isa(getproperty(oswater, field), Vector{FT})
-            @test all(getproperty(oswater, field) .== 0)
+            @test isa(getproperty(oswater, field), FT)
+            @test all(getproperty(oswater, field) == 0)
         end
 
         for field in Symbol.(roof_fields(OSwater))
-            @test isa(getproperty(oswater, field), Vector{FT})
-            @test all(getproperty(oswater, field) .== 0)
+            @test isa(getproperty(oswater, field), FT)
+            @test all(getproperty(oswater, field) == 0)
         end
     end
 
@@ -265,9 +265,9 @@ end
 
     # Soil layer fields should be properly initialized with correct dimensions
     @test isa(water_flux_vars.Vwater, Vwater{FT,MR,MG})
-    @test isa(water_flux_vars.dVwater_dt, dVwater_dt{FT,MR,MG})
+    @test isa(water_flux_vars.dVwater_dt, dVwater_dt{FT})
     @test isa(water_flux_vars.Owater, Owater{FT,MR,MG})
-    @test isa(water_flux_vars.OSwater, OSwater{FT,MR,MG})
+    @test isa(water_flux_vars.OSwater, OSwater{FT})
     @test isa(water_flux_vars.Qinlat, Qinlat{FT,MG})
     @test isa(water_flux_vars.ExWater, ExWater{FT,MR,MG})
 end
