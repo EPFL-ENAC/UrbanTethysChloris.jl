@@ -95,6 +95,14 @@ function run_simulation(
 
     results_dict, accessors = prepare_results(typeof(output_level), model, NN)
 
+    results_dict[:OwaterInitial] = Dict{Symbol,Array}(
+        :OwRoofSoilVeg => OwaterInitial.OwRoofSoilVeg,
+        :OwGroundSoilImp => OwaterInitial.OwGroundSoilImp,
+        :OwGroundSoilBare => OwaterInitial.OwGroundSoilBare,
+        :OwGroundSoilVeg => OwaterInitial.OwGroundSoilVeg,
+        :OwGroundSoilTot => OwaterInitial.OwGroundSoilTot,
+    )
+
     for i in 1:NN
         @info "Starting iteration $i / $NN"
 
@@ -573,7 +581,7 @@ function run_simulation(
         model.forcing = forcing[i + 1]
     end
 
-    return results, results_dict
+    return results, results_dict, ViewFactor, ViewFactorPoint
 end
 
 function roof_temperature(

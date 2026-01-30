@@ -312,6 +312,7 @@ function update!(
     heatfluxes.Hflux.HfluxWallSun = results.HfluxWallSun
     heatfluxes.Hflux.HfluxWallShade = results.HfluxWallShade
     heatfluxes.Hflux.HfluxCanyon = results.HfluxCanyon
+    heatfluxes.Hflux.dS_H_air = results.dS_H_air
 
     heatfluxes.LEflux.LEfluxGroundImp = results.LEfluxGroundImp
     heatfluxes.LEflux.LEfluxGroundBarePond = results.LEfluxGroundBarePond
@@ -329,6 +330,7 @@ function update!(
     heatfluxes.LEflux.LEfluxWallSun = results.LEfluxWallSun
     heatfluxes.LEflux.LEfluxWallShade = results.LEfluxWallShade
     heatfluxes.LEflux.LEfluxCanyon = results.LEfluxCanyon
+    heatfluxes.LEflux.dS_LE_air = results.dS_LE_air
 
     heatfluxes.Gflux.G1WallSun = results.G1WallSun
     heatfluxes.Gflux.G2WallSun = results.G2WallSun

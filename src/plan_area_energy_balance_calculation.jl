@@ -1,9 +1,12 @@
 
 """
     plan_area_energy_balance_calculation(
-        results::Dict{String,Any},
+        results::Dict{Symbol,Dict{Symbol,Array}},
         model::Model{FT},
         forcing::ModelComponents.ForcingInputSet{FT,1},
+        view_factor::RayTracing.ViewFactor{FT},
+        NN::Signed,
+        BEM_on::Bool=true,
     ) where {FT<:AbstractFloat}
 
 Calculates the plan area energy balance components for the urban area, canyon, and roof.
@@ -13,16 +16,21 @@ Analogous to `PlanAreaEnergyBalanceCalculation.m` in the original MATLAB code.
 - `results`: Dictionary containing simulation results.
 - `model`: The model structure.
 - `forcing`: The forcing input data.
+- `view_factor`: View factor structure for radiation calculations.
+- `NN`: Number of time steps to consider.
+- `BEM_on`: Boolean flag to indicate if Building Energy Model is active (default: true).
 
 # Returns
 - `EnergyFluxUrban`: Dictionary containing urban energy flux components.
 - `EnergyFluxCan`: Dictionary containing canyon energy flux components.
 - `EnergyFluxRoof`: Dictionary containing roof energy flux components.
+- `fig1`, `fig2`, `fig3`: Figures to visualize the results.
 """
 function plan_area_energy_balance_calculation(
-    results::Dict{String,Any},
+    results::Dict{Symbol,Dict{Symbol,Array}},
     model::Model{FT},
     forcing::ModelComponents.ForcingInputSet{FT,1},
+    view_factor::RayTracing.ViewFactor{FT},
     NN::Signed,
     BEM_on::Bool=true,
 ) where {FT<:AbstractFloat}
@@ -39,9 +47,9 @@ function plan_area_energy_balance_calculation(
     LWRin_atm = view(Meteo.LWR_in, 1:NN)
 
     # Unpack ViewFactors
-    F_sg_T=results["ViewFactor"].F_sg_T
-    F_sw_T=results["ViewFactor"].F_sw_T
-    F_st_T=results["ViewFactor"].F_st_T
+    F_sg_T=view_factor.F_sg_T
+    F_sw_T=view_factor.F_sw_T
+    F_st_T=view_factor.F_st_T
 
     # Normalize surface area
     urbangeometry = model.parameters.urbangeometry
@@ -61,56 +69,56 @@ function plan_area_energy_balance_calculation(
     Width_roof = urbangeometry.wroof
 
     # Rescale tree absorbed radiation
-    SWRabsTree = results["SWRabsTree"] / FT(pi) # Technically 4*rad/(4*rad*pi)
-    LWRabsTree = results["LWRabsTree"] / FT(pi)
+    SWRabsTree = results[:SWRabs][:Tree] / FT(pi) # Technically 4*rad/(4*rad*pi)
+    LWRabsTree = results[:LWRabs][:Tree] / FT(pi)
 
     # Retrieve fluxes at this timestep
     # SWRabs = results["SWRabs_t"]
     # LWRabs = results["LWRabs_t"]
 
     # Roof specific fluxes (need to be in results)
-    SWRinTotalRoof = results["SWRinTotalRoof"]
-    SWRabsTotalRoof = results["SWRabsTotalRoof"]
-    SWRoutTotalRoof = results["SWRoutTotalRoof"]
-    LWRinTotalRoof = results["LWRinTotalRoof"]
-    LWRabsTotalRoof = results["LWRabsTotalRoof"]
-    LWRoutTotalRoof = results["LWRoutTotalRoof"]
+    SWRinTotalRoof = results[:SWRin][:TotalRoof]
+    SWRabsTotalRoof = results[:SWRabs][:TotalRoof]
+    SWRoutTotalRoof = results[:SWRout][:TotalRoof]
+    LWRinTotalRoof = results[:LWRin][:TotalRoof]
+    LWRabsTotalRoof = results[:LWRabs][:TotalRoof]
+    LWRoutTotalRoof = results[:LWRout][:TotalRoof]
 
     # Shortwave Canyon Components
     CanSWRin_SurfArea =
         A_g/A_g * (
-            results["SWRinGroundVeg"] * fgveg +
-            results["SWRinGroundBare"] * fgbare +
-            results["SWRinGroundImp"] * fgimp
+            results[:SWRin][:GroundVeg] * fgveg +
+            results[:SWRin][:GroundBare] * fgbare +
+            results[:SWRin][:GroundImp] * fgimp
         ) +
-        A_w/A_g * (results["SWRinWallSun"] + results["SWRinWallShade"]) +
-        A_t/A_g * results["SWRinTree"]
+        A_w/A_g * (results[:SWRin][:WallSun] + results[:SWRin][:WallShade]) +
+        A_t/A_g * results[:SWRin][:Tree]
 
     CanSWRabs_SurfArea =
         A_g/A_g * (
-            results["SWRabsGroundVeg"] * fgveg +
-            results["SWRabsGroundBare"] * fgbare +
-            results["SWRabsGroundImp"] * fgimp
+            results[:SWRabs][:GroundVeg] * fgveg +
+            results[:SWRabs][:GroundBare] * fgbare +
+            results[:SWRabs][:GroundImp] * fgimp
         ) +
-        A_w/A_g * (results["SWRabsWallSun"] + results["SWRabsWallShade"]) +
+        A_w/A_g * (results[:SWRabs][:WallSun] + results[:SWRabs][:WallShade]) +
         SWRabsTree * A_t/A_g
 
     CanSWRout_SurfArea =
         A_g/A_g * (
-            results["SWRoutGroundVeg"] * fgveg +
-            results["SWRoutGroundBare"] * fgbare +
-            results["SWRoutGroundImp"] * fgimp
+            results[:SWRout][:GroundVeg] * fgveg +
+            results[:SWRout][:GroundBare] * fgbare +
+            results[:SWRout][:GroundImp] * fgimp
         ) +
-        A_w/A_g * (results["SWRoutWallSun"] + results["SWRoutWallShade"]) +
-        results["SWRoutTree"] * A_t/A_s
+        A_w/A_g * (results[:SWRout][:WallSun] + results[:SWRout][:WallShade]) +
+        results[:SWRout][:Tree] * A_t/A_s
 
     CanSWRout_Ref_to_Atm =
-        results["SWRoutGroundVeg"] * F_sg_T * fgveg +
-        results["SWRoutGroundBare"] * F_sg_T * fgbare +
-        results["SWRoutGroundImp"] * F_sg_T * fgimp +
-        results["SWRoutWallSun"] * F_sw_T +
-        results["SWRoutWallShade"] * F_sw_T +
-        results["SWRoutTree"] * F_st_T
+        results[:SWRout][:GroundVeg] * F_sg_T * fgveg +
+        results[:SWRout][:GroundBare] * F_sg_T * fgbare +
+        results[:SWRout][:GroundImp] * F_sg_T * fgimp +
+        results[:SWRout][:WallSun] * F_sw_T +
+        results[:SWRout][:WallShade] * F_sw_T +
+        results[:SWRout][:Tree] * F_st_T
 
     CanSWR_EB_SurfArea = CanSWRin_SurfArea - CanSWRabs_SurfArea - CanSWRout_SurfArea
     CanSWR_EB_PlanAreaCanyon = SWRin_atm - CanSWRabs_SurfArea - CanSWRout_Ref_to_Atm
@@ -135,38 +143,38 @@ function plan_area_energy_balance_calculation(
     # Longwave Canyon Components
     CanLWRin_SurfArea =
         A_g/A_g * (
-            results["LWRinGroundVeg"] * fgveg +
-            results["LWRinGroundBare"] * fgbare +
-            results["LWRinGroundImp"] * fgimp
+            results[:LWRin][:GroundVeg] * fgveg +
+            results[:LWRin][:GroundBare] * fgbare +
+            results[:LWRin][:GroundImp] * fgimp
         ) +
-        A_w/A_g * (results["LWRinWallSun"] + results["LWRinWallShade"]) +
-        results["LWRinTree"] * A_t/A_g
+        A_w/A_g * (results[:LWRin][:WallSun] + results[:LWRin][:WallShade]) +
+        results[:LWRin][:Tree] * A_t/A_g
 
     CanLWRabs_SurfArea =
         A_g/A_g * (
-            results["LWRabsGroundVeg"] * fgveg +
-            results["LWRabsGroundBare"] * fgbare +
-            results["LWRabsGroundImp"] * fgimp
+            results[:LWRabs][:GroundVeg] * fgveg +
+            results[:LWRabs][:GroundBare] * fgbare +
+            results[:LWRabs][:GroundImp] * fgimp
         ) +
-        A_w/A_g * (results["LWRabsWallSun"] + results["LWRabsWallShade"]) +
+        A_w/A_g * (results[:LWRabs][:WallSun] + results[:LWRabs][:WallShade]) +
         LWRabsTree * A_t/A_g
 
     CanLWRout_SurfArea =
         A_g/A_s * (
-            results["LWRoutGroundVeg"] * fgveg +
-            results["LWRoutGroundBare"] * fgbare +
-            results["LWRoutGroundImp"] * fgimp
+            results[:LWRout][:GroundVeg] * fgveg +
+            results[:LWRout][:GroundBare] * fgbare +
+            results[:LWRout][:GroundImp] * fgimp
         ) +
-        A_w/A_s * (results["LWRoutWallSun"] + results["LWRoutWallShade"]) +
-        results["LWRoutTree"] * A_t/A_s
+        A_w/A_s * (results[:LWRout][:WallSun] + results[:LWRout][:WallShade]) +
+        results[:LWRout][:Tree] * A_t/A_s
 
     CanLWRout_Ref_to_Atm =
-        results["LWRoutGroundVeg"] * F_sg_T * fgveg +
-        results["LWRoutGroundBare"] * F_sg_T * fgbare +
-        results["LWRoutGroundImp"] * F_sg_T * fgimp +
-        results["LWRoutWallSun"] * F_sw_T +
-        results["LWRoutWallShade"] * F_sw_T +
-        results["LWRoutTree"] * F_st_T
+        results[:LWRout][:GroundVeg] * F_sg_T * fgveg +
+        results[:LWRout][:GroundBare] * F_sg_T * fgbare +
+        results[:LWRout][:GroundImp] * F_sg_T * fgimp +
+        results[:LWRout][:WallSun] * F_sw_T +
+        results[:LWRout][:WallShade] * F_sw_T +
+        results[:LWRout][:Tree] * F_st_T
 
     CanLWR_EB_SurfArea = CanLWRin_SurfArea - CanLWRabs_SurfArea - CanLWRout_SurfArea
     CanLWR_EB_PlanAreaCanyon = LWRin_atm - CanLWRabs_SurfArea - CanLWRout_Ref_to_Atm
@@ -181,32 +189,32 @@ function plan_area_energy_balance_calculation(
     UrbanLWR_EB_SurfArea = UrbanLWRin_SurfArea - UrbanLWRabs_SurfArea - UrbanLWRout_SurfArea
     UrbanLWR_EB_PlanAreaUrban = LWRin_atm - UrbanLWRabs_SurfArea - UrbanLWRout_Ref_to_Atm
 
-    SWRabs_Urban = results["SWRabsTotalUrban"]
-    LWRabs_Urban = results["LWRabsTotalUrban"]
-    LE_Urban = results["LEfluxUrban"]
-    H_Urban = results["HfluxUrban"]
+    SWRabs_Urban = results[:SWRabs][:TotalUrban]
+    LWRabs_Urban = results[:LWRabs][:TotalUrban]
+    LE_Urban = results[:LEflux][:LEfluxUrban]
+    H_Urban = results[:Hflux][:HfluxUrban]
 
     # LE Effect
-    LEfluxRoof = results["LEfluxRoof"]
-    LEfluxCanyon = results["LEfluxCanyon"] # Assuming added to results
+    LEfluxRoof = results[:LEflux][:LEfluxRoof]
+    LEfluxCanyon = results[:LEflux][:LEfluxCanyon] # Assuming added to results
 
-    HfluxRoof = results["HfluxRoof"]
-    HfluxCanyon = results["HfluxCanyon"]
+    HfluxRoof = results[:Hflux][:HfluxRoof]
+    HfluxCanyon = results[:Hflux][:HfluxCanyon]
 
     # Gflux
-    G1Ground = results["G1Ground"] # Canyon ground
+    G1Ground = results[:Gflux][:G1Ground] # Canyon ground
 
     # Retrieve struct/namedtuples
-    Gfloor = results["GbuildIntGfloor"]     # Building floor
-    G1WallSun = results["G1WallSun"]
-    G1WallShade = results["G1WallShade"]
-    G1Roof = results["G1Roof"]
+    Gfloor = results[:GbuildInt][:Gfloor]     # Building floor
+    G1WallSun = results[:Gflux][:G1WallSun]
+    G1WallShade = results[:Gflux][:G1WallShade]
+    G1Roof = results[:Gflux][:G1Roof]
 
-    GdSinternalMass = results["GbuildIntdSinternalMass"]
+    GdSinternalMass = results[:GbuildInt][:dSinternalMass]
 
-    dsWallSun = results["dsWallSun"]
-    dsWallShade = results["dsWallShade"]
-    dsRoof = results["dsRoof"]
+    dsWallSun = results[:dStorage][:dsWallSun]
+    dsWallShade = results[:dStorage][:dsWallShade]
+    dsRoof = results[:dStorage][:dsRoof]
 
     if BEM_on
         Gground_Urban = wcanyon_norm * G1Ground + wroof_norm * Gfloor
@@ -222,12 +230,12 @@ function plan_area_energy_balance_calculation(
         dSdt_buildEnv = zero(FT)
     end
 
-    dS_H_air = results["dS_H_air"]
-    dS_LE_air = results["dS_LE_air"]
+    dS_H_air = results[:Hflux][:dS_H_air]
+    dS_LE_air = results[:LEflux][:dS_LE_air]
 
     # Roof internal?
-    dSH_air_build = results["HbuildIntdSH_air"]
-    dSLE_air_build = results["LEbuildIntdSLE_air"]
+    dSH_air_build = results[:HbuildInt][:dSH_air]
+    dSLE_air_build = results[:LEbuildInt][:dSLE_air]
 
     dSdt_Air =
         wcanyon_norm * (dS_H_air + dS_LE_air) +
@@ -236,11 +244,11 @@ function plan_area_energy_balance_calculation(
     # Anthropogenic
     Qanth_Canyon = view(forcing.anthropogenic.Qf_canyon, 1:NN)
     Qanth_Roof = view(forcing.anthropogenic.Qf_roof, 1:NN)
-    BEM_TotAnthInput_URB = results["WasteHeatTotAnthInput_URB"]
+    BEM_TotAnthInput_URB = results[:BEMWasteHeat][:TotAnthInput_URB]
 
     Qanth = Qanth_Canyon * wcanyon_norm + Qanth_Roof * wroof_norm + BEM_TotAnthInput_URB
 
-    BEM_WaterFromAC_Can = results["WasteHeatWaterFromAC_Can"]
+    BEM_WaterFromAC_Can = results[:BEMWasteHeat][:WaterFromAC_Can]
     QanthACcondensation = BEM_WaterFromAC_Can * wcanyon_norm
 
     if BEM_on
@@ -285,14 +293,14 @@ function plan_area_energy_balance_calculation(
     # Recalculate Transmitted components
     ParWindows = model.parameters.building_energy.windows
     GlazingRatio = ParWindows.GlazingRatio
-    SWRabsWallSunTransmitted = GlazingRatio * results["SWRabsWallSun"]
-    SWRabsWallShadeTransmitted = GlazingRatio * results["SWRabsWallShade"]
-    BEM_SensibleFromVent_Can = results["WasteHeatSensibleFromVent_Can"]
-    BEM_SensibleFromAC_Can = results["WasteHeatSensibleFromAC_Can"]
-    BEM_SensibleFromHeat_Can = results["WasteHeatSensibleFromHeat_Can"]
-    BEM_LatentFromVent_Can = results["WasteHeatLatentFromVent_Can"]
-    BEM_LatentFromAC_Can = results["WasteHeatLatentFromAC_Can"]
-    BEM_LatentFromHeat_Can = results["WasteHeatLatentFromHeat_Can"]
+    SWRabsWallSunTransmitted = GlazingRatio * results[:SWRabs][:WallSun]
+    SWRabsWallShadeTransmitted = GlazingRatio * results[:SWRabs][:WallShade]
+    BEM_SensibleFromVent_Can = results[:BEMWasteHeat][:SensibleFromVent_Can]
+    BEM_SensibleFromAC_Can = results[:BEMWasteHeat][:SensibleFromAC_Can]
+    BEM_SensibleFromHeat_Can = results[:BEMWasteHeat][:SensibleFromHeat_Can]
+    BEM_LatentFromVent_Can = results[:BEMWasteHeat][:LatentFromVent_Can]
+    BEM_LatentFromAC_Can = results[:BEMWasteHeat][:LatentFromAC_Can]
+    BEM_LatentFromHeat_Can = results[:BEMWasteHeat][:LatentFromHeat_Can]
 
     Qanth =
         Qanth_Canyon +
@@ -320,13 +328,13 @@ function plan_area_energy_balance_calculation(
         LWREB_PlanAreaCanyon=CanLWR_EB_PlanAreaCanyon,
         CanAlbedo=CanAlbedo,
         SWRabs=(
-            results["SWRabsTotalCanyon"] -
+            results[:SWRabs][:TotalCanyon] -
             A_w/A_g * (SWRabsWallSunTransmitted + SWRabsWallShadeTransmitted)
         ),
-        LWRabs=results["LWRabsTotalCanyon"],
+        LWRabs=results[:LWRabs][:TotalCanyon],
         LEflux=LEfluxCanyon,
         Hflux=HfluxCanyon,
-        Gflux=results["G1Canyon"],
+        Gflux=results[:Gflux][:G1Canyon],
         dSdt_Air=dS_H_air + dS_LE_air,
         Qanth=Qanth,
         QanthACcondensation=BEM_WaterFromAC_Can,
@@ -359,7 +367,6 @@ function plan_area_energy_balance_calculation(
         LWREB=LWRinTotalRoof - LWRabsTotalRoof - LWRoutTotalRoof,
     )
 
-    # if figure
     TTUrban = DataFrame(;
         Hour=Dates.hour.(view(forcing.datetime, 1:NN)),
         Month=Dates.month.(view(forcing.datetime, 1:NN)),
@@ -413,7 +420,6 @@ function plan_area_energy_balance_calculation(
         TTUrbanSeasonalMedian,
         view(forcing.datetime, 1:NN),
     )
-    # end
 
     return EnergyFluxUrban, EnergyFluxCan, EnergyFluxRoof, fig1, fig2, fig3
 end
