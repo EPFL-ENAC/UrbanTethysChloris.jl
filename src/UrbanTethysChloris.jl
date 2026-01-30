@@ -17,7 +17,9 @@ using LaTeXStrings: @L_str
 
 abstract type FunctionDispatcher end
 struct EBWBRoofDispatcher <: FunctionDispatcher end
+struct EBWBCanyonDispatcher <: FunctionDispatcher end
 const eb_wb_roof_dispatcher = EBWBRoofDispatcher()
+const eb_wb_canyon_dispatcher = EBWBCanyonDispatcher()
 
 include(joinpath("soil", "Soil.jl"))
 using .Soil

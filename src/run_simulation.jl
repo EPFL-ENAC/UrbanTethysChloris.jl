@@ -508,8 +508,10 @@ function run_simulation(
         # TODO: check whether we should be using the hour as a float (e.g. 10.5 for 10:30) or
         # the hour as an integer (10 for 10:30).
 
+        # TODO: Modify model in place
         u_ZPerson = Resistance.wind_profile_point_output(model)
 
+        # TODO: modify in place
         model.variables.temperature.thermalcomfort.UTCI = OutdoorThermalComfort.utci_approx(
             T2m - FT(273.15), RH_T2m * 100, Tmrt, u_ZPerson
         )

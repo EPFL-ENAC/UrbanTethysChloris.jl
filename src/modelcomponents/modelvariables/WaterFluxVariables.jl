@@ -60,6 +60,39 @@ function Eflux(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Eflux, Dict{String,Any}())
 end
 
+function ground_fields(::Type{Eflux})
+    return (
+        :EfluxGroundImp,
+        :EfluxGroundBarePond,
+        :EfluxGroundBareSoil,
+        :EfluxGroundBare,
+        :EfluxGroundVegInt,
+        :EfluxGroundVegPond,
+        :EfluxGroundVegSoil,
+        :TEfluxGroundVeg,
+        :EfluxGroundVeg,
+        :EfluxGround,
+        :EfluxTreeInt,
+        :TEfluxTree,
+        :EfluxTree,
+        :EfluxWallSun,
+        :EfluxWallShade,
+        :EfluxCanyon,
+    )
+end
+
+function roof_fields(::Type{Eflux})
+    return (
+        :EfluxRoofImp,
+        :EfluxRoofVegInt,
+        :EfluxRoofVegPond,
+        :EfluxRoofVegSoil,
+        :TEfluxRoofVeg,
+        :EfluxRoofVeg,
+        :EfluxRoof,
+    )
+end
+
 """
     Runoff{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -94,6 +127,22 @@ end
 
 function Runoff(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Runoff, Dict{String,Any}())
+end
+
+function roof_fields(::Type{Runoff})
+    return (:QRoofImp, :QRoofVegDrip, :QRoofVegPond, :QRoofVegSoil)
+end
+
+function ground_fields(::Type{Runoff})
+    return (
+        :QGroundImp,
+        :QGroundBarePond,
+        :QGroundBareSoil,
+        :QTree,
+        :QGroundVegDrip,
+        :QGroundVegPond,
+        :QGroundVegSoil,
+    )
 end
 
 """
@@ -144,6 +193,14 @@ function update!(dest::Runon{FT}, src::Runon{FT}) where {FT<:AbstractFloat}
     return nothing
 end
 
+function roof_fields(::Type{Runon})
+    return (:RunonRoofTot, :RunoffRoofTot)
+end
+
+function ground_fields(::Type{Runon})
+    return (:RunonGroundTot, :RunoffGroundTot)
+end
+
 """
     Leakage{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -172,6 +229,14 @@ end
 
 function Leakage(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Leakage, Dict{String,Any}())
+end
+
+function roof_fields(::Type{Leakage})
+    return (:LkRoofImp, :LkRoofVeg, :LkRoof)
+end
+
+function ground_fields(::Type{Leakage})
+    return (:LkGroundImp, :LkGroundBare, :LkGroundVeg, :LkGround)
 end
 
 """
@@ -233,6 +298,16 @@ function update!(dest::Interception{FT}, src::Interception{FT}) where {FT<:Abstr
     return nothing
 end
 
+function roof_fields(::Type{Interception})
+    return (:IntRoofImp, :IntRoofVegPlant, :IntRoofVegGround, :IntRooftot)
+end
+
+function ground_fields(::Type{Interception})
+    return (
+        :IntGroundImp, :IntGroundBare, :IntGroundVegPlant, :IntGroundVegGround, :IntTree
+    )
+end
+
 """
     dInt_dt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -266,6 +341,20 @@ function dInt_dt(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, dInt_dt, Dict{String,Any}())
 end
 
+function roof_fields(::Type{dInt_dt})
+    return (:dInt_dtRoofImp, :dInt_dtRoofVegPlant, :dInt_dtRoofVegGround, :dInt_dtRooftot)
+end
+
+function ground_fields(::Type{dInt_dt})
+    return (
+        :dInt_dtGroundImp,
+        :dInt_dtGroundBare,
+        :dInt_dtGroundVegPlant,
+        :dInt_dtGroundVegGround,
+        :dInt_dtTree,
+    )
+end
+
 """
     Infiltration{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -286,6 +375,14 @@ end
 
 function Infiltration(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Infiltration, Dict{String,Any}())
+end
+
+function roof_fields(::Type{Infiltration})
+    return (:fRoofVeg,)
+end
+
+function ground_fields(::Type{Infiltration})
+    return (:fGroundBare, :fGroundVeg, :fGroundImp)
 end
 
 """
@@ -722,6 +819,23 @@ function update!(dest::SoilPotW{FT}, src::SoilPotW{FT}) where {FT<:AbstractFloat
     return nothing
 end
 
+function ground_fields(::Type{SoilPotW})
+    return (
+        :SoilPotWGroundImp_H,
+        :SoilPotWGroundImp_L,
+        :SoilPotWGroundBare_H,
+        :SoilPotWGroundBare_L,
+        :SoilPotWGroundVeg_H,
+        :SoilPotWGroundVeg_L,
+        :SoilPotWGroundTot_H,
+        :SoilPotWGroundTot_L,
+    )
+end
+
+function roof_fields(::Type{SoilPotW})
+    return (:SoilPotWRoofVeg_H, :SoilPotWRoofVeg_L)
+end
+
 """
     CiCO2Leaf{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -768,6 +882,16 @@ function update!(dest::CiCO2Leaf{FT}, src::CiCO2Leaf{FT}) where {FT<:AbstractFlo
     dest.CiCO2LeafTreeShd = src.CiCO2LeafTreeShd
 
     return nothing
+end
+
+function roof_fields(::Type{CiCO2Leaf})
+    return (:CiCO2LeafRoofVegSun, :CiCO2LeafRoofVegShd)
+end
+
+function ground_fields(::Type{CiCO2Leaf})
+    return (
+        :CiCO2LeafGroundVegSun, :CiCO2LeafGroundVegShd, :CiCO2LeafTreeSun, :CiCO2LeafTreeShd
+    )
 end
 """
     WaterFluxVariables{FT<:AbstractFloat, MR, MG} <: AbstractModelVariableSet{FT}
@@ -869,40 +993,23 @@ end
 function update!(
     x::WaterFluxVariables{FT}, results::NamedTuple, fn::EBWBRoofDispatcher
 ) where {FT<:AbstractFloat}
-    x.Eflux.EfluxRoofImp = results.EfluxRoofImp
-    x.Eflux.EfluxRoofVegInt = results.EfluxRoofVegInt
-    x.Eflux.EfluxRoofVegPond = results.EfluxRoofVegPond
-    x.Eflux.EfluxRoofVegSoil = results.EfluxRoofVegSoil
-    x.Eflux.TEfluxRoofVeg = results.TEfluxRoofVeg
-    x.Eflux.EfluxRoofVeg = results.EfluxRoofVeg
-    x.Eflux.EfluxRoof = results.EfluxRoof
-    x.Runoff.QRoofImp = results.QRoofImp
-    x.Runoff.QRoofVegDrip = results.QRoofVegDrip
-    x.Runoff.QRoofVegPond = results.QRoofVegPond
-    x.Runoff.QRoofVegSoil = results.QRoofVegSoil
-    x.Leakage.LkRoofImp = results.LkRoofImp
-    x.Leakage.LkRoofVeg = results.LkRoofVeg
-    x.Leakage.LkRoof = results.LkRoof
-    x.Runon.RunoffRoofTot = results.RunoffRoofTot
-    x.Runon.RunonRoofTot = results.RunonRoofTot
-    x.Interception.IntRoofImp = results.IntRoofImp
-    x.Interception.IntRoofVegPlant = results.IntRoofVegPlant
-    x.Interception.IntRoofVegGround = results.IntRoofVegGround
-    x.Interception.IntRooftot = results.IntRooftot
-    x.dInt_dt.dInt_dtRoofImp = results.dInt_dtRoofImp
-    x.dInt_dt.dInt_dtRoofVegPlant = results.dInt_dtRoofVegPlant
-    x.dInt_dt.dInt_dtRoofVegGround = results.dInt_dtRoofVegGround
-    x.dInt_dt.dInt_dtRooftot = results.dInt_dtRooftot
-    x.Vwater.VRoofSoilVeg .= results.VRoofSoil
-    x.dVwater_dt.dVRoofSoilVeg_dt = results.dVRoofSoil_dt
-    x.Owater.OwRoofSoilVeg .= results.OwRoofSoil
-    x.OSwater.OSwRoofSoilVeg = results.OSwRoofSoil
-    x.ExWater.ExWaterRoofVeg_H .= results.ExWaterRoof_H
-    x.ExWater.ExWaterRoofVeg_L .= results.ExWaterRoof_L
-    x.SoilPotW.SoilPotWRoofVeg_H = results.SoilPotWRoof_H
-    x.SoilPotW.SoilPotWRoofVeg_L = results.SoilPotWRoof_L
-    x.CiCO2Leaf.CiCO2LeafRoofVegSun = results.CiCO2LeafRoofVegSun
-    x.CiCO2Leaf.CiCO2LeafRoofVegShd = results.CiCO2LeafRoofVegShd
+    for field in fieldnames(WaterFluxVariables{FT})
+        field_value = getfield(x, field)
+        field_type = typeof(field_value).name.wrapper
+        _update!(field_value, results, roof_fields(field_type))
+    end
+
+    return nothing
+end
+
+function update!(
+    x::WaterFluxVariables{FT}, results::NamedTuple, ::EBWBCanyonDispatcher
+) where {FT<:AbstractFloat}
+    for field in fieldnames(WaterFluxVariables{FT})
+        field_value = getfield(x, field)
+        field_type = typeof(field_value).name.wrapper
+        _update!(field_value, results, ground_fields(field_type))
+    end
 
     return nothing
 end

@@ -138,3 +138,10 @@ function ModelComponents.outputs_to_save(
 )
     return (:Humidity, :Results2m)
 end
+
+function update!(
+    x::HumidityVariables{FT}, results::NamedTuple, fn::EBWBCanyonDispatcher
+) where {FT<:AbstractFloat}
+    _update!(x.Results2m, results, fieldnames(Results2m))
+    return nothing
+end

@@ -104,6 +104,14 @@ function Base.show(io::IO, obj::AbstractModelVariables)
     end
 end
 
+function _update!(x::T, results::NamedTuple, fields) where {T}
+    for field in Symbol.(fields)
+        # not optimal due to allocs, but necessary with future SVectors
+        setfield!(x, field, getfield(results, field))
+    end
+    return nothing
+end
+
 include("BuildingEnergyModelVariables.jl")
 export TempVecB, HumidityBuilding, HbuildInt, LEbuildInt, GbuildInt, SWRabsB, LWRabsB
 export BEMWasteHeat, BEMEnergyUse, ParACHeat_ts, BuildingEnergyModelVariables

@@ -96,3 +96,13 @@ function update!(x::ModelVariableSet, results::NamedTuple, ::EBWBRoofDispatcher)
     update!(x.energybalance, results, eb_wb_roof_dispatcher)
     return nothing
 end
+
+function update!(x::ModelVariableSet, results::NamedTuple, ::EBWBCanyonDispatcher)
+    update!(x.radiationflux, results, eb_wb_canyon_dispatcher)
+    update!(x.heatflux, results, eb_wb_canyon_dispatcher)
+    update!(x.environmentalconditions, results, eb_wb_canyon_dispatcher)
+    update!(x.waterflux, results, eb_wb_canyon_dispatcher)
+    update!(x.energybalance, results, eb_wb_canyon_dispatcher)
+    update!(x.humidity, results, eb_wb_canyon_dispatcher)
+    return nothing
+end

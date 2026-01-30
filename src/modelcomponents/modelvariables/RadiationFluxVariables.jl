@@ -45,6 +45,27 @@ function AbsorbedRadiationFluxVariablesSubset(::Type{FT}) where {FT<:AbstractFlo
     return initialize(FT, AbsorbedRadiationFluxVariablesSubset, Dict{String,Any}())
 end
 
+function roof_fields(::Type{AbsorbedRadiationFluxVariablesSubset})
+    return (:RoofImp, :RoofVeg, :TotalRoof)
+end
+
+function canyon_fields(::Type{AbsorbedRadiationFluxVariablesSubset})
+    return (
+        :GroundImp,
+        :GroundBare,
+        :GroundVeg,
+        :Tree,
+        :WallSun,
+        :WallShade,
+        :TotalGround,
+        :TotalCanyon,
+        :WallSunExt,
+        :WallShadeExt,
+        :WallSunTransmitted,
+        :WallShadeTransmitted,
+    )
+end
+
 """
     DefaultRadiationFluxVariablesSubset{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -82,6 +103,23 @@ end
 
 function DefaultRadiationFluxVariablesSubset(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, DefaultRadiationFluxVariablesSubset, Dict{String,Any}())
+end
+
+function roof_fields(::Type{DefaultRadiationFluxVariablesSubset})
+    return (:RoofImp, :RoofVeg, :TotalRoof)
+end
+
+function canyon_fields(::Type{DefaultRadiationFluxVariablesSubset})
+    return (
+        :GroundImp,
+        :GroundBare,
+        :GroundVeg,
+        :Tree,
+        :WallSun,
+        :WallShade,
+        :TotalGround,
+        :TotalCanyon,
+    )
 end
 
 """
@@ -180,7 +218,9 @@ function update!(
     for field in radiation_fields
         update!(getfield(radiationflux, field), String(field), results, fn)
     end
+    return nothing
 end
+
 function update!(
     radiation_variables, prefix::String, results::NamedTuple, fn::EBWBRoofDispatcher
 )
@@ -190,4 +230,38 @@ function update!(
             radiation_variables, field, getfield(results, Symbol(prefix * string(field)))
         )
     end
+
+    return nothing
+end
+
+function update!(
+    radiationflux::RadiationFluxVariables, results::NamedTuple, fn::EBWBCanyonDispatcher
+)
+    radiation_fields = (:SWRabs, :SWRout, :SWRin, :SWREB, :LWRabs, :LWRout, :LWRin, :LWREB)
+
+    for field in radiation_fields
+        _update!(
+            getfield(radiationflux, field),
+            getfield(results, Symbol(string(field) * "_t")),
+            String(field),
+            fn,
+        )
+    end
+    return nothing
+end
+
+function _update!(
+    radiation_variables::Union{
+        DefaultRadiationFluxVariablesSubset,AbsorbedRadiationFluxVariablesSubset
+    },
+    radiation_in,
+    prefix::String,
+    fn::EBWBCanyonDispatcher,
+)
+    radiation_type = typeof(radiation_variables).name.wrapper
+    for field in canyon_fields(radiation_type)
+        setfield!(radiation_variables, field, getfield(radiation_in, field))
+    end
+
+    return nothing
 end

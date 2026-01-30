@@ -136,6 +136,25 @@ function EB(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, EB, Dict{String,Any}())
 end
 
+function roof_fields(::Type{EB})
+    return (:EBRoofImp, :EBRoofVeg)
+end
+
+function canyon_fields(::Type{EB})
+    return (
+        :EBGroundImp,
+        :EBGroundBare,
+        :EBGroundVeg,
+        :EBTree,
+        :EBWallSun,
+        :EBWallShade,
+        :EBWallSunInt,
+        :EBWallShadeInt,
+        :EBCanyonT,
+        :EBCanyonQ,
+    )
+end
+
 """
     SolverVariables{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -234,4 +253,25 @@ function update!(x::EnergyBalanceVariables, results::NamedTuple, ::EBWBRoofDispa
     @views x.Solver.YfunctionOutput[1:4] = results.Yroof
 
     return nothing
+end
+
+function _update!(x::WBCanyonIndv, WBIndv::NamedTuple, fields)
+    x.WB_In_tree = WBIndv.WB_In_tree
+    x.WB_In_gveg = WBIndv.WB_In_gveg
+    x.WB_In_gimp = WBIndv.WB_In_gimp
+    x.WB_In_gbare = WBIndv.WB_In_gbare
+    x.WB_Pond_gveg = WBIndv.WB_Pond_gveg
+    x.WB_Soil_gimp = isnan(WBIndv.WB_Soil_gimp) ? 0 : WBIndv.WB_Soil_gimp
+    x.WB_Soil_gbare = isnan(WBIndv.WB_Soil_gbare) ? 0 : WBIndv.WB_Soil_gbare
+    x.WB_Soil_gveg = isnan(WBIndv.WB_Soil_gveg) ? 0 : WBIndv.WB_Soil_gveg
+    # Technically nansum and sum in MATLAB, but all three fields are scalars.
+
+    return nothing
+end
+
+function update!(x::EnergyBalanceVariables, results::NamedTuple, ::EBWBCanyonDispatcher)
+    _update!(x.WBCanyonIndv, results.WBIndv, fieldnames(WBCanyonIndv))
+    _update!(x.WBCanyonTot, results.WBTot, fieldnames(WBCanyonTot))
+    _update!(x.EB, results, canyon_fields(EB))
+    # Maybe we should rename the ground_fields to canyon_fields in water flux variables
 end
