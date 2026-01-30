@@ -166,7 +166,14 @@ function eb_wb_canyon!(
 
     update!(model.variables, results, eb_wb_canyon_dispatcher)
 
-    return results
+    return results.SWRout_t,
+    results.SWRabs_t,
+    results.LWRout_t,
+    results.G2WallSun,
+    results.G2WallShade,
+    results.Ycanyon,
+    results.T2m,
+    results.RH_T2m
 end
 
 function eb_wb_canyon(

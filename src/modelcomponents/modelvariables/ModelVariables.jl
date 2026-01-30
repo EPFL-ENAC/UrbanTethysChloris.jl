@@ -135,6 +135,8 @@ export TempVec, TempDamp, MRT, ThermalComfort, TemperatureVariables
 include("WaterFluxVariables.jl")
 export Eflux, Runoff, Runon, Leakage, Interception, dInt_dt, Infiltration, Vwater
 export dVwater_dt, Owater, OSwater, Qinlat, ExWater, SoilPotW, CiCO2Leaf, WaterFluxVariables
+export fix_soil_moisture!
+
 include("ModelVariableSet.jl")
 
 export Humidity, TempVec, TempVecB

@@ -185,7 +185,7 @@ function eb_wb_roof!(
 
     update!(model.variables, results, eb_wb_roof_dispatcher)
 
-    return results
+    return results.G2Roof, results.Yroof
 end
 
 function eb_wb_roof(

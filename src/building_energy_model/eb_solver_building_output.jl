@@ -61,7 +61,7 @@ Simple Building energy model.
 - `ParACHeat`: HVAC system operation parameters
 - `YBuildInt::Vector{FT}`: Building internal energy balance residuals [W/m²]
 """
-function eb_solver_building_output(
+function eb_solver_building_output!(
     model::Model{FT},
     TemperatureC::Vector{FT},
     TemperatureB::Vector{FT},
@@ -119,10 +119,9 @@ function eb_solver_building_output(
     )
 
     model.variables.energybalance.Solver.YfunctionOutput[15:22] = YBuildInt
+    model.variables.temperature.tempdamp.TDampGroundBuild = Tdpfloor
 
-    return HbuildInt,
-    LEbuildInt, GbuildInt, SWRabsB, LWRabsB, Tdpfloor, WasteHeat, EnergyUse, ParACHeat,
-    YBuildInt
+    return EnergyUse, YBuildInt
 end
 
 function eb_solver_building_output(

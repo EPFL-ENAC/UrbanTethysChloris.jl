@@ -526,19 +526,28 @@ function Owater(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
     )
 end
 
-function update!(
+"""
+    fix_soil_moisture!(
+        dest::Owater{FT,MR,MG},
+        roof::VegetatedSoilParameters{FT},
+        ground::VegetatedSoilParameters{FT},
+        O33::NamedTuple,
+    ) where {FT<:AbstractFloat,MR,MG}
+
+Fix soil moisture values in the soil layers according to the settings in the soil parameters.
+
+# Arguments
+- `dest::Owater{FT,MR,MG}`: Soil moisture variables to be modified
+- `roof::VegetatedSoilParameters{FT}`: Roof soil parameters
+- `ground::VegetatedSoilParameters{FT}`: Ground soil parameters
+- `O33::NamedTuple`: Named tuple containing the fixed soil moisture values for roof and ground
+"""
+function fix_soil_moisture!(
     dest::Owater{FT,MR,MG},
-    src::Owater{FT,MR,MG},
     roof::VegetatedSoilParameters{FT},
     ground::VegetatedSoilParameters{FT},
     O33::NamedTuple,
 ) where {FT<:AbstractFloat,MR,MG}
-    dest.OwRoofSoilVeg .= src.OwRoofSoilVeg
-    dest.OwGroundSoilImp .= src.OwGroundSoilImp
-    dest.OwGroundSoilBare .= src.OwGroundSoilBare
-    dest.OwGroundSoilVeg .= src.OwGroundSoilVeg
-    dest.OwGroundSoilTot .= src.OwGroundSoilTot
-
     if roof.FixSM
         r = O33.roof
         SMReplace = fill(false, MR)
@@ -558,6 +567,7 @@ function update!(
 
     return nothing
 end
+
 """
     OSwater{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
