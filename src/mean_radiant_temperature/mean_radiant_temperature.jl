@@ -42,6 +42,7 @@ function mean_radiant_temperature!(
     LWRout_t::Radiation.RadiationFluxes{FT},
     ViewFactorPoint::ViewFactorPoint{FT},
 ) where {FT<:AbstractFloat}
+    # TODO: replace SWRout, LWRout by call to model.variables.radiationflux.SWRout, LWRout
     Tmrt, BooleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = mean_radiant_temperature(
         SWRout_t,
         LWRout_t,
