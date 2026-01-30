@@ -372,3 +372,21 @@ function ModelComponents.outputs_to_save(
 )
     return (:HbuildInt, :LEbuildInt, :GbuildInt, :SWRabsB, :LWRabsB)
 end
+
+function update!(
+    x::BuildingEnergyModelVariables{FT},
+    results::NamedTuple,
+    fn::EBSolverBuildingOutputDispatcher,
+) where {FT<:AbstractFloat}
+    _update!(x.HumidityBuilding, results.HumidityBuilding)
+    _update!(x.HbuildInt, results.HbuildInt)
+    _update!(x.LEbuildInt, results.LEbuildInt)
+    _update!(x.GbuildInt, results.GbuildInt)
+    _update!(x.SWRabsB, results.SWRabsB)
+    _update!(x.LWRabsB, results.LWRabsB)
+    _update!(x.BEMWasteHeat, results.WasteHeat)
+    _update!(x.BEMEnergyUse, results.EnergyUse)
+    _update!(x.ParACHeat_ts, results.ParACHeat)
+
+    return nothing
+end

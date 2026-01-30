@@ -102,10 +102,23 @@ function eb_solver_building_output(
         model.forcing.hvacschedule,
     )
 
-    model.variables.buildingenergymodel.HumidityBuilding.qbin = HumidityBuilding.qbin
-    model.variables.buildingenergymodel.HumidityBuilding.esatbin = HumidityBuilding.esatbin
-    model.variables.buildingenergymodel.HumidityBuilding.ebin = HumidityBuilding.ebin
-    model.variables.buildingenergymodel.HumidityBuilding.RHbin = HumidityBuilding.RHbin
+    update!(
+        model.variables.buildingenergymodel,
+        (;
+            HumidityBuilding,
+            HbuildInt,
+            LEbuildInt,
+            GbuildInt,
+            SWRabsB,
+            LWRabsB,
+            WasteHeat,
+            EnergyUse,
+            ParACHeat,
+        ),
+        eb_solver_building_output_dispatcher,
+    )
+
+    model.variables.energybalance.Solver.YfunctionOutput[15:22] = YBuildInt
 
     return HbuildInt,
     LEbuildInt, GbuildInt, SWRabsB, LWRabsB, Tdpfloor, WasteHeat, EnergyUse, ParACHeat,

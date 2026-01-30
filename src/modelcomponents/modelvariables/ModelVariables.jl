@@ -9,12 +9,16 @@ using ..Parameters:
     HeightDependentVegetationParameters,
     VegetatedSoilParameters
 import ...UrbanTethysChloris:
-    EBWBRoofDispatcher, EBWBCanyonDispatcher, eb_wb_roof_dispatcher, eb_wb_canyon_dispatcher
+    EBWBRoofDispatcher,
+    EBWBCanyonDispatcher,
+    EBSolverBuildingOutputDispatcher,
+    eb_wb_roof_dispatcher,
+    eb_wb_canyon_dispatcher,
+    eb_solver_building_output_dispatcher
 import ...UrbanTethysChloris.ModelComponents
 using ...UrbanTethysChloris.ModelComponents
 using StaticArrays
 
-using Infiltrator
 abstract type AbstractModelVariables{FT<:AbstractFloat} <:
               AbstractIndividualModelComponent{FT} end
 abstract type AbstractModelVariableSet{FT<:AbstractFloat} <: AbstractModelComponentSet{FT} end
@@ -104,7 +108,7 @@ function Base.show(io::IO, obj::AbstractModelVariables)
     end
 end
 
-function _update!(x::T, results::NamedTuple, fields) where {T}
+function _update!(x::T, results::NamedTuple, fields=fieldnames(T)) where {T}
     for field in Symbol.(fields)
         # not optimal due to allocs, but necessary with future SVectors
         setfield!(x, field, getfield(results, field))

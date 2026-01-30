@@ -18,8 +18,10 @@ using LaTeXStrings: @L_str
 abstract type FunctionDispatcher end
 struct EBWBRoofDispatcher <: FunctionDispatcher end
 struct EBWBCanyonDispatcher <: FunctionDispatcher end
+struct EBSolverBuildingOutputDispatcher <: FunctionDispatcher end
 const eb_wb_roof_dispatcher = EBWBRoofDispatcher()
 const eb_wb_canyon_dispatcher = EBWBCanyonDispatcher()
+const eb_solver_building_output_dispatcher = EBSolverBuildingOutputDispatcher()
 
 include(joinpath("soil", "Soil.jl"))
 using .Soil
