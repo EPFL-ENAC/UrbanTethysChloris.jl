@@ -84,9 +84,7 @@ function accessors(::Type{T}, ::Type{O}) where {T,O}
 
     base = accessors(T, decrease(O))
     if isa(fns, Symbol) || !isempty(fns)
-        merge!(
-            base, create_nested_accessor_dict(T, fns; parent_accessor=parent_accessor(T))
-        )
+        merge!(base, create_accessor_dict(T, fns; parent_accessor=parent_accessor(T)))
     end
     return base
 end
@@ -96,16 +94,7 @@ function accessors(::Type{T}, ::Type{NoOutputs}) where {T}
 end
 
 """
-    create_accessor_dict(::Type{T}) where {T}
-
-Create a dictionary of accessor functions for type `T`.
-"""
-function create_accessor_dict(::Type{T}) where {T}
-    return Dict{Symbol,Function}(fn => (x -> getfield(x, fn)) for fn in fieldnames(T))
-end
-
-"""
-    create_nested_accessor_dict(::Type{T}, fns::NTuple=fieldnames(T)) where {T}
+    create_accessor_dict(::Type{T}, fns::NTuple=fieldnames(T)) where {T}
 Create a nested dictionary of accessor functions for type `T` for the specified fields `fns`.
 
 # Arguments
@@ -115,18 +104,7 @@ Create a nested dictionary of accessor functions for type `T` for the specified 
 # Returns
 - `Dict{Symbol,Dict{Symbol,Function}}`: Nested dictionary of accessor functions
 """
-function create_nested_accessor_dict(
-    ::Type{T}, fn::Symbol; parent_accessor::Function=identity
-) where {T}
-    return Dict{Symbol,Dict{Symbol,Function}}(
-        fn => Dict{Symbol,Function}(
-            sub_fn => (x -> getfield(getfield(parent_accessor(x), fn), sub_fn)) for
-            sub_fn in fieldnames(fieldtype(T, fn))
-        ),
-    )
-end
-
-function create_nested_accessor_dict(
+function create_accessor_dict(
     ::Type{T}, fns::NTuple=fieldnames(T); parent_accessor::Function=identity
 ) where {T}
     return Dict{Symbol,Dict{Symbol,Function}}(
