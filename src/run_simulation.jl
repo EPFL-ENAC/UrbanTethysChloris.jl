@@ -58,7 +58,12 @@ function run_simulation(
 
     Humidity_t = deepcopy(model.variables.humidity.Humidity)
 
-    Ttot, fval, exitflag = nothing, nothing, nothing
+    Ttot = nothing
+    Yroof, Ycanyon, YBuildInt = nothing, nothing, nothing
+
+    TempVec_ittm = deepcopy(model.variables.temperature.tempvec)
+    Humidity_ittm = deepcopy(model.variables.humidity.Humidity)
+    TempVecB_ittm = deepcopy(model.variables.buildingenergymodel.TempVecB)
 
     TempVec_ittm2Ext = ExtrapolatedTempVec(model.variables.temperature.tempvec)
     Humidity_ittm2Ext = ExtrapolatedHumidity(model.variables.humidity.Humidity)
@@ -80,6 +85,12 @@ function run_simulation(
     Runon_t = deepcopy(model.variables.waterflux.Runon)
     Qinlat_t = deepcopy(model.variables.waterflux.Qinlat)
     Vwater_t = deepcopy(model.variables.waterflux.Vwater)
+
+    results = create_results_struct(
+        FT, NN, model.parameters.soil.roof.ms, model.parameters.soil.ground.ms
+    )
+    results["ViewFactor"] = ViewFactor
+    results["OwaterInitial"] = OwaterInitial
 
     for i in 1:NN
         @info "Starting iteration $i / $NN"
@@ -105,6 +116,12 @@ function run_simulation(
         ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(model, BEM_on)
 
         EnergyUse = (;);
+        Fluxes = nothing
+        WaterFluxes = nothing
+        LEbuildIntc = (;)
+        HbuildIntc = (;)
+        GbuildIntc = (;)
+        WasteHeat = (;)
 
         for HVACittm in 1:2
             if BEM_on && HVACittm == 2
@@ -112,16 +129,16 @@ function run_simulation(
                     continue
                 end
 
-                if EnergyUse.EnergyForAC_H>-10^-6 &&
-                    EnergyUse.EnergyForAC_LE>-10^-6 &&
-                    EnergyUse.EnergyForHeating>-10^-6
+                if EnergyUse.EnergyForAC_H>-1e-6 &&
+                    EnergyUse.EnergyForAC_LE>-1e-6 &&
+                    EnergyUse.EnergyForHeating>-1e-6
                     if ParHVAC.ACon &&
                         round(
                             model.variables.buildingenergymodel.TempVecB.Tbin; digits=4
                         )<(ParHVAC.TsetpointCooling+0.01) &&
                         round(
                             model.variables.buildingenergymodel.TempVecB.qbin; digits=8
-                        )<(ParHVAC.q_RHspCooling+10^-6)
+                        )<(ParHVAC.q_RHspCooling+1e-6)
                         continue
                     elseif ParHVAC.Heatingon &&
                         round(
@@ -139,8 +156,11 @@ function run_simulation(
                     model.variables.buildingenergymodel.TempVecB.qbin,
                 )
             end
-            Ttot, fval, exitflag = f_solver_tot(
+            Ttot = f_solver_tot!(
                 model,
+                TempVec_ittm,
+                TempVecB_ittm,
+                Humidity_ittm,
                 ViewFactor,
                 WallLayers,
                 ParInterceptionTree,
@@ -169,14 +189,24 @@ function run_simulation(
             )
             TB = building_temperature(model.variables.buildingenergymodel.TempVecB)
 
-            SWRabsRoofImp, SWRabsRoofVeg, SWRabsTotalRoof, SWRoutRoofImp, SWRoutRoofVeg, SWRoutTotalRoof, SWRinRoofImp, SWRinRoofVeg, SWRinTotalRoof, SWREBRoofImp, SWREBRoofVeg, SWREBTotalRoof, LWRabsRoofVeg, LWRabsRoofImp, LWRabsTotalRoof, LWRoutRoofVeg, LWRoutRoofImp, LWRoutTotalRoof, LWRinRoofImp, LWRinRoofVeg, LWRinTotalRoof, LWREBRoofImp, LWREBRoofVeg, LWREBTotalRoof, HfluxRoofImp, HfluxRoofVeg, HfluxRoof, LEfluxRoofImp, LEfluxRoofVegInt, LEfluxRoofVegPond, LEfluxRoofVegSoil, LTEfluxRoofVeg, LEfluxRoofVeg, LEfluxRoof, G1RoofImp, G2RoofImp, dsRoofImp, G1RoofVeg, G2RoofVeg, dsRoofVeg, G1Roof, G2Roof, dsRoof, raRooftoAtm, rb_LRoof, rap_LRoof, r_soilRoof, rs_sunRoof, rs_shdRoof, EfluxRoofImp, EfluxRoofVegInt, EfluxRoofVegPond, EfluxRoofVegSoil, TEfluxRoofVeg, EfluxRoofVeg, EfluxRoof, QRoofImp, QRoofVegDrip, QRoofVegPond, LkRoofImp, LkRoofVeg, LkRoof, QRoofVegSoil, RunoffRoofTot, RunonRoofTot, IntRoofImp, IntRoofVegPlant, IntRoofVegGround, dInt_dtRoofImp, dInt_dtRoofVegPlant, dInt_dtRoofVegGround, IntRooftot, dInt_dtRooftot, dVRoofSoilVeg_dt, fRoofVeg, VRoofSoilVeg, OwRoofSoilVeg, OSwRoofSoilVeg, ExWaterRoofVeg_H, SoilPotWRoofVeg_H, SoilPotWRoofVeg_L, ExWaterRoofVeg_L, CiCO2LeafRoofVegSun, CiCO2LeafRoofVegShd, WBRoofVegInVeg, WBRoofVegInGround, WBRoofVegSoil, EBRoofImp, EBRoofVeg, Yroof, WBRoofImp, WBRoofVeg, WBRoofTot = eb_wb_roof(
-                TR, TB, model, ParCalculation, BEM_on, RESPreCalc, rsRoofPreCalc
+            # TODO: remove all EB, WB and Yroof from the list of outputs, they are already modified in-place
+            SWRabsRoofImp, SWRabsRoofVeg, SWRabsTotalRoof, SWRoutRoofImp, SWRoutRoofVeg, SWRoutTotalRoof, SWRinRoofImp, SWRinRoofVeg, SWRinTotalRoof, SWREBRoofImp, SWREBRoofVeg, SWREBTotalRoof, LWRabsRoofVeg, LWRabsRoofImp, LWRabsTotalRoof, LWRoutRoofVeg, LWRoutRoofImp, LWRoutTotalRoof, LWRinRoofImp, LWRinRoofVeg, LWRinTotalRoof, LWREBRoofImp, LWREBRoofVeg, LWREBTotalRoof, HfluxRoofImp, HfluxRoofVeg, HfluxRoof, LEfluxRoofImp, LEfluxRoofVegInt, LEfluxRoofVegPond, LEfluxRoofVegSoil, LTEfluxRoofVeg, LEfluxRoofVeg, LEfluxRoof, G1RoofImp, G2RoofImp, dsRoofImp, G1RoofVeg, G2RoofVeg, dsRoofVeg, G1Roof, G2Roof, dsRoof, raRooftoAtm, rb_LRoof, rap_LRoof, r_soilRoof, rs_sunRoof, rs_shdRoof, EfluxRoofImp, EfluxRoofVegInt, EfluxRoofVegPond, EfluxRoofVegSoil, TEfluxRoofVeg, EfluxRoofVeg, EfluxRoof, QRoofImp, QRoofVegDrip, QRoofVegPond, LkRoofImp, LkRoofVeg, LkRoof, QRoofVegSoil, RunoffRoofTot, RunonRoofTot, IntRoofImp, IntRoofVegPlant, IntRoofVegGround, dInt_dtRoofImp, dInt_dtRoofVegPlant, dInt_dtRoofVegGround, IntRooftot, dInt_dtRooftot, dVRoofSoilVeg_dt, fRoofVeg, VRoofSoilVeg, OwRoofSoilVeg, OSwRoofSoilVeg, ExWaterRoofVeg_H, SoilPotWRoofVeg_H, SoilPotWRoofVeg_L, ExWaterRoofVeg_L, CiCO2LeafRoofVegSun, CiCO2LeafRoofVegShd, WBRoofVegInVeg, WBRoofVegInGround, WBRoofVegSoil, EBRoofImp, EBRoofVeg, Yroof, WBRoofImp, WBRoofVeg, WBRoofTot = eb_wb_roof!(
+                model,
+                TR,
+                TB,
+                TempVec_ittm,
+                ParCalculation,
+                BEM_on,
+                RESPreCalc,
+                rsRoofPreCalc,
             )
 
-            SWRin_t, SWRout_t, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, SWREB_t, albedo_canyon, LWRin_t, LWRout_t, LWRabs_t, LWREB_t, HfluxGroundImp, HfluxGroundBare, HfluxGroundVeg, HfluxTree, HfluxGround, EfluxGroundImp, EfluxGroundBarePond, EfluxGroundBareSoil, EfluxGroundVegInt, EfluxGroundVegPond, EfluxGroundVegSoil, TEfluxGroundVeg, EfluxTreeInt, TEfluxTree, EfluxGroundBare, EfluxGroundVeg, EfluxGround, EfluxTree, LEfluxGroundImp, LEfluxGroundBarePond, LEfluxGroundBareSoil, LEfluxGroundVegInt, LEfluxGroundVegPond, LEfluxGroundVegSoil, LTEfluxGroundVeg, LEfluxTreeInt, LTEfluxTree, LEfluxGroundBare, LEfluxGroundVeg, LEfluxGround, LEfluxTree, CiCO2LeafTreeSun, CiCO2LeafTreeShd, CiCO2LeafGroundVegSun, CiCO2LeafGroundVegShd, raCanyontoAtm, raCanyontoAtmOrig, rap_can, rap_Htree_In, rb_HGround, rb_LGround, r_soilGroundbare, r_soilGroundveg, alp_soilGroundbare, alp_soilGroundveg, rs_sunGround, rs_shdGround, rs_sunTree, rs_shdTree, Fsun_L, Fshd_L, dw_L, RES_w1, RES_w2, rap_W1_In, rap_W2_In, rap_Zp1, HfluxWallSun, HfluxWallShade, EfluxWallSun, EfluxWallShade, LEfluxWallSun, LEfluxWallShade, HfluxCanyon, LEfluxCanyon, EfluxCanyon, G1WallSun, G2WallSun, dsWallSun, G1WallShade, G2WallShade, dsWallShade, G1GroundImp, TDampGroundImp, G1GroundBare, TDampGroundBare, G1GroundVeg, TDampGroundVeg, GTree, TDampTree, G1Ground, G1Canyon, G2Canyon, dsGroundImp, dsGroundBare, dsGroundVeg, dsTree, dsCanyonAir, Ycanyon, QTree, IntTree, dInt_dtTree, QGroundVegDrip, IntGroundVegPlant, dInt_dtGroundVegPlant, QGroundImp, IntGroundImp, dInt_dtGroundImp, fGroundImp, QGroundBarePond, IntGroundBare, dInt_dtGroundBare, fGroundBare, QGroundVegPond, IntGroundVegGround, dInt_dtGroundVegGround, fGroundVeg, VGroundSoilImp, OwGroundSoilImp, OSwGroundSoilImp, LkGroundImp, SoilPotWGroundImp_H, SoilPotWGroundImp_L, ExWaterGroundImp_H, ExWaterGroundImp_L, Rd_gimp, TEgveg_imp, TEtree_imp, Egimp_soil, dVGroundSoilImp_dt, Psi_Soil_gimp, Kf_gimp, VGroundSoilBare, OwGroundSoilBare, OSwGroundSoilBare, LkGroundBare, SoilPotWGroundBare_H, SoilPotWGroundBare_L, ExWaterGroundBare_H, ExWaterGroundBare_L, QGroundBareSoil, TEgveg_bare, TEtree_bare, Egbare_Soil, dVGroundSoilBare_dt, Psi_soil_gbare, Kf_gbare, VGroundSoilVeg, OwGroundSoilVeg, OSwGroundSoilVeg, LkGroundVeg, SoilPotWGroundVeg_H, SoilPotWGroundVeg_L, ExWaterGroundVeg_H, ExWaterGroundVeg_L, QGroundVegSoil, TEgveg_veg, TEtree_veg, Egveg_Soil, dVGroundSoilVeg_dt, Psi_soil_gveg, Kf_gveg, Qin_imp, Qin_bare, Qin_veg, Qin_bare2imp, Qin_bare2veg, Qin_imp2bare, Qin_imp2veg, Qin_veg2imp, Qin_veg2bare, VGroundSoilTot, OwGroundSoilTot, OSwGroundSoilTot, LkGround, Rd, dVGroundSoilTot_dt, SoilPotWGroundTot_L, ExWaterGroundTot_L, TEgveg_tot, SoilPotWGroundTot_H, ExWaterGroundTot_H, TEtree_tot, EB_TEtree, EB_TEgveg, WBIndv, WBTot, RunoffGroundTot, RunonGroundTot, Etot, DeepGLk, StorageTot, EBGroundImp, EBGroundBare, EBGroundVeg, EBTree, EBWallSun, EBWallShade, EBWallSunInt, EBWallShadeInt, EBCanyonT, EBCanyonQ, HumidityCan, HumidityAtm, u_Hcan, u_Zref_und, T2m, q2m, e_T2m, RH_T2m, qcan, e_Tcan, RH_Tcan, DHi, Himp_2m, Hbare_2m, Hveg_2m, Hwsun_2m, Hwshade_2m, Hcan_2m, DEi, Eimp_2m, Ebare_soil_2m, Eveg_int_2m, Eveg_soil_2m, TEveg_2m, Ecan_2m, dS_H_air, dS_LE_air = eb_wb_canyon(
+            SWRin_t, SWRout_t, SWRabs_t, SWRabsDir_t, SWRabsDiff_t, SWREB_t, albedo_canyon, LWRin_t, LWRout_t, LWRabs_t, LWREB_t, HfluxGroundImp, HfluxGroundBare, HfluxGroundVeg, HfluxTree, HfluxGround, EfluxGroundImp, EfluxGroundBarePond, EfluxGroundBareSoil, EfluxGroundVegInt, EfluxGroundVegPond, EfluxGroundVegSoil, TEfluxGroundVeg, EfluxTreeInt, TEfluxTree, EfluxGroundBare, EfluxGroundVeg, EfluxGround, EfluxTree, LEfluxGroundImp, LEfluxGroundBarePond, LEfluxGroundBareSoil, LEfluxGroundVegInt, LEfluxGroundVegPond, LEfluxGroundVegSoil, LTEfluxGroundVeg, LEfluxTreeInt, LTEfluxTree, LEfluxGroundBare, LEfluxGroundVeg, LEfluxGround, LEfluxTree, CiCO2LeafTreeSun, CiCO2LeafTreeShd, CiCO2LeafGroundVegSun, CiCO2LeafGroundVegShd, raCanyontoAtm, raCanyontoAtmOrig, rap_can, rap_Htree_In, rb_HGround, rb_LGround, r_soilGroundbare, r_soilGroundveg, alp_soilGroundbare, alp_soilGroundveg, rs_sunGround, rs_shdGround, rs_sunTree, rs_shdTree, Fsun_L, Fshd_L, dw_L, RES_w1, RES_w2, rap_W1_In, rap_W2_In, rap_Zp1, HfluxWallSun, HfluxWallShade, EfluxWallSun, EfluxWallShade, LEfluxWallSun, LEfluxWallShade, HfluxCanyon, LEfluxCanyon, EfluxCanyon, G1WallSun, G2WallSun, dsWallSun, G1WallShade, G2WallShade, dsWallShade, G1GroundImp, TDampGroundImp, G1GroundBare, TDampGroundBare, G1GroundVeg, TDampGroundVeg, GTree, TDampTree, G1Ground, G1Canyon, G2Canyon, dsGroundImp, dsGroundBare, dsGroundVeg, dsTree, dsCanyonAir, Ycanyon, QTree, IntTree, dInt_dtTree, QGroundVegDrip, IntGroundVegPlant, dInt_dtGroundVegPlant, QGroundImp, IntGroundImp, dInt_dtGroundImp, fGroundImp, QGroundBarePond, IntGroundBare, dInt_dtGroundBare, fGroundBare, QGroundVegPond, IntGroundVegGround, dInt_dtGroundVegGround, fGroundVeg, VGroundSoilImp, OwGroundSoilImp, OSwGroundSoilImp, LkGroundImp, SoilPotWGroundImp_H, SoilPotWGroundImp_L, ExWaterGroundImp_H, ExWaterGroundImp_L, Rd_gimp, TEgveg_imp, TEtree_imp, Egimp_soil, dVGroundSoilImp_dt, Psi_Soil_gimp, Kf_gimp, VGroundSoilBare, OwGroundSoilBare, OSwGroundSoilBare, LkGroundBare, SoilPotWGroundBare_H, SoilPotWGroundBare_L, ExWaterGroundBare_H, ExWaterGroundBare_L, QGroundBareSoil, TEgveg_bare, TEtree_bare, Egbare_Soil, dVGroundSoilBare_dt, Psi_soil_gbare, Kf_gbare, VGroundSoilVeg, OwGroundSoilVeg, OSwGroundSoilVeg, LkGroundVeg, SoilPotWGroundVeg_H, SoilPotWGroundVeg_L, ExWaterGroundVeg_H, ExWaterGroundVeg_L, QGroundVegSoil, TEgveg_veg, TEtree_veg, Egveg_Soil, dVGroundSoilVeg_dt, Psi_soil_gveg, Kf_gveg, Qin_imp, Qin_bare, Qin_veg, Qin_bare2imp, Qin_bare2veg, Qin_imp2bare, Qin_imp2veg, Qin_veg2imp, Qin_veg2bare, VGroundSoilTot, OwGroundSoilTot, OSwGroundSoilTot, LkGround, Rd, dVGroundSoilTot_dt, SoilPotWGroundTot_L, ExWaterGroundTot_L, TEgveg_tot, SoilPotWGroundTot_H, ExWaterGroundTot_H, TEtree_tot, EB_TEtree, EB_TEgveg, WBIndv, WBTot, RunoffGroundTot, RunonGroundTot, Etot, DeepGLk, StorageTot, EBGroundImp, EBGroundBare, EBGroundVeg, EBTree, EBWallSun, EBWallShade, EBWallSunInt, EBWallShadeInt, EBCanyonT, EBCanyonQ, HumidityCan, HumidityAtm, u_Hcan, u_Zref_und, T2m, q2m, e_T2m, RH_T2m, qcan, e_Tcan, RH_Tcan, DHi, Himp_2m, Hbare_2m, Hveg_2m, Hwsun_2m, Hwshade_2m, Hcan_2m, DEi, Eimp_2m, Ebare_soil_2m, Eveg_int_2m, Eveg_soil_2m, TEveg_2m, Ecan_2m, dS_H_air, dS_LE_air = eb_wb_canyon!(
+                model,
                 TC,
                 TB,
-                model,
+                TempVec_ittm,
+                Humidity_ittm,
                 ViewFactor,
                 WallLayers,
                 ParInterceptionTree,
@@ -194,10 +224,13 @@ function run_simulation(
             SWRinWsun = SWRabs_t.WallSun
             SWRinWshd = SWRabs_t.WallShade
 
-            HbuildIntc, LEbuildIntc, GbuildIntc, SWRabsBc, LWRabsBc, TDampGroundBuild, WasteHeat, EnergyUse, HumidBuilding, ParACHeat_t, YBuildInt = BuildingEnergyModel.eb_solver_building_output(
+            HbuildIntc, LEbuildIntc, GbuildIntc, SWRabsBc, LWRabsBc, TDampGroundBuild, WasteHeat, EnergyUse, ParACHeat_t, YBuildInt = BuildingEnergyModel.eb_solver_building_output(
+                model,
                 TC,
                 TB,
-                model,
+                TempVecB_ittm,
+                TempVec_ittm,
+                Humidity_ittm,
                 SWRinWsun,
                 SWRinWshd,
                 G2Roof,
@@ -209,6 +242,7 @@ function run_simulation(
                 BEM_on,
             )
 
+            # TODO: check why we need Humidity_t, and not directly updating the model?
             Humidity_t.CanyonRelative = HumidityCan.CanyonRelative
             Humidity_t.CanyonSpecific = HumidityCan.CanyonSpecific
             Humidity_t.CanyonVapourPre = HumidityCan.CanyonVapourPre
@@ -335,25 +369,158 @@ function run_simulation(
             Qinlat_t.Qin_imp = Qin_imp
             Qinlat_t.Qin_bare = Qin_bare
             Qinlat_t.Qin_veg = Qin_veg
+
+            Fluxes = (;
+                SWRin_t,
+                SWRout_t,
+                SWRabs_t,
+                LWRin_t,
+                LWRout_t,
+                LWRabs_t,
+                SWRinTotalRoof,
+                SWRabsTotalRoof,
+                SWRoutTotalRoof,
+                LWRinTotalRoof,
+                LWRabsTotalRoof,
+                LWRoutTotalRoof,
+                SWRabsTotalUrban=urban_average(
+                    SWRabsTotalRoof, SWRabs_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                SWRinTotalUrban=urban_average(
+                    SWRinTotalRoof, SWRin_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                SWRoutTotalUrban=urban_average(
+                    SWRoutTotalRoof, SWRout_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                LWRabsTotalUrban=urban_average(
+                    LWRabsTotalRoof, LWRabs_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                LWRinTotalUrban=urban_average(
+                    LWRinTotalRoof, LWRin_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                LWRoutTotalUrban=urban_average(
+                    LWRoutTotalRoof, LWRout_t.TotalCanyon, model.parameters.urbangeometry
+                ),
+                LEfluxRoof,
+                HfluxRoof,
+                G1Roof,
+                G2Roof,
+                dsRoof,
+                LEfluxCanyon,
+                HfluxCanyon,
+                G1Canyon,
+                G2Canyon,
+                G1Ground,
+                G1WallSun,
+                G1WallShade,
+                dsWallSun,
+                dsWallShade,
+                dS_H_air,
+                dS_LE_air,
+                HfluxUrban=urban_average(
+                    HfluxRoof, HfluxCanyon, model.parameters.urbangeometry
+                ),
+                LEfluxUrban=urban_average(
+                    LEfluxRoof, LEfluxCanyon, model.parameters.urbangeometry
+                ),
+                G1Urban=urban_average(G1Roof, G1Canyon, model.parameters.urbangeometry),
+                G2Urban=urban_average(G2Roof, G2Canyon, model.parameters.urbangeometry),
+            )
+
+            # Store water balance components
+            Runon_nt = (;
+                RunoffRoofTot,
+                RunoffGroundTot,
+                RunoffUrban=Runon_t.RunoffUrban,
+                RunonRoofTot,
+                RunonGroundTot,
+                RunonUrban=Runon_t.RunonUrban,
+            )
+
+            Leakage_nt = (;
+                LkRoof,
+                LkGround,
+                LkUrban=urban_average(LkRoof, LkGround, model.parameters.urbangeometry),
+            )
+
+            LEflux_nt = (;
+                LEfluxRoofImp,
+                LEfluxRoofVegInt,
+                LEfluxRoofVegPond,
+                LEfluxRoofVegSoil,
+                LTEfluxRoofVeg,
+                LEfluxGroundImp,
+                LEfluxGroundBarePond,
+                LEfluxGroundBareSoil,
+                LEfluxGroundVegInt,
+                LEfluxGroundVegPond,
+                LEfluxGroundVegSoil,
+                LTEfluxGroundVeg,
+                LEfluxTreeInt,
+                LTEfluxTree,
+            )
+
+            dVwater_dt_nt = (; dVRoofSoilVeg_dt, dVGroundSoilTot_dt)
+
+            dInt_dt_nt = (;
+                dInt_dtRoofVegPlant,
+                dInt_dtGroundVegPlant,
+                dInt_dtTree,
+                dInt_dtRoofVegGround,
+                dInt_dtRoofImp,
+                dInt_dtGroundVegGround,
+                dInt_dtGroundBare,
+                dInt_dtGroundImp,
+            )
+
+            Int_nt = (;
+                IntRooftot,
+                IntGroundImp,
+                IntGroundBare,
+                IntGroundVegPlant,
+                IntGroundVegGround,
+                IntTree,
+            )
+
+            LEbuildInt_nt = (;
+                LEpeople=LEbuildIntc.LEpeople,
+                LEequip=LEbuildIntc.LEequip,
+                LEvent=LEbuildIntc.LEvent,
+            )
+
+            WaterFluxes = (
+                Runon=Runon_nt,
+                Leakage=Leakage_nt,
+                LEflux=LEflux_nt,
+                dVwater_dt=dVwater_dt_nt,
+                dInt_dt=dInt_dt_nt,
+                Int=Int_nt,
+                LEbuildInt=LEbuildInt_nt,
+            )
         end
 
-        Tmrt, BoleanInSun, SWRdir_Person, SWRdir_in_top, SWRdir_in_bottom, SWRdir_in_east, SWRdir_in_south, SWRdir_in_west, SWRdir_in_north, SWRdiff_Person, LWR_Person = MeanRadiantTemperature.mean_radiant_temperature(
-            SWRout_t, LWRout_t, model, ViewFactorPoint
+        Tmrt = MeanRadiantTemperature.mean_radiant_temperature!(
+            model, SWRout_t, LWRout_t, ViewFactorPoint
         )
         # TODO: check whether we should be using the hour as a float (e.g. 10.5 for 10:30) or
         # the hour as an integer (10 for 10:30).
 
         u_ZPerson = Resistance.wind_profile_point_output(model)
 
-        UTCI_approx = OutdoorThermalComfort.utci_approx(
+        model.variables.temperature.thermalcomfort.UTCI = OutdoorThermalComfort.utci_approx(
             T2m - FT(273.15), RH_T2m * 100, Tmrt, u_ZPerson
         )
 
         # Assign outputs
-        # Urban average store in *TotalUrban field, which is not part of the RadiationFluxes
-        # composite type
+        model.variables.energybalance.Solver.YfunctionOutput = vcat(
+            Yroof, Ycanyon, YBuildInt
+        )
+        # TODO: add missing TotalRoof field to RadiationFluxes struct
+        # TODO: add urban average for Hflux, LEflux, Gflux
+        # TODO: implement energy balance check script as function
 
-        # tempvec - already done higher
+        # tempvec - already done
+        model.variables.temperature.tempvec.T2m = T2m
 
         # tempdamp
         update!(model.variables.temperature.tempdamp, TempDamp_t)
@@ -382,11 +549,24 @@ function run_simulation(
         update!(model.variables.waterflux.Runon, Runon_t)
         update!(model.variables.waterflux.Qinlat, Qinlat_t)
 
+        update!(TempVecB_ittm, model.variables.buildingenergymodel.TempVecB)
+        update!(TempVec_ittm, model.variables.temperature.tempvec)
+        update!(Humidity_ittm, model.variables.humidity.Humidity)
+
+        store_results!(results, model, i)
+        store_fluxes!(results, i, Fluxes)
+        store_GbuildInt!(results, i, GbuildIntc)
+        store_HbuildInt!(results, i, HbuildIntc)
+        store_LEbuildInt!(results, i, LEbuildIntc)
+        store_BEMWasteHeat!(results, i, WasteHeat)
+
+        store_water_fluxes!(results, i, WaterFluxes)
+
         # Update forcing parameters for the next step
         model.forcing = forcing[i + 1]
     end
 
-    return nothing
+    return results
 end
 
 function roof_temperature(
@@ -448,4 +628,438 @@ function urban_average(
     fcanyon = urbangeometry.wcanyon_norm
 
     return roof * froof + canyon * fcanyon
+end
+
+function create_results_struct(
+    ::Type{FT}, NN::Signed, MR::Signed, MG::Signed
+) where {FT<:AbstractFloat}
+    results = Dict{String,Any}(
+        "TRoofImp" => zeros(FT, NN),
+        "TRoofVeg" => zeros(FT, NN),
+        "TRoofIntImp" => zeros(FT, NN),
+        "TRoofIntVeg" => zeros(FT, NN),
+        "TGroundImp" => zeros(FT, NN),
+        "TGroundBare" => zeros(FT, NN),
+        "TGroundVeg" => zeros(FT, NN),
+        "TTree" => zeros(FT, NN),
+        "TWallSun" => zeros(FT, NN),
+        "TWallShade" => zeros(FT, NN),
+        "TWallIntSun" => zeros(FT, NN),
+        "TWallIntShade" => zeros(FT, NN),
+        "TCanyon" => zeros(FT, NN),
+        "Tatm" => zeros(FT, NN),
+        "T2m" => zeros(FT, NN),
+        "RH_T2m" => zeros(FT, NN),
+        "Tmrt" => zeros(FT, NN),
+        "RHbin" => zeros(FT, NN),
+        "qbin" => zeros(FT, NN),
+        "UTCI" => zeros(FT, NN),
+        "Tbin" => zeros(FT, NN),
+        "ViewFactor" => nothing,
+        "SWRinGroundVeg" => zeros(FT, NN),
+        "SWRinGroundBare" => zeros(FT, NN),
+        "SWRinGroundImp" => zeros(FT, NN),
+        "SWRinWallShade" => zeros(FT, NN),
+        "SWRinWallSun" => zeros(FT, NN),
+        "SWRinTree" => zeros(FT, NN),
+        "SWRinTotalUrban" => zeros(FT, NN),
+        "SWRabsGroundVeg" => zeros(FT, NN),
+        "SWRabsGroundBare" => zeros(FT, NN),
+        "SWRabsGroundImp" => zeros(FT, NN),
+        "SWRabsWallShade" => zeros(FT, NN),
+        "SWRabsWallSun" => zeros(FT, NN),
+        "SWRabsTree" => zeros(FT, NN),
+        "SWRabsTotalUrban" => zeros(FT, NN),
+        "SWRoutGroundVeg" => zeros(FT, NN),
+        "SWRoutGroundBare" => zeros(FT, NN),
+        "SWRoutGroundImp" => zeros(FT, NN),
+        "SWRoutWallShade" => zeros(FT, NN),
+        "SWRoutWallSun" => zeros(FT, NN),
+        "SWRoutTree" => zeros(FT, NN),
+        "SWRoutTotalUrban" => zeros(FT, NN),
+        "LWRinGroundVeg" => zeros(FT, NN),
+        "LWRinGroundBare" => zeros(FT, NN),
+        "LWRinGroundImp" => zeros(FT, NN),
+        "LWRinWallShade" => zeros(FT, NN),
+        "LWRinWallSun" => zeros(FT, NN),
+        "LWRinTree" => zeros(FT, NN),
+        "LWRinTotalUrban" => zeros(FT, NN),
+        "LWRabsGroundVeg" => zeros(FT, NN),
+        "LWRabsGroundBare" => zeros(FT, NN),
+        "LWRabsGroundImp" => zeros(FT, NN),
+        "LWRabsWallShade" => zeros(FT, NN),
+        "LWRabsWallSun" => zeros(FT, NN),
+        "LWRabsTree" => zeros(FT, NN),
+        "LWRabsTotalUrban" => zeros(FT, NN),
+        "LWRoutGroundVeg" => zeros(FT, NN),
+        "LWRoutGroundBare" => zeros(FT, NN),
+        "LWRoutGroundImp" => zeros(FT, NN),
+        "LWRoutWallShade" => zeros(FT, NN),
+        "LWRoutWallSun" => zeros(FT, NN),
+        "LWRoutTree" => zeros(FT, NN),
+        "LWRoutTotalUrban" => zeros(FT, NN),
+        "SWRinTotalRoof" => zeros(FT, NN),
+        "SWRabsTotalRoof" => zeros(FT, NN),
+        "SWRoutTotalRoof" => zeros(FT, NN),
+        "LWRinTotalRoof" => zeros(FT, NN),
+        "LWRabsTotalRoof" => zeros(FT, NN),
+        "LWRoutTotalRoof" => zeros(FT, NN),
+        "LEfluxRoof" => zeros(FT, NN),
+        "HfluxRoof" => zeros(FT, NN),
+        "G1Roof" => zeros(FT, NN),
+        "G2Roof" => zeros(FT, NN),
+        "dsRoof" => zeros(FT, NN),
+        "LEfluxCanyon" => zeros(FT, NN),
+        "HfluxCanyon" => zeros(FT, NN),
+        "HfluxUrban" => zeros(FT, NN),
+        "LEfluxUrban" => zeros(FT, NN),
+        "G1Urban" => zeros(FT, NN),
+        "G2Urban" => zeros(FT, NN),
+        "G1Canyon" => zeros(FT, NN),
+        "G2Canyon" => zeros(FT, NN),
+        "G1Ground" => zeros(FT, NN),
+        "G1WallSun" => zeros(FT, NN),
+        "G1WallShade" => zeros(FT, NN),
+        "dsWallSun" => zeros(FT, NN),
+        "dsWallShade" => zeros(FT, NN),
+        "dS_H_air" => zeros(FT, NN),
+        "dS_LE_air" => zeros(FT, NN),
+        "SWRabsWallSunTransmitted" => zeros(FT, NN),
+        "SWRabsWallShadeTransmitted" => zeros(FT, NN),
+        "SWRabsTotalCanyon" => zeros(FT, NN),
+        "LWRabsTotalCanyon" => zeros(FT, NN),
+        "HbuildIntdSH_air" => zeros(FT, NN),
+        "LEbuildIntdSLE_air" => zeros(FT, NN),
+        "GbuildIntGfloor" => zeros(FT, NN),
+        "GbuildIntdSinternalMass" => zeros(FT, NN),
+        "WasteHeatTotAnthInput_URB" => zeros(FT, NN),
+        "WasteHeatWaterFromAC_Can" => zeros(FT, NN),
+        "WasteHeatSensibleFromVent_Can" => zeros(FT, NN),
+        "WasteHeatSensibleFromAC_Can" => zeros(FT, NN),
+        "WasteHeatSensibleFromHeat_Can" => zeros(FT, NN),
+        "WasteHeatLatentFromVent_Can" => zeros(FT, NN),
+        "WasteHeatLatentFromAC_Can" => zeros(FT, NN),
+        "WasteHeatLatentFromHeat_Can" => zeros(FT, NN),
+        # Water balance components - Runoff and leakage
+        "RunoffRoofTot" => zeros(FT, NN),
+        "RunoffGroundTot" => zeros(FT, NN),
+        "RunoffUrban" => zeros(FT, NN),
+        "LkRoof" => zeros(FT, NN),
+        "LkGround" => zeros(FT, NN),
+        "LkUrban" => zeros(FT, NN),
+        # Water balance components - LE fluxes by source
+        "LEfluxRoofImp" => zeros(FT, NN),
+        "LEfluxRoofVegInt" => zeros(FT, NN),
+        "LEfluxRoofVegPond" => zeros(FT, NN),
+        "LEfluxRoofVegSoil" => zeros(FT, NN),
+        "LTEfluxRoofVeg" => zeros(FT, NN),
+        "LEfluxGroundImp" => zeros(FT, NN),
+        "LEfluxGroundBarePond" => zeros(FT, NN),
+        "LEfluxGroundBareSoil" => zeros(FT, NN),
+        "LEfluxGroundVegInt" => zeros(FT, NN),
+        "LEfluxGroundVegPond" => zeros(FT, NN),
+        "LEfluxGroundVegSoil" => zeros(FT, NN),
+        "LTEfluxGroundVeg" => zeros(FT, NN),
+        "LEfluxTreeInt" => zeros(FT, NN),
+        "LTEfluxTree" => zeros(FT, NN),
+        # Water balance components - Building LE
+        "LEbuildIntLEpeople" => zeros(FT, NN),
+        "LEbuildIntLEequip" => zeros(FT, NN),
+        "LEbuildIntLEvent" => zeros(FT, NN),
+        # Water balance components - Soil moisture change
+        "dVRoofSoilVeg_dt" => zeros(FT, NN),
+        "dVGroundSoilTot_dt" => zeros(FT, NN),
+        # Water balance components - Interception change
+        "dInt_dtRoofVegPlant" => zeros(FT, NN),
+        "dInt_dtGroundVegPlant" => zeros(FT, NN),
+        "dInt_dtTree" => zeros(FT, NN),
+        "dInt_dtRoofVegGround" => zeros(FT, NN),
+        "dInt_dtRoofImp" => zeros(FT, NN),
+        "dInt_dtGroundVegGround" => zeros(FT, NN),
+        "dInt_dtGroundBare" => zeros(FT, NN),
+        "dInt_dtGroundImp" => zeros(FT, NN),
+        # Water balance components - Runon
+        "RunonRoofTot" => zeros(FT, NN),
+        "RunonGroundTot" => zeros(FT, NN),
+        "RunonUrban" => zeros(FT, NN),
+        # Water balance components - Interception storage
+        "IntRooftot" => zeros(FT, NN),
+        "IntGroundImp" => zeros(FT, NN),
+        "IntGroundBare" => zeros(FT, NN),
+        "IntGroundVegPlant" => zeros(FT, NN),
+        "IntGroundVegGround" => zeros(FT, NN),
+        "IntTree" => zeros(FT, NN),
+        "OwRoofSoilVeg" => zeros(FT, MR, NN),
+        "OwGroundSoilImp" => zeros(FT, MG, NN),
+        "OwGroundSoilBare" => zeros(FT, MG, NN),
+        "OwGroundSoilVeg" => zeros(FT, MG, NN),
+    )
+
+    return results
+end
+
+function store_results!(
+    results::Dict{String,Any}, model::Model{FT}, i::Signed
+) where {FT<:AbstractFloat}
+    store_results!(results, model.variables.temperature.tempvec, i)
+    store_results!(results, model.variables.buildingenergymodel.HumidityBuilding, i)
+    store_results!(results, model.variables.temperature.mrt, i)
+    store_results!(results, model.variables.temperature.thermalcomfort, i)
+    store_results!(results, model.variables.humidity.Results2m, i)
+    store_results!(results, model.variables.buildingenergymodel.TempVecB, i)
+    store_results!(results, model.variables.waterflux.Owater, i)
+end
+
+function store_results!(
+    results::Dict{String,Any}, Owater::ModelComponents.ModelVariables.Owater{FT}, i::Signed
+) where {FT<:AbstractFloat}
+    results["OwRoofSoilVeg"][:, i] = Owater.OwRoofSoilVeg
+    results["OwGroundSoilImp"][:, i] = Owater.OwGroundSoilImp
+    results["OwGroundSoilBare"][:, i] = Owater.OwGroundSoilBare
+    results["OwGroundSoilVeg"][:, i] = Owater.OwGroundSoilVeg
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    TempVec::ModelComponents.ModelVariables.TempVec{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["TRoofImp"][i] = TempVec.TRoofImp
+    results["TRoofVeg"][i] = TempVec.TRoofVeg
+    results["TRoofIntImp"][i] = TempVec.TRoofIntImp
+    results["TRoofIntVeg"][i] = TempVec.TRoofIntVeg
+    results["TGroundImp"][i] = TempVec.TGroundImp
+    results["TGroundBare"][i] = TempVec.TGroundBare
+    results["TGroundVeg"][i] = TempVec.TGroundVeg
+    results["TTree"][i] = TempVec.TTree
+    results["TWallSun"][i] = TempVec.TWallSun
+    results["TWallShade"][i] = TempVec.TWallShade
+    results["TWallIntSun"][i] = TempVec.TWallIntSun
+    results["TWallIntShade"][i] = TempVec.TWallIntShade
+    results["TCanyon"][i] = TempVec.TCanyon
+    results["Tatm"][i] = TempVec.Tatm
+    results["T2m"][i] = TempVec.T2m
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    HumidityBuilding::ModelComponents.ModelVariables.HumidityBuilding{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["RHbin"][i] = HumidityBuilding.RHbin
+    results["qbin"][i] = HumidityBuilding.qbin
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    ThermalComfort::ModelComponents.ModelVariables.ThermalComfort{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["UTCI"][i] = ThermalComfort.UTCI
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any}, MRT::ModelComponents.ModelVariables.MRT{FT}, i::Signed
+) where {FT<:AbstractFloat}
+    results["Tmrt"][i] = MRT.Tmrt
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    TempVecB::ModelComponents.ModelVariables.TempVecB{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["Tbin"][i] = TempVecB.Tbin
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    Results2m::ModelComponents.ModelVariables.Results2m{FT},
+    i::Signed,
+) where {FT<:AbstractFloat}
+    results["T2m"][i] = Results2m.T2m
+    results["RH_T2m"][i] = Results2m.RH_T2m
+
+    return nothing
+end
+
+function store_results!(
+    results::Dict{String,Any},
+    RadiationFluxes::Radiation.RadiationFluxes{FT},
+    i::Signed,
+    prefix::AbstractString,
+) where {FT<:AbstractFloat}
+    for field in propertynames(RadiationFluxes)
+        key_str = prefix * String(field)
+        if haskey(results, key_str)
+            val = getfield(RadiationFluxes, field)
+            results[key_str][i] = val
+        end
+    end
+    return nothing
+end
+
+function store_GbuildInt!(results::Dict{String,Any}, i::Signed, GbuildInt::NamedTuple)
+    results["GbuildIntGfloor"][i] = GbuildInt.Gfloor
+    results["GbuildIntdSinternalMass"][i] = GbuildInt.dSinternalMass
+    return nothing
+end
+
+function store_HbuildInt!(results::Dict{String,Any}, i::Signed, HbuildInt::NamedTuple)
+    results["HbuildIntdSH_air"][i] = HbuildInt.dSH_air
+    return nothing
+end
+
+function store_LEbuildInt!(results::Dict{String,Any}, i::Signed, LEbuildInt::NamedTuple)
+    results["LEbuildIntdSLE_air"][i] = LEbuildInt.dSLE_air
+    return nothing
+end
+
+# TODO: switch from NamedTuple to BEMWasteHeat composite type!
+function store_BEMWasteHeat!(results::Dict{String,Any}, i::Signed, WasteHeat::NamedTuple)
+    results["WasteHeatTotAnthInput_URB"][i] = WasteHeat.TotAnthInput_URB
+    results["WasteHeatWaterFromAC_Can"][i] = WasteHeat.WaterFromAC_Can
+    results["WasteHeatSensibleFromVent_Can"][i] = WasteHeat.SensibleFromVent_Can
+    results["WasteHeatSensibleFromAC_Can"][i] = WasteHeat.SensibleFromAC_Can
+    results["WasteHeatSensibleFromHeat_Can"][i] = WasteHeat.SensibleFromHeat_Can
+    results["WasteHeatLatentFromVent_Can"][i] = WasteHeat.LatentFromVent_Can
+    results["WasteHeatLatentFromAC_Can"][i] = WasteHeat.LatentFromAC_Can
+    results["WasteHeatLatentFromHeat_Can"][i] = WasteHeat.LatentFromHeat_Can
+    return nothing
+end
+
+function store_fluxes!(results::Dict{String,Any}, i::Signed, Fluxes::NamedTuple)
+    radiation_keys = [:SWRin_t, :SWRout_t, :SWRabs_t, :LWRin_t, :LWRout_t, :LWRabs_t]
+    keys_to_store = setdiff(keys(Fluxes), radiation_keys)
+    for key in keys_to_store
+        val = getproperty(Fluxes, key)
+        key_str = String(key)
+        if haskey(results, key_str)
+            # Assuming the vector is already allocated
+            results[key_str][i] = val
+        end
+    end
+
+    for key in radiation_keys
+        RadiationFluxes = getproperty(Fluxes, key)
+        prefix = split(String(key), "_")[1]
+        store_results!(results, RadiationFluxes, i, prefix)
+    end
+    return nothing
+end
+
+function store_water_fluxes!(results::Dict{String,Any}, i::Signed, WaterFluxes::NamedTuple)
+    store_Runon!(results, i, WaterFluxes.Runon)
+    store_Leakage!(results, i, WaterFluxes.Leakage)
+    store_LEflux!(results, i, WaterFluxes.LEflux)
+    store_dVwater_dt!(results, i, WaterFluxes.dVwater_dt)
+    store_dInt_dt!(results, i, WaterFluxes.dInt_dt)
+    store_Int!(results, i, WaterFluxes.Int)
+    store_LEbuildInt_water!(results, i, WaterFluxes.LEbuildInt)
+
+    return nothing
+end
+
+function store_LEbuildInt_water!(
+    results::Dict{String,Any}, i::Signed, LEbuildInt::NamedTuple
+)
+    results["LEbuildIntLEpeople"][i] = LEbuildInt.LEpeople
+    results["LEbuildIntLEequip"][i] = LEbuildInt.LEequip
+    results["LEbuildIntLEvent"][i] = LEbuildInt.LEvent
+
+    return nothing
+end
+
+function store_Int!(results::Dict{String,Any}, i::Signed, Int::NamedTuple)
+    results["IntRooftot"][i] = Int.IntRooftot
+    results["IntGroundImp"][i] = Int.IntGroundImp
+    results["IntGroundBare"][i] = Int.IntGroundBare
+    results["IntGroundVegPlant"][i] = Int.IntGroundVegPlant
+    results["IntGroundVegGround"][i] = Int.IntGroundVegGround
+    results["IntTree"][i] = Int.IntTree
+
+    return nothing
+end
+
+function store_dInt_dt!(results::Dict{String,Any}, i::Signed, dInt_dt::NamedTuple)
+    # Interception change
+    dint_keys = [
+        :dInt_dtRoofVegPlant,
+        :dInt_dtGroundVegPlant,
+        :dInt_dtTree,
+        :dInt_dtRoofVegGround,
+        :dInt_dtRoofImp,
+        :dInt_dtGroundVegGround,
+        :dInt_dtGroundBare,
+        :dInt_dtGroundImp,
+    ]
+
+    for key in dint_keys
+        results[String(key)][i] = getfield(dInt_dt, key)
+    end
+
+    return nothing
+end
+
+function store_dVwater_dt!(results::Dict{String,Any}, i::Signed, dVwater_dt::NamedTuple)
+    results["dVRoofSoilVeg_dt"][i] = dVwater_dt.dVRoofSoilVeg_dt
+    results["dVGroundSoilTot_dt"][i] = dVwater_dt.dVGroundSoilTot_dt
+
+    return nothing
+end
+
+function store_LEflux!(results::Dict{String,Any}, i::Signed, LEflux::NamedTuple)
+    # LE fluxes by source
+    le_flux_keys = [
+        :LEfluxRoofImp,
+        :LEfluxRoofVegInt,
+        :LEfluxRoofVegPond,
+        :LEfluxRoofVegSoil,
+        :LTEfluxRoofVeg,
+        :LEfluxGroundImp,
+        :LEfluxGroundBarePond,
+        :LEfluxGroundBareSoil,
+        :LEfluxGroundVegInt,
+        :LEfluxGroundVegPond,
+        :LEfluxGroundVegSoil,
+        :LTEfluxGroundVeg,
+        :LEfluxTreeInt,
+        :LTEfluxTree,
+    ]
+    for key in le_flux_keys
+        results[String(key)][i] = getfield(LEflux, key)
+    end
+
+    return nothing
+end
+
+function store_Leakage!(results::Dict{String,Any}, i::Signed, Leakage::NamedTuple)
+    results["LkRoof"][i] = Leakage.LkRoof
+    results["LkGround"][i] = Leakage.LkGround
+    results["LkUrban"][i] = Leakage.LkUrban
+
+    return nothing
+end
+
+function store_Runon!(results::Dict{String,Any}, i::Signed, Runon::NamedTuple)
+    results["RunoffRoofTot"][i] = Runon.RunoffRoofTot
+    results["RunoffGroundTot"][i] = Runon.RunoffGroundTot
+    results["RunoffUrban"][i] = Runon.RunoffUrban
+    results["RunonRoofTot"][i] = Runon.RunonRoofTot
+    results["RunonGroundTot"][i] = Runon.RunonGroundTot
+    results["RunonUrban"][i] = Runon.RunonUrban
+
+    return nothing
 end

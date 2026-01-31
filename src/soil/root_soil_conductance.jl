@@ -25,9 +25,9 @@ function root_soil_conductance(
     Zr = Zr / 1000
 
     row = 1000
-    g = 9.81
+    g = FT(9.81)
     rho = 55555
-    CF = 10^6 / (row * g)
+    CF = 1e6 / (row * g)
     Ks = Ks / 3600000
 
     gsr = Ks * Rl * (2 * π) / (log(rcyl / rroot))

@@ -98,10 +98,12 @@ Calculate energy balance for canyon surfaces.
 - `SWRabsWallSunTransmitted::FT`: Shortwave radiation absorbed by sunlit wall transmitted indoors
 - `SWRabsWallShadeTransmitted::FT`: Shortwave radiation absorbed by shaded wall transmitted indoors
 """
-function eb_wb_canyon(
+function eb_wb_canyon!(
+    model::Model{FT},
     TemperatureC::Vector{FT},
     TemperatureB::Vector{FT},
-    model::Model{FT},
+    TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
+    Humidity_ittm::ModelComponents.ModelVariables.Humidity{FT},
     ViewFactor::RayTracing.ViewFactor{FT},
     WallLayers::NamedTuple,
     ParInterceptionTree::NamedTuple,
@@ -115,11 +117,11 @@ function eb_wb_canyon(
     rsGroundPreCalc::NamedTuple,
     rsTreePreCalc::NamedTuple,
 ) where {FT<:AbstractFloat}
-    return eb_wb_canyon(
+    results = eb_wb_canyon(
         TemperatureC,
         TemperatureB,
-        model.variables.temperature.tempvec,
-        model.variables.humidity.Humidity,
+        TempVec_ittm,
+        Humidity_ittm,
         model.forcing.meteorological,
         model.variables.waterflux.Interception,
         model.variables.waterflux.ExWater,
@@ -161,7 +163,29 @@ function eb_wb_canyon(
         rsTreePreCalc,
         model.forcing.hvacschedule,
     )
+
+    model.variables.energybalance.EB.EBGroundImp = results.EBGroundImp
+    model.variables.energybalance.EB.EBGroundBare = results.EBGroundBare
+    model.variables.energybalance.EB.EBGroundVeg = results.EBGroundVeg
+    model.variables.energybalance.EB.EBTree = results.EBTree
+    model.variables.energybalance.EB.EBWallSun = results.EBWallSun
+    model.variables.energybalance.EB.EBWallShade = results.EBWallShade
+    model.variables.energybalance.EB.EBWallSunInt = results.EBWallSunInt
+    model.variables.energybalance.EB.EBWallShadeInt = results.EBWallShadeInt
+    model.variables.energybalance.EB.EBCanyonT = results.EBCanyonT
+    model.variables.energybalance.EB.EBCanyonQ = results.EBCanyonQ
+
+    model.variables.humidity.Results2m.T2m = results.T2m
+    model.variables.humidity.Results2m.q2m = results.q2m
+    model.variables.humidity.Results2m.e_T2m = results.e_T2m
+    model.variables.humidity.Results2m.RH_T2m = results.RH_T2m
+    model.variables.humidity.Results2m.qcan = results.qcan
+    model.variables.humidity.Results2m.e_Tcan = results.e_Tcan
+    model.variables.humidity.Results2m.RH_Tcan = results.RH_Tcan
+
+    return results
 end
+
 function eb_wb_canyon(
     TemperatureC::Vector{FT},
     TemperatureB::Vector{FT},
@@ -271,9 +295,9 @@ function eb_wb_canyon(
         SWRabsWallShadeExt=SWRabs_t.WallShade
     end
 
-    if abs(SWRabsWallSunTransmitted - SWRabs_t.WallSun) > 10^-8
+    if abs(SWRabsWallSunExt+SWRabsWallSunTransmitted - SWRabs_t.WallSun) > 1e-8
         @warn "Warning"
-    elseif abs(SWRabsWallShadeExt + SWRabsWallShadeTransmitted - SWRabs_t.WallShade) > 10^-8
+    elseif abs(SWRabsWallShadeExt + SWRabsWallShadeTransmitted - SWRabs_t.WallShade) > 1e-8
         @warn "Warning"
     end
 
@@ -540,8 +564,8 @@ function eb_wb_canyon(
     end
 
     # Wall energy balances
-    Ycanyon[4] = SWRabs_t.WallSun + LWRabs_t.WallSun - G1WallSun - HfluxWallSun
-    Ycanyon[5] = SWRabs_t.WallShade + LWRabs_t.WallShade - G1WallShade - HfluxWallShade
+    Ycanyon[4] = SWRabsWallSunExt + LWRabs_t.WallSun - G1WallSun - HfluxWallSun
+    Ycanyon[5] = SWRabsWallShadeExt + LWRabs_t.WallShade - G1WallShade - HfluxWallShade
 
     # Tree energy balance
     if Gemeotry_m.trees > 0
@@ -550,7 +574,7 @@ function eb_wb_canyon(
         Ycanyon[6] = TemperatureC[6] - 273.15
     end
 
-    # Wall interior energy balances
+    # Wall interior energy
     Ycanyon[7] = G1WallSun - G2WallSun - dsWallSun
     Ycanyon[8] = G1WallShade - G2WallShade - dsWallShade
 
@@ -1062,9 +1086,9 @@ function eb_wb_canyon(
         SWRabsWallShadeExt=SWRabs_t.WallShade
     end
 
-    if abs(SWRabsWallSunTransmitted - SWRabs_t.WallSun) > 10^-8
+    if abs(SWRabsWallSunTransmitted - SWRabs_t.WallSun) > 1e-8
         @warn "Warning"
-    elseif abs(SWRabsWallShadeExt + SWRabsWallShadeTransmitted - SWRabs_t.WallShade) > 10^-8
+    elseif abs(SWRabsWallShadeExt + SWRabsWallShadeTransmitted - SWRabs_t.WallShade) > 1e-8
         @warn "Warning"
     end
 

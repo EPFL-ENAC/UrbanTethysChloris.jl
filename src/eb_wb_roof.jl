@@ -147,19 +147,20 @@ Calculate energy balance for roof surfaces.
 - `WBRoofVeg`: Water balance for vegetated roof [mm/dth]
 - `WBRoofTot`: Total roof water balance [mm/dth]
 """
-function eb_wb_roof(
+function eb_wb_roof!(
+    model::Model{FT},
     TemperatureR::Vector{FT},
     TemperatureB::Vector{FT},
-    model::Model{FT},
+    TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
     ParCalculation::NamedTuple,
     BEM_on::Bool,
     RESPreCalc::Bool,
     rsRoofPreCalc::NamedTuple,
 ) where {FT<:AbstractFloat}
-    return eb_wb_roof(
+    results = eb_wb_roof(
         TemperatureR,
         TemperatureB,
-        model.variables.temperature.tempvec,
+        TempVec_ittm,
         model.forcing.meteorological,
         model.variables.waterflux.Interception,
         model.variables.waterflux.ExWater,
@@ -181,6 +182,20 @@ function eb_wb_roof(
         RESPreCalc,
         rsRoofPreCalc,
     )
+
+    model.variables.energybalance.EB.EBRoofImp = results.EBRoofImp
+    model.variables.energybalance.EB.EBRoofVeg = results.EBRoofVeg
+
+    model.variables.energybalance.WBRoof.WBRoofImp = results.WBRoofImp
+    model.variables.energybalance.WBRoof.WBRoofVegInVeg = results.WBRoofVegInVeg
+    model.variables.energybalance.WBRoof.WBRoofVegInGround = results.WBRoofVegInGround
+    model.variables.energybalance.WBRoof.WBRoofVegSoil = results.WBRoofVegSoil
+    model.variables.energybalance.WBRoof.WBRoofVeg = results.WBRoofVeg
+    model.variables.energybalance.WBRoof.WBRoofTot = results.WBRoofTot
+
+    @views model.variables.energybalance.Solver.YfunctionOutput[1:4] = results.Yroof
+
+    return results
 end
 
 function eb_wb_roof(
