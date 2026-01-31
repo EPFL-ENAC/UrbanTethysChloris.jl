@@ -1,7 +1,5 @@
 module ModelComponents
 
-using Infiltrator
-
 abstract type ModelDimension end
 struct TimeSlice <: ModelDimension end
 struct TimeSeries <: ModelDimension end

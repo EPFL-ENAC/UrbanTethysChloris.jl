@@ -163,7 +163,7 @@ Base.@kwdef struct RadiationFluxVariables{FT<:AbstractFloat} <: AbstractModelVar
     SWRin::DefaultRadiationFluxVariablesSubset{FT}
     SWRout::DefaultRadiationFluxVariablesSubset{FT}
     SWREB::DefaultRadiationFluxVariablesSubset{FT}
-    LWRabs::DefaultRadiationFluxVariablesSubset{FT} # TOOO: check whether this should be absorbed or not
+    LWRabs::DefaultRadiationFluxVariablesSubset{FT}
     LWRin::DefaultRadiationFluxVariablesSubset{FT}
     LWRout::DefaultRadiationFluxVariablesSubset{FT}
     LWREB::DefaultRadiationFluxVariablesSubset{FT}

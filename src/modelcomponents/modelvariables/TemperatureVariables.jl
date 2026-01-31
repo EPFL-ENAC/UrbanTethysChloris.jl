@@ -239,7 +239,6 @@ end
 function update!(
     x::TemperatureVariables{FT}, results::NamedTuple, ::EBWBCanyonDispatcher
 ) where {FT<:AbstractFloat}
-    # @infiltrate
     _update!(x.tempdamp, results, canyon_fields(TempDamp))
     return nothing
 end
