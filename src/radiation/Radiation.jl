@@ -8,4 +8,6 @@ include("shortwave.jl")
 include("RadiationFluxes.jl")
 include("longwave.jl")
 
+export AbsorbedRadiationFluxes
+
 end

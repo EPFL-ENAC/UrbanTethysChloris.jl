@@ -140,6 +140,10 @@ function update!(x::TempDamp{FT}, y::TempDamp{FT}) where {FT<:AbstractFloat}
     x.TDampGroundBuild = y.TDampGroundBuild
 end
 
+function canyon_fields(::Type{TempDamp})
+    return (:TDampGroundImp, :TDampGroundBare, :TDampGroundVeg, :TDampTree)
+end
+
 """
     MRT{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -218,4 +222,23 @@ function TethysChlorisCore.preprocess_fields(
     processed["mrt"] = MRT(FT)
     processed["thermalcomfort"] = ThermalComfort(FT)
     return processed
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{TemperatureVariables}, ::Type{EssentialOutputs}
+)
+    return (:tempvec, :mrt, :thermalcomfort)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{TemperatureVariables}, ::Type{ExtendedEnergyClimateOutputs}
+)
+    return (:tempdamp,)
+end
+
+function update!(
+    x::TemperatureVariables{FT}, results::NamedTuple, ::EBWBCanyonDispatcher
+) where {FT<:AbstractFloat}
+    _update!(x.tempdamp, results, canyon_fields(TempDamp))
+    return nothing
 end

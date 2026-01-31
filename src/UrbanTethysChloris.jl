@@ -15,12 +15,22 @@ using DataFramesMeta: @chain
 using Plots: plot, plot!
 using LaTeXStrings: @L_str
 
+abstract type FunctionDispatcher end
+struct EBWBRoofDispatcher <: FunctionDispatcher end
+struct EBWBCanyonDispatcher <: FunctionDispatcher end
+struct EBSolverBuildingOutputDispatcher <: FunctionDispatcher end
+const eb_wb_roof_dispatcher = EBWBRoofDispatcher()
+const eb_wb_canyon_dispatcher = EBWBCanyonDispatcher()
+const eb_solver_building_output_dispatcher = EBSolverBuildingOutputDispatcher()
+
 include(joinpath("soil", "Soil.jl"))
 using .Soil
 
 include(joinpath("modelcomponents", "ModelComponents.jl"))
 using .ModelComponents
 import .ModelComponents: update!
+export no_outputs,
+    plot_outputs, essential_outputs, extended_energy_climate_outputs, extended_outputs
 
 include("Model.jl")
 export create_model, initialize!
@@ -78,5 +88,8 @@ export plan_area_energy_balance_calculation
 include("post_calculate_soil_moisture_change.jl")
 include("water_balance_components.jl")
 export water_balance_components
+
+include(joinpath("outputs", "Outputs.jl"))
+using .Outputs
 
 end

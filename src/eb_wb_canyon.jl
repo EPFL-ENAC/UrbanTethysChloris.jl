@@ -164,26 +164,16 @@ function eb_wb_canyon!(
         model.forcing.hvacschedule,
     )
 
-    model.variables.energybalance.EB.EBGroundImp = results.EBGroundImp
-    model.variables.energybalance.EB.EBGroundBare = results.EBGroundBare
-    model.variables.energybalance.EB.EBGroundVeg = results.EBGroundVeg
-    model.variables.energybalance.EB.EBTree = results.EBTree
-    model.variables.energybalance.EB.EBWallSun = results.EBWallSun
-    model.variables.energybalance.EB.EBWallShade = results.EBWallShade
-    model.variables.energybalance.EB.EBWallSunInt = results.EBWallSunInt
-    model.variables.energybalance.EB.EBWallShadeInt = results.EBWallShadeInt
-    model.variables.energybalance.EB.EBCanyonT = results.EBCanyonT
-    model.variables.energybalance.EB.EBCanyonQ = results.EBCanyonQ
+    update!(model.variables, results, eb_wb_canyon_dispatcher)
 
-    model.variables.humidity.Results2m.T2m = results.T2m
-    model.variables.humidity.Results2m.q2m = results.q2m
-    model.variables.humidity.Results2m.e_T2m = results.e_T2m
-    model.variables.humidity.Results2m.RH_T2m = results.RH_T2m
-    model.variables.humidity.Results2m.qcan = results.qcan
-    model.variables.humidity.Results2m.e_Tcan = results.e_Tcan
-    model.variables.humidity.Results2m.RH_Tcan = results.RH_Tcan
-
-    return results
+    return results.SWRout_t,
+    results.SWRabs_t,
+    results.LWRout_t,
+    results.G2WallSun,
+    results.G2WallShade,
+    results.Ycanyon,
+    results.T2m,
+    results.RH_T2m
 end
 
 function eb_wb_canyon(
@@ -294,6 +284,18 @@ function eb_wb_canyon(
         SWRabsWallSunExt=SWRabs_t.WallSun
         SWRabsWallShadeExt=SWRabs_t.WallShade
     end
+
+    SWRabs_t2 = AbsorbedRadiationFluxes(
+        SWRabs_t,
+        SWRabsWindowSun,
+        SWRtransWindowSun,
+        SWRabsWindowShade,
+        SWRtransWindowShade,
+        SWRabsWallSunTransmitted,
+        SWRabsWallShadeTransmitted,
+        SWRabsWallSunExt,
+        SWRabsWallShadeExt,
+    )
 
     if abs(SWRabsWallSunExt+SWRabsWallSunTransmitted - SWRabs_t.WallSun) > 1e-8
         @warn "Warning"
@@ -746,7 +748,7 @@ function eb_wb_canyon(
     return (;
         SWRin_t,
         SWRout_t,
-        SWRabs_t,
+        SWRabs_t=SWRabs_t2,
         SWRabsDir_t,
         SWRabsDiff_t,
         SWREB_t,
@@ -798,15 +800,15 @@ function eb_wb_canyon(
         rb_LGround,
         r_soilGroundbare,
         r_soilGroundveg,
-        alp_soil_bare,
-        alp_soil_veg,
+        alp_soilGroundbare=alp_soil_bare,
+        alp_soilGroundveg=alp_soil_veg,
         rs_sunGround,
         rs_shdGround,
         rs_sunTree,
         rs_shdTree,
-        Fsun_L,
-        Fshd_L,
-        dw_L,
+        Fsun_L, # unused
+        Fshd_L, # unused
+        dw_L, # unused
         RES_w1,
         RES_w2,
         rap_W1_In,
@@ -844,67 +846,67 @@ function eb_wb_canyon(
         dsTree,
         dsCanyonAir,
         Ycanyon,
-        q_tree_dwn,
-        In_tree,
-        dIn_tree_dt,
-        q_gveg_dwn,
-        In_gveg,
-        dIn_gveg_dt,
-        q_gimp_runoff,
-        In_gimp,
-        dIn_gimp_dt,
-        f_inf_gimp,
-        q_gbare_runoff,
-        In_gbare,
-        dIn_gbare_dt,
-        f_inf_gbare,
-        q_gveg_runoff,
-        In_gveg_pond,
-        dIn_gveg_pond_dt,
-        f_inf_gveg,
-        V_gimp,
-        O_gimp,
-        OS_gimp,
-        Lk_gimp,
-        Psi_s_H_gimp,
-        Psi_s_L_gimp,
-        Exwat_H_gimp,
-        Exwat_L_gimp,
+        QTree=q_tree_dwn,
+        IntTree=In_tree,
+        dInt_dtTree=dIn_tree_dt,
+        QGroundVegDrip=q_gveg_dwn,
+        IntGroundVegPlant=In_gveg,
+        dInt_dtGroundVegPlant=dIn_gveg_dt,
+        QGroundImp=q_gimp_runoff,
+        IntGroundImp=In_gimp,
+        dInt_dtGroundImp=dIn_gimp_dt,
+        fGroundImp=f_inf_gimp,
+        QGroundBarePond=q_gbare_runoff,
+        IntGroundBare=In_gbare,
+        dInt_dtGroundBare=dIn_gbare_dt,
+        fGroundBare=f_inf_gbare,
+        QGroundVegPond=q_gveg_runoff,
+        IntGroundVegGround=In_gveg_pond,
+        dInt_dtGroundVegGround=dIn_gveg_pond_dt,
+        fGroundVeg=f_inf_gveg,
+        VGroundSoilImp=V_gimp,
+        OwGroundSoilImp=O_gimp,
+        OSwGroundSoilImp=OS_gimp,
+        LkGroundImp=Lk_gimp,
+        SoilPotWGroundImp_H=Psi_s_H_gimp,
+        SoilPotWGroundImp_L=Psi_s_L_gimp,
+        ExWaterGroundImp_H=Exwat_H_gimp,
+        ExWaterGroundImp_L=Exwat_L_gimp,
         Rd_gimp,
         TEgveg_imp,
         TEtree_imp,
         Egimp_soil,
-        dV_dt_gimp,
+        dVGroundSoilImp_dt=dV_dt_gimp,
         Psi_Soil_gimp,
         Kf_gimp,
-        V_gbare,
-        O_gbare,
-        OS_gbare,
-        Lk_gbare,
-        Psi_s_H_gbare,
-        Psi_s_L_gbare,
-        Exwat_H_gbare,
-        Exwat_L_gbare,
-        Rd_gbare,
+        VGroundSoilBare=V_gbare,
+        OwGroundSoilBare=O_gbare,
+        OSwGroundSoilBare=OS_gbare,
+        LkGroundBare=Lk_gbare,
+        SoilPotWGroundBare_H=Psi_s_H_gbare,
+        SoilPotWGroundBare_L=Psi_s_L_gbare,
+        ExWaterGroundBare_H=Exwat_H_gbare,
+        ExWaterGroundBare_L=Exwat_L_gbare,
+        QGroundBareSoil=Rd_gbare,
         TEgveg_bare,
         TEtree_bare,
         Egbare_Soil,
-        dV_dt_gbare,
+        dVGroundSoilBare_dt=dV_dt_gbare,
         Psi_soil_gbare,
         Kf_gbare,
-        V_gveg,
-        O_gveg,
-        OS_gveg,
-        Lk_gveg,
-        Psi_s_H_gveg,
-        Psi_s_L_gveg,
-        Exwat_H_gveg,
-        Exwat_L_gveg,
-        Rd_gveg,
+        VGroundSoilVeg=V_gveg,
+        OwGroundSoilVeg=O_gveg,
+        OSwGroundSoilVeg=OS_gveg,
+        LkGroundVeg=Lk_gveg,
+        SoilPotWGroundVeg_H=Psi_s_H_gveg,
+        SoilPotWGroundVeg_L=Psi_s_L_gveg,
+        ExWaterGroundVeg_H=Exwat_H_gveg,
+        ExWaterGroundVeg_L=Exwat_L_gveg,
+        QGroundVegSoil=Rd_gveg,
         TEgveg_veg,
         TEtree_veg,
         Egveg_Soil,
-        dV_dt_gveg,
+        dVGroundSoilVeg_dt=dV_dt_gveg,
         Psi_soil_gveg,
         Kf_gveg,
         Qin_imp,
@@ -916,24 +918,24 @@ function eb_wb_canyon(
         Qin_imp2veg,
         Qin_veg2imp,
         Qin_veg2bare,
-        V,
-        O,
-        OS,
-        Lk,
+        VGroundSoilTot=V,
+        OwGroundSoilTot=O,
+        OSwGroundSoilTot=OS,
+        LkGround=Lk,
         Rd,
-        dV_dt,
-        Psi_s_L,
-        Exwat_L,
+        dVGroundSoilTot_dt=dV_dt,
+        SoilPotWGroundTot_L=Psi_s_L,
+        ExWaterGroundTot_L=Exwat_L,
         TEgveg_tot,
-        Psi_s_H_tot,
-        Exwat_H,
+        SoilPotWGroundTot_H=Psi_s_H_tot,
+        ExWaterGroundTot_H=Exwat_H,
         TEtree_tot,
         EB_TEtree,
         EB_TEgveg,
-        WBIndv,
-        WBTot,
-        Runoff,
-        Runon_ittm,
+        WBIndv, # NamedTuple
+        WBTot, # NamedTuple
+        RunoffGroundTot=Runoff,
+        RunonGroundTot=Runon_ittm,
         Etot,
         DeepGLk,
         StorageTot,

@@ -284,14 +284,26 @@ AC parameters time series variables.
 - `Heat_on`: Indicating the timesteps in which heating is switched on
 """
 Base.@kwdef mutable struct ParACHeat_ts{FT<:AbstractFloat} <: AbstractModelVariables{FT}
-    AC_on::FT
-    AC_onCool::FT
-    AC_onDehum::FT
-    Heat_on::FT
+    AC_on::Bool
+    AC_onCool::Bool
+    AC_onDehum::Bool
+    Heat_on::Bool
 end
 
 function ParACHeat_ts(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, ParACHeat_ts, Dict{String,Any}())
+end
+
+function TethysChlorisCore.preprocess_fields(
+    ::Type{FT}, ::Type{ParACHeat_ts}, data::Dict{String,Any}, params::Tuple
+) where {FT<:AbstractFloat}
+    processed = Dict{String,Any}()
+
+    for field in String.(fieldnames(ParACHeat_ts))
+        processed[field] = false
+    end
+
+    return processed
 end
 
 """
@@ -347,4 +359,34 @@ function TethysChlorisCore.preprocess_fields(
     processed["ParACHeat_ts"] = ParACHeat_ts(FT)
 
     return processed
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{BuildingEnergyModelVariables}, ::Type{EssentialOutputs}
+)
+    return (:BEMEnergyUse, :BEMWasteHeat, :TempVecB, :HumidityBuilding, :ParACHeat_ts)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{BuildingEnergyModelVariables}, ::Type{ExtendedEnergyClimateOutputs}
+)
+    return (:HbuildInt, :LEbuildInt, :GbuildInt, :SWRabsB, :LWRabsB)
+end
+
+function update!(
+    x::BuildingEnergyModelVariables{FT},
+    results::NamedTuple,
+    fn::EBSolverBuildingOutputDispatcher,
+) where {FT<:AbstractFloat}
+    _update!(x.HumidityBuilding, results.HumidityBuilding)
+    _update!(x.HbuildInt, results.HbuildInt)
+    _update!(x.LEbuildInt, results.LEbuildInt)
+    _update!(x.GbuildInt, results.GbuildInt)
+    _update!(x.SWRabsB, results.SWRabsB)
+    _update!(x.LWRabsB, results.LWRabsB)
+    _update!(x.BEMWasteHeat, results.WasteHeat)
+    _update!(x.BEMEnergyUse, results.EnergyUse)
+    _update!(x.ParACHeat_ts, results.ParACHeat)
+
+    return nothing
 end

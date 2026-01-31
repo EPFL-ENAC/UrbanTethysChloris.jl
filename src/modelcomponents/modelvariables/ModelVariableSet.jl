@@ -68,3 +68,44 @@ function TethysChlorisCore.preprocess_fields(
 
     return processed
 end
+
+# Automatically define parent accessors for all model variable components
+for field in fieldnames(ModelVariableSet)
+    component_type = fieldtype(ModelVariableSet, field)
+    @eval ModelComponents.parent_accessor(::Type{$component_type}) = x -> x.variables.$field
+end
+
+function ModelComponents.accessors(::Type{ModelVariableSet}, ::Type{O}) where {O}
+    base = Dict{Symbol,Dict{Symbol,Function}}()
+
+    for field in fieldnames(ModelVariableSet)
+        component_type = fieldtype(ModelVariableSet, field)
+        component_accessors = ModelComponents.accessors(component_type, O)
+        if !isempty(component_accessors)
+            merge!(base, component_accessors)
+        end
+    end
+    return base
+end
+
+function update!(x::ModelVariableSet, results::NamedTuple, ::EBWBRoofDispatcher)
+    update!(x.radiationflux, results, eb_wb_roof_dispatcher)
+    update!(x.heatflux, results, eb_wb_roof_dispatcher)
+    update!(x.environmentalconditions, results, eb_wb_roof_dispatcher)
+    update!(x.waterflux, results, eb_wb_roof_dispatcher)
+    update!(x.energybalance, results, eb_wb_roof_dispatcher)
+
+    return nothing
+end
+
+function update!(x::ModelVariableSet, results::NamedTuple, ::EBWBCanyonDispatcher)
+    update!(x.radiationflux, results, eb_wb_canyon_dispatcher)
+    update!(x.heatflux, results, eb_wb_canyon_dispatcher)
+    update!(x.environmentalconditions, results, eb_wb_canyon_dispatcher)
+    update!(x.waterflux, results, eb_wb_canyon_dispatcher)
+    update!(x.energybalance, results, eb_wb_canyon_dispatcher)
+    update!(x.humidity, results, eb_wb_canyon_dispatcher)
+    update!(x.temperature, results, eb_wb_canyon_dispatcher)
+
+    return nothing
+end

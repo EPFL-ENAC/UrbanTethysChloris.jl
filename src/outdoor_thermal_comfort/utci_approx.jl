@@ -17,6 +17,19 @@ Calculate Universal Thermal Climate Index (UTCI) using polynomial approximation.
 # Returns
 - `UTCI::FT`: Universal Thermal Climate Index [°C]
 """
+function utci_approx!(model::Model{FT}) where {FT<:AbstractFloat}
+    T2m = model.variables.humidity.Results2m.T2m
+    RH_T2m = model.variables.humidity.Results2m.RH_T2m
+    Tmrt = model.variables.temperature.mrt.Tmrt
+    u_ZPerson = model.variables.environmentalconditions.wind.u_ZPerson
+
+    UTCI = utci_approx(T2m - FT(273.15), RH_T2m * 100, Tmrt, u_ZPerson)
+
+    model.variables.temperature.thermalcomfort.UTCI = UTCI
+
+    return nothing
+end
+
 function utci_approx(Ta::FT, RH::FT, Tmrt::FT, va::FT) where {FT<:AbstractFloat}
     esat = saturation_vapor_pressure(Ta)
     ehPa = esat * RH / 100.0

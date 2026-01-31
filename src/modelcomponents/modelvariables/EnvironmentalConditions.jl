@@ -16,6 +16,10 @@ function Wind(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Wind, Dict{String,Any}())
 end
 
+function canyon_fields(::Type{Wind})
+    return (:u_Hcan, :u_Zref_und)
+end
+
 """
     LAITimeSeries{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -96,6 +100,34 @@ function Resistance(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Resistance, Dict{String,Any}())
 end
 
+function roof_fields(::Type{Resistance})
+    return (:raRooftoAtm, :rap_LRoof, :rb_LRoof, :r_soilRoof, :rs_sunRoof, :rs_shdRoof)
+end
+
+function canyon_fields(::Type{Resistance})
+    return (
+        :raCanyontoAtm,
+        :raCanyontoAtmOrig,
+        :rap_can,
+        :rap_Htree_In,
+        :rb_HGround,
+        :rb_LGround,
+        :r_soilGroundbare,
+        :r_soilGroundveg,
+        :alp_soilGroundbare,
+        :alp_soilGroundveg,
+        :rs_sunGround,
+        :rs_shdGround,
+        :rs_sunTree,
+        :rs_shdTree,
+        :RES_w1,
+        :RES_w2,
+        :rap_W1_In,
+        :rap_W2_In,
+        :rap_Zp1,
+    )
+end
+
 function update!(x::Resistance{FT}, y::Resistance{FT}) where {FT<:AbstractFloat}
     x.raRooftoAtm = y.raRooftoAtm
     x.raCanyontoAtmOrig = y.raCanyontoAtmOrig
@@ -148,4 +180,32 @@ function TethysChlorisCore.preprocess_fields(
     processed["LAI_time_series"] = LAITimeSeries(FT)
     processed["resistance"] = Resistance(FT)
     return processed
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{EnvironmentalConditions}, ::Type{EssentialOutputs}
+)
+    return (:wind,)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{EnvironmentalConditions}, ::Type{ExtendedOutputs}
+)
+    return (:resistance,)
+end
+
+function update!(
+    x::EnvironmentalConditions{FT}, results::NamedTuple, fn::EBWBRoofDispatcher
+) where {FT<:AbstractFloat}
+    _update!(x.resistance, results, roof_fields(Resistance))
+    return nothing
+end
+
+function update!(
+    x::EnvironmentalConditions{FT}, results::NamedTuple, fn::EBWBCanyonDispatcher
+) where {FT<:AbstractFloat}
+    _update!(x.wind, results, canyon_fields(Wind))
+    _update!(x.resistance, results, canyon_fields(Resistance))
+
+    return nothing
 end

@@ -61,7 +61,7 @@ Simple Building energy model.
 - `ParACHeat`: HVAC system operation parameters
 - `YBuildInt::Vector{FT}`: Building internal energy balance residuals [W/m²]
 """
-function eb_solver_building_output(
+function eb_solver_building_output!(
     model::Model{FT},
     TemperatureC::Vector{FT},
     TemperatureB::Vector{FT},
@@ -73,7 +73,7 @@ function eb_solver_building_output(
     G2Roof::FT,
     G2WallSun::FT,
     G2WallShade::FT,
-    SWRabs_t::Radiation.RadiationFluxes{FT},
+    SWRabs_t::Radiation.AbsorbedRadiationFluxes{FT},
     ParHVAC::ModelComponents.Parameters.HVACParameters{FT},
     ParCalculation::NamedTuple,
     BEM_on::Bool,
@@ -102,14 +102,26 @@ function eb_solver_building_output(
         model.forcing.hvacschedule,
     )
 
-    model.variables.buildingenergymodel.HumidityBuilding.qbin = HumidityBuilding.qbin
-    model.variables.buildingenergymodel.HumidityBuilding.esatbin = HumidityBuilding.esatbin
-    model.variables.buildingenergymodel.HumidityBuilding.ebin = HumidityBuilding.ebin
-    model.variables.buildingenergymodel.HumidityBuilding.RHbin = HumidityBuilding.RHbin
+    update!(
+        model.variables.buildingenergymodel,
+        (;
+            HumidityBuilding,
+            HbuildInt,
+            LEbuildInt,
+            GbuildInt,
+            SWRabsB,
+            LWRabsB,
+            WasteHeat,
+            EnergyUse,
+            ParACHeat,
+        ),
+        eb_solver_building_output_dispatcher,
+    )
 
-    return HbuildInt,
-    LEbuildInt, GbuildInt, SWRabsB, LWRabsB, Tdpfloor, WasteHeat, EnergyUse, ParACHeat,
-    YBuildInt
+    model.variables.energybalance.Solver.YfunctionOutput[15:22] = YBuildInt
+    model.variables.temperature.tempdamp.TDampGroundBuild = Tdpfloor
+
+    return EnergyUse, YBuildInt
 end
 
 function eb_solver_building_output(
@@ -125,7 +137,7 @@ function eb_solver_building_output(
     G2WallSun::FT,
     G2WallShade::FT,
     TempDamp_ittm::ModelComponents.ModelVariables.TempDamp{FT},
-    SWRabs_t::Radiation.RadiationFluxes{FT},
+    SWRabs_t::Radiation.AbsorbedRadiationFluxes{FT},
     Geometry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
     PropOpticalIndoors::ModelComponents.Parameters.IndoorOpticalProperties{FT},
     ParHVAC::ModelComponents.Parameters.HVACParameters{FT},

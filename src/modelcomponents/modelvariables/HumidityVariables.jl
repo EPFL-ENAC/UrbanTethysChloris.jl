@@ -74,6 +74,30 @@ function update!(dest::Humidity{FT}, src::Humidity{FT}) where {FT<:AbstractFloat
     dest.AtmSpecificSat = src.AtmSpecificSat
     dest.AtmVapourPreSat = src.AtmVapourPreSat
     dest.q2m = src.q2m
+
+    return nothing
+end
+
+function update!(x::Humidity{FT}, meteo) where {FT<:AbstractFloat}
+    x.AtmRelative = meteo.AtmRelative
+    x.AtmSpecific = meteo.AtmSpecific
+    x.AtmVapourPre = meteo.AtmVapourPre
+    x.AtmRelativeSat = meteo.AtmRelativeSat
+    x.AtmSpecificSat = meteo.AtmSpecificSat
+    x.AtmVapourPreSat = meteo.AtmVapourPreSat
+
+    return nothing
+end
+
+function canyon_fields(::Type{Humidity})
+    return (
+        :CanyonRelative,
+        :CanyonSpecific,
+        :CanyonVapourPre,
+        :CanyonRelativeSat,
+        :CanyonSpecificSat,
+        :CanyonVapourPreSat,
+    )
 end
 
 """
@@ -131,4 +155,18 @@ function TethysChlorisCore.preprocess_fields(
     processed["Results2m"] = Results2m(FT)
 
     return processed
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{HumidityVariables}, ::Type{EssentialOutputs}
+)
+    return (:Humidity, :Results2m)
+end
+
+function update!(
+    x::HumidityVariables{FT}, results::NamedTuple, fn::EBWBCanyonDispatcher
+) where {FT<:AbstractFloat}
+    _update!(x.Results2m, results, fieldnames(Results2m))
+    _update!(x.Humidity, results.HumidityCan, canyon_fields(Humidity))
+    return nothing
 end

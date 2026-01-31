@@ -49,18 +49,20 @@ O33 = (
 initialize!(model, forcing)
 
 NN = 100
-results = run_simulation(
+results, view_factor_out, view_factor_point_out = run_simulation(
     model,
     forcing;
     NN=NN,
     ViewFactors=(view_factor, view_factor_point),
     O33=O33,
     fconvPreCalc=false,
+    output_level=extended_outputs,
 )
 
 x, x_day, x_month, fig1, fig2 = urban_climate_variables(results, model, forcing, NN)
+
 ef_urban, ef_canyon, ef_roof, fig3, fig4, fig5 = plan_area_energy_balance_calculation(
-    results, model, forcing, NN
+    results, model, forcing, view_factor_out, NN
 )
 
 wf_urban, wf_canyon, wf_roof, wf_building, fig6, fig7 = water_balance_components(

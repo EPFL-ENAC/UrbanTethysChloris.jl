@@ -22,7 +22,7 @@ Analogous to `WaterBalanceComponents.m` in the original MATLAB code.
 - `WaterFluxBuild`: DataFrame containing building water flux components.
 """
 function water_balance_components(
-    results::Dict{String,Any},
+    results::AbstractDict,
     model::Model{FT},
     forcing::ModelComponents.ForcingInputSet{FT,1},
     NN::Signed,
@@ -64,70 +64,75 @@ function water_balance_components(
     IrrSurfUrb = wcanyon_norm .* IrrSurfCan .+ wroof_norm .* IrrSurfRoof
 
     # Runoff leaving the system
-    RunoffRoof = results["RunoffRoofTot"]
-    RunoffCan = results["RunoffGroundTot"]
-    RunoffUrb = results["RunoffUrban"]
+    RunoffRoof = results[:Runon][:RunoffRoofTot]
+    RunoffCan = results[:Runon][:RunoffGroundTot]
+    RunoffUrb = results[:Runon][:RunoffUrban]
 
     # Leakage at bottom of soil column
-    LeakageRoof = dth .* results["LkRoof"]
-    LeakageCan = dth .* results["LkGround"]
-    LeakageUrb = dth .* results["LkUrban"]
+    LeakageRoof = dth .* results[:Leakage][:LkRoof]
+    LeakageCan = dth .* results[:Leakage][:LkGround]
+    LeakageUrb = dth .* results[:Leakage][:LkUrban]
 
     # Evapotranspiration, latent heat
-    ETRoof = results["LEfluxRoof"] ./ L_heat .* dts
-    ETCan = results["LEfluxCanyon"] ./ L_heat .* dts
-    ETUrb = results["LEfluxUrban"] ./ L_heat .* dts
+    ETRoof = results[:LEflux][:LEfluxRoof] ./ L_heat .* dts
+    ETCan = results[:LEflux][:LEfluxCanyon] ./ L_heat .* dts
+    ETUrb = results[:LEflux][:LEfluxUrban] ./ L_heat .* dts
 
     # Change in latent heat stored in the air
-    dS_ET_dtBuild = results["LEbuildIntdSLE_air"] ./ L_heat .* dts
-    dS_ET_dtCan = results["dS_LE_air"] ./ L_heat .* dts
+    dS_ET_dtBuild = results[:LEbuildInt][:dSLE_air] ./ L_heat .* dts
+    dS_ET_dtCan = results[:LEflux][:dS_LE_air] ./ L_heat .* dts
     dS_ET_dtUrb = wroof_norm .* dS_ET_dtBuild .+ wcanyon_norm .* dS_ET_dtCan
 
     # Urban evapotranspiration fluxes by source
     ETEvapoIntUrb =
         (
             wroof_norm .* (
-                frimp .* results["LEfluxRoofImp"] .+
-                frveg .* (results["LEfluxRoofVegInt"] .+ results["LEfluxRoofVegPond"])
+                frimp .* results[:LEflux][:LEfluxRoofImp] .+
+                frveg .* (
+                    results[:LEflux][:LEfluxRoofVegInt] .+
+                    results[:LEflux][:LEfluxRoofVegPond]
+                )
             ) .+
             wcanyon_norm .* (
-                fgimp .* results["LEfluxGroundImp"] .+
-                fgbare .* results["LEfluxGroundBarePond"] .+
-                fgveg .* (results["LEfluxGroundVegInt"] .+ results["LEfluxGroundVegPond"]) .+
-                4.0 .* radius_tree .* results["LEfluxTreeInt"]
+                fgimp .* results[:LEflux][:LEfluxGroundImp] .+
+                fgbare .* results[:LEflux][:LEfluxGroundBarePond] .+
+                fgveg .* (
+                    results[:LEflux][:LEfluxGroundVegInt] .+
+                    results[:LEflux][:LEfluxGroundVegPond]
+                ) .+ 4.0 .* radius_tree .* results[:LEflux][:LEfluxTreeInt]
             )
         ) ./ L_heat .* dts
 
     ETEvapoSoilUrb =
         (
-            wroof_norm .* frveg .* results["LEfluxRoofVegSoil"] .+
+            wroof_norm .* frveg .* results[:LEflux][:LEfluxRoofVegSoil] .+
             wcanyon_norm .* (
-                fgbare .* results["LEfluxGroundBareSoil"] .+
-                fgveg .* results["LEfluxGroundVegSoil"]
+                fgbare .* results[:LEflux][:LEfluxGroundBareSoil] .+
+                fgveg .* results[:LEflux][:LEfluxGroundVegSoil]
             )
         ) ./ L_heat .* dts
 
     ETTranspUrb =
         (
-            wroof_norm .* frveg .* results["LTEfluxRoofVeg"] .+
+            wroof_norm .* frveg .* results[:LEflux][:LTEfluxRoofVeg] .+
             wcanyon_norm .* (
-                fgveg .* results["LTEfluxGroundVeg"] .+
-                4.0 .* radius_tree .* results["LTEfluxTree"]
+                fgveg .* results[:LEflux][:LTEfluxGroundVeg] .+
+                4.0 .* radius_tree .* results[:LEflux][:LTEfluxTree]
             )
         ) ./ L_heat .* dts
 
     ET_buildAnth =
-        wroof_norm .* (results["LEbuildIntLEpeople"] .+ results["LEbuildIntLEequip"]) ./
+        wroof_norm .* (results[:LEbuildInt][:LEpeople] .+ results[:LEbuildInt][:LEequip]) ./
         L_heat .* dts
 
     # Change in soil moisture
-    dVdtRoof = frveg .* results["dVRoofSoilVeg_dt"]
-    dVdtCan = results["dVGroundSoilTot_dt"]
+    dVdtRoof = frveg .* results[:dVwater_dt][:dVRoofSoilVeg_dt]
+    dVdtCan = results[:dVwater_dt][:dVGroundSoilTot_dt]
     dVdtUrb = wcanyon_norm .* dVdtCan .+ wroof_norm .* dVdtRoof
 
     dVdtRoofCalc, dVdtCanCalc, dVdtUrbCalc = post_calculate_soil_moisture_change(
-        results["OwaterInitial"],
-        results,
+        results[:OwaterInitial],
+        results[:Owater],
         model.parameters.soil.roof,
         model.parameters.soil.ground,
         model.parameters.surfacefractions.roof,
@@ -141,24 +146,30 @@ function water_balance_components(
     IrrSoilUrb = dVdtUrbCalc .- dVdtUrb
 
     # Change in intercepted water - On plant canopy
-    dIdtPlantRoof = frveg .* results["dInt_dtRoofVegPlant"]
+    dIdtPlantRoof = frveg .* results[:dInt_dt][:dInt_dtRoofVegPlant]
     dIdtPlantCan =
-        fgveg .* results["dInt_dtGroundVegPlant"] .+
-        4.0 .* radius_tree .* results["dInt_dtTree"]
+        fgveg .* results[:dInt_dt][:dInt_dtGroundVegPlant] .+
+        4.0 .* radius_tree .* results[:dInt_dt][:dInt_dtTree]
     dIdtPlantUrb = wcanyon_norm .* dIdtPlantCan .+ wroof_norm .* dIdtPlantRoof
 
     # Change in intercepted water - On ground/surface
     dIdtGroundRoof =
-        frveg .* results["dInt_dtRoofVegGround"] .+ frimp .* results["dInt_dtRoofImp"]
+        frveg .* results[:dInt_dt][:dInt_dtRoofVegGround] .+
+        frimp .* results[:dInt_dt][:dInt_dtRoofImp]
     dIdtGroundCan =
-        fgveg .* results["dInt_dtGroundVegGround"] .+
-        fgbare .* results["dInt_dtGroundBare"] .+ fgimp .* results["dInt_dtGroundImp"]
+        fgveg .* results[:dInt_dt][:dInt_dtGroundVegGround] .+
+        fgbare .* results[:dInt_dt][:dInt_dtGroundBare] .+
+        fgimp .* results[:dInt_dt][:dInt_dtGroundImp]
     dIdtGroundUrb = wcanyon_norm .* dIdtGroundCan .+ wroof_norm .* dIdtGroundRoof
 
     # Change in intercepted water - Due to runon
-    dRun_dtRoof = vcat(results["RunonRoofTot"][1], diff(results["RunonRoofTot"]))
-    dRun_dtCan = vcat(results["RunonGroundTot"][1], diff(results["RunonGroundTot"]))
-    dRun_dtUrb = vcat(results["RunonUrban"][1], diff(results["RunonUrban"]))
+    dRun_dtRoof = vcat(
+        results[:Runon][:RunoffRoofTot][1], diff(results[:Runon][:RunonRoofTot])
+    )
+    dRun_dtCan = vcat(
+        results[:Runon][:RunonGroundTot][1], diff(results[:Runon][:RunonGroundTot])
+    )
+    dRun_dtUrb = vcat(results[:Runon][:RunonUrban][1], diff(results[:Runon][:RunonUrban]))
 
     # Total change in intercepted water
     dIdtRoof = dIdtPlantRoof .+ dIdtGroundRoof .+ dRun_dtRoof
@@ -166,34 +177,38 @@ function water_balance_components(
     dIdtUrb = dIdtPlantUrb .+ dIdtGroundUrb .+ dRun_dtUrb
 
     # Surface water storage (SurfStor)
-    IntRoof = results["IntRooftot"] .+ results["RunonRoofTot"]
+    IntRoof = results[:Interception][:IntRooftot] .+ results[:Runon][:RunonRoofTot]
     IntCan =
-        fgimp .* results["IntGroundImp"] .+ fgbare .* results["IntGroundBare"] .+
-        fgveg .* (results["IntGroundVegPlant"] .+ results["IntGroundVegGround"]) .+
-        4.0 .* radius_tree .* results["IntTree"] .+ results["RunonGroundTot"]
+        fgimp .* results[:Interception][:IntGroundImp] .+
+        fgbare .* results[:Interception][:IntGroundBare] .+
+        fgveg .* (
+            results[:Interception][:IntGroundVegPlant] .+
+            results[:Interception][:IntGroundVegGround]
+        ) .+ 4.0 .* radius_tree .* results[:Interception][:IntTree] .+
+        results[:Runon][:RunonGroundTot]
     IntUrb = wcanyon_norm .* IntCan .+ wroof_norm .* IntRoof
 
     # Anthropogenic latent heat fluxes - Building interior sources
     ET_buildAnthRoof = zeros(FT, NN)
     ET_buildAnthCan = zeros(FT, NN)
     ET_buildAnthBuild =
-        (results["LEbuildIntLEpeople"] .+ results["LEbuildIntLEequip"]) ./ L_heat .* dts
+        (results[:LEbuildInt][:LEpeople] .+ results[:LEbuildInt][:LEequip]) ./ L_heat .* dts
     ET_buildAnthUrb =
-        wroof_norm .* (results["LEbuildIntLEpeople"] .+ results["LEbuildIntLEequip"]) ./
+        wroof_norm .* (results[:LEbuildInt][:LEpeople] .+ results[:LEbuildInt][:LEequip]) ./
         L_heat .* dts
 
     # Latent heat removed from air due to ventilation
     ET_VentRoof = zeros(FT, NN)
-    ET_VentCan = results["WasteHeatLatentFromVent_Can"] ./ L_heat .* dts
-    ET_VentBuild = results["LEbuildIntLEvent"] ./ L_heat .* dts
+    ET_VentCan = results[:BEMWasteHeat][:LatentFromVent_Can] ./ L_heat .* dts
+    ET_VentBuild = results[:LEbuildInt][:LEvent] ./ L_heat .* dts
     ET_VentUrb = zeros(FT, NN)
 
     # ET exchange due to AC
     ET_ACRoof = zeros(FT, NN)
-    ET_ACCan = results["WasteHeatLatentFromAC_Can"] ./ L_heat .* dts
+    ET_ACCan = results[:BEMWasteHeat][:LatentFromAC_Can] ./ L_heat .* dts
     ET_ACBuild =
-        results["WasteHeatLatentFromAC_Can"] .* (Width_canyon ./ Width_roof) ./ L_heat .*
-        dts
+        results[:BEMWasteHeat][:LatentFromAC_Can] .* (Width_canyon ./ Width_roof) ./
+        L_heat .* dts
     ET_ACUrb = zeros(FT, NN)
 
     # ET exchange due to HVAC between indoor and outdoor air
@@ -204,9 +219,10 @@ function water_balance_components(
 
     # Water removed from building interior due to condensation during AC
     ET_WasteWaterACBuild =
-        results["WasteHeatWaterFromAC_Can"] .* (Width_canyon ./ Width_roof) ./ L_heat .* dts
+        results[:BEMWasteHeat][:WaterFromAC_Can] .* (Width_canyon ./ Width_roof) ./ L_heat .*
+        dts
     ET_WasteWaterACUrb =
-        results["WasteHeatWaterFromAC_Can"] .* Width_canyon ./
+        results[:BEMWasteHeat][:WaterFromAC_Can] .* Width_canyon ./
         (Width_canyon .+ Width_roof) ./ L_heat .* dts
 
     # Water balance
@@ -217,6 +233,7 @@ function water_balance_components(
         RainCan .+ IrrSurfCan .+ IrrSoilCan .- RunoffCan .- LeakageCan .- ETCan .-
         dVdtCanCalc .- dIdtCan .- dS_ET_dtCan
     WBBuild = ET_buildAnthBuild .+ ET_HVACexchBuild .- ET_WasteWaterACBuild .- dS_ET_dtBuild
+
     WBUrb =
         RainUrb .+ IrrSurfUrb .+ IrrSoilUrb .+ ET_buildAnthUrb .- RunoffUrb .- LeakageUrb .-
         ETUrb .- dVdtUrbCalc .- dIdtUrb .- dS_ET_dtUrb

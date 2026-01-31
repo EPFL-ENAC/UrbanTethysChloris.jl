@@ -1,7 +1,7 @@
 """
     post_calculate_soil_moisture_change(
-        OwaterInitial::ModelComponents.ModelVariables.Owater{FT},
-        Owater::ModelComponents.ModelVariables.Owater{FT},
+        OwaterInitial::Dict{Symbol,Array},
+        Owater::Dict{Symbol,Array},
         ParSoilRoof::ModelComponents.Parameters.SoilParameters{FT},
         ParSoilGround::ModelComponents.Parameters.SoilParameters{FT},
         FractionsRoof::ModelComponents.Parameters.SurfaceFractionsParameters{FT},
@@ -12,8 +12,8 @@
 Post-calculates soil water volume changes for roof, canyon, and urban areas.
 
 # Arguments
-- `OwaterInitial`: Initial soil water content at the start of simulation.
-- `Owater`: Current soil water content.
+- `OwaterInitial`: Initial soil water content at the start of simulation, as a Dict
+- `Owater`: Current soil water content, as a Dict
 - `ParSoilRoof`: Soil parameters for roof.
 - `ParSoilGround`: Soil parameters for ground/canyon.
 - `FractionsRoof`: Surface fractions for roof.
@@ -26,8 +26,8 @@ Post-calculates soil water volume changes for roof, canyon, and urban areas.
 - `dVdtUrbCalc`: Calculated change in soil water volume for urban area (mm/time step).
 """
 function post_calculate_soil_moisture_change(
-    OwaterInitial::ModelComponents.ModelVariables.Owater{FT},
-    results::Dict{String,Any},
+    OwaterInitial::Dict{Symbol,Array},
+    Owater::Dict{Symbol,Array},
     ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     ParSoilGround::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
@@ -62,18 +62,17 @@ function post_calculate_soil_moisture_change(
     ParSoilRoofdz, ParSoilRoofOhy = _soil_parameters(ParSoilRoof)
     ParSoilGrounddz, ParSoilGroundOhy = _soil_parameters(ParSoilGround)
 
-    # @infiltrate
     # Initial soil water setting in beginning of simulation (time step 1)
-    Vinit_Rveg = (OwaterInitial.OwRoofSoilVeg .- ParSoilRoofOhy) .* ParSoilRoofdz
-    Vinit_Gimp = (OwaterInitial.OwGroundSoilImp .- ParSoilGroundOhy) .* ParSoilGrounddz
-    Vinit_Gbare = (OwaterInitial.OwGroundSoilBare .- ParSoilGroundOhy) .* ParSoilGrounddz
-    Vinit_Gveg = (OwaterInitial.OwGroundSoilVeg .- ParSoilGroundOhy) .* ParSoilGrounddz
+    Vinit_Rveg = (OwaterInitial[:OwRoofSoilVeg] .- ParSoilRoofOhy) .* ParSoilRoofdz
+    Vinit_Gimp = (OwaterInitial[:OwGroundSoilImp] .- ParSoilGroundOhy) .* ParSoilGrounddz
+    Vinit_Gbare = (OwaterInitial[:OwGroundSoilBare] .- ParSoilGroundOhy) .* ParSoilGrounddz
+    Vinit_Gveg = (OwaterInitial[:OwGroundSoilVeg] .- ParSoilGroundOhy) .* ParSoilGrounddz
 
     # Water volume in each soil column
-    VRveg = (results["OwRoofSoilVeg"] .- ParSoilRoofOhy) .* ParSoilRoofdz
-    VGimp = (results["OwGroundSoilImp"] .- ParSoilGroundOhy) .* ParSoilGrounddz
-    VGbare = (results["OwGroundSoilBare"] .- ParSoilGroundOhy) .* ParSoilGrounddz
-    VGveg = (results["OwGroundSoilVeg"] .- ParSoilGroundOhy) .* ParSoilGrounddz
+    VRveg = (Owater[:OwRoofSoilVeg] .- ParSoilRoofOhy') .* ParSoilRoofdz'
+    VGimp = (Owater[:OwGroundSoilImp] .- ParSoilGroundOhy') .* ParSoilGrounddz'
+    VGbare = (Owater[:OwGroundSoilBare] .- ParSoilGroundOhy') .* ParSoilGrounddz'
+    VGveg = (Owater[:OwGroundSoilVeg] .- ParSoilGroundOhy') .* ParSoilGrounddz'
 
     # Total water volume in soil (canyon & roof)
     VinitRoof = FractionsRoof.fveg * NaNMath.sum(Vinit_Rveg)

@@ -34,6 +34,10 @@ end
     include("set_sun_variables.jl")
 end
 
+@safetestset "outputs" begin
+    include("outputs.jl")
+end
+
 @safetestset "Translation" begin
     include(joinpath("translation", "UrbanTethysChloris.jl"))
 end

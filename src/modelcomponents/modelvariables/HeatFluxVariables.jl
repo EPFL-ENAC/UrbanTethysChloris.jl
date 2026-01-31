@@ -268,3 +268,89 @@ function TethysChlorisCore.preprocess_fields(
 
     return processed
 end
+
+function ModelComponents.outputs_to_save(
+    ::Type{HeatFluxVariables}, ::Type{ExtendedEnergyClimateOutputs}
+)
+    return (:Hflux, :LEflux, :Gflux, :dStorage, :Results2mEnergyFlux)
+end
+
+function update!(
+    heatfluxes::HeatFluxVariables{FT}, results::NamedTuple, fn::EBWBRoofDispatcher
+) where {FT<:AbstractFloat}
+    heatfluxes.Hflux.HfluxRoofImp = results.HfluxRoofImp
+    heatfluxes.Hflux.HfluxRoofVeg = results.HfluxRoofVeg
+    heatfluxes.Hflux.HfluxRoof = results.HfluxRoof
+    heatfluxes.LEflux.LEfluxRoofImp = results.LEfluxRoofImp
+    heatfluxes.LEflux.LEfluxRoofVegInt = results.LEfluxRoofVegInt
+    heatfluxes.LEflux.LEfluxRoofVegPond = results.LEfluxRoofVegPond
+    heatfluxes.LEflux.LEfluxRoofVegSoil = results.LEfluxRoofVegSoil
+    heatfluxes.LEflux.LTEfluxRoofVeg = results.LTEfluxRoofVeg
+    heatfluxes.LEflux.LEfluxRoofVeg = results.LEfluxRoofVeg
+    heatfluxes.LEflux.LEfluxRoof = results.LEfluxRoof
+    heatfluxes.Gflux.G1RoofImp = results.G1RoofImp
+    heatfluxes.Gflux.G2RoofImp = results.G2RoofImp
+    heatfluxes.Gflux.G1RoofVeg = results.G1RoofVeg
+    heatfluxes.Gflux.G2RoofVeg = results.G2RoofVeg
+    heatfluxes.Gflux.G1Roof = results.G1Roof
+    heatfluxes.Gflux.G2Roof = results.G2Roof
+    heatfluxes.dStorage.dsRoofImp = results.dsRoofImp
+    heatfluxes.dStorage.dsRoofVeg = results.dsRoofVeg
+    heatfluxes.dStorage.dsRoof = results.dsRoof
+
+    return nothing
+end
+
+function update!(
+    heatfluxes::HeatFluxVariables{FT}, results::NamedTuple, fn::EBWBCanyonDispatcher
+) where {FT<:AbstractFloat}
+    heatfluxes.Hflux.HfluxGroundImp = results.HfluxGroundImp
+    heatfluxes.Hflux.HfluxGroundBare = results.HfluxGroundBare
+    heatfluxes.Hflux.HfluxGroundVeg = results.HfluxGroundVeg
+    heatfluxes.Hflux.HfluxGround = results.HfluxGround
+    heatfluxes.Hflux.HfluxTree = results.HfluxTree
+    heatfluxes.Hflux.HfluxWallSun = results.HfluxWallSun
+    heatfluxes.Hflux.HfluxWallShade = results.HfluxWallShade
+    heatfluxes.Hflux.HfluxCanyon = results.HfluxCanyon
+    heatfluxes.Hflux.dS_H_air = results.dS_H_air
+
+    heatfluxes.LEflux.LEfluxGroundImp = results.LEfluxGroundImp
+    heatfluxes.LEflux.LEfluxGroundBarePond = results.LEfluxGroundBarePond
+    heatfluxes.LEflux.LEfluxGroundBareSoil = results.LEfluxGroundBareSoil
+    heatfluxes.LEflux.LEfluxGroundBare = results.LEfluxGroundBare
+    heatfluxes.LEflux.LEfluxGroundVegInt = results.LEfluxGroundVegInt
+    heatfluxes.LEflux.LEfluxGroundVegPond = results.LEfluxGroundVegPond
+    heatfluxes.LEflux.LEfluxGroundVegSoil = results.LEfluxGroundVegSoil
+    heatfluxes.LEflux.LTEfluxGroundVeg = results.LTEfluxGroundVeg
+    heatfluxes.LEflux.LEfluxGroundVeg = results.LEfluxGroundVeg
+    heatfluxes.LEflux.LEfluxGround = results.LEfluxGround
+    heatfluxes.LEflux.LEfluxTreeInt = results.LEfluxTreeInt
+    heatfluxes.LEflux.LTEfluxTree = results.LTEfluxTree
+    heatfluxes.LEflux.LEfluxTree = results.LEfluxTree
+    heatfluxes.LEflux.LEfluxWallSun = results.LEfluxWallSun
+    heatfluxes.LEflux.LEfluxWallShade = results.LEfluxWallShade
+    heatfluxes.LEflux.LEfluxCanyon = results.LEfluxCanyon
+    heatfluxes.LEflux.dS_LE_air = results.dS_LE_air
+
+    heatfluxes.Gflux.G1WallSun = results.G1WallSun
+    heatfluxes.Gflux.G2WallSun = results.G2WallSun
+    heatfluxes.Gflux.G1WallShade = results.G1WallShade
+    heatfluxes.Gflux.G2WallShade = results.G2WallShade
+    heatfluxes.Gflux.G1GroundImp = results.G1GroundImp
+    heatfluxes.Gflux.G1GroundBare = results.G1GroundBare
+    heatfluxes.Gflux.G1GroundVeg = results.G1GroundVeg
+    heatfluxes.Gflux.G1Ground = results.G1Ground
+    heatfluxes.Gflux.GTree = results.GTree
+    heatfluxes.Gflux.G1Canyon = results.G1Canyon
+    heatfluxes.Gflux.G2Canyon = results.G2Canyon
+
+    heatfluxes.dStorage.dsWallSun = results.dsWallSun
+    heatfluxes.dStorage.dsWallShade = results.dsWallShade
+    heatfluxes.dStorage.dsGroundImp = results.dsGroundImp
+    heatfluxes.dStorage.dsGroundBare = results.dsGroundBare
+    heatfluxes.dStorage.dsGroundVeg = results.dsGroundVeg
+    heatfluxes.dStorage.dsTree = results.dsTree
+    heatfluxes.dStorage.dsCanyonAir = results.dsCanyonAir
+
+    return nothing
+end

@@ -183,19 +183,9 @@ function eb_wb_roof!(
         rsRoofPreCalc,
     )
 
-    model.variables.energybalance.EB.EBRoofImp = results.EBRoofImp
-    model.variables.energybalance.EB.EBRoofVeg = results.EBRoofVeg
+    update!(model.variables, results, eb_wb_roof_dispatcher)
 
-    model.variables.energybalance.WBRoof.WBRoofImp = results.WBRoofImp
-    model.variables.energybalance.WBRoof.WBRoofVegInVeg = results.WBRoofVegInVeg
-    model.variables.energybalance.WBRoof.WBRoofVegInGround = results.WBRoofVegInGround
-    model.variables.energybalance.WBRoof.WBRoofVegSoil = results.WBRoofVegSoil
-    model.variables.energybalance.WBRoof.WBRoofVeg = results.WBRoofVeg
-    model.variables.energybalance.WBRoof.WBRoofTot = results.WBRoofTot
-
-    @views model.variables.energybalance.Solver.YfunctionOutput[1:4] = results.Yroof
-
-    return results
+    return results.G2Roof, results.Yroof
 end
 
 function eb_wb_roof(
@@ -471,15 +461,15 @@ function eb_wb_roof(
         dInt_dtRoofVegGround,
         IntRooftot,
         dInt_dtRooftot,
-        dVRoofSoil_dt,
+        dVRoofSoilVeg_dt=dVRoofSoil_dt,
         fRoofVeg,
-        VRoofSoil,
-        OwRoofSoil,
-        OSwRoofSoil,
-        ExWaterRoof_H,
-        SoilPotWRoof_H,
-        SoilPotWRoof_L,
-        ExWaterRoof_L,
+        VRoofSoilVeg=VRoofSoil,
+        OwRoofSoilVeg=OwRoofSoil,
+        OSwRoofSoilVeg=OSwRoofSoil,
+        ExWaterRoofVeg_H=ExWaterRoof_H,
+        SoilPotWRoofVeg_H=SoilPotWRoof_H,
+        SoilPotWRoofVeg_L=SoilPotWRoof_L,
+        ExWaterRoofVeg_L=ExWaterRoof_L,
         CiCO2LeafRoofVegSun,
         CiCO2LeafRoofVegShd,
         WBRoofVegInVeg,

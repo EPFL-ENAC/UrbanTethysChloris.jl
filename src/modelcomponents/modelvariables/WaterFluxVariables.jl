@@ -60,6 +60,39 @@ function Eflux(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Eflux, Dict{String,Any}())
 end
 
+function ground_fields(::Type{Eflux})
+    return (
+        :EfluxGroundImp,
+        :EfluxGroundBarePond,
+        :EfluxGroundBareSoil,
+        :EfluxGroundBare,
+        :EfluxGroundVegInt,
+        :EfluxGroundVegPond,
+        :EfluxGroundVegSoil,
+        :TEfluxGroundVeg,
+        :EfluxGroundVeg,
+        :EfluxGround,
+        :EfluxTreeInt,
+        :TEfluxTree,
+        :EfluxTree,
+        :EfluxWallSun,
+        :EfluxWallShade,
+        :EfluxCanyon,
+    )
+end
+
+function roof_fields(::Type{Eflux})
+    return (
+        :EfluxRoofImp,
+        :EfluxRoofVegInt,
+        :EfluxRoofVegPond,
+        :EfluxRoofVegSoil,
+        :TEfluxRoofVeg,
+        :EfluxRoofVeg,
+        :EfluxRoof,
+    )
+end
+
 """
     Runoff{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -94,6 +127,22 @@ end
 
 function Runoff(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Runoff, Dict{String,Any}())
+end
+
+function roof_fields(::Type{Runoff})
+    return (:QRoofImp, :QRoofVegDrip, :QRoofVegPond, :QRoofVegSoil)
+end
+
+function ground_fields(::Type{Runoff})
+    return (
+        :QGroundImp,
+        :QGroundBarePond,
+        :QGroundBareSoil,
+        :QTree,
+        :QGroundVegDrip,
+        :QGroundVegPond,
+        :QGroundVegSoil,
+    )
 end
 
 """
@@ -144,6 +193,14 @@ function update!(dest::Runon{FT}, src::Runon{FT}) where {FT<:AbstractFloat}
     return nothing
 end
 
+function roof_fields(::Type{Runon})
+    return (:RunonRoofTot, :RunoffRoofTot)
+end
+
+function ground_fields(::Type{Runon})
+    return (:RunonGroundTot, :RunoffGroundTot)
+end
+
 """
     Leakage{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -172,6 +229,14 @@ end
 
 function Leakage(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Leakage, Dict{String,Any}())
+end
+
+function roof_fields(::Type{Leakage})
+    return (:LkRoofImp, :LkRoofVeg, :LkRoof)
+end
+
+function ground_fields(::Type{Leakage})
+    return (:LkGroundImp, :LkGroundBare, :LkGroundVeg, :LkGround)
 end
 
 """
@@ -233,6 +298,16 @@ function update!(dest::Interception{FT}, src::Interception{FT}) where {FT<:Abstr
     return nothing
 end
 
+function roof_fields(::Type{Interception})
+    return (:IntRoofImp, :IntRoofVegPlant, :IntRoofVegGround, :IntRooftot)
+end
+
+function ground_fields(::Type{Interception})
+    return (
+        :IntGroundImp, :IntGroundBare, :IntGroundVegPlant, :IntGroundVegGround, :IntTree
+    )
+end
+
 """
     dInt_dt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -266,6 +341,20 @@ function dInt_dt(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, dInt_dt, Dict{String,Any}())
 end
 
+function roof_fields(::Type{dInt_dt})
+    return (:dInt_dtRoofImp, :dInt_dtRoofVegPlant, :dInt_dtRoofVegGround, :dInt_dtRooftot)
+end
+
+function ground_fields(::Type{dInt_dt})
+    return (
+        :dInt_dtGroundImp,
+        :dInt_dtGroundBare,
+        :dInt_dtGroundVegPlant,
+        :dInt_dtGroundVegGround,
+        :dInt_dtTree,
+    )
+end
+
 """
     Infiltration{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -286,6 +375,14 @@ end
 
 function Infiltration(::Type{FT}) where {FT<:AbstractFloat}
     return initialize(FT, Infiltration, Dict{String,Any}())
+end
+
+function roof_fields(::Type{Infiltration})
+    return (:fRoofVeg,)
+end
+
+function ground_fields(::Type{Infiltration})
+    return (:fGroundBare, :fGroundVeg, :fGroundImp)
 end
 
 """
@@ -347,7 +444,7 @@ function update!(
     return nothing
 end
 """
-    dVwater_dt{FT<:AbstractFloat, MR, MG} <: AbstractLayeredSoilVariables{FT}
+    dVwater_dt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Change in water volume in soil for different urban surfaces.
 
@@ -359,37 +456,26 @@ Change in water volume in soil for different urban surfaces.
 - `dVGroundSoilTot_dt`: Change in water volume in the different soil layers of ground total [mm per horizontal ground area]
 """
 # Same names as Vwater
-Base.@kwdef mutable struct dVwater_dt{FT<:AbstractFloat,MR,MG} <:
-                           AbstractLayeredSoilVariables{FT}
-    dVRoofSoilVeg_dt::Vector{FT}
-    dVGroundSoilImp_dt::Vector{FT}
-    dVGroundSoilBare_dt::Vector{FT}
-    dVGroundSoilVeg_dt::Vector{FT}
-    dVGroundSoilTot_dt::Vector{FT}
+Base.@kwdef mutable struct dVwater_dt{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    dVRoofSoilVeg_dt::FT
+    dVGroundSoilImp_dt::FT
+    dVGroundSoilBare_dt::FT
+    dVGroundSoilVeg_dt::FT
+    dVGroundSoilTot_dt::FT
 end
 
 function ground_fields(::Type{dVwater_dt})
-    return [
-        "dVGroundSoilImp_dt",
-        "dVGroundSoilBare_dt",
-        "dVGroundSoilVeg_dt",
-        "dVGroundSoilTot_dt",
-    ]
+    return (
+        :dVGroundSoilImp_dt, :dVGroundSoilBare_dt, :dVGroundSoilVeg_dt, :dVGroundSoilTot_dt
+    )
 end
 
 function roof_fields(::Type{dVwater_dt})
-    return ["dVRoofSoilVeg_dt"]
+    return (:dVRoofSoilVeg_dt,)
 end
 
-function dVwater_dt(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:AbstractFloat}
-    return initialize(
-        FT,
-        dVwater_dt,
-        Dict{String,Any}(),
-        (FT, soil.roof.ms, soil.ground.ms),
-        soil,
-        args...,
-    )
+function dVwater_dt(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, dVwater_dt, Dict{String,Any}())
 end
 
 """
@@ -440,19 +526,28 @@ function Owater(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
     )
 end
 
-function update!(
+"""
+    fix_soil_moisture!(
+        dest::Owater{FT,MR,MG},
+        roof::VegetatedSoilParameters{FT},
+        ground::VegetatedSoilParameters{FT},
+        O33::NamedTuple,
+    ) where {FT<:AbstractFloat,MR,MG}
+
+Fix soil moisture values in the soil layers according to the settings in the soil parameters.
+
+# Arguments
+- `dest::Owater{FT,MR,MG}`: Soil moisture variables to be modified
+- `roof::VegetatedSoilParameters{FT}`: Roof soil parameters
+- `ground::VegetatedSoilParameters{FT}`: Ground soil parameters
+- `O33::NamedTuple`: Named tuple containing the fixed soil moisture values for roof and ground
+"""
+function fix_soil_moisture!(
     dest::Owater{FT,MR,MG},
-    src::Owater{FT,MR,MG},
     roof::VegetatedSoilParameters{FT},
     ground::VegetatedSoilParameters{FT},
     O33::NamedTuple,
 ) where {FT<:AbstractFloat,MR,MG}
-    dest.OwRoofSoilVeg .= src.OwRoofSoilVeg
-    dest.OwGroundSoilImp .= src.OwGroundSoilImp
-    dest.OwGroundSoilBare .= src.OwGroundSoilBare
-    dest.OwGroundSoilVeg .= src.OwGroundSoilVeg
-    dest.OwGroundSoilTot .= src.OwGroundSoilTot
-
     if roof.FixSM
         r = O33.roof
         SMReplace = fill(false, MR)
@@ -472,8 +567,9 @@ function update!(
 
     return nothing
 end
+
 """
-    OSwater{FT<:AbstractFloat, MR, MG} <: AbstractLayeredSoilVariables{FT}
+    OSwater{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
 Additional soil moisture variables for urban surfaces.
 
@@ -485,27 +581,24 @@ Additional soil moisture variables for urban surfaces.
 - `OSwGroundSoilTot`: Additional soil moisture values for ground soil layers total [-]
 """
 # Same names as Vwater
-Base.@kwdef mutable struct OSwater{FT<:AbstractFloat,MR,MG} <:
-                           AbstractLayeredSoilVariables{FT}
-    OSwRoofSoilVeg::Vector{FT}
-    OSwGroundSoilImp::Vector{FT}
-    OSwGroundSoilBare::Vector{FT}
-    OSwGroundSoilVeg::Vector{FT}
-    OSwGroundSoilTot::Vector{FT}
+Base.@kwdef mutable struct OSwater{FT<:AbstractFloat} <: AbstractModelVariables{FT}
+    OSwRoofSoilVeg::FT
+    OSwGroundSoilImp::FT
+    OSwGroundSoilBare::FT
+    OSwGroundSoilVeg::FT
+    OSwGroundSoilTot::FT
 end
 
 function roof_fields(::Type{OSwater})
-    return ["OSwRoofSoilVeg"]
+    return (:OSwRoofSoilVeg,)
 end
 
 function ground_fields(::Type{OSwater})
-    return ["OSwGroundSoilImp", "OSwGroundSoilBare", "OSwGroundSoilVeg", "OSwGroundSoilTot"]
+    return (:OSwGroundSoilImp, :OSwGroundSoilBare, :OSwGroundSoilVeg, :OSwGroundSoilTot)
 end
 
-function OSwater(::Type{FT}, soil::SoilParameters{FT}, args...) where {FT<:AbstractFloat}
-    return initialize(
-        FT, OSwater, Dict{String,Any}(), (FT, soil.roof.ms, soil.ground.ms), soil, args...
-    )
+function OSwater(::Type{FT}) where {FT<:AbstractFloat}
+    return initialize(FT, OSwater, Dict{String,Any}())
 end
 
 """
@@ -736,6 +829,23 @@ function update!(dest::SoilPotW{FT}, src::SoilPotW{FT}) where {FT<:AbstractFloat
     return nothing
 end
 
+function ground_fields(::Type{SoilPotW})
+    return (
+        :SoilPotWGroundImp_H,
+        :SoilPotWGroundImp_L,
+        :SoilPotWGroundBare_H,
+        :SoilPotWGroundBare_L,
+        :SoilPotWGroundVeg_H,
+        :SoilPotWGroundVeg_L,
+        :SoilPotWGroundTot_H,
+        :SoilPotWGroundTot_L,
+    )
+end
+
+function roof_fields(::Type{SoilPotW})
+    return (:SoilPotWRoofVeg_H, :SoilPotWRoofVeg_L)
+end
+
 """
     CiCO2Leaf{FT<:AbstractFloat} <: AbstractModelVariables{FT}
 
@@ -783,6 +893,16 @@ function update!(dest::CiCO2Leaf{FT}, src::CiCO2Leaf{FT}) where {FT<:AbstractFlo
 
     return nothing
 end
+
+function roof_fields(::Type{CiCO2Leaf})
+    return (:CiCO2LeafRoofVegSun, :CiCO2LeafRoofVegShd)
+end
+
+function ground_fields(::Type{CiCO2Leaf})
+    return (
+        :CiCO2LeafGroundVegSun, :CiCO2LeafGroundVegShd, :CiCO2LeafTreeSun, :CiCO2LeafTreeShd
+    )
+end
 """
     WaterFluxVariables{FT<:AbstractFloat, MR, MG} <: AbstractModelVariableSet{FT}
 
@@ -815,9 +935,9 @@ Base.@kwdef struct WaterFluxVariables{FT<:AbstractFloat,MR,MG} <:
     dInt_dt::dInt_dt{FT}
     Infiltration::Infiltration{FT}
     Vwater::Vwater{FT,MR,MG}
-    dVwater_dt::dVwater_dt{FT,MR,MG}
+    dVwater_dt::dVwater_dt{FT}
     Owater::Owater{FT,MR,MG}
-    OSwater::OSwater{FT,MR,MG}
+    OSwater::OSwater{FT}
     Qinlat::Qinlat{FT,MG}
     ExWater::ExWater{FT,MR,MG}
     SoilPotW::SoilPotW{FT}
@@ -853,13 +973,53 @@ function TethysChlorisCore.preprocess_fields(
     processed["dInt_dt"] = dInt_dt(FT)
     processed["Infiltration"] = Infiltration(FT)
     processed["Vwater"] = Vwater(FT, soil)
-    processed["dVwater_dt"] = dVwater_dt(FT, soil)
+    processed["dVwater_dt"] = dVwater_dt(FT)
     processed["Owater"] = Owater(FT, soil)
-    processed["OSwater"] = OSwater(FT, soil)
+    processed["OSwater"] = OSwater(FT)
     processed["Qinlat"] = Qinlat(FT, soil)
     processed["ExWater"] = ExWater(FT, soil)
     processed["SoilPotW"] = SoilPotW(FT)
     processed["CiCO2Leaf"] = CiCO2Leaf(FT)
 
     return processed
+end
+
+function ModelComponents.outputs_to_save(::Type{WaterFluxVariables}, ::Type{PlotOutputs})
+    return (:Runoff, :Runon, :Leakage, :Interception, :dInt_dt, :dVwater_dt, :Owater)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{WaterFluxVariables}, ::Type{ExtendedEnergyClimateOutputs}
+)
+    return (:Eflux, :Infiltration, :Vwater, :SoilPotW)
+end
+
+function ModelComponents.outputs_to_save(
+    ::Type{WaterFluxVariables}, ::Type{ExtendedOutputs}
+)
+    return (:OSwater, :Qinlat, :ExWater, :CiCO2Leaf)
+end
+
+function update!(
+    x::WaterFluxVariables{FT}, results::NamedTuple, fn::EBWBRoofDispatcher
+) where {FT<:AbstractFloat}
+    for field in fieldnames(WaterFluxVariables{FT})
+        field_value = getfield(x, field)
+        field_type = typeof(field_value).name.wrapper
+        _update!(field_value, results, roof_fields(field_type))
+    end
+
+    return nothing
+end
+
+function update!(
+    x::WaterFluxVariables{FT}, results::NamedTuple, ::EBWBCanyonDispatcher
+) where {FT<:AbstractFloat}
+    for field in fieldnames(WaterFluxVariables{FT})
+        field_value = getfield(x, field)
+        field_type = typeof(field_value).name.wrapper
+        _update!(field_value, results, ground_fields(field_type))
+    end
+
+    return nothing
 end

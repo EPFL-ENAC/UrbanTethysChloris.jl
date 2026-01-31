@@ -1,6 +1,6 @@
 """
     urban_climate_variables(
-        results::Dict{String,Any},
+        results::Dict{Symbol,Dict{Symbol,Array}},
         model::Model{FT},
         forcing::ForcingInputSet{FT,1},
         NN::Signed,
@@ -18,28 +18,31 @@ visualization.
 - `NN::Signed`: Number of timesteps in the simulation.
 """
 function urban_climate_variables(
-    results::Dict{String,Any}, model::Model{FT}, forcing::ForcingInputSet{FT,1}, NN::Signed
+    results::Dict{Symbol,Dict{Symbol,Array}},
+    model::Model{FT},
+    forcing::ForcingInputSet{FT,1},
+    NN::Signed,
 ) where {FT<:AbstractFloat}
     TTUrban = DataFrame(;
         Hour=Dates.hour.(view(forcing.datetime, 1:NN)),
         Month=Dates.month.(view(forcing.datetime, 1:NN)),
-        T2m=tocelsius.(results["T2m"]),
-        TCanyon=tocelsius.(results["TCanyon"]),
-        RH2m=results["RH_T2m"] * 100,
-        UTCI=results["UTCI"],
-        Tmrt=results["Tmrt"],
-        TRoofImp=tocelsius.(results["TRoofImp"]),
-        TRoofVeg=tocelsius.(results["TRoofVeg"]),
-        TGroundImp=tocelsius.(results["TGroundImp"]),
-        TGroundBare=tocelsius.(results["TGroundBare"]),
-        TGroundVeg=tocelsius.(results["TGroundVeg"]),
-        TTree=tocelsius.(results["TTree"]),
-        TWallSun=tocelsius.(results["TWallSun"]),
-        TWallShade=tocelsius.(results["TWallShade"]),
+        T2m=tocelsius.(results[:Results2m][:T2m]),
+        TCanyon=tocelsius.(results[:tempvec][:TCanyon]), # TempVec
+        RH2m=results[:Results2m][:RH_T2m] * 100,
+        UTCI=results[:thermalcomfort][:UTCI],
+        Tmrt=results[:mrt][:Tmrt], # MRT
+        TRoofImp=tocelsius.(results[:tempvec][:TRoofImp]),
+        TRoofVeg=tocelsius.(results[:tempvec][:TRoofVeg]),
+        TGroundImp=tocelsius.(results[:tempvec][:TGroundImp]),
+        TGroundBare=tocelsius.(results[:tempvec][:TGroundBare]),
+        TGroundVeg=tocelsius.(results[:tempvec][:TGroundVeg]),
+        TTree=tocelsius.(results[:tempvec][:TTree]),
+        TWallSun=tocelsius.(results[:tempvec][:TWallSun]),
+        TWallShade=tocelsius.(results[:tempvec][:TWallShade]),
         Tatm=tocelsius.(view(forcing.meteorological.Tatm, 1:NN)),
         RHatm=view(forcing.meteorological.rel_hum, 1:NN) * 100,
-        Tbin=tocelsius.(results["Tbin"]),
-        RHbin=results["RHbin"] * 100,
+        Tbin=tocelsius.(results[:TempVecB][:Tbin]),
+        RHbin=results[:HumidityBuilding][:RHbin] * 100,
     )
 
     TTUrbanDiurnal = @chain TTUrban begin

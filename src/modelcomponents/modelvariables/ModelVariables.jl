@@ -8,6 +8,14 @@ using ..Parameters:
     VegetationParameters,
     HeightDependentVegetationParameters,
     VegetatedSoilParameters
+import ...UrbanTethysChloris:
+    EBWBRoofDispatcher,
+    EBWBCanyonDispatcher,
+    EBSolverBuildingOutputDispatcher,
+    eb_wb_roof_dispatcher,
+    eb_wb_canyon_dispatcher,
+    eb_solver_building_output_dispatcher
+import ...UrbanTethysChloris.ModelComponents
 using ...UrbanTethysChloris.ModelComponents
 using StaticArrays
 
@@ -100,6 +108,14 @@ function Base.show(io::IO, obj::AbstractModelVariables)
     end
 end
 
+function _update!(x::T, results::NamedTuple, fields=fieldnames(T)) where {T}
+    for field in Symbol.(fields)
+        # not optimal due to allocs, but necessary with future SVectors
+        setfield!(x, field, getfield(results, field))
+    end
+    return nothing
+end
+
 include("BuildingEnergyModelVariables.jl")
 export TempVecB, HumidityBuilding, HbuildInt, LEbuildInt, GbuildInt, SWRabsB, LWRabsB
 export BEMWasteHeat, BEMEnergyUse, ParACHeat_ts, BuildingEnergyModelVariables
@@ -119,6 +135,8 @@ export TempVec, TempDamp, MRT, ThermalComfort, TemperatureVariables
 include("WaterFluxVariables.jl")
 export Eflux, Runoff, Runon, Leakage, Interception, dInt_dt, Infiltration, Vwater
 export dVwater_dt, Owater, OSwater, Qinlat, ExWater, SoilPotW, CiCO2Leaf, WaterFluxVariables
+export fix_soil_moisture!
+
 include("ModelVariableSet.jl")
 
 export Humidity, TempVec, TempVecB
