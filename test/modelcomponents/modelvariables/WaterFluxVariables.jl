@@ -144,7 +144,7 @@ soil = initialize_soil_parameters(Float64, input_data["soil"])
 
         @test dvwater_dt isa dVwater_dt{FT}
 
-        # Test all fields are accessible, have correct dimensions and initialized to zero
+        # Test all fields are accessible, have the correct type and are initialized to zero
         for field in Symbol.(ground_fields(dVwater_dt))
             @test isa(getproperty(dvwater_dt, field), FT)
             @test all(getproperty(dvwater_dt, field) == 0)

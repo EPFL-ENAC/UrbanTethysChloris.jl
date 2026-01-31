@@ -167,16 +167,16 @@ rsRoofPreCalc = (;
     @test results.dInt_dtRoofVegGround ≈ output_vars["dInt_dtRoofVegGround"]
     @test results.IntRooftot ≈ output_vars["IntRooftot"]
     @test results.dInt_dtRooftot ≈ output_vars["dInt_dtRooftot"]
-    @test results.dVRoofSoil_dt ≈ output_vars["dVRoofSoil_dt"]
+    @test results.dVRoofSoilVeg_dt ≈ output_vars["dVRoofSoil_dt"]
     @test results.fRoofVeg ≈ output_vars["fRoofVeg"]
     # Not working
-    @test results.VRoofSoil ≈ vec(output_vars["VRoofSoil"]) atol = 0.05
-    @test results.OwRoofSoil ≈ vec(output_vars["OwRoofSoil"]) atol = 0.05
-    @test results.OSwRoofSoil ≈ output_vars["OSwRoofSoil"] atol = 0.05
+    @test results.VRoofSoilVeg ≈ vec(output_vars["VRoofSoil"]) atol = 0.05
+    @test results.OwRoofSoilVeg ≈ vec(output_vars["OwRoofSoil"]) atol = 0.05
+    @test results.OSwRoofSoilVeg ≈ output_vars["OSwRoofSoil"] atol = 0.05
 
     # Test water potentials and CO2
     # @test results.ExWaterRoof_L ≈ vec(output_vars["ExWaterRoof_L"]) # not working
-    @test results.SoilPotWRoof_L ≈ output_vars["SoilPotWRoof_L"] atol = 0.05
+    @test results.SoilPotWRoofVeg_L ≈ output_vars["SoilPotWRoof_L"] atol = 0.05
     @test results.CiCO2LeafRoofVegSun ≈ output_vars["CiCO2LeafRoofVegSun"]
     @test results.CiCO2LeafRoofVegShd ≈ output_vars["CiCO2LeafRoofVegShd"]
 

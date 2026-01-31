@@ -140,7 +140,7 @@ FT = Float64
 
         # Test all fields are accessible
         for field in fieldnames(ParACHeat_ts)
-            @test isa(getproperty(paracheat_ts, field), FT)
+            @test isa(getproperty(paracheat_ts, field), Bool)
             @test getproperty(paracheat_ts, field) == 0
         end
     end
