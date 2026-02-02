@@ -207,8 +207,8 @@ function TethysChlorisCore.preprocess_fields(
     processed["q_atm"] = specific_humidity(processed["ea"], processed["Pre"])
     processed["qSat_atm"] = specific_humidity(processed["esat_Tatm"], processed["Pre"])
 
-    processed["SW_dir"] = processed["SAB1_in"] + processed["SAD1_in"]
-    processed["SW_diff"] = processed["SAB2_in"] + processed["SAD2_in"]
+    processed["SW_dir"] = processed["SAB1_in"] + processed["SAB2_in"]
+    processed["SW_diff"] = processed["SAD1_in"] + processed["SAD2_in"]
 
     update_SW = abs.(cos.(theta_Z)) .< 0.1
     processed["SW_diff"][update_SW] += processed["SW_dir"][update_SW]
