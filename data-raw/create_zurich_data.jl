@@ -267,7 +267,7 @@ data["location"] = Dict{String,Any}(
     "phi" => 47.38, "lambda" => 8.56, "theta_canyon" => deg2rad(180), "DeltaGMT" => 1.0
 )
 
-YAML.write_file(joinpath(@__DIR__, "..", "data", "parameters.yaml"), data)
+YAML.write_file(joinpath(@__DIR__, "..", "data", "zurich_parameters.yaml"), data)
 YAML.write_file(joinpath(@__DIR__, "..", "test", "data", "parameters.yaml"), data)
 
 ## NetCDF section
@@ -283,7 +283,7 @@ input_data["Time"] = [
 ]
 input_data["RelativeHumidity"] ./= 100.0
 
-filename = "input_data.nc"
+filename = "zurich_data.nc"
 filepath = joinpath(@__DIR__, "..", "data", filename)
 
 isfile(filepath) && rm(filepath)

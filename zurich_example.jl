@@ -37,8 +37,8 @@ view_factor_point = ViewFactorPoint{Float64}(;
     F_pt=0.045338308457711474,
 );
 
-yaml_path = joinpath(@__DIR__, "data", "parameters.yaml")
-ncdf_path = joinpath(@__DIR__, "data", "input_data.nc")
+yaml_path = joinpath(@__DIR__, "data", "zurich_parameters.yaml")
+ncdf_path = joinpath(@__DIR__, "data", "zurich_data.nc")
 
 model, forcing = create_model(FT, ncdf_path, yaml_path);
 O33 = (
