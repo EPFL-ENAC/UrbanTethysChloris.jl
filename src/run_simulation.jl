@@ -29,7 +29,7 @@ function run_simulation(
     # TODO: initialize in initialize! function?
     if model.parameters.surfacefractions.roof.fimp == 1
         model.variables.waterflux.Vwater.VRoofSoilVeg[:] .= 0
-        model.variables.waterflux.Owater.ORoofSoilVeg[:] .= 0
+        model.variables.waterflux.Owater.OwRoofSoilVeg[:] .= 0
     end
 
     if model.parameters.surfacefractions.ground.fimp == 1
