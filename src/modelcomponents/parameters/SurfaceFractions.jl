@@ -29,13 +29,13 @@ function TethysChlorisCore.validate_fields(
 )
     check_extraneous_fields(LocationSpecificSurfaceFractions, data)
 
-    if data["fveg"] + data["fimp"] != 1.0
-        throw(ArgumentError("Surface fractions must sum to 1.0"))
-    end
-
     # if bare is a field of data and not NaN
     if haskey(data, "fbare") && !isnan(data["fbare"])
         if data["fveg"] + data["fbare"] + data["fimp"] != 1.0
+            throw(ArgumentError("Surface fractions must sum to 1.0"))
+        end
+    else
+        if data["fveg"] + data["fimp"] != 1.0
             throw(ArgumentError("Surface fractions must sum to 1.0"))
         end
     end
