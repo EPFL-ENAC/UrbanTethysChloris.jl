@@ -197,6 +197,7 @@ function run_simulation(
                 TB,
                 TempVec_ittm,
                 Humidity_ittm,
+                TempVecB_ittm,
                 ViewFactor,
                 WallLayers,
                 ParInterceptionTree,
