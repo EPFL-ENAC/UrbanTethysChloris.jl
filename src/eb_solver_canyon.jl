@@ -432,8 +432,8 @@ function eb_solver_canyon(
     end
 
     # Wall energy balances
-    Ycanyon[4] = SWRabs_t.WallSun + LWRabs_t.WallSun - G1WallSun - HfluxWallSun
-    Ycanyon[5] = SWRabs_t.WallShade + LWRabs_t.WallShade - G1WallShade - HfluxWallShade
+    Ycanyon[4] = SWRabsWallSunExt + LWRabs_t.WallSun - G1WallSun - HfluxWallSun
+    Ycanyon[5] = SWRabsWallShadeExt + LWRabs_t.WallShade - G1WallShade - HfluxWallShade
 
     # Tree energy balance
     if Gemeotry_m.trees > 0
