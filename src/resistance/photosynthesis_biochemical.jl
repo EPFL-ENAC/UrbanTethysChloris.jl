@@ -60,7 +60,6 @@ Calculate biochemical photosynthesis parameters and internal CO₂ concentration
 - `Jmax`: Maximum electron transport rate at current temperature [μmol/m²s]
 - `gs_fac`: Limiting factor for stomatal conductance [-]
 """
-
 function photosynthesis_biochemical(
     Cc::FT,
     IPAR::FT,
@@ -210,7 +209,7 @@ function photosynthesis_biochemical(
     elseif CT == 4
         JC = Vm
         JL = J / FT(4)
-        JE = Tke * Cc / Pre
+        JE = ke * Cc / Pre
     end
 
     # First Polynomium
