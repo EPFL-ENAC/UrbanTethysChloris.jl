@@ -232,7 +232,7 @@ function f_solver_tot(
     fvals = fill(fill(typemax(FT), 22), 6)
     ran_simulation = [true, false, false, false, false, false]
     Ts = Vector{Vector{FT}}(undef, 6)
-    exitflags = Vector{Bool}(undef, 6)
+    exitflags = fill(false, 6)
 
     # Attempt 1: Use previous timestep as initial guess
     # @infiltrate

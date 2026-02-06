@@ -1,7 +1,7 @@
 module Water
 
 using OrdinaryDiffEqRosenbrock
-using ADTypes
+using ADTypes: AutoFiniteDiff
 using ..ModelComponents
 using ..Soil
 
