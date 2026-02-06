@@ -149,6 +149,7 @@ data["vegetation"]["tree"]["Knit"] = 0.35
 data["vegetation"]["tree"]["Psi_sto_50"] = -2.2
 data["vegetation"]["tree"]["Sl"] = 0.024
 data["vegetation"]["tree"]["SPARTREE"] = 2
+data["vegetation"]["tree"]["Vmax"] = 66.0
 data["vegetation"]["tree"]["hc"] = NaN
 # remove h_disp for trees since hc is NaN
 delete!(data["vegetation"]["tree"], "h_disp")
@@ -162,10 +163,12 @@ data["thermal"]["ground"] = Dict{String,Any}("lan_dry" => 1.5, "cv_s" => 1.5e6)
 data["thermal"]["wall"] = Dict{String,Any}("lan_dry" => 0.28, "cv_s" => 1.7e6)
 data["thermal"]["tree"] = Dict{String,Any}("Cthermal_leaf" => 640.0)
 
+LAI_T = data["vegetation"]["tree"]["LAI"]
+SAI_T = data["vegetation"]["tree"]["SAI"]
 data["optical"] = Dict{String,Any}()
 data["optical"]["wall"] = Dict{String,Any}("albedo" => 0.3, "emissivity" => 0.97)
 data["optical"]["tree"] = Dict{String,Any}(
-    "albedo" => 0.2, "emissivity" => 0.994483435579239
+    "albedo" => 0.2, "emissivity" => 1 - exp(-(LAI_T + SAI_T))
 )
 
 LAI_R = data["vegetation"]["roof"]["LAI"]
