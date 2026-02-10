@@ -85,6 +85,7 @@ function update!(x::Humidity{FT}, meteo) where {FT<:AbstractFloat}
     x.AtmRelativeSat = meteo.AtmRelativeSat
     x.AtmSpecificSat = meteo.AtmSpecificSat
     x.AtmVapourPreSat = meteo.AtmVapourPreSat
+    x.q2m = meteo.q_atm
 
     return nothing
 end

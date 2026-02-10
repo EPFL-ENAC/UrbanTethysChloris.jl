@@ -62,6 +62,7 @@ function run_simulation(
     Ttot = nothing
     Yroof, Ycanyon, YBuildInt = nothing, nothing, nothing
 
+    # TODO: create a modeltm1, modeltm2 structures, to stop all the _ittm and _ittm2Ext
     TempVec_ittm = deepcopy(model.variables.temperature.tempvec)
     Humidity_ittm = deepcopy(model.variables.humidity.Humidity)
     TempVecB_ittm = deepcopy(model.variables.buildingenergymodel.TempVecB)
@@ -100,7 +101,9 @@ function run_simulation(
 
         if i > 1
             # TODO: bring HumidityAtm back to the forcing inputs
+            # TODO rename as "apply forcing"
             update!(model.variables.humidity.Humidity, model.forcing.meteorological)
+            update!(model.variables.temperature.tempvec, model.forcing.meteorological)
             update!(Meteo_ittm, model.forcing.meteorological)
             extrapolate!(TempVec_ittm2Ext, model.variables.temperature.tempvec, i)
             extrapolate!(Humidity_ittm2Ext, model.variables.humidity.Humidity, i)
