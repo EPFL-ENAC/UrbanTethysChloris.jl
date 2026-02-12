@@ -1,56 +1,30 @@
 """
     precalculate_for_faster_numerical_solution(
+        model::Model{FT},
+        TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
+        Humidity_ittm::ModelComponents.ModelVariables.Humidity{FT},
+        SoilPotW_ittm::ModelComponents.ModelVariables.SoilPotW{FT},
+        CiCO2Leaf_ittm::ModelComponents.ModelVariables.CiCO2Leaf{FT},
+        RES_ittm::ModelComponents.ModelVariables.Resistance{FT},
         ittn::Int,
         ittm::Int,
-        TempVec_ittm::NamedTuple,
-        Humidity_ittm::NamedTuple,
-        ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
-        SoilPotW_ittm::NamedTuple,
-        CiCO2Leaf_ittm::NamedTuple,
-        MeteoData::NamedTuple,
-        HumidityAtm::NamedTuple,
-        geometry::ModelComponents.Parameters.UrbanGeometryParameters{FT},
-        FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
-        PropOpticalGround::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
-        PropOpticalWall::ModelComponents.Parameters.SimpleOpticalProperties{FT},
-        PropOpticalTree::ModelComponents.Parameters.SimpleOpticalProperties{FT},
-        ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
-        SunPosition::NamedTuple,
         ViewFactor::RayTracing.ViewFactor{FT},
-        ParWindows::ModelComponents.Parameters.WindowParameters{FT},
         BEM_on::Bool,
-        ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
-        PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
-        FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
-        RES::NamedTuple,
     ) where {FT<:AbstractFloat}
 
 Calculate enhancement factor and precalculate stomatal resistances for faster numerical solution.
 
 # Arguments
-- `ittn::Int`: Current Newton iteration index
-- `ittm::Int`: Current time step index
+- `model::Model{FT}`: The model instance containing variables and parameters
 - `TempVec_ittm`: Temperature vector containing surface temperatures
 - `Humidity_ittm`: Humidity data structure
-- `ParVegGround`: Ground vegetation parameters
 - `SoilPotW_ittm`: Soil water potential data
 - `CiCO2Leaf_ittm`: Leaf CO2 concentration data
-- `MeteoData`: Meteorological data structure
-- `HumidityAtm`: Atmospheric humidity data structure
-- `geometry`: Urban geometry parameters
-- `FractionsGround`: Ground surface fractions
-- `PropOpticalGround`: Ground optical properties
-- `PropOpticalWall`: Wall optical properties
-- `PropOpticalTree`: Tree optical properties
-- `ParVegTree`: Tree vegetation parameters
-- `SunPosition`: Sun position parameters
+- `RES_ittm`: Resistance values from previous iterations
+- `ittn::Int`: Current time step index
+- `ittm::Int`: Current sensitivity index
 - `ViewFactor`: View factors between urban surfaces
-- `ParWindows`: Window parameters
 - `BEM_on`: Building energy model flag
-- `ParVegRoof`: Roof vegetation parameters
-- `PropOpticalRoof`: Roof optical properties
-- `FractionsRoof`: Roof surface fractions
-- `RES`: Resistance values from previous iterations
 
 # Returns
 - `fconv`: Enhancement factor for convective resistance [-]
@@ -76,6 +50,7 @@ function precalculate_for_faster_numerical_solution(
     Humidity_ittm::ModelComponents.ModelVariables.Humidity{FT},
     SoilPotW_ittm::ModelComponents.ModelVariables.SoilPotW{FT},
     CiCO2Leaf_ittm::ModelComponents.ModelVariables.CiCO2Leaf{FT},
+    RES_ittm::ModelComponents.ModelVariables.Resistance{FT},
     ittn::Int,
     ittm::Int,
     ViewFactor::RayTracing.ViewFactor{FT},
@@ -103,7 +78,7 @@ function precalculate_for_faster_numerical_solution(
         model.parameters.vegetation.roof,
         model.parameters.optical.roof,
         model.parameters.surfacefractions.roof,
-        model.variables.environmentalconditions.resistance,
+        RES_ittm,
     )
 end
 
@@ -129,7 +104,7 @@ function precalculate_for_faster_numerical_solution(
     ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
     PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
     FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
-    RES::ModelComponents.ModelVariables.Resistance{FT},
+    RES_ittm::ModelComponents.ModelVariables.Resistance{FT},
 ) where {FT<:AbstractFloat}
 
     # Calculate enhancement factor based on ra_original of previous time step
@@ -161,7 +136,7 @@ function precalculate_for_faster_numerical_solution(
             zoh_town = zom_town / FT(10)       # Heat roughness length of canyon
 
             fconv, _, _, _ = enhancement_factor_ra_pleim(
-                RES.raCanyontoAtmOrig,
+                RES_ittm.raCanyontoAtmOrig,
                 zom_town,
                 zoh_town,
                 dcan,
@@ -200,8 +175,8 @@ function precalculate_for_faster_numerical_solution(
                 SoilPotW_ittm,
                 CiCO2Leaf_ittm,
                 PropOpticalRoof,
-                RES.raRooftoAtm,
-                RES.rb_LRoof,
+                RES_ittm.raRooftoAtm,
+                RES_ittm.rb_LRoof,
             )
         end
     else
@@ -260,10 +235,10 @@ function precalculate_for_faster_numerical_solution(
             ViewFactor,
             ParWindows,
             BEM_on,
-            RES.rb_LGround,
-            RES.rb_HGround,
-            RES.rap_can,
-            RES.rap_Htree_In,
+            RES_ittm.rb_LGround,
+            RES_ittm.rb_HGround,
+            RES_ittm.rap_can,
+            RES_ittm.rap_Htree_In,
         )
     end
 

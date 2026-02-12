@@ -75,6 +75,7 @@ function run_simulation(
     Runon_ittm = deepcopy(model.variables.waterflux.Runon)
     TempDamp_ittm = deepcopy(model.variables.temperature.tempdamp)
     Qinlat_ittm = deepcopy(model.variables.waterflux.Qinlat)
+    RES_ittm = deepcopy(model.variables.environmentalconditions.resistance)
 
     TempVec_ittm2Ext = ExtrapolatedTempVec(model.variables.temperature.tempvec)
     Humidity_ittm2Ext = ExtrapolatedHumidity(model.variables.humidity.Humidity)
@@ -117,6 +118,7 @@ function run_simulation(
                 Humidity_ittm,
                 SoilPotW_ittm,
                 CiCO2Leaf_ittm,
+                RES_ittm,
                 i,
                 1,
                 ViewFactor,
@@ -319,6 +321,7 @@ function run_simulation(
         update!(TempDamp_ittm, model.variables.temperature.tempdamp)
         update!(Runon_ittm, model.variables.waterflux.Runon)
         update!(Qinlat_ittm, model.variables.waterflux.Qinlat)
+        update!(RES_ittm, model.variables.environmentalconditions.resistance)
 
         urban_averages!(model)
 
