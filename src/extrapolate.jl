@@ -245,7 +245,7 @@ end
 function Meteotm1(
     x::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0}
 ) where {FT<:AbstractFloat}
-    SWRin = x.SAB1_in + x.SAB1_in + x.SAD1_in + x.SAD2_in
+    SWRin = x.SAB1_in + x.SAB2_in + x.SAD1_in + x.SAD2_in
     return Meteotm1{FT}(;
         SWRin=SVector{2,FT}(SWRin, SWRin), Rain=SVector{2,FT}(x.Rain, x.Rain)
     )
@@ -254,7 +254,7 @@ end
 function update!(
     y::Meteotm1{FT}, x::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0}
 ) where {FT<:AbstractFloat}
-    SWRin = x.SAB1_in + x.SAB1_in + x.SAD1_in + x.SAD2_in
+    SWRin = x.SAB1_in + x.SAB2_in + x.SAD1_in + x.SAD2_in
     y.SWRin = SVector{2,FT}(y.SWRin[2], SWRin)
     y.Rain = SVector{2,FT}(y.Rain[2], x.Rain)
 
