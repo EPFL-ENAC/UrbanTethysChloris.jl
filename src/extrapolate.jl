@@ -3,22 +3,21 @@ abstract type AbstractExtrapoledModelVariables{FT<:AbstractFloat} end
 """
     extrapolate!(y::AbstractExtrapoledModelVariables{FT}, x::T, i::Signed) where {FT<:AbstractFloat,T}
 
-Extrapolates the values in `x` into the extrapolated model variables `y`. The parameter `i`
-indicates the current iteration number. If `i > 2`, a linear extrapolation is performed
-based on the last two known values. If `i ≤ 2`, the values from `x` are simply duplicated to
-fill the extrapolated structure.
+Extrapolates the values in `x` into the extrapolated model variables `y`, if and only if the iteration number `i` is greater than 2.
+
+# Arguments
+- `y::AbstractExtrapoledModelVariables{FT}`: The extrapolated model variables to be updated
+- `x::T`: The model variables to extrapolate from
+- `i::Signed`: The current iteration number
 """
 function extrapolate!(
     y::AbstractExtrapoledModelVariables{FT}, x::T, i::Signed
 ) where {FT<:AbstractFloat,T}
     if i > 2
         extrapolate!(y, x)
-    else
-        for field in fieldnames(T)
-            tm1 = getfield(x, field)
-            setfield!(y, field, SVector{4,FT}(tm1, tm1, tm1, tm1))
-        end
     end
+
+    return nothing
 end
 
 function extrapolate!(
@@ -246,7 +245,7 @@ end
 function Meteotm1(
     x::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0}
 ) where {FT<:AbstractFloat}
-    SWRin = x.SAB1_in + x.SAB2_in + x.SAD1_in + x.SAD2_in
+    SWRin = x.SAB1_in + x.SAB1_in + x.SAD1_in + x.SAD2_in
     return Meteotm1{FT}(;
         SWRin=SVector{2,FT}(SWRin, SWRin), Rain=SVector{2,FT}(x.Rain, x.Rain)
     )
@@ -255,7 +254,7 @@ end
 function update!(
     y::Meteotm1{FT}, x::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0}
 ) where {FT<:AbstractFloat}
-    SWRin = x.SAB1_in + x.SAB2_in + x.SAD1_in + x.SAD2_in
+    SWRin = x.SAB1_in + x.SAB1_in + x.SAD1_in + x.SAD2_in
     y.SWRin = SVector{2,FT}(y.SWRin[2], SWRin)
     y.Rain = SVector{2,FT}(y.Rain[2], x.Rain)
 

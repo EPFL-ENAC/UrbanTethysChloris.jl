@@ -100,14 +100,14 @@ function run_simulation(
         @info "Starting iteration $i / $NN"
 
         if i > 1
+            extrapolate!(TempVec_ittm2Ext, model.variables.temperature.tempvec, i)
+            extrapolate!(Humidity_ittm2Ext, model.variables.humidity.Humidity, i)
+            extrapolate!(TempVecB_ittm2Ext, model.variables.buildingenergymodel.TempVecB, i)
             # TODO: bring HumidityAtm back to the forcing inputs
             # TODO rename as "apply forcing"
             update!(model.variables.humidity.Humidity, model.forcing.meteorological)
             update!(model.variables.temperature.tempvec, model.forcing.meteorological)
             update!(Meteo_ittm, model.forcing.meteorological)
-            extrapolate!(TempVec_ittm2Ext, model.variables.temperature.tempvec, i)
-            extrapolate!(Humidity_ittm2Ext, model.variables.humidity.Humidity, i)
-            extrapolate!(TempVecB_ittm2Ext, model.variables.buildingenergymodel.TempVecB, i)
         end
 
         if RESPreCalc || fconvPreCalc
