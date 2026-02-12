@@ -228,7 +228,7 @@ function initialize!(
     ground_init = soil_values.ground.O33 * soil_values.ground.dz
     ground_fields = [:VGroundSoilImp, :VGroundSoilBare, :VGroundSoilVeg, :VGroundSoilTot]
     for field in ground_fields
-        setproperty!(x, field, ground_init)
+        setproperty!(x, field, copy(ground_init))
     end
 
     return nothing
