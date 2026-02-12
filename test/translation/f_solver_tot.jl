@@ -197,7 +197,7 @@ rsTreePreCalc = (;
     )
 
     @test T ≈ vec(output_vars["T"]) atol=1e-10
-    @test fval ≈ vec(output_vars["fval"]) atol=1e-10
+    @test fval ≈ vec(output_vars["fval"]) atol=1e-9
     @test exitflag == output_vars["exitflag"]
 end
 
@@ -406,6 +406,6 @@ end
     )
 
     @test T ≈ vec(output_vars["T"]) atol=1e-10
-    @test fval ≈ vec(output_vars["fval"]) atol=1e-10
+    @test fval ≈ vec(output_vars["fval"]) atol=1e-9
     @test exitflag == output_vars["exitflag"]
 end

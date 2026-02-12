@@ -526,6 +526,18 @@ function Owater(::Type{FT}, data::AbstractDict) where {FT<:AbstractFloat}
     )
 end
 
+function update!(
+    dest::Owater{FT,MR,MG}, src::Owater{FT,MR,MG}
+) where {FT<:AbstractFloat,MR,MG}
+    dest.OwRoofSoilVeg .= src.OwRoofSoilVeg
+    dest.OwGroundSoilImp .= src.OwGroundSoilImp
+    dest.OwGroundSoilBare .= src.OwGroundSoilBare
+    dest.OwGroundSoilVeg .= src.OwGroundSoilVeg
+    dest.OwGroundSoilTot .= src.OwGroundSoilTot
+
+    return nothing
+end
+
 """
     fix_soil_moisture!(
         dest::Owater{FT,MR,MG},

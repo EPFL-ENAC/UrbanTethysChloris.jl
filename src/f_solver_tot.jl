@@ -87,6 +87,13 @@ function f_solver_tot!(
     TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
     TempVecB_ittm::ModelComponents.ModelVariables.TempVecB{FT},
     Humidity_ittm::ModelComponents.ModelVariables.Humidity{FT},
+    Int_ittm::ModelComponents.ModelVariables.Interception{FT},
+    ExWater_ittm::ModelComponents.ModelVariables.ExWater{FT,MR,MG},
+    Vwater_ittm::ModelComponents.ModelVariables.Vwater{FT,MR,MG},
+    Owater_ittm::ModelComponents.ModelVariables.Owater{FT,MR,MG},
+    SoilPotW_ittm::ModelComponents.ModelVariables.SoilPotW{FT},
+    CiCO2Leaf_ittm::ModelComponents.ModelVariables.CiCO2Leaf{FT},
+    TempDamp_ittm::ModelComponents.ModelVariables.TempDamp{FT},
     ViewFactor::RayTracing.ViewFactor{FT},
     WallLayers::NamedTuple,
     ParInterceptionTree::NamedTuple,
@@ -105,19 +112,19 @@ function f_solver_tot!(
     rsTreePreCalc::NamedTuple;
     iterations::Int=500,
     f_tol::Real=1e-10,
-) where {FT<:AbstractFloat}
+) where {FT<:AbstractFloat,MR,MG}
     Ttot, fval, exitflag = f_solver_tot(
         TempVec_ittm,
         TempVecB_ittm,
         Humidity_ittm,
         model.forcing.meteorological,
-        model.variables.waterflux.Interception,
-        model.variables.waterflux.ExWater,
-        model.variables.waterflux.Vwater,
-        model.variables.waterflux.Owater,
-        model.variables.waterflux.SoilPotW,
-        model.variables.waterflux.CiCO2Leaf,
-        model.variables.temperature.tempdamp,
+        Int_ittm,
+        ExWater_ittm,
+        Vwater_ittm,
+        Owater_ittm,
+        SoilPotW_ittm,
+        CiCO2Leaf_ittm,
+        TempDamp_ittm,
         ViewFactor,
         model.parameters.urbangeometry,
         model.parameters.surfacefractions.ground,
@@ -232,10 +239,9 @@ function f_solver_tot(
     fvals = fill(fill(typemax(FT), 22), 6)
     ran_simulation = [true, false, false, false, false, false]
     Ts = Vector{Vector{FT}}(undef, 6)
-    exitflags = Vector{Bool}(undef, 6)
+    exitflags = fill(false, 6)
 
     # Attempt 1: Use previous timestep as initial guess
-    # @infiltrate
     if BEM_on
         TemperatureTot = [
             TempVec_ittm2Ext.TRoofImp[3],
@@ -289,7 +295,6 @@ function f_solver_tot(
     end
 
     # TODO: set 273.15 as global constant
-
     # Define target function for optimization
     function target_fun(TemperatureTot)
         return eb_solver_urban_climate_building_energy_model(

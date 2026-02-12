@@ -95,6 +95,15 @@ function update!(x::TempVec{FT}, y::TempVec{FT}) where {FT<:AbstractFloat}
     x.TCanyon = y.TCanyon
     x.Tatm = y.Tatm
     x.T2m = y.T2m
+
+    return nothing
+end
+
+function update!(x::TempVec{FT}, meteo) where {FT<:AbstractFloat}
+    x.Tatm = meteo.Tatm
+    x.T2m = meteo.Tatm
+
+    return nothing
 end
 
 """

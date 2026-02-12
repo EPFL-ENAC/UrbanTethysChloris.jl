@@ -6,6 +6,8 @@ using ..RayTracing
 using ..Soil
 using ..Radiation
 using ..UrbanTethysChloris: Model
+using SimpleNonlinearSolve: IntervalNonlinearProblem, solve, Brent
+using SciMLBase: successful_retcode
 
 include("aerodynamic_resistance.jl")
 include("backcalculate_obhukov_length.jl")

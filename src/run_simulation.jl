@@ -29,7 +29,7 @@ function run_simulation(
     # TODO: initialize in initialize! function?
     if model.parameters.surfacefractions.roof.fimp == 1
         model.variables.waterflux.Vwater.VRoofSoilVeg[:] .= 0
-        model.variables.waterflux.Owater.ORoofSoilVeg[:] .= 0
+        model.variables.waterflux.Owater.OwRoofSoilVeg[:] .= 0
     end
 
     if model.parameters.surfacefractions.ground.fimp == 1
@@ -62,9 +62,20 @@ function run_simulation(
     Ttot = nothing
     Yroof, Ycanyon, YBuildInt = nothing, nothing, nothing
 
+    # TODO: create a modeltm1, modeltm2 structures, to stop all the _ittm and _ittm2Ext
     TempVec_ittm = deepcopy(model.variables.temperature.tempvec)
     Humidity_ittm = deepcopy(model.variables.humidity.Humidity)
     TempVecB_ittm = deepcopy(model.variables.buildingenergymodel.TempVecB)
+    Int_ittm = deepcopy(model.variables.waterflux.Interception)
+    ExWater_ittm = deepcopy(model.variables.waterflux.ExWater)
+    Vwater_ittm = deepcopy(model.variables.waterflux.Vwater)
+    Owater_ittm = deepcopy(model.variables.waterflux.Owater)
+    SoilPotW_ittm = deepcopy(model.variables.waterflux.SoilPotW)
+    CiCO2Leaf_ittm = deepcopy(model.variables.waterflux.CiCO2Leaf)
+    Runon_ittm = deepcopy(model.variables.waterflux.Runon)
+    TempDamp_ittm = deepcopy(model.variables.temperature.tempdamp)
+    Qinlat_ittm = deepcopy(model.variables.waterflux.Qinlat)
+    RES_ittm = deepcopy(model.variables.environmentalconditions.resistance)
 
     TempVec_ittm2Ext = ExtrapolatedTempVec(model.variables.temperature.tempvec)
     Humidity_ittm2Ext = ExtrapolatedHumidity(model.variables.humidity.Humidity)
@@ -76,9 +87,9 @@ function run_simulation(
     T2m = FT(NaN)
     RH_T2m = FT(NaN)
 
-    results_dict, accessors = prepare_results(typeof(output_level), model, NN)
+    results, accessors = prepare_results(typeof(output_level), model, NN)
 
-    results_dict[:OwaterInitial] = Dict{Symbol,Array}(
+    results[:OwaterInitial] = Dict{Symbol,Array}(
         :OwRoofSoilVeg => OwaterInitial.OwRoofSoilVeg,
         :OwGroundSoilImp => OwaterInitial.OwGroundSoilImp,
         :OwGroundSoilBare => OwaterInitial.OwGroundSoilBare,
@@ -90,17 +101,28 @@ function run_simulation(
         @info "Starting iteration $i / $NN"
 
         if i > 1
-            # TODO: bring HumidityAtm back to the forcing inputs
-            update!(model.variables.humidity.Humidity, model.forcing.meteorological)
-            update!(Meteo_ittm, model.forcing.meteorological)
             extrapolate!(TempVec_ittm2Ext, model.variables.temperature.tempvec, i)
             extrapolate!(Humidity_ittm2Ext, model.variables.humidity.Humidity, i)
             extrapolate!(TempVecB_ittm2Ext, model.variables.buildingenergymodel.TempVecB, i)
+            # TODO: bring HumidityAtm back to the forcing inputs
+            # TODO rename as "apply forcing"
+            update!(model.variables.humidity.Humidity, model.forcing.meteorological)
+            update!(model.variables.temperature.tempvec, model.forcing.meteorological)
+            update!(Meteo_ittm, model.forcing.meteorological)
         end
 
         if RESPreCalc || fconvPreCalc
             fconv, rsRoofPreCalc, rsGroundPreCalc, rsTreePreCalc = Resistance.precalculate_for_faster_numerical_solution(
-                model, i, 1, ViewFactor, BEM_on
+                model,
+                TempVec_ittm,
+                Humidity_ittm,
+                SoilPotW_ittm,
+                CiCO2Leaf_ittm,
+                RES_ittm,
+                i,
+                1,
+                ViewFactor,
+                BEM_on,
             )
         else
             fconv = FT(NaN)
@@ -109,7 +131,9 @@ function run_simulation(
             rsTreePreCalc = (;)
         end
 
-        ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(model, BEM_on)
+        ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(
+            model, TempVecB_ittm, TempVec_ittm, Humidity_ittm, BEM_on
+        )
 
         EnergyUse = (;);
 
@@ -151,6 +175,13 @@ function run_simulation(
                 TempVec_ittm,
                 TempVecB_ittm,
                 Humidity_ittm,
+                Int_ittm,
+                ExWater_ittm,
+                Vwater_ittm,
+                Owater_ittm,
+                SoilPotW_ittm,
+                CiCO2Leaf_ittm,
+                TempDamp_ittm,
                 ViewFactor,
                 WallLayers,
                 ParInterceptionTree,
@@ -185,6 +216,13 @@ function run_simulation(
                 TR,
                 TB,
                 TempVec_ittm,
+                Int_ittm,
+                ExWater_ittm,
+                Vwater_ittm,
+                Owater_ittm,
+                SoilPotW_ittm,
+                CiCO2Leaf_ittm,
+                Runon_ittm,
                 ParCalculation,
                 BEM_on,
                 RESPreCalc,
@@ -198,6 +236,15 @@ function run_simulation(
                 TempVec_ittm,
                 Humidity_ittm,
                 TempVecB_ittm,
+                Int_ittm,
+                ExWater_ittm,
+                Vwater_ittm,
+                Owater_ittm,
+                SoilPotW_ittm,
+                CiCO2Leaf_ittm,
+                TempDamp_ittm,
+                Runon_ittm,
+                Qinlat_ittm,
                 ViewFactor,
                 WallLayers,
                 ParInterceptionTree,
@@ -222,6 +269,7 @@ function run_simulation(
                 TempVecB_ittm,
                 TempVec_ittm,
                 Humidity_ittm,
+                TempDamp_ittm,
                 SWRinWsun,
                 SWRinWshd,
                 G2Roof,
@@ -264,16 +312,31 @@ function run_simulation(
         update!(TempVecB_ittm, model.variables.buildingenergymodel.TempVecB)
         update!(TempVec_ittm, model.variables.temperature.tempvec)
         update!(Humidity_ittm, model.variables.humidity.Humidity)
+        update!(Int_ittm, model.variables.waterflux.Interception)
+        update!(ExWater_ittm, model.variables.waterflux.ExWater)
+        update!(Vwater_ittm, model.variables.waterflux.Vwater)
+        update!(Owater_ittm, model.variables.waterflux.Owater)
+        update!(SoilPotW_ittm, model.variables.waterflux.SoilPotW)
+        update!(CiCO2Leaf_ittm, model.variables.waterflux.CiCO2Leaf)
+        update!(TempDamp_ittm, model.variables.temperature.tempdamp)
+        update!(Runon_ittm, model.variables.waterflux.Runon)
+        update!(Qinlat_ittm, model.variables.waterflux.Qinlat)
+        update!(RES_ittm, model.variables.environmentalconditions.resistance)
 
         urban_averages!(model)
 
-        assign_results!(results_dict, accessors, model, i)
+        assign_results!(results, accessors, model, i)
 
         # Update forcing parameters for the next step
         model.forcing = forcing[i + 1]
     end
 
-    return results_dict, ViewFactor, ViewFactorPoint
+    # reset all EB variables of the first step to 0, similar to MATLAB
+    for var in fieldnames(typeof(model.variables.energybalance.EB))
+        results[:EB][var][1] = 0
+    end
+
+    return results, ViewFactor, ViewFactorPoint
 end
 
 function roof_temperature(

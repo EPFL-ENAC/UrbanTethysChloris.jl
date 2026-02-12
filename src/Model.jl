@@ -79,7 +79,7 @@ function initialize!(
     initialize!(model.variables.temperature.tempdamp, forcing.meteorological.Tatm)
 
     # Initialize humidity canyon specific variable with atmospheric specific humidity
-    initialize!(model.variables.humidity.Humidity, model.forcing.meteorological.q_atm)
+    initialize!(model.variables.humidity.Humidity, model.forcing.meteorological)
 
     # Initialize the soil moisture at field capacity
     initialize!(
@@ -131,12 +131,19 @@ function initialize!(
 end
 
 function initialize!(
-    x::ModelComponents.ModelVariables.Humidity{FT}, AtmSpecific::FT
+    x::ModelComponents.ModelVariables.Humidity{FT},
+    meteo::ModelComponents.ForcingInputs.MeteorologicalInputs{FT},
 ) where {FT<:AbstractFloat}
     # q2m is technically initialize as MeteoData.q_atm but this corresponds to
     # AtmSpecific, so we use AtmSpecific here for simplicity
-    setproperty!(x, :CanyonSpecific, AtmSpecific)
-    setproperty!(x, :q2m, AtmSpecific)
+    setproperty!(x, :CanyonSpecific, meteo.q_atm)
+    setproperty!(x, :q2m, meteo.q_atm)
+    setproperty!(x, :AtmRelative, meteo.AtmRelative)
+    setproperty!(x, :AtmSpecific, meteo.AtmSpecific)
+    setproperty!(x, :AtmVapourPre, meteo.AtmVapourPre)
+    setproperty!(x, :AtmRelativeSat, meteo.AtmRelativeSat)
+    setproperty!(x, :AtmSpecificSat, meteo.AtmSpecificSat)
+    setproperty!(x, :AtmVapourPreSat, meteo.AtmVapourPreSat)
 
     return nothing
 end
@@ -221,7 +228,7 @@ function initialize!(
     ground_init = soil_values.ground.O33 * soil_values.ground.dz
     ground_fields = [:VGroundSoilImp, :VGroundSoilBare, :VGroundSoilVeg, :VGroundSoilTot]
     for field in ground_fields
-        setproperty!(x, field, ground_init)
+        setproperty!(x, field, copy(ground_init))
     end
 
     return nothing

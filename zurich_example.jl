@@ -37,16 +37,17 @@ view_factor_point = ViewFactorPoint{Float64}(;
     F_pt=0.045338308457711474,
 );
 
-yaml_path = joinpath(@__DIR__, "data", "parameters.yaml")
-ncdf_path = joinpath(@__DIR__, "data", "input_data.nc")
+yaml_path = joinpath(@__DIR__, "data", "zurich_parameters.yaml")
+ncdf_path = joinpath(@__DIR__, "data", "zurich_data.nc")
 
 model, forcing = create_model(FT, ncdf_path, yaml_path);
+
+initialize!(model, forcing)
+
 O33 = (
     roof=model.variables.waterflux.Owater.OwRoofSoilVeg[1],
     ground=model.variables.waterflux.Owater.OwGroundSoilVeg[1],
 )
-
-initialize!(model, forcing)
 
 NN = 100
 results, view_factor_out, view_factor_point_out = run_simulation(

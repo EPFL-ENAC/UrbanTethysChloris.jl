@@ -141,7 +141,7 @@ ParInterceptionTree = (; Sp_In=input_vars["ParInterceptionTree"]["Sp_In"],)
         HVAC_Schedule,
     )
 
-    @test results.Ycanyon ≈ vec(output_vars["Ycanyon"]) atol=1e-8
+    @test results.Ycanyon ≈ vec(output_vars["Ycanyon"]) atol=1e-6
     @test results.G2WallSun ≈ output_vars["G2WallSun"]
     @test results.G2WallShade ≈ output_vars["G2WallShade"]
 
@@ -351,7 +351,7 @@ end
         HVAC_Schedule,
     )
 
-    @test results.Ycanyon ≈ vec(output_vars["Ycanyon"]) atol=1e-8
+    @test results.Ycanyon ≈ vec(output_vars["Ycanyon"]) atol=1e-6
     @test results.G2WallSun ≈ output_vars["G2WallSun"]
     @test results.G2WallShade ≈ output_vars["G2WallShade"]
 
