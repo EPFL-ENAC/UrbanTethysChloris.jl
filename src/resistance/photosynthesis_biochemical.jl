@@ -208,7 +208,7 @@ function photosynthesis_biochemical(
         JE = TPU * FT(3)
     elseif CT == 4
         JC = Vm
-        JL = J / FT(4)
+        JL = Q
         JE = ke * Cc / Pre
     end
 
@@ -283,5 +283,6 @@ function photosynthesis_biochemical(
     CcF /= (Pre * FT(1e-6))  # Convert back to [μmolCO₂/molAIR]
     rs = rsH2O * (Tf * Pre) / (FT(0.0224) * (Ts + Tf) * Pre0)  # [s/m]
 
+    # @infiltrate
     return CcF, An, rs, Rdark, F755nm, GAM, gsCO2
 end

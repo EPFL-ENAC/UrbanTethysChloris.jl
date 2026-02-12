@@ -114,3 +114,62 @@ end
 
     @test CcF ≈ 329.4521734704098
 end
+
+@testset "MATLAB" begin
+    a1 = 5.0
+    Cc = 4.420097675643373e+02
+    Csl = 400.0
+    CT = 4
+    Do = 2000.0
+    Ds = 1.139931698763772e+02
+    DS = 0.649
+    FI = 0.040
+    gmes = Inf
+    go = 0.01
+    Ha = 72.0
+    IPAR = 8.316346043338774
+    Oa = 210000.0
+    Pre = 9.954590600000000e+02
+    Psi_L = -0.034533250966303
+    Psi_sto_00 = -0.5
+    Psi_sto_50 = -1.6
+    Ts = 12.564639365338962
+    Vmax = 40.900673280414473
+    ra = 1.992126748077743e+02
+    rb = 52.861677231827770
+    rjv = 2.1
+
+    # Call the function with the test values
+    CcF, An, rs, Rdark, F755nm, GAM, gsCO2 = photosynthesis_biochemical(
+        Cc,
+        IPAR,
+        Csl,
+        ra,
+        rb,
+        Ts,
+        Pre,
+        Ds,
+        Psi_L,
+        Psi_sto_50,
+        Psi_sto_00,
+        CT,
+        Vmax,
+        DS,
+        Ha,
+        FI,
+        Oa,
+        Do,
+        a1,
+        go,
+        gmes,
+        rjv,
+    )
+
+    @test CcF ≈ 346.453047878855
+    @test An ≈ 1.001323767012722
+    @test rs ≈ 1201.607221875981
+    @test Rdark ≈ 0.431845909261024
+    @test F755nm ≈ 0.336136823355323
+    @test GAM ≈ 2.190225452077582
+    @test gsCO2 ≈ 21277.52485967636
+end
