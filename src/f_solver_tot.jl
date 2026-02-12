@@ -242,7 +242,6 @@ function f_solver_tot(
     exitflags = fill(false, 6)
 
     # Attempt 1: Use previous timestep as initial guess
-    # @infiltrate
     if BEM_on
         TemperatureTot = [
             TempVec_ittm2Ext.TRoofImp[3],

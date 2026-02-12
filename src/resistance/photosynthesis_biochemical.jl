@@ -283,6 +283,5 @@ function photosynthesis_biochemical(
     CcF /= (Pre * FT(1e-6))  # Convert back to [μmolCO₂/molAIR]
     rs = rsH2O * (Tf * Pre) / (FT(0.0224) * (Ts + Tf) * Pre0)  # [s/m]
 
-    # @infiltrate
     return CcF, An, rs, Rdark, F755nm, GAM, gsCO2
 end
