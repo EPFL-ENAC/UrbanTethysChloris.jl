@@ -331,6 +331,11 @@ function run_simulation(
         model.forcing = forcing[i + 1]
     end
 
+    # reset all EB variables of the first step to 0, similar to MATLAB
+    for var in fieldnames(typeof(model.variables.energybalance.EB))
+        results_dict[:EB][var][1] = 0
+    end
+
     return results_dict, ViewFactor, ViewFactorPoint
 end
 
