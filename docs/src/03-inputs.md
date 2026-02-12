@@ -6,7 +6,7 @@ The configuration file is a YAML file that contains various parameters necessary
 
 The forcing file is a NetCDF file that provides the environmental data needed for the model. The NetCDF file is created using a mixture of the `Data_UEHM_site_*_LCZ3` files and the MAT files associated with the original MATLAB code, as well as some hard-coded initialization values.
 
-The `data-raw/create_*_data.jl` scripts are examples of how to create these input files from the original MATLAB data. This script is designed to generate the necessary input files in the correct format for TethysChloris.jl.
+The `data-raw/create_*_data.jl` scripts are examples of how to create these input files from the original MATLAB data. This script is designed to generate the necessary input files in the correct format for UrbanTethysChloris.jl.
 
 ## Converting the MATLAB timetable to a struct
 
