@@ -20,21 +20,25 @@ If you use UrbanTethysChloris.jl in your work, please cite using the reference g
 
 If you want to make contributions of any kind, please first that a look into our [contributing guide directly on GitHub](docs/src/90-contributing.md) or the [contributing page on the website](https://EPFL-ENAC.github.io/UrbanTethysChloris.jl/dev/90-contributing/)
 
-### Creating example input data
+## Example
 
-To create example input data based on the Zurich example in the [original MATLAB code](https://github.com/NaikaMeili/UTC_BEM_ModelCode), run the `data-raw/create_input_data` script. The script will automatically create a `data` subfolder and download a MAT file, `ForcingData_ZH2010.mat`, as well as create an example NetCDF and YAML input for the model. Lastly, smaller files will also be created based on the Zurich example for testing purposes.
-
-First, instantiate the environment and manually add the MAT package:
+8 examples across the globe are provided alongside this package, in `/examples`. Before running the scripts, the Julia environments for the examples must be instantiated with
 
 ```bash
-julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.add("MAT")'
+julia --project=examples -e 'using Pkg; Pkg.instantiate();'
 ```
 
-Then, run the script:
+For each example, two scripts are provided: `create_<location_name>_data.jl` and `<location_name>_example.jl`. The first script will download the MATLAB files from the [MATLAB version of UT&C](https://github.com/NaikaMeili/UTC_BEM_ModelCode) and create the NetCDF and YAML files containing the parameters and forcing inputs necessary to run the simulation. Please note that the forcing inputs are stored as timetables and need to be converted to a MATLAB `struct`, as described in the documentation.
+
+The first script of a given location can be run from the command line as
 
 ```bash
-julia --project=. data-raw/create_input_data.jl
+julia --project=examples examples/<location_name>/create_<location_name>_data.jl
 ```
+
+The second script shows how to run the simulation, given the parameters and forcing inputs, as well as visualizing the results.
+
+<!-- TODO: create a first intermediate script to download the data -->
 
 ---
 
