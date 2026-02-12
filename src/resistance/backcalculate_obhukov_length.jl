@@ -31,12 +31,12 @@ function backcalculate_obhukov_length(
     f(x, p) = solve_obhukov_length(x, ra, zom, zoh, z, u)
     rb = -eps(FT)
     frb = f(rb, nothing)
-    lb = -10
+    lb = -10.0
     flb = f(lb, nothing)
     while sign(frb) == sign(flb)
-        rb *= 10
-        frb = f(rb, nothing)
-        if abs(rb) > 1e6
+        lb *= 10
+        flb = f(lb, nothing)
+        if abs(lb) > 1e6
             @debug "backcalculate_obhukov_length does not change sign in the range, setting LAN to -Inf."
             return FT(-Inf), solve_obhukov_length(FT(-Inf), ra, zom, zoh, z, u)
         end
@@ -56,8 +56,7 @@ function backcalculate_obhukov_length(
     end
 
     LAN = sol.u
-
-    Diff_ra = solve_obhukov_length(LAN, ra, zom, zoh, z, u)
+    Diff_ra = sol.resid
 
     return LAN, Diff_ra
 end
