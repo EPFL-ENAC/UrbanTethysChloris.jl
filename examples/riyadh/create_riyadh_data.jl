@@ -12,8 +12,8 @@ data_dir = joinpath(@__DIR__, "data")
 # Define files and their GitHub URLs
 repo_url = "https://github.com/NaikaMeili/UTC_BEM_ModelCode/raw/61af9eeeca7c0fbe6ae19a8d78f4f481c45826aa/UTC_Model"
 files = Dict(
-    "TMYNewDelhi_RadPart.mat" => repo_url * "/+data_functions/TMYNewDelhi_RadPart.mat",
-    "ViewFactor_NDLCZ3.mat" => repo_url * "/+data_functions/ViewFactor_ND_LCZ3.mat",
+    "TMYRiyadh_RadPart.mat" => repo_url * "/+data_functions/TMYRiyadh_RadPart.mat",
+    "ViewFactor_RY_LCZ3.mat" => repo_url * "/+data_functions/ViewFactor_RY_LCZ3.mat",
 )
 
 # Check each file and download if missing
@@ -100,35 +100,35 @@ data["vegetation"]["roof"]["h_disp"] = 2.0 / 3.0 * data["vegetation"]["roof"]["h
 
 ## Ground
 data["vegetation"]["ground"] = Dict{String,Any}(
-    "LAI" => 2.5,
+    "LAI" => 1.5,
     "SAI" => 0.001,
-    "hc" => 0.05,
-    "d_leaf" => 2.0,
+    "hc" => 0.1,
+    "d_leaf" => 0.8,
     "CASE_ROOT" => 1,
-    "ZR95" => [300.0],
+    "ZR95" => [250.0],
     "ZR50" => [NaN],
     "ZRmax" => [NaN],
-    "Rrootl" => [4000.0],
-    "PsiL50" => [-2.0],
-    "PsiX50" => [-5.5],
-    "FI" => 0.04,
+    "Rrootl" => [2000.0],
+    "PsiL50" => [-2.5],
+    "PsiX50" => [-3.5],
+    "FI" => 0.081,
     "Do" => 2000.0,
-    "a1" => 5.0,
+    "a1" => 6.0,
     "go" => 0.01,
-    "CT" => 4,
+    "CT" => 3,
     "DSE" => 0.649,
     "Ha" => 72.0,
     "gmes" => Inf,
-    "rjv" => 2.1,
+    "rjv" => 2.2,
     "Kopt" => 0.5,
-    "Knit" => 0.3,
-    "Vmax" => 54.0,
+    "Knit" => 0.2,
+    "Vmax" => 58.0,
     "mSl" => 0.0,
     "e_rel" => 1.0,
     "e_relN" => 1.0,
     "Psi_sto_00" => -0.5,
-    "Psi_sto_50" => -1.6,
-    "Sl" => 0.025,
+    "Psi_sto_50" => -3.0,
+    "Sl" => 0.022,
 )
 
 data["vegetation"]["ground"]["h_disp"] = 2.0 / 3.0 * data["vegetation"]["ground"]["hc"]
@@ -136,15 +136,15 @@ data["vegetation"]["ground"]["h_disp"] = 2.0 / 3.0 * data["vegetation"]["ground"
 ## Tree
 data["vegetation"]["tree"] = Dict{String,Any}(
     "LAI" => 3.0,
-    "SAI" => 0.2,
-    "d_leaf" => 5.0,
+    "SAI" => 0.1,
+    "d_leaf" => 1.5,
     "CASE_ROOT" => 1,
-    "ZR95" => [1500.0],
+    "ZR95" => [1000.0],
     "ZR50" => [NaN],
     "ZRmax" => [NaN],
-    "Rrootl" => [2200.0],
-    "PsiL50" => [-2.8],
-    "PsiX50" => [-4.5],
+    "Rrootl" => [1200.0],
+    "PsiL50" => [-1.2],
+    "PsiX50" => [-4.0],
     "FI" => 0.081,
     "Do" => 2000.0,
     "a1" => 9.0,
@@ -153,16 +153,16 @@ data["vegetation"]["tree"] = Dict{String,Any}(
     "DSE" => 0.649,
     "Ha" => 72.0,
     "gmes" => Inf,
-    "rjv" => 2.2,
+    "rjv" => 2.0,
     "Kopt" => 0.5,
-    "Knit" => 0.4,
-    "Vmax" => 49.0,
+    "Knit" => 0.25,
+    "Vmax" => 45.0,
     "mSl" => 0.0,
     "e_rel" => 1.0,
     "e_relN" => 1.0,
     "Psi_sto_00" => -0.9,
-    "Psi_sto_50" => -1.7,
-    "Sl" => 0.02,
+    "Psi_sto_50" => -2.0,
+    "Sl" => 0.015,
     "hc" => NaN,
 )
 
@@ -253,7 +253,7 @@ data["soil"]["ground"] = Dict{String,Any}(
         2000.0,
     ],
     "FixSM" => true,
-    "FixSM_LayerStart" => 11,
+    "FixSM_LayerStart" => 10,
     "FixSM_LayerEnd" => 13,
 )
 
@@ -321,13 +321,13 @@ data["person"] = Dict{String,Any}(
 )
 
 data["location"] = Dict{String,Any}(
-    "phi" => 28.6, "lambda" => 77.1, "theta_canyon" => deg2rad(45), "DeltaGMT" => 5.0
+    "phi" => 24.9, "lambda" => 46.7, "theta_canyon" => deg2rad(45), "DeltaGMT" => 3.0
 )
 
-YAML.write_file(joinpath(data_dir, "newdelhi_parameters.yaml"), data)
+YAML.write_file(joinpath(data_dir, "riyadh_parameters.yaml"), data)
 
 ## NetCDF section
-input_data = matread(joinpath(data_dir, "TMYNewDelhi_RadPart.mat"))
+input_data = matread(joinpath(data_dir, "TMYRiyadh_RadPart.mat"))
 input_data["Time"] = [
     DateTime(
         input_data["Time"][i, 1],
@@ -339,7 +339,7 @@ input_data["Time"] = [
 ]
 input_data["RelativeHumidity"] ./= 100.0
 
-filename = "newdelhi_data.nc"
+filename = "riyadh_data.nc"
 filepath = joinpath(data_dir, filename)
 
 isfile(filepath) && rm(filepath)

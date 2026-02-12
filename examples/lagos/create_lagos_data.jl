@@ -12,8 +12,8 @@ data_dir = joinpath(@__DIR__, "data")
 # Define files and their GitHub URLs
 repo_url = "https://github.com/NaikaMeili/UTC_BEM_ModelCode/raw/61af9eeeca7c0fbe6ae19a8d78f4f481c45826aa/UTC_Model"
 files = Dict(
-    "TMYNewDelhi_RadPart.mat" => repo_url * "/+data_functions/TMYNewDelhi_RadPart.mat",
-    "ViewFactor_NDLCZ3.mat" => repo_url * "/+data_functions/ViewFactor_ND_LCZ3.mat",
+    "TMYLagos_RadPart.mat" => repo_url * "/+data_functions/TMYLagos_RadPart.mat",
+    "ViewFactor_LG_LCZ3.mat" => repo_url * "/+data_functions/ViewFactor_LG_LCZ3.mat",
 )
 
 # Check each file and download if missing
@@ -321,13 +321,13 @@ data["person"] = Dict{String,Any}(
 )
 
 data["location"] = Dict{String,Any}(
-    "phi" => 28.6, "lambda" => 77.1, "theta_canyon" => deg2rad(45), "DeltaGMT" => 5.0
+    "phi" => 6.6, "lambda" => 3.3, "theta_canyon" => deg2rad(45), "DeltaGMT" => 1.0
 )
 
-YAML.write_file(joinpath(data_dir, "newdelhi_parameters.yaml"), data)
+YAML.write_file(joinpath(data_dir, "lagos_parameters.yaml"), data)
 
 ## NetCDF section
-input_data = matread(joinpath(data_dir, "TMYNewDelhi_RadPart.mat"))
+input_data = matread(joinpath(data_dir, "TMYLagos_RadPart.mat"))
 input_data["Time"] = [
     DateTime(
         input_data["Time"][i, 1],
@@ -339,7 +339,7 @@ input_data["Time"] = [
 ]
 input_data["RelativeHumidity"] ./= 100.0
 
-filename = "newdelhi_data.nc"
+filename = "lagos_data.nc"
 filepath = joinpath(data_dir, filename)
 
 isfile(filepath) && rm(filepath)
