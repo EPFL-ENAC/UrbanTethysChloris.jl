@@ -87,9 +87,9 @@ function run_simulation(
     T2m = FT(NaN)
     RH_T2m = FT(NaN)
 
-    results_dict, accessors = prepare_results(typeof(output_level), model, NN)
+    results, accessors = prepare_results(typeof(output_level), model, NN)
 
-    results_dict[:OwaterInitial] = Dict{Symbol,Array}(
+    results[:OwaterInitial] = Dict{Symbol,Array}(
         :OwRoofSoilVeg => OwaterInitial.OwRoofSoilVeg,
         :OwGroundSoilImp => OwaterInitial.OwGroundSoilImp,
         :OwGroundSoilBare => OwaterInitial.OwGroundSoilBare,
@@ -325,7 +325,7 @@ function run_simulation(
 
         urban_averages!(model)
 
-        assign_results!(results_dict, accessors, model, i)
+        assign_results!(results, accessors, model, i)
 
         # Update forcing parameters for the next step
         model.forcing = forcing[i + 1]
@@ -333,10 +333,10 @@ function run_simulation(
 
     # reset all EB variables of the first step to 0, similar to MATLAB
     for var in fieldnames(typeof(model.variables.energybalance.EB))
-        results_dict[:EB][var][1] = 0
+        results[:EB][var][1] = 0
     end
 
-    return results_dict, ViewFactor, ViewFactorPoint
+    return results, ViewFactor, ViewFactorPoint
 end
 
 function roof_temperature(
