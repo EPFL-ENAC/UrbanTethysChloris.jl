@@ -47,7 +47,7 @@ function backcalculate_obhukov_length(
     )
     sol = solve(prob, Brent(); abstol=FT(1e-6), maxiters=400)
 
-    if sol.retcode != :Success
+    if !successful_retcode(sol)
         throw(
             ErrorException(
                 "Failed to converge when backcalculating Obhukov length. Solution return code: $(sol.retcode)",
