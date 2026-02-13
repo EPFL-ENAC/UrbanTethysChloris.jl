@@ -5,27 +5,7 @@ using MAT
 
 FT = Float64
 
-# Check if data directory exists, if not create it
-data_dir = joinpath(@__DIR__, "..", "data")
-!isdir(data_dir) && mkdir(data_dir)
-
-# https://github.com/NaikaMeili/UTC_BEM_ModelCode/raw/61af9eeeca7c0fbe6ae19a8d78f4f481c45826aa/UTC_Model/+data_functions/TMYNewDelhi_RadPart.mat
-
-# Define files and their GitHub URLs
-repo_url = "https://github.com/NaikaMeili/UTC_BEM_ModelCode/raw/61af9eeeca7c0fbe6ae19a8d78f4f481c45826aa/UTC_Model"
-files = Dict(
-    "TMYNewDelhi_RadPart.mat" => repo_url * "/+data_functions/TMYNewDelhi_RadPart.mat",
-    "ViewFactor_NDLCZ3.mat" => repo_url * "/+data_functions/ViewFactor_ND_LCZ3.mat",
-)
-
-# Check each file and download if missing
-for (file, url) in files
-    filepath = joinpath(data_dir, file)
-    if !isfile(filepath)
-        @info "Downloading $file..."
-        download(url, filepath)
-    end
-end
+data_dir = joinpath(@__DIR__, "data")
 
 # Create the parameters file
 data = Dict{String,Any}()
@@ -139,7 +119,6 @@ data["vegetation"]["ground"]["h_disp"] = 2.0 / 3.0 * data["vegetation"]["ground"
 data["vegetation"]["tree"] = Dict{String,Any}(
     "LAI" => 3.0,
     "SAI" => 0.2,
-    "hc" => 0.05,
     "d_leaf" => 5.0,
     "CASE_ROOT" => 1,
     "ZR95" => [1500.0],
@@ -324,13 +303,13 @@ data["person"] = Dict{String,Any}(
 )
 
 data["location"] = Dict{String,Any}(
-    "phi" => 28.6, "lambda" => 77.1, "theta_canyon" => deg2rad(45), "DeltaGMT" => 5.0
+    "phi" => 6.6, "lambda" => 3.3, "theta_canyon" => deg2rad(45), "DeltaGMT" => 1.0
 )
 
-YAML.write_file(joinpath(@__DIR__, "..", "data", "newdelhi_parameters.yaml"), data)
+YAML.write_file(joinpath(data_dir, "lagos_parameters.yaml"), data)
 
 ## NetCDF section
-input_data = matread(joinpath(@__DIR__, "..", "data", "TMYNewDelhi_RadPart.mat"))
+input_data = matread(joinpath(data_dir, "TMYLagos_RadPart.mat"))
 input_data["Time"] = [
     DateTime(
         input_data["Time"][i, 1],
@@ -342,8 +321,8 @@ input_data["Time"] = [
 ]
 input_data["RelativeHumidity"] ./= 100.0
 
-filename = "newdelhi_data.nc"
-filepath = joinpath(@__DIR__, "..", "data", filename)
+filename = "lagos_data.nc"
+filepath = joinpath(data_dir, filename)
 
 isfile(filepath) && rm(filepath)
 

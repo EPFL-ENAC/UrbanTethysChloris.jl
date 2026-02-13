@@ -50,7 +50,7 @@ O33 = (
     ground=model.variables.waterflux.Owater.OwGroundSoilVeg[1],
 )
 
-NN = 200
+NN = 100
 results, view_factor_out, view_factor_point_out = run_simulation(
     model,
     forcing;
