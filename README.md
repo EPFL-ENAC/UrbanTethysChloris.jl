@@ -28,17 +28,18 @@ If you want to make contributions of any kind, please first that a look into our
 julia --project=examples -e 'using Pkg; Pkg.instantiate();'
 ```
 
-For each example, two scripts are provided: `create_<location_name>_data.jl` and `<location_name>_example.jl`. The first script will download the MATLAB files from the [MATLAB version of UT&C](https://github.com/NaikaMeili/UTC_BEM_ModelCode) and create the NetCDF and YAML files containing the parameters and forcing inputs necessary to run the simulation. Please note that the forcing inputs are stored as timetables and need to be converted to a MATLAB `struct`, as described in the documentation.
+For each example, two scripts are provided: `create_<location_name>_data.jl` and `<location_name>_example.jl`.
 
+The first script will create the NetCDF and YAML files containing the parameters and forcing inputs necessary to run the simulation.
 The first script of a given location can be run from the command line as
 
 ```bash
 julia --project=examples examples/<location_name>/create_<location_name>_data.jl
 ```
 
-The second script shows how to run the simulation, given the parameters and forcing inputs, as well as visualizing the results.
+Subsequent scripts can be run in a similar fashion, by changing the script name.
 
-<!-- TODO: create a first intermediate script to download the data -->
+The second script shows how to run the simulation, given the parameters and forcing inputs, as well as visualizing the results. This last script is best run interactively in the Julia REPL to interact with the results.
 
 ---
 

@@ -5,24 +5,7 @@ using MAT
 
 FT = Float64
 
-# Check if data directory exists, if not create it
 data_dir = joinpath(@__DIR__, "data")
-!isdir(data_dir) && mkdir(data_dir)
-
-# Define files and their GitHub URLs
-repo_url = "https://github.com/NaikaMeili/UTC_ModelCode/raw/b7c4c0617133681b678ec066cbcd881a8fb97aae/UTC_Model/"
-files = Dict(
-    "ForcingData_ZH2010.mat" => repo_url * "%2Bdata_functions/ForcingData_ZH2010.mat"
-)
-
-# Check each file and download if missing
-for (file, url) in files
-    filepath = joinpath(data_dir, file)
-    if !isfile(filepath)
-        @info "Downloading $file..."
-        download(url, filepath)
-    end
-end
 
 # Create the parameters file
 data = Dict{String,Any}()

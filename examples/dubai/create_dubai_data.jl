@@ -5,25 +5,7 @@ using MAT
 
 FT = Float64
 
-# Check if data directory exists, if not create it
 data_dir = joinpath(@__DIR__, "data")
-!isdir(data_dir) && mkdir(data_dir)
-
-# Define files and their GitHub URLs
-repo_url = "https://github.com/NaikaMeili/UTC_BEM_ModelCode/raw/61af9eeeca7c0fbe6ae19a8d78f4f481c45826aa/UTC_Model"
-files = Dict(
-    "TMYDubai_RadPart.mat" => repo_url * "/+data_functions/TMYDubai_RadPart.mat",
-    "ViewFactor_DU_LCZ3.mat" => repo_url * "/+data_functions/ViewFactor_DU_LCZ3.mat",
-)
-
-# Check each file and download if missing
-for (file, url) in files
-    filepath = joinpath(data_dir, file)
-    if !isfile(filepath)
-        @info "Downloading $file..."
-        download(url, filepath)
-    end
-end
 
 # Create the parameters file
 data = Dict{String,Any}()
@@ -340,7 +322,7 @@ input_data["Time"] = [
 input_data["RelativeHumidity"] ./= 100.0
 
 filename = "dubai_data.nc"
-filepath = joinpath(@__DIR__, "data", filename)
+filepath = joinpath(data_dir, filename)
 
 isfile(filepath) && rm(filepath)
 
