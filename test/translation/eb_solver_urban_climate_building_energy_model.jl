@@ -2,6 +2,7 @@ using Test
 using MAT
 using UrbanTethysChloris: eb_solver_urban_climate_building_energy_model
 using UrbanTethysChloris.RayTracing: ViewFactor
+using UrbanTethysChloris.ModelComponents.Parameters: WallSoilParameters
 using ...TestUtils:
     load_matlab_data,
     create_urban_geometry_parameters,
@@ -176,9 +177,8 @@ FractionsRoof = create_location_specific_surface_fractions(
     Per_runoff=FT(input_vars["FractionsRoof"]["Per_runoff"]),
 )
 
-WallLayers = (;
-    dz1_wall=input_vars["WallLayers"]["dz1_wall"],
-    dz2_wall=input_vars["WallLayers"]["dz2_wall"],
+ParSoilWall = WallSoilParameters{FT}(;
+    dz1=input_vars["WallLayers"]["dz1_wall"], dz2=input_vars["WallLayers"]["dz2_wall"]
 )
 
 ParSoilGround = create_vegetated_soil_parameters(
@@ -463,7 +463,7 @@ HVACSchedule = (;
         Gemeotry_m,
         FractionsGround,
         FractionsRoof,
-        WallLayers,
+        ParSoilWall,
         ParSoilGround,
         ParInterceptionTree,
         PropOpticalGround,

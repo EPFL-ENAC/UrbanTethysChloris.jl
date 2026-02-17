@@ -2,6 +2,7 @@ using Test
 using MAT
 using UrbanTethysChloris: eb_solver_canyon
 using UrbanTethysChloris.RayTracing: ViewFactor
+using UrbanTethysChloris.ModelComponents.Parameters: WallSoilParameters
 using ...TestUtils:
     load_matlab_data,
     create_urban_geometry_parameters,
@@ -337,9 +338,8 @@ rsTreePreCalc = (;
     Ci_shd_H=input_vars["rsTreePreCalc"]["Ci_shd_H"],
 )
 
-WallLayers = (;
-    dz1_wall=input_vars["WallLayers"]["dz1_wall"],
-    dz2_wall=input_vars["WallLayers"]["dz2_wall"],
+ParSoilWall = WallSoilParameters{FT}(;
+    dz1=input_vars["WallLayers"]["dz1_wall"], dz2=input_vars["WallLayers"]["dz2_wall"]
 )
 
 SunPosition = (;
@@ -376,7 +376,7 @@ ParThermalBulidFloor = create_thermal_building(
         view_factor,
         Gemeotry_m,
         FractionsGround,
-        WallLayers,
+        ParSoilWall,
         ParSoilGround,
         ParInterceptionTree,
         PropOpticalGround,

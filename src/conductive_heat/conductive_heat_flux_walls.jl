@@ -6,7 +6,7 @@
         TempVecB_ittm::NamedTuple,
         Anthropogenic::NamedTuple,
         ParThermalWall::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
-        WallLayers::NamedTuple,
+        ParSoilWall::ModelComponents.Parameters.WallSoilParameters{FT},
         ParCalculation::NamedTuple,
         type::Bool,
         ParWindows::ModelComponents.Parameters.WindowParameters{FT},
@@ -22,7 +22,7 @@ Calculate conductive heat flux through walls.
 - `TempVecB_ittm`: Building temperature vectors at previous time step
 - `Anthropogenic`: Anthropogenic parameters
 - `ParThermalWall`: Thermal parameters for wall
-- `WallLayers`: Wall layer parameters
+- `ParSoilWall`: Wall soil parameters
 - `ParCalculation`: Calculation parameters
 - `type`: 1 for sunlit wall, 0 for shaded wall
 - `ParWindows`: Window parameters
@@ -40,7 +40,7 @@ function conductive_heat_flux_walls(
     TempVecB_ittm::ModelComponents.ModelVariables.TempVecB{FT},
     Anthropogenic::ModelComponents.ForcingInputs.AnthropogenicInputs{FT,0},
     ParThermalWall::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
-    WallLayers::NamedTuple,
+    ParSoilWall::ModelComponents.Parameters.WallSoilParameters{FT},
     ParCalculation::NamedTuple,
     type::Bool,
     ParWindows::ModelComponents.Parameters.WindowParameters{FT},
@@ -68,8 +68,8 @@ function conductive_heat_flux_walls(
     # Extract common parameters
     lan_dry1 = ParThermalWall.lan_dry
     lan_dry2 = ParThermalWall.lan_dry
-    dz1 = WallLayers.dz1_wall
-    dz2 = WallLayers.dz2_wall
+    dz1 = ParSoilWall.dz1
+    dz2 = ParSoilWall.dz2
     cv_s1 = ParThermalWall.cv_s
     cv_s2 = ParThermalWall.cv_s
     dts = ParCalculation.dts
@@ -110,7 +110,7 @@ function conductive_heat_flux_walls(
     TempVecB_ittm::NamedTuple,
     Anthropogenic::NamedTuple,
     ParThermalWall::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
-    WallLayers::NamedTuple,
+    ParSoilWall::ModelComponents.Parameters.WallSoilParameters{FT},
     ParCalculation::NamedTuple,
     type::Bool,
     ParWindows::ModelComponents.Parameters.WindowParameters{FT},
@@ -138,8 +138,8 @@ function conductive_heat_flux_walls(
     # Extract common parameters
     lan_dry1 = ParThermalWall.lan_dry
     lan_dry2 = ParThermalWall.lan_dry
-    dz1 = WallLayers.dz1_wall
-    dz2 = WallLayers.dz2_wall
+    dz1 = ParSoilWall.dz1
+    dz2 = ParSoilWall.dz2
     cv_s1 = ParThermalWall.cv_s
     cv_s2 = ParThermalWall.cv_s
     dts = ParCalculation.dts

@@ -1,6 +1,7 @@
 using Test
 using MAT
 using UrbanTethysChloris.ConductiveHeat: conductive_heat_flux_walls
+using UrbanTethysChloris.ModelComponents.Parameters: WallSoilParameters
 using ....TestUtils:
     create_location_specific_thermal_properties, create_window_parameters, load_matlab_data
 
@@ -24,9 +25,8 @@ ParWindows = create_window_parameters(
     GlazingRatio=input_vars["ParWindows"]["GlazingRatio"],
 )
 
-WallLayers = (;
-    dz1_wall=input_vars["WallLayers"]["dz1_wall"],
-    dz2_wall=input_vars["WallLayers"]["dz2_wall"],
+ParSoilWall = WallSoilParameters{FT}(;
+    dz1=input_vars["WallLayers"]["dz1_wall"], dz2=input_vars["WallLayers"]["dz2_wall"]
 )
 
 TempVec_ittm = (;
@@ -52,7 +52,7 @@ ParCalculation = (; dts=input_vars["ParCalculation"]["dts"])
         TempVecB_ittm,
         Anthropogenic,
         ParThermalWall,
-        WallLayers,
+        ParSoilWall,
         ParCalculation,
         Bool(input_vars["type"]),
         ParWindows,

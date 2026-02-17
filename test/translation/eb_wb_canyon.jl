@@ -3,6 +3,7 @@ using MAT
 using UrbanTethysChloris: eb_wb_canyon
 using UrbanTethysChloris.RayTracing: ViewFactor
 using UrbanTethysChloris.ModelComponents.Parameters
+using UrbanTethysChloris.ModelComponents.Parameters: WallSoilParameters
 using UrbanTethysChloris.ModelComponents.ForcingInputs
 using UrbanTethysChloris.ModelComponents.ModelVariables
 using ...TestUtils: load_matlab_data
@@ -88,9 +89,8 @@ ParInterceptionTree = (; Sp_In=input_vars["ParInterceptionTree"]["Sp_In"],)
         Ci_shd_H=input_vars["rsTreePreCalc"]["Ci_shd_H"],
     )
 
-    WallLayers = (;
-        dz1_wall=input_vars["WallLayers"]["dz1_wall"],
-        dz2_wall=input_vars["WallLayers"]["dz2_wall"],
+    ParSoilWall = WallSoilParameters{FT}(;
+        dz1=input_vars["WallLayers"]["dz1_wall"], dz2=input_vars["WallLayers"]["dz2_wall"]
     )
     Sun_Position = SunPositionInputs(FT, input_vars["SunPosition"])
 
@@ -112,7 +112,7 @@ ParInterceptionTree = (; Sp_In=input_vars["ParInterceptionTree"]["Sp_In"],)
         view_factor,
         Gemeotry_m,
         FractionsGround,
-        WallLayers,
+        ParSoilWall,
         ParSoilGround,
         ParInterceptionTree,
         PropOpticalGround,
@@ -294,9 +294,8 @@ end
         Ci_shd_H=input_vars["rsTreePreCalc"]["Ci_shd_H"],
     )
 
-    WallLayers = (;
-        dz1_wall=input_vars["WallLayers"]["dz1_wall"],
-        dz2_wall=input_vars["WallLayers"]["dz2_wall"],
+    ParSoilWall = WallSoilParameters{FT}(;
+        dz1=input_vars["WallLayers"]["dz1_wall"], dz2=input_vars["WallLayers"]["dz2_wall"]
     )
 
     Sun_Position = (;
@@ -322,7 +321,7 @@ end
         view_factor,
         Gemeotry_m,
         FractionsGround,
-        WallLayers,
+        ParSoilWall,
         ParSoilGround,
         ParInterceptionTree,
         PropOpticalGround,

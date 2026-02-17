@@ -3,6 +3,7 @@ using UrbanTethysChloris: f_solver_tot
 using UrbanTethysChloris: ExtrapolatedTempVec, ExtrapolatedHumidity, ExtrapolatedTempVecB
 using UrbanTethysChloris: Meteotm1
 using UrbanTethysChloris.RayTracing: ViewFactor
+using UrbanTethysChloris.ModelComponents.Parameters: WallSoilParameters
 using ...TestUtils: load_matlab_data
 using UrbanTethysChloris.ModelComponents.Parameters
 using UrbanTethysChloris.ModelComponents.ModelVariables
@@ -37,9 +38,8 @@ ParThermalBulidFloor = ThermalBuilding(FT, input_vars["ParThermalBulidFloor"])
 ParWindows = WindowParameters(FT, input_vars["ParWindows"])
 
 ParInterceptionTree = (; Sp_In=input_vars["ParInterceptionTree"]["Sp_In"],)
-WallLayers = (;
-    dz1_wall=input_vars["WallLayers"]["dz1_wall"],
-    dz2_wall=input_vars["WallLayers"]["dz2_wall"],
+ParSoilWall = WallSoilParameters{FT}(;
+    dz1=input_vars["WallLayers"]["dz1_wall"], dz2=input_vars["WallLayers"]["dz2_wall"]
 )
 ParCalculation = (;
     dth=Int(input_vars["ParCalculation"]["dth"]),
@@ -160,7 +160,7 @@ rsTreePreCalc = (;
         Gemeotry_m,
         FractionsGround,
         FractionsRoof,
-        WallLayers,
+        ParSoilWall,
         ParSoilGround,
         ParInterceptionTree,
         PropOpticalGround,
@@ -369,7 +369,7 @@ end
         Gemeotry_m,
         FractionsGround,
         FractionsRoof,
-        WallLayers,
+        ParSoilWall,
         ParSoilGround,
         ParInterceptionTree,
         PropOpticalGround,

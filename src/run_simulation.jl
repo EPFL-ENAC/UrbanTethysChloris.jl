@@ -7,7 +7,6 @@ function run_simulation(
     RESPreCalc::Bool=true,
     fconvPreCalc::Bool=true,
     BEM_on::Bool=true,
-    WallLayers::NamedTuple=(; dz1_wall=FT(0.1), dz2_wall=FT(0.1)),
     ParInterceptionTree::NamedTuple=(; Sp_In=FT(0.2)),
     ViewFactors::Union{
         Tuple{RayTracing.ViewFactor{FT},RayTracing.ViewFactorPoint{FT}},Nothing
@@ -148,7 +147,6 @@ function run_simulation(
                 model_ittm,
                 model_ittm2ext,
                 ViewFactor,
-                WallLayers,
                 ParInterceptionTree,
                 ParCalculation,
                 ParHVAC,
@@ -182,7 +180,6 @@ function run_simulation(
                 TB,
                 model_ittm,
                 ViewFactor,
-                WallLayers,
                 ParInterceptionTree,
                 ParCalculation,
                 G2Roof,

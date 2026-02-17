@@ -15,7 +15,7 @@
         ViewFactor::RayTracing.ViewFactor{FT},
         Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
         FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
-        WallLayers::NamedTuple,
+        ParSoilWall::WallSoilParameters{FT},
         ParSoilGround::ModelComponents.Parameters.VegetatedSoilParameters{FT},
         ParInterceptionTree::NamedTuple,
         PropOpticalGround::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
@@ -62,7 +62,7 @@ Calculate energy balance for canyon surfaces.
 - `ViewFactor`: View factors between surfaces
 - `Gemeotry_m`: Urban geometry parameters
 - `FractionsGround`: Ground surface fractions
-- `WallLayers`: Wall layer parameters
+- `ParSoilWall`: Wall soil parameters
 - `ParSoilGround`: Soil parameters for ground
 - `ParInterceptionTree`: Tree interception parameters
 - `PropOpticalGround`: Ground optical properties
@@ -104,7 +104,6 @@ function eb_wb_canyon!(
     TemperatureB::Vector{FT},
     model_ittm::ModelIttm{FT,MR,MG},
     ViewFactor::RayTracing.ViewFactor{FT},
-    WallLayers::NamedTuple,
     ParInterceptionTree::NamedTuple,
     ParCalculation::NamedTuple,
     G2Roof::FT,
@@ -134,7 +133,7 @@ function eb_wb_canyon!(
         ViewFactor,
         model.parameters.urbangeometry,
         model.parameters.surfacefractions.ground,
-        WallLayers,
+        model.parameters.soil.wall,
         model.parameters.soil.ground,
         ParInterceptionTree,
         model.parameters.optical.ground,
@@ -193,7 +192,7 @@ function eb_wb_canyon(
     ViewFactor::RayTracing.ViewFactor{FT},
     Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
     FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
-    WallLayers::NamedTuple,
+    ParSoilWall::ModelComponents.Parameters.WallSoilParameters{FT},
     ParSoilGround::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     ParInterceptionTree::NamedTuple,
     PropOpticalGround::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
@@ -332,7 +331,7 @@ function eb_wb_canyon(
         TempVecB_ittm,
         Anthropogenic,
         ParThermalWall,
-        WallLayers,
+        ParSoilWall,
         ParCalculation,
         true,
         ParWindows,
@@ -347,7 +346,7 @@ function eb_wb_canyon(
         TempVecB_ittm,
         Anthropogenic,
         ParThermalWall,
-        WallLayers,
+        ParSoilWall,
         ParCalculation,
         false,
         ParWindows,
@@ -996,7 +995,7 @@ function eb_wb_canyon(
     ViewFactor::RayTracing.ViewFactor{FT},
     Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
     FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
-    WallLayers::NamedTuple,
+    ParSoilWall::ModelComponents.Parameters.WallSoilParameters{FT},
     ParSoilGround::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     ParInterceptionTree::NamedTuple,
     PropOpticalGround::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
@@ -1123,7 +1122,7 @@ function eb_wb_canyon(
         TempVecB_ittm,
         Anthropogenic,
         ParThermalWall,
-        WallLayers,
+        ParSoilWall,
         ParCalculation,
         true,
         ParWindows,
@@ -1138,7 +1137,7 @@ function eb_wb_canyon(
         TempVecB_ittm,
         Anthropogenic,
         ParThermalWall,
-        WallLayers,
+        ParSoilWall,
         ParCalculation,
         false,
         ParWindows,

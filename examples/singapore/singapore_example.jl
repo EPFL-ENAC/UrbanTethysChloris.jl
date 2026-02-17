@@ -18,13 +18,7 @@ O33 = (
 
 NN = 100
 results, view_factor_out, view_factor_point_out = run_simulation(
-    model,
-    forcing;
-    NN=NN,
-    O33=O33,
-    fconvPreCalc=false,
-    output_level=extended_outputs,
-    WallLayers=(dz1_wall=0.11, dz2_wall=0.11),
+    model, forcing; NN=NN, O33=O33, fconvPreCalc=false, output_level=extended_outputs
 )
 
 x, x_day, x_month, fig1, fig2 = urban_climate_variables(results, model, forcing, NN)
