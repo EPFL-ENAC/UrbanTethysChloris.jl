@@ -117,17 +117,13 @@ Turn AC and heating on/off based on temperature and humidity conditions.
 - `ParHVACorig::ModelComponents.Parameters.HVACParameters{FT}`: Original HVAC parameters
 """
 function ac_heating_turn_on_off(
-    model::Model{FT},
-    TempVecB_ittm::ModelComponents.ModelVariables.TempVecB{FT},
-    TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
-    Humidity_ittm::ModelComponents.ModelVariables.Humidity{FT},
-    BEM_on::Bool,
-) where {FT<:AbstractFloat}
+    model::Model{FT}, model_ittm::ModelIttm{FT,MR,MG}, BEM_on::Bool
+) where {FT<:AbstractFloat,MR,MG}
     return ac_heating_turn_on_off(
         model.parameters.building_energy.hvac,
-        TempVecB_ittm,
-        TempVec_ittm,
-        Humidity_ittm,
+        model_ittm.tempvecb,
+        model_ittm.tempvec,
+        model_ittm.humidity,
         model.forcing.meteorological,
         model.parameters.urbangeometry,
         BEM_on,

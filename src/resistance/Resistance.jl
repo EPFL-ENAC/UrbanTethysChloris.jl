@@ -5,7 +5,7 @@ using ..ModelComponents
 using ..RayTracing
 using ..Soil
 using ..Radiation
-using ..UrbanTethysChloris: Model
+using ..UrbanTethysChloris: Model, ModelIttm
 using SimpleNonlinearSolve: IntervalNonlinearProblem, solve, Brent
 using SciMLBase: successful_retcode
 

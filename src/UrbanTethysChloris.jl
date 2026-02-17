@@ -35,6 +35,10 @@ export no_outputs,
 include("Model.jl")
 export create_model, initialize!
 
+include("ModelIttm.jl")
+include("ModelVariablesIttm2Ext.jl")
+export ModelIttm, ModelVariablesIttm2Ext, update!
+
 include(joinpath("ray_tracing", "RayTracing.jl"))
 using .RayTracing
 
@@ -65,9 +69,6 @@ using .Water
 
 include("incoming_longwave.jl")
 include("set_sun_variables.jl")
-
-include("extrapolate.jl")
-export update!
 
 include("eb_solver_canyon.jl")
 include("eb_solver_roof.jl")

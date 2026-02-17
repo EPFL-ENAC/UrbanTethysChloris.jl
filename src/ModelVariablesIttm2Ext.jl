@@ -237,26 +237,84 @@ function ExtrapolatedTempVecB(
     )
 end
 
-Base.@kwdef mutable struct Meteotm1{FT<:AbstractFloat}
-    SWRin::SVector{2,FT}
-    Rain::SVector{2,FT}
+"""
+    ModelVariablesIttm2Ext{FT<:AbstractFloat}
+
+Extrapolated model variables for improved numerical stability.
+
+This composite type stores extrapolated values based on the last two timesteps, providing
+better initial guesses for the nonlinear solver. Each field contains an `SVector{4,FT}` where:
+- `[1]`: Value at t-2
+- `[2]`: Value at t-1
+- `[3]`: Extrapolated value for t (based on linear trend from t-2 to t-1)
+- `[4]`: Extrapolated value for t+1 (more aggressive extrapolation)
+
+# Type Parameters
+- `FT`: Floating-point type (e.g., Float64)
+
+# Fields
+- `tempvec::ExtrapolatedTempVec{FT}`: Extrapolated temperature vector (15 fields)
+- `humidity::ExtrapolatedHumidity{FT}`: Extrapolated humidity variables (13 fields)
+- `tempvecb::ExtrapolatedTempVecB{FT}`: Extrapolated building temperatures (8 fields)
+"""
+Base.@kwdef mutable struct ModelVariablesIttm2Ext{FT<:AbstractFloat}
+    tempvec::ExtrapolatedTempVec{FT}
+    humidity::ExtrapolatedHumidity{FT}
+    tempvecb::ExtrapolatedTempVecB{FT}
 end
 
-function Meteotm1(
-    x::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0}
-) where {FT<:AbstractFloat}
-    SWRin = x.SAB1_in + x.SAB2_in + x.SAD1_in + x.SAD2_in
-    return Meteotm1{FT}(;
-        SWRin=SVector{2,FT}(SWRin, SWRin), Rain=SVector{2,FT}(x.Rain, x.Rain)
+"""
+    ModelVariablesIttm2Ext(model::Model{FT}) where {FT<:AbstractFloat}
+
+Initialize ModelVariablesIttm2Ext from a Model instance.
+
+All extrapolated values are initialized with the current model state replicated
+across all 4 positions of the SVector{4,FT}.
+
+# Arguments
+- `model::Model{FT}`: The model instance to initialize from
+
+# Returns
+- `ModelVariablesIttm2Ext{FT}`: A new ModelVariablesIttm2Ext instance
+"""
+function ModelVariablesIttm2Ext(model::Model{FT}) where {FT<:AbstractFloat}
+    return ModelVariablesIttm2Ext{FT}(;
+        tempvec=ExtrapolatedTempVec(model.variables.temperature.tempvec),
+        humidity=ExtrapolatedHumidity(model.variables.humidity.Humidity),
+        tempvecb=ExtrapolatedTempVecB(model.variables.buildingenergymodel.TempVecB),
     )
 end
 
-function update!(
-    y::Meteotm1{FT}, x::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0}
+"""
+    extrapolate!(
+        ext::ModelVariablesIttm2Ext{FT},
+        model::Model{FT},
+        i::Signed
+    ) where {FT<:AbstractFloat}
+
+Extrapolate model variables from the last two timesteps for improved initial guesses.
+
+If `i > 2`, performs linear extrapolation based on the trend from t-2 to t-1.
+For `i <= 2`, no extrapolation is performed (not enough history).
+
+# Arguments
+- `ext::ModelVariablesIttm2Ext{FT}`: The extrapolated variables to update
+- `model::Model{FT}`: The model instance containing current state
+- `i::Signed`: Current iteration/timestep number
+
+# Extrapolation Formula
+For each variable x:
+- x[1] = value at t-2 (previous x[2])
+- x[2] = value at t-1 (current model value)
+- x[3] = x[2] + (x[2] - x[1])  # Linear extrapolation for t
+- x[4] = x[2] + 2*(x[2] - x[1])  # More aggressive extrapolation for t+1
+"""
+function extrapolate!(
+    ext::ModelVariablesIttm2Ext{FT}, model::Model{FT}, i::Signed
 ) where {FT<:AbstractFloat}
-    SWRin = x.SAB1_in + x.SAB2_in + x.SAD1_in + x.SAD2_in
-    y.SWRin = SVector{2,FT}(y.SWRin[2], SWRin)
-    y.Rain = SVector{2,FT}(y.Rain[2], x.Rain)
+    extrapolate!(ext.tempvec, model.variables.temperature.tempvec, i)
+    extrapolate!(ext.humidity, model.variables.humidity.Humidity, i)
+    extrapolate!(ext.tempvecb, model.variables.buildingenergymodel.TempVecB, i)
 
     return nothing
 end

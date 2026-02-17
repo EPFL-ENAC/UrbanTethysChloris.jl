@@ -46,24 +46,20 @@ Calculate enhancement factor and precalculate stomatal resistances for faster nu
 """
 function precalculate_for_faster_numerical_solution(
     model::Model{FT},
-    TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
-    Humidity_ittm::ModelComponents.ModelVariables.Humidity{FT},
-    SoilPotW_ittm::ModelComponents.ModelVariables.SoilPotW{FT},
-    CiCO2Leaf_ittm::ModelComponents.ModelVariables.CiCO2Leaf{FT},
-    RES_ittm::ModelComponents.ModelVariables.Resistance{FT},
+    model_ittm::ModelIttm{FT,MR,MG},
     ittn::Int,
     ittm::Int,
     ViewFactor::RayTracing.ViewFactor{FT},
     BEM_on::Bool,
-) where {FT<:AbstractFloat}
+) where {FT<:AbstractFloat,MR,MG}
     return precalculate_for_faster_numerical_solution(
         ittn,
         ittm,
-        TempVec_ittm,
-        Humidity_ittm,
+        model_ittm.tempvec,
+        model_ittm.humidity,
         model.parameters.vegetation.ground,
-        SoilPotW_ittm,
-        CiCO2Leaf_ittm,
+        model_ittm.soilpotw,
+        model_ittm.cico2leaf,
         model.forcing.meteorological,
         model.parameters.urbangeometry,
         model.parameters.surfacefractions.ground,
@@ -78,7 +74,7 @@ function precalculate_for_faster_numerical_solution(
         model.parameters.vegetation.roof,
         model.parameters.optical.roof,
         model.parameters.surfacefractions.roof,
-        RES_ittm,
+        model_ittm.resistance,
     )
 end
 
