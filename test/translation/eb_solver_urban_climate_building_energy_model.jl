@@ -2,6 +2,7 @@ using Test
 using MAT
 using UrbanTethysChloris: eb_solver_urban_climate_building_energy_model
 using UrbanTethysChloris.RayTracing: ViewFactor
+using UrbanTethysChloris.Resistance: StomatalResistancePreCalc
 using UrbanTethysChloris.ModelComponents.Parameters: WallSoilParameters
 using ...TestUtils:
     load_matlab_data,
@@ -416,25 +417,25 @@ ParWindows = create_window_parameters(
     dztot=input_vars["ParWindows"]["dztot"],
 )
 
-rsRoofPreCalc = (;
+rsRoofPreCalc = StomatalResistancePreCalc{FT}(;
     rs_sun=input_vars["rsRoofPreCalc"]["rs_sun"],
     rs_shd=input_vars["rsRoofPreCalc"]["rs_shd"],
     Ci_sun=input_vars["rsRoofPreCalc"]["Ci_sun"],
     Ci_shd=input_vars["rsRoofPreCalc"]["Ci_shd"],
 )
 
-rsGroundPreCalc = (;
-    rs_sun_L=input_vars["rsGroundPreCalc"]["rs_sun_L"],
-    rs_shd_L=input_vars["rsGroundPreCalc"]["rs_shd_L"],
-    Ci_sun_L=input_vars["rsGroundPreCalc"]["Ci_sun_L"],
-    Ci_shd_L=input_vars["rsGroundPreCalc"]["Ci_shd_L"],
+rsGroundPreCalc = StomatalResistancePreCalc{FT}(;
+    rs_sun=input_vars["rsGroundPreCalc"]["rs_sun_L"],
+    rs_shd=input_vars["rsGroundPreCalc"]["rs_shd_L"],
+    Ci_sun=input_vars["rsGroundPreCalc"]["Ci_sun_L"],
+    Ci_shd=input_vars["rsGroundPreCalc"]["Ci_shd_L"],
 )
 
-rsTreePreCalc = (;
-    rs_sun_H=input_vars["rsTreePreCalc"]["rs_sun_H"],
-    rs_shd_H=input_vars["rsTreePreCalc"]["rs_shd_H"],
-    Ci_sun_H=input_vars["rsTreePreCalc"]["Ci_sun_H"],
-    Ci_shd_H=input_vars["rsTreePreCalc"]["Ci_shd_H"],
+rsTreePreCalc = StomatalResistancePreCalc{FT}(;
+    rs_sun=input_vars["rsTreePreCalc"]["rs_sun_H"],
+    rs_shd=input_vars["rsTreePreCalc"]["rs_shd_H"],
+    Ci_sun=input_vars["rsTreePreCalc"]["Ci_sun_H"],
+    Ci_shd=input_vars["rsTreePreCalc"]["Ci_shd_H"],
 )
 
 HVACSchedule = (;

@@ -1,6 +1,7 @@
 using Test
 using MAT
 using UrbanTethysChloris: eb_solver_roof
+using UrbanTethysChloris.Resistance: StomatalResistancePreCalc
 using ...TestUtils:
     load_matlab_data,
     create_height_dependent_vegetation_parameters,
@@ -131,7 +132,7 @@ CiCO2Leaf_ittm = (;
     CiCO2LeafRoofVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegShd"],
 )
 
-rsRoofPreCalc = (;
+rsRoofPreCalc = StomatalResistancePreCalc{FT}(;
     rs_sun=input_vars["rsRoofPreCalc"]["rs_sun"],
     rs_shd=input_vars["rsRoofPreCalc"]["rs_shd"],
     Ci_sun=input_vars["rsRoofPreCalc"]["Ci_sun"],

@@ -28,21 +28,9 @@ Calculate enhancement factor and precalculate stomatal resistances for faster nu
 
 # Returns
 - `fconv`: Enhancement factor for convective resistance [-]
-- `rsRoofPreCalc`: Named tuple with roof vegetation stomatal resistance parameters:
-  - `rs_sun`: Stomatal resistance for sunlit leaves [s/m]
-  - `rs_shd`: Stomatal resistance for shaded leaves [s/m]
-  - `Ci_sun`: Internal CO2 concentration for sunlit leaves [ppm]
-  - `Ci_shd`: Internal CO2 concentration for shaded leaves [ppm]
-- `rsGroundPreCalc`: Named tuple with ground vegetation stomatal resistance parameters:
-  - `rs_sun_L`: Stomatal resistance for sunlit leaves [s/m]
-  - `rs_shd_L`: Stomatal resistance for shaded leaves [s/m]
-  - `Ci_sun_L`: Internal CO2 concentration for sunlit leaves [ppm]
-  - `Ci_shd_L`: Internal CO2 concentration for shaded leaves [ppm]
-- `rsTreePreCalc`: Named tuple with tree stomatal resistance parameters:
-  - `rs_sun_H`: Stomatal resistance for sunlit leaves [s/m]
-  - `rs_shd_H`: Stomatal resistance for shaded leaves [s/m]
-  - `Ci_sun_H`: Internal CO2 concentration for sunlit leaves [ppm]
-  - `Ci_shd_H`: Internal CO2 concentration for shaded leaves [ppm]
+- `rsRoofPreCalc`: StomatalResistancePreCalc with roof vegetation parameters
+- `rsGroundPreCalc`: StomatalResistancePreCalc with ground vegetation parameters
+- `rsTreePreCalc`: StomatalResistancePreCalc with tree vegetation parameters
 """
 function precalculate_for_faster_numerical_solution(
     model::Model{FT},
@@ -182,7 +170,9 @@ function precalculate_for_faster_numerical_solution(
         Ci_shd = zero(FT)
     end
 
-    rsRoofPreCalc = (; rs_sun=rs_sun, rs_shd=rs_shd, Ci_sun=Ci_sun, Ci_shd=Ci_shd)
+    rsRoofPreCalc = StomatalResistancePreCalc{FT}(;
+        rs_sun=rs_sun, rs_shd=rs_shd, Ci_sun=Ci_sun, Ci_shd=Ci_shd
+    )
 
     # Precalculate stomatal resistance for tree and for ground vegetation in canyon
     if ittn == 1
@@ -238,12 +228,12 @@ function precalculate_for_faster_numerical_solution(
         )
     end
 
-    rsGroundPreCalc = (;
-        rs_sun_L=rs_sun_L, rs_shd_L=rs_shd_L, Ci_sun_L=Ci_sun_L, Ci_shd_L=Ci_shd_L
+    rsGroundPreCalc = StomatalResistancePreCalc{FT}(;
+        rs_sun=rs_sun_L, rs_shd=rs_shd_L, Ci_sun=Ci_sun_L, Ci_shd=Ci_shd_L
     )
 
-    rsTreePreCalc = (;
-        rs_sun_H=rs_sun_H, rs_shd_H=rs_shd_H, Ci_sun_H=Ci_sun_H, Ci_shd_H=Ci_shd_H
+    rsTreePreCalc = StomatalResistancePreCalc{FT}(;
+        rs_sun=rs_sun_H, rs_shd=rs_shd_H, Ci_sun=Ci_sun_H, Ci_shd=Ci_shd_H
     )
 
     return fconv, rsRoofPreCalc, rsGroundPreCalc, rsTreePreCalc
@@ -354,7 +344,9 @@ function precalculate_for_faster_numerical_solution(
         Ci_shd = zero(FT)
     end
 
-    rsRoofPreCalc = (; rs_sun=rs_sun, rs_shd=rs_shd, Ci_sun=Ci_sun, Ci_shd=Ci_shd)
+    rsRoofPreCalc = StomatalResistancePreCalc{FT}(;
+        rs_sun=rs_sun, rs_shd=rs_shd, Ci_sun=Ci_sun, Ci_shd=Ci_shd
+    )
 
     # Precalculate stomatal resistance for tree and for ground vegetation in canyon
     if ittn == 1
@@ -410,12 +402,12 @@ function precalculate_for_faster_numerical_solution(
         )
     end
 
-    rsGroundPreCalc = (;
-        rs_sun_L=rs_sun_L, rs_shd_L=rs_shd_L, Ci_sun_L=Ci_sun_L, Ci_shd_L=Ci_shd_L
+    rsGroundPreCalc = StomatalResistancePreCalc{FT}(;
+        rs_sun=rs_sun_L, rs_shd=rs_shd_L, Ci_sun=Ci_sun_L, Ci_shd=Ci_shd_L
     )
 
-    rsTreePreCalc = (;
-        rs_sun_H=rs_sun_H, rs_shd_H=rs_shd_H, Ci_sun_H=Ci_sun_H, Ci_shd_H=Ci_shd_H
+    rsTreePreCalc = StomatalResistancePreCalc{FT}(;
+        rs_sun=rs_sun_H, rs_shd=rs_shd_H, Ci_sun=Ci_sun_H, Ci_shd=Ci_shd_H
     )
 
     return fconv, rsRoofPreCalc, rsGroundPreCalc, rsTreePreCalc

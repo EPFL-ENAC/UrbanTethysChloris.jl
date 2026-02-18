@@ -86,8 +86,8 @@ Calculate energy balance for canyon surfaces.
 - `RESPreCalc`: Use pre-calculated resistances
 - `fconvPreCalc`: Pre-calculated convection factors
 - `fconv`: Convection factors
-- `rsGroundPreCalc`: Pre-calculated ground resistances
-- `rsTreePreCalc`: Pre-calculated tree resistances
+- `rsGroundPreCalc`: Pre-calculated ground stomatal resistances (StomatalResistancePreCalc)
+- `rsTreePreCalc`: Pre-calculated tree stomatal resistances (StomatalResistancePreCalc)
 - `HVACSchedule`: HVAC operation schedule
 
 # Returns
@@ -112,8 +112,8 @@ function eb_wb_canyon!(
     RESPreCalc::Bool,
     fconvPreCalc::Bool,
     fconv::FT,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat,MR,MG}
     results = eb_wb_canyon(
         TemperatureC,
@@ -216,8 +216,8 @@ function eb_wb_canyon(
     RESPreCalc::Bool,
     fconvPreCalc::Bool,
     fconv::FT,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
     HVACSchedule::ModelComponents.ForcingInputs.HVACSchedule{FT,0};
 ) where {FT<:AbstractFloat,MR,MG}
 
@@ -1019,8 +1019,8 @@ function eb_wb_canyon(
     RESPreCalc::Bool,
     fconvPreCalc::FT,
     fconv::FT,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
     HVACSchedule::NamedTuple,
 ) where {FT<:AbstractFloat}
 

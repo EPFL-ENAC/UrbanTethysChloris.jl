@@ -2,16 +2,16 @@
     eb_solver_canyon(
         TemperatureC::Vector{FT},
         TemperatureB::Vector{FT},
-        TempVec_ittm::NamedTuple,
-        Humidity_ittm::NamedTuple,
-        MeteoData::NamedTuple,
-        Int_ittm::NamedTuple,
-        ExWater_ittm::NamedTuple,
-        Vwater_ittm::NamedTuple,
-        Owater_ittm::NamedTuple,
-        SoilPotW_ittm::NamedTuple,
-        CiCO2Leaf_ittm::NamedTuple,
-        TempDamp_ittm::NamedTuple,
+        TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
+        Humidity_ittm::ModelComponents.ModelVariables.Humidity{FT},
+        MeteoData::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0},
+        Int_ittm::ModelComponents.ModelVariables.Interception{FT},
+        ExWater_ittm::ModelComponents.ModelVariables.ExWater{FT,MR,MG},
+        Vwater_ittm::ModelComponents.ModelVariables.Vwater{FT,MR,MG},
+        Owater_ittm::ModelComponents.ModelVariables.Owater{FT,MR,MG},
+        SoilPotW_ittm::ModelComponents.ModelVariables.SoilPotW{FT},
+        CiCO2Leaf_ittm::ModelComponents.ModelVariables.CiCO2Leaf{FT},
+        TempDamp_ittm::ModelComponents.ModelVariables.TempDamp{FT},
         ViewFactor::RayTracing.ViewFactor{FT},
         Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
         FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
@@ -25,11 +25,11 @@
         ParThermalWall::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
         ParVegGround::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
         ParVegTree::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
-        SunPosition::NamedTuple,
-        HumidityAtm::NamedTuple,
-        Anthropogenic::NamedTuple,
+        SunPosition::ModelComponents.ForcingInputs.SunPositionInputs{FT},
+        HumidityAtm::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0},
+        Anthropogenic::ModelComponents.ForcingInputs.AnthropogenicInputs{FT,0},
         ParCalculation::NamedTuple,
-        TempVecB_ittm::NamedTuple,
+        TempVecB_ittm::ModelComponents.ModelVariables.TempVecB{FT},
         G2Roof::FT,
         PropOpticalIndoors::ModelComponents.Parameters.IndoorOpticalProperties{FT},
         ParHVAC::ModelComponents.Parameters.HVACParameters{FT},
@@ -37,13 +37,12 @@
         ParWindows::ModelComponents.Parameters.WindowParameters{FT},
         BEM_on::Bool,
         RESPreCalc::Bool,
-        fconvPreCalc::FT,
+        fconvPreCalc::Bool,
         fconv::FT,
-        rsGroundPreCalc::NamedTuple,
-        rsTreePreCalc::NamedTuple,
-        HVACSchedule::NamedTuple,
-    ) where {FT<:AbstractFloat}
-
+        rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+        rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
+        HVACSchedule::ModelComponents.ForcingInputs.HVACSchedule{FT,0},
+    ) where {FT<:AbstractFloat,MR,MG}
 Calculate energy balance for canyon surfaces.
 
 # Arguments
@@ -86,8 +85,8 @@ Calculate energy balance for canyon surfaces.
 - `RESPreCalc`: Use pre-calculated resistances
 - `fconvPreCalc`: Pre-calculated convection factors
 - `fconv`: Convection factors
-- `rsGroundPreCalc`: Pre-calculated ground resistances
-- `rsTreePreCalc`: Pre-calculated tree resistances
+- `rsGroundPreCalc`: Pre-calculated ground stomatal resistances
+- `rsTreePreCalc`: Pre-calculated tree stomatal resistances
 - `HVACSchedule`: HVAC operation schedule
 
 # Returns
@@ -138,8 +137,8 @@ function eb_solver_canyon(
     RESPreCalc::Bool,
     fconvPreCalc::Bool,
     fconv::FT,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
     HVACSchedule::ModelComponents.ForcingInputs.HVACSchedule{FT,0},
 ) where {FT<:AbstractFloat,MR,MG}
 
@@ -514,8 +513,8 @@ function eb_solver_canyon(
     RESPreCalc::Bool,
     fconvPreCalc::FT,
     fconv::FT,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
     HVACSchedule::NamedTuple,
 ) where {FT<:AbstractFloat}
 

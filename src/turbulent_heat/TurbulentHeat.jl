@@ -9,7 +9,8 @@ using ..Resistance:
     in_canyon_aerodynamic_resistance,
     wind_profile_roof,
     leaf_boundary_resistance,
-    soil_resistance
+    soil_resistance,
+    StomatalResistancePreCalc
 using ..Soil: soil_parameters_total
 using NaNMath
 

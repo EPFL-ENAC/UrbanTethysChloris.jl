@@ -1,6 +1,7 @@
 using Test
 using MAT
 using UrbanTethysChloris.TurbulentHeat: heat_flux_roof
+using UrbanTethysChloris.Resistance: StomatalResistancePreCalc
 using ....TestUtils:
     create_height_dependent_vegetation_parameters,
     create_location_specific_surface_fractions,
@@ -93,7 +94,7 @@ CiCO2Leaf_ittm = (;
     CiCO2LeafRoofVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafRoofVegShd"],
 )
 
-rsRoofPreCalc = (;
+rsRoofPreCalc = StomatalResistancePreCalc{FT}(;
     rs_sun=input_vars["rsRoofPreCalc"]["rs_sun"],
     rs_shd=input_vars["rsRoofPreCalc"]["rs_shd"],
     Ci_sun=input_vars["rsRoofPreCalc"]["Ci_sun"],

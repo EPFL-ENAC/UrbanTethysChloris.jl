@@ -1,6 +1,7 @@
 using Test
 using MAT
 using UrbanTethysChloris.TurbulentHeat: heat_flux_ground
+using UrbanTethysChloris.Resistance: StomatalResistancePreCalc
 using ....TestUtils:
     create_height_dependent_vegetation_parameters,
     create_location_specific_surface_fractions,
@@ -164,18 +165,18 @@ CiCO2Leaf_ittm = (;
     CiCO2LeafGroundVegShd=input_vars["CiCO2Leaf_ittm"]["CiCO2LeafGroundVegShd"],
 )
 
-rsGroundPreCalc = (;
-    rs_sun_L=input_vars["rsGroundPreCalc"]["rs_sun_L"],
-    rs_shd_L=input_vars["rsGroundPreCalc"]["rs_shd_L"],
-    Ci_sun_L=input_vars["rsGroundPreCalc"]["Ci_sun_L"],
-    Ci_shd_L=input_vars["rsGroundPreCalc"]["Ci_shd_L"],
+rsGroundPreCalc = StomatalResistancePreCalc{FT}(;
+    rs_sun=input_vars["rsGroundPreCalc"]["rs_sun_L"],
+    rs_shd=input_vars["rsGroundPreCalc"]["rs_shd_L"],
+    Ci_sun=input_vars["rsGroundPreCalc"]["Ci_sun_L"],
+    Ci_shd=input_vars["rsGroundPreCalc"]["Ci_shd_L"],
 )
 
-rsTreePreCalc = (;
-    rs_sun_H=input_vars["rsTreePreCalc"]["rs_sun_H"],
-    rs_shd_H=input_vars["rsTreePreCalc"]["rs_shd_H"],
-    Ci_sun_H=input_vars["rsTreePreCalc"]["Ci_sun_H"],
-    Ci_shd_H=input_vars["rsTreePreCalc"]["Ci_shd_H"],
+rsTreePreCalc = StomatalResistancePreCalc{FT}(;
+    rs_sun=input_vars["rsTreePreCalc"]["rs_sun_H"],
+    rs_shd=input_vars["rsTreePreCalc"]["rs_shd_H"],
+    Ci_sun=input_vars["rsTreePreCalc"]["Ci_sun_H"],
+    Ci_shd=input_vars["rsTreePreCalc"]["Ci_shd_H"],
 )
 
 ParCalculation = (;

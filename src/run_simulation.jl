@@ -43,8 +43,6 @@ function run_simulation(
     # store OwaterInitial for back-computation
     OwaterInitial = deepcopy(model.variables.waterflux.Owater)
 
-    # Hard-code ittm2Ext with values from first iteration, keep as named tuple for dev
-
     # Pre-calculate for faster numerical solution
 
     # Meteo_ittm
@@ -98,9 +96,15 @@ function run_simulation(
             )
         else
             fconv = FT(NaN)
-            rsRoofPreCalc = (;)
-            rsGroundPreCalc = (;)
-            rsTreePreCalc = (;)
+            rsRoofPreCalc = Resistance.StomatalResistancePreCalc{FT}(;
+                rs_sun=FT(NaN), rs_shd=FT(NaN), Ci_sun=FT(NaN), Ci_shd=FT(NaN)
+            )
+            rsGroundPreCalc = Resistance.StomatalResistancePreCalc{FT}(;
+                rs_sun=FT(NaN), rs_shd=FT(NaN), Ci_sun=FT(NaN), Ci_shd=FT(NaN)
+            )
+            rsTreePreCalc = Resistance.StomatalResistancePreCalc{FT}(;
+                rs_sun=FT(NaN), rs_shd=FT(NaN), Ci_sun=FT(NaN), Ci_shd=FT(NaN)
+            )
         end
 
         ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(

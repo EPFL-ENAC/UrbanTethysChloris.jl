@@ -45,9 +45,9 @@
         RESPreCalc::Bool,
         fconvPreCalc::FT,
         fconv::FT,
-        rsRoofPreCalc::NamedTuple,
-        rsGroundPreCalc::NamedTuple,
-        rsTreePreCalc::NamedTuple,
+        rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
+        rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+        rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
         HVACSchedule::NamedTuple,
     ) where {FT<:AbstractFloat}
 
@@ -94,9 +94,9 @@ function f_solver_tot!(
     RESPreCalc::Bool,
     fconvPreCalc::Bool,
     fconv::FT,
-    rsRoofPreCalc::NamedTuple,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple;
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT};
     iterations::Int=500,
     f_tol::Real=1e-10,
 ) where {FT<:AbstractFloat,MR,MG}
@@ -206,9 +206,9 @@ function f_solver_tot(
     RESPreCalc::Bool,
     fconvPreCalc::Bool,
     fconv::FT,
-    rsRoofPreCalc::NamedTuple,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
     HVACSchedule::ModelComponents.ForcingInputs.HVACSchedule{FT,0};
     iterations::Int=500,
     f_tol::Real=1e-10,
@@ -740,9 +740,9 @@ function f_solver_tot(
     RESPreCalc::Bool,
     fconvPreCalc::FT,
     fconv::FT,
-    rsRoofPreCalc::NamedTuple,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
     HVACSchedule::NamedTuple;
     iterations::Int=500,
     f_tol::Real=1e-10,

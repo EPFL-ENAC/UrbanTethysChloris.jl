@@ -2,27 +2,27 @@
     eb_solver_roof(
         TemperatureR::Vector{FT},
         TemperatureB::Vector{FT},
-        TempVec_ittm::NamedTuple,
-        MeteoData::NamedTuple,
-        Int_ittm::NamedTuple,
-        ExWater_ittm::NamedTuple,
-        Vwater_ittm::NamedTuple,
-        Owater_ittm::NamedTuple,
-        SoilPotW_ittm::NamedTuple,
-        CiCO2Leaf_ittm::NamedTuple,
+        TempVec_ittm::ModelComponents.ModelVariables.TempVec{FT},
+        MeteoData::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0},
+        Int_ittm::ModelComponents.ModelVariables.Interception{FT},
+        ExWater_ittm::ModelComponents.ModelVariables.ExWater{FT,MR,MG},
+        Vwater_ittm::ModelComponents.ModelVariables.Vwater{FT,MR,MG},
+        Owater_ittm::ModelComponents.ModelVariables.Owater{FT,MR,MG},
+        SoilPotW_ittm::ModelComponents.ModelVariables.SoilPotW{FT},
+        CiCO2Leaf_ittm::ModelComponents.ModelVariables.CiCO2Leaf{FT},
         Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
         FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
         ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
-        PropOpticalRoof::ModelComponents.Parameters.OutdoorOpticalProperties{FT},
+        PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
         ParThermalRoof::ModelComponents.Parameters.LocationSpecificThermalProperties{FT},
         ParVegRoof::ModelComponents.Parameters.HeightDependentVegetationParameters{FT},
-        HumidityAtm::NamedTuple,
-        Anthropogenic::NamedTuple,
+        HumidityAtm::ModelComponents.ForcingInputs.MeteorologicalInputs{FT,0},
+        Anthropogenic::ModelComponents.ForcingInputs.AnthropogenicInputs{FT,0},
         ParCalculation::NamedTuple,
         BEM_on::Bool,
         RESPreCalc::Bool,
-        rsRoofPreCalc::NamedTuple
-    ) where {FT<:AbstractFloat}
+        rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    ) where {FT<:AbstractFloat,MR,MG}
 
 Calculate energy balance for roof surfaces.
 
@@ -75,7 +75,7 @@ function eb_solver_roof(
     ParCalculation::NamedTuple,
     BEM_on::Bool,
     RESPreCalc::Bool,
-    rsRoofPreCalc::NamedTuple,
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat,MR,MG}
     # Shortwave radiation
     SWRabs_dir_veg = (1 - PropOpticalRoof.aveg) * MeteoData.SW_dir
@@ -203,7 +203,7 @@ function eb_solver_roof(
     ParCalculation::NamedTuple,
     BEM_on::Bool,
     RESPreCalc::Bool,
-    rsRoofPreCalc::NamedTuple,
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat}
     # Shortwave radiation
     SWRabs_dir_veg = (1 - PropOpticalRoof.aveg) * MeteoData.SW_dir

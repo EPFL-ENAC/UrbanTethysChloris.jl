@@ -1,6 +1,7 @@
 using Test
 using MAT
 using UrbanTethysChloris: eb_wb_roof
+using UrbanTethysChloris.Resistance: StomatalResistancePreCalc
 using UrbanTethysChloris.ModelComponents.Parameters
 using UrbanTethysChloris.ModelComponents.ForcingInputs
 using UrbanTethysChloris.ModelComponents.ModelVariables
@@ -23,7 +24,7 @@ ParCalculation = (;
     row=FT(input_vars["ParCalculation"]["row"]),
 )
 
-rsRoofPreCalc = (;
+rsRoofPreCalc = StomatalResistancePreCalc{FT}(;
     rs_sun=input_vars["rsRoofPreCalc"]["rs_sun"],
     rs_shd=input_vars["rsRoofPreCalc"]["rs_shd"],
     Ci_sun=input_vars["rsRoofPreCalc"]["Ci_sun"],

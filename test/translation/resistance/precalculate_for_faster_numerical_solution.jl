@@ -266,13 +266,13 @@ RES = (;
     @test rsRoofPreCalc.Ci_sun ≈ output_vars["rsRoofPreCalc"]["Ci_sun"]
     @test rsRoofPreCalc.Ci_shd ≈ output_vars["rsRoofPreCalc"]["Ci_shd"]
 
-    @test rsGroundPreCalc.rs_sun_L ≈ output_vars["rsGroundPreCalc"]["rs_sun_L"]
-    @test rsGroundPreCalc.rs_shd_L ≈ output_vars["rsGroundPreCalc"]["rs_shd_L"]
-    @test rsGroundPreCalc.Ci_sun_L ≈ output_vars["rsGroundPreCalc"]["Ci_sun_L"]
-    @test rsGroundPreCalc.Ci_shd_L ≈ output_vars["rsGroundPreCalc"]["Ci_shd_L"]
+    @test rsGroundPreCalc.rs_sun ≈ output_vars["rsGroundPreCalc"]["rs_sun_L"]
+    @test rsGroundPreCalc.rs_shd ≈ output_vars["rsGroundPreCalc"]["rs_shd_L"]
+    @test rsGroundPreCalc.Ci_sun ≈ output_vars["rsGroundPreCalc"]["Ci_sun_L"]
+    @test rsGroundPreCalc.Ci_shd ≈ output_vars["rsGroundPreCalc"]["Ci_shd_L"]
 
-    @test rsTreePreCalc.rs_sun_H ≈ output_vars["rsTreePreCalc"]["rs_sun_H"]
-    @test rsTreePreCalc.rs_shd_H ≈ output_vars["rsTreePreCalc"]["rs_shd_H"]
-    @test rsTreePreCalc.Ci_sun_H ≈ output_vars["rsTreePreCalc"]["Ci_sun_H"]
-    @test rsTreePreCalc.Ci_shd_H ≈ output_vars["rsTreePreCalc"]["Ci_shd_H"]
+    @test rsTreePreCalc.rs_sun ≈ output_vars["rsTreePreCalc"]["rs_sun_H"]
+    @test rsTreePreCalc.rs_shd ≈ output_vars["rsTreePreCalc"]["rs_shd_H"]
+    @test rsTreePreCalc.Ci_sun ≈ output_vars["rsTreePreCalc"]["Ci_sun_H"]
+    @test rsTreePreCalc.Ci_shd ≈ output_vars["rsTreePreCalc"]["Ci_shd_H"]
 end

@@ -39,12 +39,12 @@
         ParThermalBuildingFloor::ModelComponents.Parameters.ThermalBuilding{FT},
         ParWindows::ModelComponents.Parameters.WindowParameters{FT},
         BEM_on::Bool,
-        RESPreCalc::Bool,
+        RESPreCalc::FT,
         fconvPreCalc::FT,
         fconv::FT,
-        rsRoofPreCalc::NamedTuple,
-        rsGroundPreCalc::NamedTuple,
-        rsTreePreCalc::NamedTuple,
+        rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
+        rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+        rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
         HVACSchedule::NamedTuple
     ) where {FT<:AbstractFloat}
 
@@ -103,9 +103,9 @@ function eb_solver_urban_climate_building_energy_model(
     RESPreCalc::Bool,
     fconvPreCalc::Bool,
     fconv::FT,
-    rsRoofPreCalc::NamedTuple,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
     HVACSchedule::ModelComponents.ForcingInputs.HVACSchedule{FT,0},
 ) where {FT<:AbstractFloat,MR,MG}
 
@@ -283,9 +283,9 @@ function eb_solver_urban_climate_building_energy_model(
     RESPreCalc::Bool,
     fconvPreCalc::FT,
     fconv::FT,
-    rsRoofPreCalc::NamedTuple,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
+    rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
     HVACSchedule::NamedTuple,
 ) where {FT<:AbstractFloat}
 

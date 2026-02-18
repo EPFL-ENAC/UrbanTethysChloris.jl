@@ -22,7 +22,7 @@
         ParCalculation::NamedTuple,
         BEM_on::Bool,
         RESPreCalc::Bool,
-        rsRoofPreCalc::NamedTuple
+        rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT}
     ) where {FT<:AbstractFloat}
 
 Calculate energy balance for roof surfaces.
@@ -50,7 +50,7 @@ Calculate energy balance for roof surfaces.
 - `ParCalculation`: Calculation parameters
 - `BEM_on`: Building Energy Model switch
 - `RESPreCalc`: Use pre-calculated resistances
-- `rsRoofPreCalc`: Pre-calculated resistance parameters
+- `rsRoofPreCalc`: Pre-calculated stomatal resistance parameters (StomatalResistancePreCalc)
 
 # Returns
 - `SWRabsRoofImp`: Absorbed shortwave radiation by impervious roof [W/m²]
@@ -155,7 +155,7 @@ function eb_wb_roof!(
     ParCalculation::NamedTuple,
     BEM_on::Bool,
     RESPreCalc::Bool,
-    rsRoofPreCalc::NamedTuple,
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat,MR,MG}
     results = eb_wb_roof(
         TemperatureR,
@@ -211,7 +211,7 @@ function eb_wb_roof(
     ParCalculation::NamedTuple,
     BEM_on::Bool,
     RESPreCalc::Bool,
-    rsRoofPreCalc::NamedTuple,
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat,MR,MG}
     # TemperatureR(1) = Troof_imp
     # TemperatureR(2) = Troof_veg
@@ -506,7 +506,7 @@ function eb_wb_roof(
     ParCalculation::NamedTuple,
     BEM_on::Bool,
     RESPreCalc::Bool,
-    rsRoofPreCalc::NamedTuple,
+    rsRoofPreCalc::Resistance.StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat}
     # TemperatureR(1) = Troof_imp
     # TemperatureR(2) = Troof_veg

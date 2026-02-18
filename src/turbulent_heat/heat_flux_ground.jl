@@ -49,8 +49,8 @@ Calculate sensible and latent heat fluxes for ground surfaces.
 - `SWRdir_abs_groundveg`: Direct shortwave radiation absorbed by ground vegetation [W/m²]
 - `SWRdiff_abs_groundveg`: Diffuse shortwave radiation absorbed by ground vegetation [W/m²]
 - `RESPreCalc`: Use pre-calculated resistances
-- `rsGroundPreCalc`: Pre-calculated ground resistance parameters
-- `rsTreePreCalc`: Pre-calculated tree resistance parameters
+- `rsGroundPreCalc`: Pre-calculated ground stomatal resistance parameters (StomatalResistancePreCalc)
+- `rsTreePreCalc`: Pre-calculated tree stomatal resistance parameters (StomatalResistancePreCalc)
 
 # Returns
 A NamedTuple containing:
@@ -91,8 +91,8 @@ function heat_flux_ground(
     SWRdir_abs_groundveg::FT,
     SWRdiff_abs_groundveg::FT,
     RESPreCalc::Bool,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsGroundPreCalc::StomatalResistancePreCalc{FT},
+    rsTreePreCalc::StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat}
     # Extract temperatures
     Timp = TemperatureC[1]
@@ -411,10 +411,10 @@ function heat_flux_ground(
         )
 
         if RESPreCalc
-            rs_sun_H = rsTreePreCalc.rs_sun_H
-            rs_shd_H = rsTreePreCalc.rs_shd_H
-            Ci_sun_H = rsTreePreCalc.Ci_sun_H
-            Ci_shd_H = rsTreePreCalc.Ci_shd_H
+            rs_sun_H = rsTreePreCalc.rs_sun
+            rs_shd_H = rsTreePreCalc.rs_shd
+            Ci_sun_H = rsTreePreCalc.Ci_sun
+            Ci_shd_H = rsTreePreCalc.Ci_shd
         else
             rs_sun_H, rs_shd_H, Ci_sun_H, Ci_shd_H, _, _, _, _ = canopy_resistance_an_evolution(
                 PAR_sun_H,
@@ -468,10 +468,10 @@ function heat_flux_ground(
         )
 
         if RESPreCalc
-            rs_sun_L = rsGroundPreCalc.rs_sun_L
-            rs_shd_L = rsGroundPreCalc.rs_shd_L
-            Ci_sun_L = rsGroundPreCalc.Ci_sun_L
-            Ci_shd_L = rsGroundPreCalc.Ci_shd_L
+            rs_sun_L = rsGroundPreCalc.rs_sun
+            rs_shd_L = rsGroundPreCalc.rs_shd
+            Ci_sun_L = rsGroundPreCalc.Ci_sun
+            Ci_shd_L = rsGroundPreCalc.Ci_shd
         else
             rs_sun_L, rs_shd_L, Ci_sun_L, Ci_shd_L, _, _, _, _ = canopy_resistance_an_evolution(
                 PAR_sun_L,
@@ -822,8 +822,8 @@ function heat_flux_ground(
     SWRdir_abs_groundveg::FT,
     SWRdiff_abs_groundveg::FT,
     RESPreCalc::Bool,
-    rsGroundPreCalc::NamedTuple,
-    rsTreePreCalc::NamedTuple,
+    rsGroundPreCalc::StomatalResistancePreCalc{FT},
+    rsTreePreCalc::StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat,MR,MG}
     # Extract temperatures
     Timp = TemperatureC[1]
@@ -1142,10 +1142,10 @@ function heat_flux_ground(
         )
 
         if RESPreCalc
-            rs_sun_H = rsTreePreCalc.rs_sun_H
-            rs_shd_H = rsTreePreCalc.rs_shd_H
-            Ci_sun_H = rsTreePreCalc.Ci_sun_H
-            Ci_shd_H = rsTreePreCalc.Ci_shd_H
+            rs_sun_H = rsTreePreCalc.rs_sun
+            rs_shd_H = rsTreePreCalc.rs_shd
+            Ci_sun_H = rsTreePreCalc.Ci_sun
+            Ci_shd_H = rsTreePreCalc.Ci_shd
         else
             rs_sun_H, rs_shd_H, Ci_sun_H, Ci_shd_H, _, _, _, _ = canopy_resistance_an_evolution(
                 PAR_sun_H,
@@ -1199,10 +1199,10 @@ function heat_flux_ground(
         )
 
         if RESPreCalc
-            rs_sun_L = rsGroundPreCalc.rs_sun_L
-            rs_shd_L = rsGroundPreCalc.rs_shd_L
-            Ci_sun_L = rsGroundPreCalc.Ci_sun_L
-            Ci_shd_L = rsGroundPreCalc.Ci_shd_L
+            rs_sun_L = rsGroundPreCalc.rs_sun
+            rs_shd_L = rsGroundPreCalc.rs_shd
+            Ci_sun_L = rsGroundPreCalc.Ci_sun
+            Ci_shd_L = rsGroundPreCalc.Ci_shd
         else
             rs_sun_L, rs_shd_L, Ci_sun_L, Ci_shd_L, _, _, _, _ = canopy_resistance_an_evolution(
                 PAR_sun_L,

@@ -85,7 +85,7 @@ function heat_flux_roof(
     SWRabs_dir::FT,
     SWRabs_diff::FT,
     RESPreCalc::Bool,
-    rsRoofPreCalc::NamedTuple,
+    rsRoofPreCalc::StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat,MR,MG}
     # Extract temperatures
     Troof_imp = TemperatureR[1]
@@ -425,7 +425,7 @@ function heat_flux_roof(
     SWRabs_dir::FT,
     SWRabs_diff::FT,
     RESPreCalc::Bool,
-    rsRoofPreCalc::NamedTuple,
+    rsRoofPreCalc::StomatalResistancePreCalc{FT},
 ) where {FT<:AbstractFloat}
     # Extract temperatures
     Troof_imp = TemperatureR[1]
