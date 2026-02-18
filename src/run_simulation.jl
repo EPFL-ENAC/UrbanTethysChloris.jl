@@ -1,24 +1,22 @@
 function run_simulation(
     model::Model{FT},
     forcing::UrbanTethysChloris.ModelComponents.ForcingInputSet{FT,1};
+    options::AbstractModelOptions=ModelOptions(),
     NN::Signed=nothing,
-    mc_sample_size::Int=1000,
-    n_rays::Int=200,
-    RESPreCalc::Bool=true,
-    fconvPreCalc::Bool=true,
-    BEM_on::Bool=true,
     ParInterceptionTree::NamedTuple=(; Sp_In=FT(0.2)),
     ViewFactors::Union{
         Tuple{RayTracing.ViewFactor{FT},RayTracing.ViewFactorPoint{FT}},Nothing
     }=nothing,
     O33::NamedTuple=(roof=FT(0.0), ground=FT(0.0)),
-    output_level::UrbanTethysChloris.ModelComponents.AbstractOutputsToSave=plot_outputs,
 ) where {FT<:AbstractFloat}
 
     # view factor
     if isnothing(ViewFactors)
         ViewFactor, ViewFactorPoint = RayTracing.view_factors_canyon(
-            model.parameters.urbangeometry, model.parameters.person, mc_sample_size, n_rays
+            model.parameters.urbangeometry,
+            model.parameters.person,
+            options.mc_sample_size,
+            options.n_rays,
         )
     else
         ViewFactor, ViewFactorPoint = ViewFactors
@@ -68,7 +66,7 @@ function run_simulation(
     T2m = FT(NaN)
     RH_T2m = FT(NaN)
 
-    results, accessors = prepare_results(typeof(output_level), model, NN)
+    results, accessors = prepare_results(typeof(options.output_level), model, NN)
 
     results[:OwaterInitial] = Dict{Symbol,Array}(
         :OwRoofSoilVeg => OwaterInitial.OwRoofSoilVeg,
@@ -90,9 +88,9 @@ function run_simulation(
             update!(model_ittm.meteo, model.forcing.meteorological)
         end
 
-        if RESPreCalc || fconvPreCalc
+        if options.RESPreCalc || options.fconvPreCalc
             fconv, rsRoofPreCalc, rsGroundPreCalc, rsTreePreCalc = Resistance.precalculate_for_faster_numerical_solution(
-                model, model_ittm, i, 1, ViewFactor, BEM_on
+                model, model_ittm, i, 1, ViewFactor, options.BEM_on
             )
         else
             fconv = FT(NaN)
@@ -108,13 +106,13 @@ function run_simulation(
         end
 
         ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(
-            model, model_ittm, BEM_on
+            model, model_ittm, options.BEM_on
         )
 
         EnergyUse = (;);
 
         for HVACittm in 1:2
-            if BEM_on && HVACittm == 2
+            if options.BEM_on && HVACittm == 2
                 if !ParHVACorig.ACon && !ParHVACorig.Heatingon
                     continue
                 end
@@ -154,9 +152,9 @@ function run_simulation(
                 ParInterceptionTree,
                 ParCalculation,
                 ParHVAC,
-                BEM_on,
-                RESPreCalc,
-                fconvPreCalc,
+                options.BEM_on,
+                options.RESPreCalc,
+                options.fconvPreCalc,
                 fconv,
                 rsRoofPreCalc,
                 rsGroundPreCalc,
@@ -175,7 +173,14 @@ function run_simulation(
 
             # TODO: remove all EB, WB and Yroof from the list of outputs, they are already modified in-place
             G2Roof, Yroof = eb_wb_roof!(
-                model, TR, TB, model_ittm, ParCalculation, BEM_on, RESPreCalc, rsRoofPreCalc
+                model,
+                TR,
+                TB,
+                model_ittm,
+                ParCalculation,
+                options.BEM_on,
+                options.RESPreCalc,
+                rsRoofPreCalc,
             )
 
             SWRout_t, SWRabs_t, LWRout_t, G2WallSun, G2WallShade, Ycanyon, T2m, RH_T2m = eb_wb_canyon!(
@@ -188,9 +193,9 @@ function run_simulation(
                 ParCalculation,
                 G2Roof,
                 ParHVAC,
-                BEM_on,
-                RESPreCalc,
-                fconvPreCalc,
+                options.BEM_on,
+                options.RESPreCalc,
+                options.fconvPreCalc,
                 fconv,
                 rsGroundPreCalc,
                 rsTreePreCalc,
@@ -212,7 +217,7 @@ function run_simulation(
                 SWRabs_t,
                 ParHVAC,
                 ParCalculation,
-                BEM_on,
+                options.BEM_on,
             )
         end
 

@@ -1,6 +1,7 @@
 module UrbanTethysChloris
 
 using TethysChlorisCore
+using TethysChlorisCore: AbstractModelOptions
 using Dates
 using Statistics
 using ConstructionBase
@@ -92,5 +93,8 @@ export water_balance_components
 
 include(joinpath("outputs", "Outputs.jl"))
 using .Outputs
+
+include("options.jl")
+export ModelOptions
 
 end

@@ -40,6 +40,8 @@ view_factor_point = ViewFactorPoint{Float64}(;
 yaml_path = joinpath(@__DIR__, "data", "zurich_parameters.yaml")
 ncdf_path = joinpath(@__DIR__, "data", "zurich_data.nc")
 
+options = ModelOptions(; fconvPreCalc=false, output_level=extended_outputs)
+
 model, forcing = create_model(FT, ncdf_path, yaml_path);
 
 initialize!(model, forcing)
@@ -53,11 +55,10 @@ NN = 100
 results, view_factor_out, view_factor_point_out = run_simulation(
     model,
     forcing;
+    options=options,
     NN=NN,
     ViewFactors=(view_factor, view_factor_point),
     O33=O33,
-    fconvPreCalc=false,
-    output_level=extended_outputs,
 )
 
 x, x_day, x_month, fig1, fig2 = urban_climate_variables(results, model, forcing, NN)
