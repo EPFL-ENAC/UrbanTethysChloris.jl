@@ -8,6 +8,8 @@ using ..Radiation
 using ..UrbanTethysChloris: Model, ModelIttm
 using SimpleNonlinearSolve: IntervalNonlinearProblem, solve, Brent
 using SciMLBase: successful_retcode
+using TethysChlorisCore: AbstractZeroFindingStrategies, AbstractModelOptions
+using TethysChlorisCore: SimpleBrentStrategy, find_root
 
 """
     StomatalResistancePreCalc{FT<:AbstractFloat}

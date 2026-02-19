@@ -19,6 +19,7 @@ Calculate enhancement factor for aerodynamic resistance according to Pleim et al
 - `zatm`: Atmospheric measurement height [m]
 - `Ws`: Wind speed [m/s]
 - `hPBL`: Planetary boundary layer height [m]
+- `strategy`: Root-finding strategy for backcalculating Obhukov length (default: `SimpleBrentStrategy`)
 
 # Returns
 - `fconv`: Fraction of convective transport [-]
@@ -27,10 +28,17 @@ Calculate enhancement factor for aerodynamic resistance according to Pleim et al
 - `LAN`: Monin-Obhukov length [m]
 """
 function enhancement_factor_ra_pleim(
-    ra::FT, zom::FT, zoh::FT, disp_h::FT, zatm::FT, Ws::FT, hPBL::FT
+    ra::FT,
+    zom::FT,
+    zoh::FT,
+    disp_h::FT,
+    zatm::FT,
+    Ws::FT,
+    hPBL::FT,
+    strategy::AbstractZeroFindingStrategies=SimpleBrentStrategy(FT),
 ) where {FT<:AbstractFloat}
     # Backcalculate Monin-Obhukov Length
-    LAN, _ = backcalculate_obhukov_length(ra, zom, zoh, disp_h, zatm, Ws)
+    LAN, _ = backcalculate_obhukov_length(ra, zom, zoh, disp_h, zatm, Ws, strategy)
 
     # Constants from Holtslag et al. 1993
     a = FT(7.2)

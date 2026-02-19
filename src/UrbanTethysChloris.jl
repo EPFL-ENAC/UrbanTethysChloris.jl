@@ -1,7 +1,8 @@
 module UrbanTethysChloris
 
 using TethysChlorisCore
-using TethysChlorisCore: AbstractModelOptions
+using TethysChlorisCore: AbstractModelOptions, AbstractZeroFindingStrategies
+using TethysChlorisCore: SimpleBrentStrategy
 using Dates
 using Statistics
 using ConstructionBase
@@ -32,6 +33,9 @@ using .ModelComponents
 import .ModelComponents: update!
 export no_outputs,
     plot_outputs, essential_outputs, extended_energy_climate_outputs, extended_outputs
+
+include("options.jl")
+export ModelOptions
 
 include("Model.jl")
 export create_model, initialize!
@@ -93,8 +97,5 @@ export water_balance_components
 
 include(joinpath("outputs", "Outputs.jl"))
 using .Outputs
-
-include("options.jl")
-export ModelOptions
 
 end

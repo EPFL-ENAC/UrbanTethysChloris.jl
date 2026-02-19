@@ -23,40 +23,32 @@ Calculate Monin-Obhukov length based on previously calculated ra to compute enha
 - `Diff_ra`: Difference in aerodynamic resistance [s/m]
 """
 function backcalculate_obhukov_length(
-    ra::FT, zom::FT, zoh::FT, disp_h::FT, zatm::FT, u::FT
+    ra::FT,
+    zom::FT,
+    zoh::FT,
+    disp_h::FT,
+    zatm::FT,
+    u::FT,
+    strategy::AbstractZeroFindingStrategies=SimpleBrentStrategy(FT),
 ) where {FT<:AbstractFloat}
     z = zatm - disp_h
     LANp = FT(-2)  # Initial guess for unstable conditions
 
-    f(x, p) = solve_obhukov_length(x, ra, zom, zoh, z, u)
+    f(x) = solve_obhukov_length(x, ra, zom, zoh, z, u)
     rb = -eps(FT)
-    frb = f(rb, nothing)
+    frb = f(rb)
     lb = -10.0
-    flb = f(lb, nothing)
+    flb = f(lb)
     while sign(frb) == sign(flb)
         lb *= 10
-        flb = f(lb, nothing)
+        flb = f(lb)
         if abs(lb) > 1e6
             @debug "backcalculate_obhukov_length does not change sign in the range, setting LAN to -Inf."
             return FT(-Inf), solve_obhukov_length(FT(-Inf), ra, zom, zoh, z, u)
         end
     end
 
-    prob = IntervalNonlinearProblem(
-        (x, p) -> solve_obhukov_length(x, ra, zom, zoh, z, u), (lb, rb)
-    )
-    sol = solve(prob, Brent(); abstol=FT(1e-6), maxiters=400)
-
-    if !successful_retcode(sol)
-        throw(
-            ErrorException(
-                "Failed to converge when backcalculating Obhukov length. Solution return code: $(sol.retcode)",
-            ),
-        )
-    end
-
-    LAN = sol.u
-    Diff_ra = sol.resid
+    LAN, Diff_ra = find_root(f, (lb, rb), strategy)
 
     return LAN, Diff_ra
 end

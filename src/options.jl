@@ -25,4 +25,7 @@ Base.@kwdef struct ModelOptions <: AbstractModelOptions
     fconvPreCalc::Bool = true
     BEM_on::Bool = true
     output_level::UrbanTethysChloris.ModelComponents.AbstractOutputsToSave=plot_outputs
+    OPT_Obhukov::AbstractZeroFindingStrategies = SimpleBrentStrategy(
+        Float64; abstol=1e-6, maxiters=400
+    )
 end

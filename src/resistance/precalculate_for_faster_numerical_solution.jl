@@ -38,7 +38,7 @@ function precalculate_for_faster_numerical_solution(
     ittn::Int,
     ittm::Int,
     ViewFactor::RayTracing.ViewFactor{FT},
-    BEM_on::Bool,
+    options::AbstractModelOptions,
 ) where {FT<:AbstractFloat,MR,MG}
     return precalculate_for_faster_numerical_solution(
         ittn,
@@ -58,14 +58,16 @@ function precalculate_for_faster_numerical_solution(
         model.forcing.sunposition,
         ViewFactor,
         model.parameters.building_energy.windows,
-        BEM_on,
+        options.BEM_on,
         model.parameters.vegetation.roof,
         model.parameters.optical.roof,
         model.parameters.surfacefractions.roof,
         model_ittm.resistance,
+        options.OPT_Obhukov,
     )
 end
 
+# TODO: remove references to ittm
 function precalculate_for_faster_numerical_solution(
     ittn::Int,
     ittm::Int,
@@ -89,6 +91,7 @@ function precalculate_for_faster_numerical_solution(
     PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
     FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
     RES_ittm::ModelComponents.ModelVariables.Resistance{FT},
+    strategy::AbstractZeroFindingStrategies=SimpleBrentStrategy(FT),
 ) where {FT<:AbstractFloat}
 
     # Calculate enhancement factor based on ra_original of previous time step
@@ -127,6 +130,7 @@ function precalculate_for_faster_numerical_solution(
                 MeteoData.Zatm,
                 MeteoData.Uatm,
                 hPBL,
+                strategy,
             )
         else
             fconv = zero(FT)
@@ -263,6 +267,7 @@ function precalculate_for_faster_numerical_solution(
     PropOpticalRoof::ModelComponents.Parameters.VegetatedOpticalProperties{FT},
     FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
     RES::NamedTuple,
+    strategy::AbstractZeroFindingStrategies=SimpleBrentStrategy(FT),
 ) where {FT<:AbstractFloat}
 
     # Calculate enhancement factor based on ra_original of previous time step
@@ -301,6 +306,7 @@ function precalculate_for_faster_numerical_solution(
                 MeteoData.Zatm,
                 MeteoData.Uatm,
                 hPBL,
+                strategy,
             )
         else
             fconv = zero(FT)

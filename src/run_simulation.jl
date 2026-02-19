@@ -90,7 +90,7 @@ function run_simulation(
 
         if options.RESPreCalc || options.fconvPreCalc
             fconv, rsRoofPreCalc, rsGroundPreCalc, rsTreePreCalc = Resistance.precalculate_for_faster_numerical_solution(
-                model, model_ittm, i, 1, ViewFactor, options.BEM_on
+                model, model_ittm, i, 1, ViewFactor, options
             )
         else
             fconv = FT(NaN)
