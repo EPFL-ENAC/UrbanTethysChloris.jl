@@ -199,6 +199,7 @@ function run_simulation(
                 fconv,
                 rsGroundPreCalc,
                 rsTreePreCalc,
+                options,
             )
 
             SWRinWsun = SWRabs_t.WallSun

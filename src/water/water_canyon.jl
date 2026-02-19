@@ -168,6 +168,7 @@ function water_canyon(
     FractionsGround::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},
     Gemeotry_m::ModelComponents.Parameters.UrbanGeometryParameters{FT},
     Anthropogenic::ModelComponents.ForcingInputs.AnthropogenicInputs{FT,0},
+    OPT_SM::AbstractODEOptions=ODEOptions(abstol=0.05),
 ) where {FT<:AbstractFloat,MR,MG}
 
     # Extract parameters from dictionaries
@@ -400,6 +401,7 @@ function water_canyon(
         PsiX50_H,
         Zs[3:end] .- Zs[3],
         row,
+        OPT_SM,
     )
 
     V_gimp1 = [NaN; NaN; V_gimp1]
@@ -436,6 +438,7 @@ function water_canyon(
         PsiX50_H,
         Zs,
         row,
+        OPT_SM,
     )
 
     # Vegetated soil column
@@ -470,6 +473,7 @@ function water_canyon(
         PsiX50_L,
         Zs,
         row,
+        OPT_SM,
     )
 
     # Lateral water redistribution parameters

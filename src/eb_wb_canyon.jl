@@ -114,6 +114,7 @@ function eb_wb_canyon!(
     fconv::FT,
     rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
     rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
+    options::AbstractModelOptions,
 ) where {FT<:AbstractFloat,MR,MG}
     results = eb_wb_canyon(
         TemperatureC,
@@ -160,6 +161,7 @@ function eb_wb_canyon!(
         rsGroundPreCalc,
         rsTreePreCalc,
         model.forcing.hvacschedule,
+        options.OPT_SM,
     )
 
     update!(model.variables, results, eb_wb_canyon_dispatcher)
@@ -218,7 +220,8 @@ function eb_wb_canyon(
     fconv::FT,
     rsGroundPreCalc::Resistance.StomatalResistancePreCalc{FT},
     rsTreePreCalc::Resistance.StomatalResistancePreCalc{FT},
-    HVACSchedule::ModelComponents.ForcingInputs.HVACSchedule{FT,0};
+    HVACSchedule::ModelComponents.ForcingInputs.HVACSchedule{FT,0},
+    OPT_SM::AbstractODEOptions=ODEOptions(abstol=0.05),
 ) where {FT<:AbstractFloat,MR,MG}
 
     # Calculate shortwave radiation
@@ -741,6 +744,7 @@ function eb_wb_canyon(
         FractionsGround,
         Gemeotry_m,
         Anthropogenic,
+        OPT_SM,
     )
 
     return (;

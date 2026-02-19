@@ -2,7 +2,7 @@ module UrbanTethysChloris
 
 using TethysChlorisCore
 using TethysChlorisCore: AbstractModelOptions, AbstractZeroFindingStrategies
-using TethysChlorisCore: SimpleBrentStrategy
+using TethysChlorisCore: SimpleBrentStrategy, AbstractODEOptions, ODEOptions
 using Dates
 using Statistics
 using ConstructionBase

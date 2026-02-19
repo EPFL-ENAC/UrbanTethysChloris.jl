@@ -114,8 +114,8 @@ function water_soil(
     PsiX50_H::Vector{FT},
     PsiX50_L::Vector{FT},
     Zs::Vector{FT},
-    row::FT;
-    atol=FT(0.05),
+    row::FT,
+    OPT_SM::AbstractODEOptions=ODEOptions(abstol=0.05),
 ) where {FT<:AbstractFloat}
     # Get soil parameters
     Zs, dz, ms, Osat, Ohy, nVG, alpVG, Ks_Zs, L, Pe, O33, SPAR, EvL_Zs, Inf_Zs, RfH_Zs, RfL_Zs, _, Kbot, Slo_pot, Dz, aR, aTop = Soil.soil_parameters_total(
@@ -196,7 +196,13 @@ function water_soil(
         T_SPAN,
     )
 
-    sol = solve(prob, Rosenbrock23(; autodiff=AutoFiniteDiff()); abstol=atol, dtmax=maxstep)
+    sol = solve(
+        prob,
+        Rosenbrock23(; autodiff=AutoFiniteDiff());
+        abstol=OPT_SM.abstol,
+        reltol=OPT_SM.reltol,
+        dtmax=maxstep,
+    )
     V = sol.u[end]
 
     if any(isnan, V)
@@ -233,7 +239,7 @@ function water_soil(
 
     # Volume correction for water table rise and runoff
     V[1] = V[1] + WTR[2] - Rd
-    V[2:(end - 1)] = V[2:(end - 1)] .+ (WTR[3:end] .- WTR[2:(end - 1)])
+    V[2:(end - 1)] .+= (WTR[3:end] .- WTR[2:(end - 1)])
     V[end] = V[end] - WTR[end]
 
     # Volume correction for negative values

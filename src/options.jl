@@ -28,4 +28,5 @@ Base.@kwdef struct ModelOptions <: AbstractModelOptions
     OPT_Obhukov::AbstractZeroFindingStrategies = SimpleBrentStrategy(
         Float64; abstol=1e-6, maxiters=400
     )
+    OPT_SM::AbstractODEOptions = ODEOptions(abstol=0.05)
 end

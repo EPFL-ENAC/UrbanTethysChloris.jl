@@ -1,7 +1,8 @@
 module Water
 
-using OrdinaryDiffEqRosenbrock
+using OrdinaryDiffEqRosenbrock: ODEProblem, Rosenbrock23, solve
 using ADTypes: AutoFiniteDiff
+using TethysChlorisCore: AbstractODEOptions, ODEOptions
 using ..ModelComponents
 using ..Soil
 
