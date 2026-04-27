@@ -1,7 +1,7 @@
 name = "UrbanTethysChloris"
 uuid = "8ae36e77-b357-5cab-a873-ceeadc1a5254"
-authors = ["Hugo Solleder <hugo.solleder@epfl.ch>"]
 version = "0.12.1"
+authors = ["Hugo Solleder <hugo.solleder@epfl.ch>"]
 
 [deps]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
@@ -40,7 +40,7 @@ LinearAlgebra = "1.11.0"
 MAT = "0.10"
 NCDatasets = "0.14"
 NaNMath = "1.1.3"
-OrdinaryDiffEqRosenbrock = "1.10.0"
+OrdinaryDiffEqRosenbrock = "1.10.0, 2"
 Plots = "1.41.4"
 Roots = "2.2.7"
 SciMLBase = "2.128.0"
