@@ -1,7 +1,8 @@
-function run_simulation(
+"""
+    run_simulation(
     model::Model{FT},
     forcing::UrbanTethysChloris.ModelComponents.ForcingInputSet{FT,1};
-    NN::Signed=nothing,
+    NN::Union{Int,Missing}=missing,
     mc_sample_size::Int=1000,
     n_rays::Int=200,
     RESPreCalc::Bool=true,
@@ -15,6 +16,47 @@ function run_simulation(
     O33::NamedTuple=(roof=FT(0.0), ground=FT(0.0)),
     output_level::UrbanTethysChloris.ModelComponents.AbstractOutputsToSave=plot_outputs,
 ) where {FT<:AbstractFloat}
+
+# Arguments
+- model: The UrbanTethysChloris model object containing the parameters and variables for the simulation.
+- forcing: The forcing input set containing meteorological data for the simulation.
+- NN: The number of time steps to simulate. If missing, it will be set to the length of the forcing data minus one.
+- mc_sample_size: The number of Monte Carlo samples to use for view factor calculations. Defaults to 1000.
+- n_rays: The number of rays to use for view factor calculations. Defaults to 200.
+- RESPreCalc: Whether to pre-calculate resistances for faster numerical solution. Defaults to true
+- fconvPreCalc: Whether to pre-calculate convective heat transfer coefficients for faster numerical solution. Defaults to true.
+- BEM_on: Whether to enable the building energy model. Defaults to true.
+- WallLayers: The wall layer thicknesses for the building energy model. Defaults to 0.1 m for both layers.
+- ParInterceptionTree: The parameters for tree interception. Defaults to 0.2 m for Sp_In.
+- ViewFactors: The view factors for the simulation. If nothing, they will be calculated using the model parameters. Defaults to nothing.
+- O33: The initial water fluxes for the roof and ground. Defaults to 0 for both.
+- output_level: The level of outputs to save. Defaults to plot_outputs.
+
+# Returns
+- results: A dictionary containing the simulation results.
+- ViewFactor: The view factor object used in the simulation.
+- ViewFactorPoint: The view factor point object used in the simulation.
+"""
+function run_simulation(
+    model::Model{FT},
+    forcing::UrbanTethysChloris.ModelComponents.ForcingInputSet{FT,1};
+    NN::Union{Int,Missing}=missing,
+    mc_sample_size::Int=1000,
+    n_rays::Int=200,
+    RESPreCalc::Bool=true,
+    fconvPreCalc::Bool=true,
+    BEM_on::Bool=true,
+    WallLayers::NamedTuple=(; dz1_wall=FT(0.1), dz2_wall=FT(0.1)),
+    ParInterceptionTree::NamedTuple=(; Sp_In=FT(0.2)),
+    ViewFactors::Union{
+        Tuple{RayTracing.ViewFactor{FT},RayTracing.ViewFactorPoint{FT}},Nothing
+    }=nothing,
+    O33::NamedTuple=(roof=FT(0.0), ground=FT(0.0)),
+    output_level::UrbanTethysChloris.ModelComponents.AbstractOutputsToSave=plot_outputs,
+) where {FT<:AbstractFloat}
+    if ismissing(NN)
+        NN = length(forcing.datetime) - 1
+    end
 
     # view factor
     if isnothing(ViewFactors)
