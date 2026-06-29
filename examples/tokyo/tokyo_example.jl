@@ -32,3 +32,49 @@ ef_urban, ef_canyon, ef_roof, fig3, fig4, fig5 = plan_area_energy_balance_calcul
 wf_urban, wf_canyon, wf_roof, wf_building, fig6, fig7 = water_balance_components(
     results, model, forcing, NN
 )
+
+using MAT
+using Plots
+
+matdata = matread("testrun_tokyo_1000steps_20260203_1217.mat")
+
+function plot_differences(matlab_variable, julia_variable, NNv; relative=false)
+    p1 = plot(
+        NNv,
+        [matlab_variable[NNv], julia_variable[NNv]];
+        label=["MATLAB" "Julia"],
+        color=[:blue :red],
+        grid=true,
+    )
+
+    err = julia_variable[NNv] - matlab_variable[NNv]
+    err_label = "Difference"
+    if relative
+        err ./= matlab_variable[NNv]
+        err_label = "Relative Difference"
+    end
+
+    p2 = plot(NNv, err; label=err_label, color=:green, grid=true)
+
+    return plot(p1, p2; layout=(2, 1))
+end
+
+Nx = NN
+# Somewhat big differences in temperature results
+plot_differences(matdata["TempVec"]["TCanyon"], results[:tempvec][:TCanyon], 1:Nx)
+
+plot_differences(
+    matdata["Humidity"]["CanyonSpecific"], results[:Humidity][:CanyonSpecific], 1:Nx
+)
+
+plot_differences(matdata["TempVecB"]["Tceiling"], results[:TempVecB][:Tceiling], 1:NN)
+
+plot_differences(
+    matdata["dInt_dt"]["dInt_dtGroundVegPlant"],
+    results[:dInt_dt][:dInt_dtGroundVegPlant],
+    1:NN,
+)
+
+plot_differences(
+    matdata["MeanRadiantTemperature"]["Tmrt"], results[:mrt][:Tmrt], 1:NN; relative=false
+)

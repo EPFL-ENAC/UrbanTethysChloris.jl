@@ -66,3 +66,76 @@ ef_urban, ef_canyon, ef_roof, fig3, fig4, fig5 = plan_area_energy_balance_calcul
 wf_urban, wf_canyon, wf_roof, wf_building, fig6, fig7 = water_balance_components(
     results, model, forcing, NN
 )
+
+# Simulation starts a bit different from MATLAB from the first iteration
+using MAT
+using Plots
+
+matdata = matread("testrun_newdelhi_1000steps_20260203_1046.mat")
+
+function plot_differences(matlab_variable, julia_variable, NNv; relative=false)
+    p1 = plot(
+        NNv,
+        [matlab_variable[NNv], julia_variable[NNv]];
+        label=["MATLAB" "Julia"],
+        color=[:blue :red],
+        grid=true,
+    )
+
+    err = julia_variable[NNv] - matlab_variable[NNv]
+    err_label = "Difference"
+    if relative
+        err ./= matlab_variable[NNv]
+        err_label = "Relative Difference"
+    end
+
+    p2 = plot(NNv, err; label=err_label, color=:green, grid=true)
+
+    return plot(p1, p2; layout=(2, 1))
+end
+
+Nx = NN
+# Somewhat big differences in temperature results
+plot_differences(matdata["TempVec"]["TCanyon"], results[:tempvec][:TCanyon], 1:Nx)
+
+plot_differences(matdata["TempVec"]["TRoofImp"], results[:tempvec][:TRoofImp], 1:Nx)
+
+plot_differences(matdata["TempVecB"]["Tceiling"], results[:TempVecB][:Tceiling], 1:NN)
+
+plot_differences(
+    matdata["dInt_dt"]["dInt_dtGroundVegPlant"],
+    results[:dInt_dt][:dInt_dtGroundVegPlant],
+    1:Nx,
+)
+
+plot_differences(
+    matdata["MeanRadiantTemperature"]["Tmrt"], results[:mrt][:Tmrt], 1:Nx; relative=false
+)
+
+plot_differences(matdata["EB"]["EBCanyonQ"], results[:EB][:EBCanyonQ], 1:Nx)
+# Instability comes from mostly from WallSun and WallShade
+
+# SWRabs is fine
+plot_differences(matdata["SWRabs"]["SWRabsWallSunExt"], results[:SWRabs][:WallSunExt], 1:47)
+
+# The difference appears to come from these three variables
+plot_differences(matdata["LWRabs"]["LWRabsWallSun"], results[:LWRabs][:WallSun], 1:47)
+# Difference reaches 0.08 at iteration 46
+
+plot_differences(matdata["Gflux"]["G1WallSun"], results[:Gflux][:G1WallSun], 1:47)
+# Difference reaches 0.06 at iteration 46
+
+plot_differences(matdata["Hflux"]["HfluxWallSun"], results[:Hflux][:HfluxWallSun], 1:47)
+# Difference reaches 0.20 at iteration 46
+# The difference most likely comes from the temperature itself, with differences reaching
+# up to 0.05
+# ExWater variables are quite (very!) different, despite their amplitude
+# Vwater, Owater, SoilPotW are different by 0.03 for the ground, not for the roof
+# These values are normal given the low convergence threshold
+plot_differences(
+    matdata["ExWater"]["ExWaterGroundTot_L"], results[:ExWater][:ExWaterGroundTot_L], 1:Nx
+)
+
+plot_differences(matdata["EB"]["EBRoofVeg"], results[:EB][:EBRoofVeg], 1:Nx; relative=true)
+
+# There's a weird pattern with the initial value of EBRoofVeg being extremely high at the first timestep
