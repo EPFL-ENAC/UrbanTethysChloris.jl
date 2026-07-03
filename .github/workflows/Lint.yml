@@ -27,7 +27,7 @@ jobs:
       - name: Use Julia cache
         uses: julia-actions/cache@v2
       - name: Install Julia packages
-        run: julia -e 'using Pkg; pkg"add JuliaFormatter"'
+        run: julia -e 'using Pkg; pkg"add JuliaFormatter@2.2.1"'
       - name: Hack for setup-python cache # https://github.com/actions/setup-python/issues/807
         run: touch requirements.txt
       - name: Setup Python
@@ -45,7 +45,7 @@ jobs:
       - name: Install pre-commit
         run: pip install pre-commit
       - name: Run pre-commit
-        run: SKIP=no-commit-to-branch pre-commit run -a
+        run: SKIP=no-commit-to-branch pre-commit run -a --show-diff-on-failure
   link-checker:
     name: Link checker
     runs-on: ubuntu-latest

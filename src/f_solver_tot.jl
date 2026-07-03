@@ -384,7 +384,7 @@ function f_solver_tot(
             r[14] = -1e-4
             r[22] = -1e-4
         else
-            r = (-1 + 2 * rand(FT, 22)) .* 3
+            r = (-1 .+ 2 * rand(FT, 22)) .* 3
             r[14] = -1e-4
             r[22] = -1e-4
         end
