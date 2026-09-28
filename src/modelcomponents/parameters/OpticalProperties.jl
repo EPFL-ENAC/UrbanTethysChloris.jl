@@ -136,3 +136,9 @@ function initialize_optical_properties(
 
     return initialize(FT, OpticalProperties, processed)
 end
+
+function TethysChlorisCore.outputs_to_save(
+    ::Type{<:OpticalProperties}, ::Type{O}
+) where {O<:AbstractOutputsToSave}
+    return (:roof, :ground, :wall, :tree)
+end

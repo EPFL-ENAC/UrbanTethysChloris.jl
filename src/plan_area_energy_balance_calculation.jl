@@ -1,7 +1,7 @@
 
 """
     plan_area_energy_balance_calculation(
-        results::Dict{Symbol,Dict{Symbol,Array}},
+        ncpath::AbstractString,
         model::Model{FT},
         forcing::ModelComponents.ForcingInputSet{FT,1},
         view_factor::RayTracing.ViewFactor{FT},
@@ -13,7 +13,7 @@ Calculates the plan area energy balance components for the urban area, canyon, a
 Analogous to `PlanAreaEnergyBalanceCalculation.m` in the original MATLAB code.
 
 # Arguments
-- `results`: Dictionary containing simulation results.
+- `ncpath`: Path to the streamed NetCDF results file.
 - `model`: The model structure.
 - `forcing`: The forcing input data.
 - `view_factor`: View factor structure for radiation calculations.
@@ -27,13 +27,31 @@ Analogous to `PlanAreaEnergyBalanceCalculation.m` in the original MATLAB code.
 - `fig1`, `fig2`, `fig3`: Figures to visualize the results.
 """
 function plan_area_energy_balance_calculation(
-    results::Dict{Symbol,Dict{Symbol,Array}},
+    ncpath::AbstractString,
     model::Model{FT},
     forcing::ModelComponents.ForcingInputSet{FT,1},
     view_factor::RayTracing.ViewFactor{FT},
     NN::Signed,
     BEM_on::Bool=true,
 ) where {FT<:AbstractFloat}
+    results = unpack_results(
+        ncpath,
+        1:NN,
+        "radiationflux.SWRabs",
+        "radiationflux.SWRin",
+        "radiationflux.SWRout",
+        "radiationflux.LWRabs",
+        "radiationflux.LWRin",
+        "radiationflux.LWRout",
+        "heatflux.Hflux",
+        "heatflux.LEflux",
+        "heatflux.Gflux",
+        "heatflux.dStorage",
+        "buildingenergymodel.GbuildInt",
+        "buildingenergymodel.HbuildInt",
+        "buildingenergymodel.LEbuildInt",
+        "buildingenergymodel.BEMWasteHeat",
+    )
 
     # Incoming radiation
     Meteo = forcing.meteorological

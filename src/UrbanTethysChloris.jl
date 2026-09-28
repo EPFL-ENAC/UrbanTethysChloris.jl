@@ -91,5 +91,6 @@ export water_balance_components
 
 include(joinpath("outputs", "Outputs.jl"))
 using .Outputs
+export OutputManager, initialize_outputs, save_outputs!, finalize_outputs!, unpack_results
 
 end

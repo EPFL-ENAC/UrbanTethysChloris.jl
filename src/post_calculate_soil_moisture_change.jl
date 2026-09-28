@@ -26,8 +26,8 @@ Post-calculates soil water volume changes for roof, canyon, and urban areas.
 - `dVdtUrbCalc`: Calculated change in soil water volume for urban area (mm/time step).
 """
 function post_calculate_soil_moisture_change(
-    OwaterInitial::Dict{Symbol,Array},
-    Owater::Dict{Symbol,Array},
+    OwaterInitial::AbstractDict,
+    Owater::AbstractDict,
     ParSoilRoof::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     ParSoilGround::ModelComponents.Parameters.VegetatedSoilParameters{FT},
     FractionsRoof::ModelComponents.Parameters.LocationSpecificSurfaceFractions{FT},

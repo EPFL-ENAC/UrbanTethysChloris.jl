@@ -245,3 +245,9 @@ function initialize_building_energy_model_parameters(
 
     return initialize(FT, BuildingEnergyModelParameters, processed, (FT,))
 end
+
+function TethysChlorisCore.outputs_to_save(
+    ::Type{<:BuildingEnergyModelParameters}, ::Type{O}
+) where {O<:AbstractOutputsToSave}
+    return (:indoor_optical, :thermal, :windows, :hvac)
+end

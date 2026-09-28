@@ -93,3 +93,13 @@ function TethysChlorisCore.validate_fields(::Type{ParameterSet}, data::Dict{Stri
         end
     end
 end
+
+function TethysChlorisCore.outputs_to_save(
+    ::Type{<:ParameterSet}, ::Type{O}
+) where {O<:AbstractOutputsToSave}
+    return (:urbangeometry, :location, :person)
+end
+
+function TethysChlorisCore.storage_frequency(::Type{<:ParameterSet})
+    return TethysChlorisCore.static_storage
+end

@@ -1,6 +1,6 @@
 """
     water_balance_components(
-        results::Dict{String,Any},
+        ncpath::AbstractString,
         model::Model{FT},
         forcing::ModelComponents.ForcingInputSet{FT,1},
         NN::Signed,
@@ -10,7 +10,7 @@ Calculates the water balance components for the urban area, canyon, roof, and bu
 Analogous to `WaterBalanceComponents.m` in the original MATLAB code.
 
 # Arguments
-- `results`: Dictionary containing simulation results.
+- `ncpath`: Path to the streamed NetCDF results file.
 - `model`: The model structure.
 - `forcing`: The forcing input data.
 - `NN`: Number of timesteps.
@@ -22,11 +22,25 @@ Analogous to `WaterBalanceComponents.m` in the original MATLAB code.
 - `WaterFluxBuild`: DataFrame containing building water flux components.
 """
 function water_balance_components(
-    results::AbstractDict,
+    ncpath::AbstractString,
     model::Model{FT},
     forcing::ModelComponents.ForcingInputSet{FT,1},
     NN::Signed,
 ) where {FT<:AbstractFloat}
+    results = unpack_results(
+        ncpath,
+        1:NN,
+        "waterflux.Runon",
+        "waterflux.Leakage",
+        "waterflux.Owater",
+        "waterflux.Interception",
+        "waterflux.dInt_dt",
+        "waterflux.dVwater_dt",
+        "heatflux.LEflux",
+        "buildingenergymodel.LEbuildInt",
+        "buildingenergymodel.BEMWasteHeat",
+        "initial.OwaterInitial",
+    )
 
     # Calculation parameters
     Meteo = forcing.meteorological

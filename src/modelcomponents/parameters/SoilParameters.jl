@@ -139,3 +139,9 @@ function initialize_soil_parameters(
 
     return initialize(FT, SoilParameters, processed)
 end
+
+function TethysChlorisCore.outputs_to_save(
+    ::Type{<:SoilParameters}, ::Type{O}
+) where {O<:AbstractOutputsToSave}
+    return (:roof, :ground, :wall)
+end
