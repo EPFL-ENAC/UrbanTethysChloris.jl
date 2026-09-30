@@ -361,16 +361,20 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{BuildingEnergyModelVariables}, ::Type{EssentialOutputs}
 )
     return (:BEMEnergyUse, :BEMWasteHeat, :TempVecB, :HumidityBuilding, :ParACHeat_ts)
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{BuildingEnergyModelVariables}, ::Type{ExtendedEnergyClimateOutputs}
 )
     return (:HbuildInt, :LEbuildInt, :GbuildInt, :SWRabsB, :LWRabsB)
+end
+
+function TethysChlorisCore.storage_frequency(::Type{<:BuildingEnergyModelVariables})
+    return TethysChlorisCore.hourly_storage
 end
 
 function update!(

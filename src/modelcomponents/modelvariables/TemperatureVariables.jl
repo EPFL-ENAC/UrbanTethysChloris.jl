@@ -233,16 +233,20 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{TemperatureVariables}, ::Type{EssentialOutputs}
 )
     return (:tempvec, :mrt, :thermalcomfort)
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{TemperatureVariables}, ::Type{ExtendedEnergyClimateOutputs}
 )
     return (:tempdamp,)
+end
+
+function TethysChlorisCore.storage_frequency(::Type{<:TemperatureVariables})
+    return TethysChlorisCore.hourly_storage
 end
 
 function update!(

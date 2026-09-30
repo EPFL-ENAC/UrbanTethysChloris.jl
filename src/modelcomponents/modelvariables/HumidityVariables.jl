@@ -158,10 +158,14 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{HumidityVariables}, ::Type{EssentialOutputs}
 )
     return (:Humidity, :Results2m)
+end
+
+function TethysChlorisCore.storage_frequency(::Type{<:HumidityVariables})
+    return TethysChlorisCore.hourly_storage
 end
 
 function update!(

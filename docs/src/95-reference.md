@@ -78,13 +78,6 @@ Modules = [UrbanTethysChloris.Water]
 
 ## Model Components
 
-```@docs
-UrbanTethysChloris.ModelComponents.accessors
-UrbanTethysChloris.ModelComponents.create_accessor_dict
-UrbanTethysChloris.ModelComponents.outputs_to_save
-UrbanTethysChloris.ModelComponents.parent_accessor
-```
-
 ### Forcing Inputs
 
 ```@docs

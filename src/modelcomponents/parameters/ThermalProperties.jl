@@ -96,3 +96,9 @@ function TethysChlorisCore.preprocess_fields(
 
     return processed
 end
+
+function TethysChlorisCore.outputs_to_save(
+    ::Type{<:ThermalProperties}, ::Type{O}
+) where {O<:AbstractOutputsToSave}
+    return (:roof, :ground, :wall, :tree)
+end

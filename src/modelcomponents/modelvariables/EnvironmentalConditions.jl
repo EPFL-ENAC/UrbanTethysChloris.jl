@@ -182,16 +182,20 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{EnvironmentalConditions}, ::Type{EssentialOutputs}
 )
     return (:wind,)
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{EnvironmentalConditions}, ::Type{ExtendedOutputs}
 )
     return (:resistance,)
+end
+
+function TethysChlorisCore.storage_frequency(::Type{<:EnvironmentalConditions})
+    return TethysChlorisCore.hourly_storage
 end
 
 function update!(

@@ -190,22 +190,26 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{RadiationFluxVariables}, ::Type{EssentialOutputs}
 )
     return (:AlbedoOutput,)
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{RadiationFluxVariables}, ::Type{ExtendedEnergyClimateOutputs}
 )
     return (:SWRabs, :LWRabs)
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{RadiationFluxVariables}, ::Type{ExtendedOutputs}
 )
     return (:SWRin, :SWRout, :SWREB, :LWRin, :LWRout, :LWREB)
+end
+
+function TethysChlorisCore.storage_frequency(::Type{<:RadiationFluxVariables})
+    return TethysChlorisCore.hourly_storage
 end
 
 # Refactor this for more general usage

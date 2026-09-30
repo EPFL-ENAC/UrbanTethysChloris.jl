@@ -34,8 +34,8 @@ end
     include("set_sun_variables.jl")
 end
 
-@safetestset "outputs" begin
-    include("outputs.jl")
+@safetestset "output_manager" begin
+    include("output_manager.jl")
 end
 
 @safetestset "Translation" begin

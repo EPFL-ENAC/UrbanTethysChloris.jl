@@ -15,6 +15,12 @@
     }=nothing,
     O33::NamedTuple=(roof=FT(0.0), ground=FT(0.0)),
     output_level::UrbanTethysChloris.ModelComponents.AbstractOutputsToSave=plot_outputs,
+    output_filename::Union{Nothing,String}=nothing,
+    compress::Bool=false,
+    buffer_len::Int=256,
+    time_chunk::Int=32,
+    extra::Vector{VariableSpec}=VariableSpec[],
+    spec_filter=identity,
 ) where {FT<:AbstractFloat}
 
 # Arguments
@@ -31,9 +37,19 @@
 - ViewFactors: The view factors for the simulation. If nothing, they will be calculated using the model parameters. Defaults to nothing.
 - O33: The initial water fluxes for the roof and ground. Defaults to 0 for both.
 - output_level: The level of outputs to save. Defaults to plot_outputs.
+- output_filename: Optional path to save the results as a streamed NetCDF file. If
+  provided, results are automatically saved during the simulation.
+- compress: Whether to compress (deflate) the output variables. Defaults to false.
+- buffer_len: Number of timesteps buffered before flush in the `time` dimension
+  (aligned chunks). Defaults to 256.
+- time_chunk: HDF5 chunk length of the `time`/`days` dimensions, decoupled from
+  `buffer_len` so dirty chunks stay small. Defaults to 32.
+- extra: User-derived output variables in addition to the `outputs_to_save` traits, as a
+  vector of `TethysChlorisCore.VariableSpec`.
+- spec_filter: Optional transform of the enumerated output specs (rename, drop, extend).
 
 # Returns
-- results: A dictionary containing the simulation results.
+- manager: The [`OutputManager`](@ref) when `output_filename` is set, `nothing` otherwise.
 - ViewFactor: The view factor object used in the simulation.
 - ViewFactorPoint: The view factor point object used in the simulation.
 """
@@ -53,6 +69,12 @@ function run_simulation(
     }=nothing,
     O33::NamedTuple=(roof=FT(0.0), ground=FT(0.0)),
     output_level::UrbanTethysChloris.ModelComponents.AbstractOutputsToSave=plot_outputs,
+    output_filename::Union{Nothing,String}=nothing,
+    compress::Bool=false,
+    buffer_len::Int=256,
+    time_chunk::Int=32,
+    extra::Vector{VariableSpec}=VariableSpec[],
+    spec_filter=identity,
 ) where {FT<:AbstractFloat}
     if ismissing(NN)
         NN = length(forcing.datetime) - 1
@@ -129,256 +151,318 @@ function run_simulation(
     T2m = FT(NaN)
     RH_T2m = FT(NaN)
 
-    results, accessors = prepare_results(typeof(output_level), model, NN)
-
-    results[:OwaterInitial] = Dict{Symbol,Array}(
-        :OwRoofSoilVeg => OwaterInitial.OwRoofSoilVeg,
-        :OwGroundSoilImp => OwaterInitial.OwGroundSoilImp,
-        :OwGroundSoilBare => OwaterInitial.OwGroundSoilBare,
-        :OwGroundSoilVeg => OwaterInitial.OwGroundSoilVeg,
-        :OwGroundSoilTot => OwaterInitial.OwGroundSoilTot,
-    )
-
-    for i in 1:NN
-        @info "Starting iteration $i / $NN"
-
-        if i > 1
-            extrapolate!(TempVec_ittm2Ext, model.variables.temperature.tempvec, i)
-            extrapolate!(Humidity_ittm2Ext, model.variables.humidity.Humidity, i)
-            extrapolate!(TempVecB_ittm2Ext, model.variables.buildingenergymodel.TempVecB, i)
-            # TODO: bring HumidityAtm back to the forcing inputs
-            # TODO rename as "apply forcing"
-            update!(model.variables.humidity.Humidity, model.forcing.meteorological)
-            update!(model.variables.temperature.tempvec, model.forcing.meteorological)
-            update!(Meteo_ittm, model.forcing.meteorological)
-        end
-
-        if RESPreCalc || fconvPreCalc
-            fconv, rsRoofPreCalc, rsGroundPreCalc, rsTreePreCalc = Resistance.precalculate_for_faster_numerical_solution(
-                model,
-                TempVec_ittm,
-                Humidity_ittm,
-                SoilPotW_ittm,
-                CiCO2Leaf_ittm,
-                RES_ittm,
-                i,
-                1,
-                ViewFactor,
-                BEM_on,
-            )
-        else
-            fconv = FT(NaN)
-            rsRoofPreCalc = (;)
-            rsGroundPreCalc = (;)
-            rsTreePreCalc = (;)
-        end
-
-        ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(
-            model, TempVecB_ittm, TempVec_ittm, Humidity_ittm, BEM_on
+    manager = nothing
+    if !isnothing(output_filename)
+        @info "Saving results to $output_filename"
+        Owaterextra = VariableSpec[
+            VariableSpec(
+                :OwRoofSoilVeg,
+                :OwaterInitial,
+                :initial,
+                Symbol[],
+                :mean,
+                _ -> OwaterInitial.OwRoofSoilVeg,
+            ),
+            VariableSpec(
+                :OwGroundSoilImp,
+                :OwaterInitial,
+                :initial,
+                Symbol[],
+                :mean,
+                _ -> OwaterInitial.OwGroundSoilImp,
+            ),
+            VariableSpec(
+                :OwGroundSoilBare,
+                :OwaterInitial,
+                :initial,
+                Symbol[],
+                :mean,
+                _ -> OwaterInitial.OwGroundSoilBare,
+            ),
+            VariableSpec(
+                :OwGroundSoilVeg,
+                :OwaterInitial,
+                :initial,
+                Symbol[],
+                :mean,
+                _ -> OwaterInitial.OwGroundSoilVeg,
+            ),
+            VariableSpec(
+                :OwGroundSoilTot,
+                :OwaterInitial,
+                :initial,
+                Symbol[],
+                :mean,
+                _ -> OwaterInitial.OwGroundSoilTot,
+            ),
+        ]
+        manager = initialize_outputs(
+            model,
+            output_level,
+            NN;
+            filename=output_filename,
+            forcing=forcing,
+            compress=compress,
+            buffer_len=buffer_len,
+            time_chunk=time_chunk,
+            extra=vcat(extra, Owaterextra),
+            spec_filter=spec_filter,
         )
+    end
 
-        EnergyUse = (;);
+    try
+        for i in 1:NN
+            @info "Starting iteration $i / $NN"
 
-        for HVACittm in 1:2
-            if BEM_on && HVACittm == 2
-                if !ParHVACorig.ACon && !ParHVACorig.Heatingon
-                    continue
-                end
+            if i > 1
+                extrapolate!(TempVec_ittm2Ext, model.variables.temperature.tempvec, i)
+                extrapolate!(Humidity_ittm2Ext, model.variables.humidity.Humidity, i)
+                extrapolate!(
+                    TempVecB_ittm2Ext, model.variables.buildingenergymodel.TempVecB, i
+                )
+                # TODO: bring HumidityAtm back to the forcing inputs
+                # TODO rename as "apply forcing"
+                update!(model.variables.humidity.Humidity, model.forcing.meteorological)
+                update!(model.variables.temperature.tempvec, model.forcing.meteorological)
+                update!(Meteo_ittm, model.forcing.meteorological)
+            end
 
-                if EnergyUse.EnergyForAC_H>-1e-6 &&
-                    EnergyUse.EnergyForAC_LE>-1e-6 &&
-                    EnergyUse.EnergyForHeating>-1e-6
-                    if ParHVAC.ACon &&
-                        round(
-                            model.variables.buildingenergymodel.TempVecB.Tbin; digits=4
-                        )<(ParHVAC.TsetpointCooling+0.01) &&
-                        round(
-                            model.variables.buildingenergymodel.TempVecB.qbin; digits=8
-                        )<(ParHVAC.q_RHspCooling+1e-6)
-                        continue
-                    elseif ParHVAC.Heatingon &&
-                        round(
-                        model.variables.buildingenergymodel.TempVecB.Tbin; digits=4
-                    )>(ParHVAC.TsetpointHeating-0.01)
+            if RESPreCalc || fconvPreCalc
+                fconv, rsRoofPreCalc, rsGroundPreCalc, rsTreePreCalc = Resistance.precalculate_for_faster_numerical_solution(
+                    model,
+                    TempVec_ittm,
+                    Humidity_ittm,
+                    SoilPotW_ittm,
+                    CiCO2Leaf_ittm,
+                    RES_ittm,
+                    i,
+                    1,
+                    ViewFactor,
+                    BEM_on,
+                )
+            else
+                fconv = FT(NaN)
+                rsRoofPreCalc = (;)
+                rsGroundPreCalc = (;)
+                rsTreePreCalc = (;)
+            end
+
+            ParHVAC, ParHVACorig = BuildingEnergyModel.ac_heating_turn_on_off(
+                model, TempVecB_ittm, TempVec_ittm, Humidity_ittm, BEM_on
+            )
+
+            EnergyUse = (;);
+
+            for HVACittm in 1:2
+                if BEM_on && HVACittm == 2
+                    if !ParHVACorig.ACon && !ParHVACorig.Heatingon
                         continue
                     end
-                end
 
-                ParHVAC = update_hvac_parameters(
-                    ParHVACorig,
+                    if EnergyUse.EnergyForAC_H>-1e-6 &&
+                        EnergyUse.EnergyForAC_LE>-1e-6 &&
+                        EnergyUse.EnergyForHeating>-1e-6
+                        if ParHVAC.ACon &&
+                            round(
+                                model.variables.buildingenergymodel.TempVecB.Tbin; digits=4
+                            )<(ParHVAC.TsetpointCooling+0.01) &&
+                            round(
+                                model.variables.buildingenergymodel.TempVecB.qbin; digits=8
+                            )<(ParHVAC.q_RHspCooling+1e-6)
+                            continue
+                        elseif ParHVAC.Heatingon &&
+                            round(
+                            model.variables.buildingenergymodel.TempVecB.Tbin; digits=4
+                        )>(ParHVAC.TsetpointHeating-0.01)
+                            continue
+                        end
+                    end
+
+                    ParHVAC = update_hvac_parameters(
+                        ParHVACorig,
+                        ParHVAC,
+                        EnergyUse,
+                        model.variables.buildingenergymodel.TempVecB.Tbin,
+                        model.variables.buildingenergymodel.TempVecB.qbin,
+                    )
+                end
+                Ttot = f_solver_tot!(
+                    model,
+                    TempVec_ittm,
+                    TempVecB_ittm,
+                    Humidity_ittm,
+                    Int_ittm,
+                    ExWater_ittm,
+                    Vwater_ittm,
+                    Owater_ittm,
+                    SoilPotW_ittm,
+                    CiCO2Leaf_ittm,
+                    TempDamp_ittm,
+                    ViewFactor,
+                    WallLayers,
+                    ParInterceptionTree,
+                    ParCalculation,
                     ParHVAC,
-                    EnergyUse,
-                    model.variables.buildingenergymodel.TempVecB.Tbin,
-                    model.variables.buildingenergymodel.TempVecB.qbin,
+                    BEM_on,
+                    TempVec_ittm2Ext,
+                    Humidity_ittm2Ext,
+                    TempVecB_ittm2Ext,
+                    Meteo_ittm,
+                    RESPreCalc,
+                    fconvPreCalc,
+                    fconv,
+                    rsRoofPreCalc,
+                    rsGroundPreCalc,
+                    rsTreePreCalc,
+                )
+
+                update!(model.variables.temperature.tempvec, Ttot)
+                update!(model.variables.humidity.Humidity, Ttot)
+                update!(model.variables.buildingenergymodel.TempVecB, Ttot)
+
+                TR = roof_temperature(model.variables.temperature.tempvec)
+                TC = canyon_temperature(
+                    model.variables.temperature.tempvec, model.variables.humidity.Humidity
+                )
+                TB = building_temperature(model.variables.buildingenergymodel.TempVecB)
+
+                # TODO: remove all EB, WB and Yroof from the list of outputs, they are already modified in-place
+                G2Roof, Yroof = eb_wb_roof!(
+                    model,
+                    TR,
+                    TB,
+                    TempVec_ittm,
+                    Int_ittm,
+                    ExWater_ittm,
+                    Vwater_ittm,
+                    Owater_ittm,
+                    SoilPotW_ittm,
+                    CiCO2Leaf_ittm,
+                    Runon_ittm,
+                    ParCalculation,
+                    BEM_on,
+                    RESPreCalc,
+                    rsRoofPreCalc,
+                )
+
+                SWRout_t, SWRabs_t, LWRout_t, G2WallSun, G2WallShade, Ycanyon, T2m, RH_T2m = eb_wb_canyon!(
+                    model,
+                    TC,
+                    TB,
+                    TempVec_ittm,
+                    Humidity_ittm,
+                    TempVecB_ittm,
+                    Int_ittm,
+                    ExWater_ittm,
+                    Vwater_ittm,
+                    Owater_ittm,
+                    SoilPotW_ittm,
+                    CiCO2Leaf_ittm,
+                    TempDamp_ittm,
+                    Runon_ittm,
+                    Qinlat_ittm,
+                    ViewFactor,
+                    WallLayers,
+                    ParInterceptionTree,
+                    ParCalculation,
+                    G2Roof,
+                    ParHVAC,
+                    BEM_on,
+                    RESPreCalc,
+                    fconvPreCalc,
+                    fconv,
+                    rsGroundPreCalc,
+                    rsTreePreCalc,
+                )
+
+                SWRinWsun = SWRabs_t.WallSun
+                SWRinWshd = SWRabs_t.WallShade
+
+                EnergyUse, YBuildInt = BuildingEnergyModel.eb_solver_building_output!(
+                    model,
+                    TC,
+                    TB,
+                    TempVecB_ittm,
+                    TempVec_ittm,
+                    Humidity_ittm,
+                    TempDamp_ittm,
+                    SWRinWsun,
+                    SWRinWshd,
+                    G2Roof,
+                    G2WallSun,
+                    G2WallShade,
+                    SWRabs_t,
+                    ParHVAC,
+                    ParCalculation,
+                    BEM_on,
                 )
             end
-            Ttot = f_solver_tot!(
-                model,
-                TempVec_ittm,
-                TempVecB_ittm,
-                Humidity_ittm,
-                Int_ittm,
-                ExWater_ittm,
-                Vwater_ittm,
-                Owater_ittm,
-                SoilPotW_ittm,
-                CiCO2Leaf_ittm,
-                TempDamp_ittm,
-                ViewFactor,
-                WallLayers,
-                ParInterceptionTree,
-                ParCalculation,
-                ParHVAC,
-                BEM_on,
-                TempVec_ittm2Ext,
-                Humidity_ittm2Ext,
-                TempVecB_ittm2Ext,
-                Meteo_ittm,
-                RESPreCalc,
-                fconvPreCalc,
-                fconv,
-                rsRoofPreCalc,
-                rsGroundPreCalc,
-                rsTreePreCalc,
+
+            MeanRadiantTemperature.mean_radiant_temperature!(
+                model, SWRout_t, LWRout_t, ViewFactorPoint
+            )
+            # TODO: check whether we should be using the hour as a float (e.g. 10.5 for 10:30) or
+            # the hour as an integer (10 for 10:30).
+
+            Resistance.wind_profile_point_output!(model)
+
+            OutdoorThermalComfort.utci_approx!(model)
+
+            # Assign outputs
+            model.variables.energybalance.Solver.YfunctionOutput = vcat(
+                Yroof, Ycanyon, YBuildInt
             )
 
-            update!(model.variables.temperature.tempvec, Ttot)
-            update!(model.variables.humidity.Humidity, Ttot)
-            update!(model.variables.buildingenergymodel.TempVecB, Ttot)
+            # TODO: implement energy balance check script as function
 
-            TR = roof_temperature(model.variables.temperature.tempvec)
-            TC = canyon_temperature(
-                model.variables.temperature.tempvec, model.variables.humidity.Humidity
-            )
-            TB = building_temperature(model.variables.buildingenergymodel.TempVecB)
+            # tempvec
+            model.variables.temperature.tempvec.T2m = T2m
 
-            # TODO: remove all EB, WB and Yroof from the list of outputs, they are already modified in-place
-            G2Roof, Yroof = eb_wb_roof!(
-                model,
-                TR,
-                TB,
-                TempVec_ittm,
-                Int_ittm,
-                ExWater_ittm,
-                Vwater_ittm,
-                Owater_ittm,
-                SoilPotW_ittm,
-                CiCO2Leaf_ittm,
-                Runon_ittm,
-                ParCalculation,
-                BEM_on,
-                RESPreCalc,
-                rsRoofPreCalc,
+            ModelComponents.fix_soil_moisture!(
+                model.variables.waterflux.Owater,
+                model.parameters.soil.roof,
+                model.parameters.soil.ground,
+                O33,
             )
 
-            SWRout_t, SWRabs_t, LWRout_t, G2WallSun, G2WallShade, Ycanyon, T2m, RH_T2m = eb_wb_canyon!(
-                model,
-                TC,
-                TB,
-                TempVec_ittm,
-                Humidity_ittm,
-                TempVecB_ittm,
-                Int_ittm,
-                ExWater_ittm,
-                Vwater_ittm,
-                Owater_ittm,
-                SoilPotW_ittm,
-                CiCO2Leaf_ittm,
-                TempDamp_ittm,
-                Runon_ittm,
-                Qinlat_ittm,
-                ViewFactor,
-                WallLayers,
-                ParInterceptionTree,
-                ParCalculation,
-                G2Roof,
-                ParHVAC,
-                BEM_on,
-                RESPreCalc,
-                fconvPreCalc,
-                fconv,
-                rsGroundPreCalc,
-                rsTreePreCalc,
-            )
+            update!(TempVecB_ittm, model.variables.buildingenergymodel.TempVecB)
+            update!(TempVec_ittm, model.variables.temperature.tempvec)
+            update!(Humidity_ittm, model.variables.humidity.Humidity)
+            update!(Int_ittm, model.variables.waterflux.Interception)
+            update!(ExWater_ittm, model.variables.waterflux.ExWater)
+            update!(Vwater_ittm, model.variables.waterflux.Vwater)
+            update!(Owater_ittm, model.variables.waterflux.Owater)
+            update!(SoilPotW_ittm, model.variables.waterflux.SoilPotW)
+            update!(CiCO2Leaf_ittm, model.variables.waterflux.CiCO2Leaf)
+            update!(TempDamp_ittm, model.variables.temperature.tempdamp)
+            update!(Runon_ittm, model.variables.waterflux.Runon)
+            update!(Qinlat_ittm, model.variables.waterflux.Qinlat)
+            update!(RES_ittm, model.variables.environmentalconditions.resistance)
 
-            SWRinWsun = SWRabs_t.WallSun
-            SWRinWshd = SWRabs_t.WallShade
+            urban_averages!(model)
 
-            EnergyUse, YBuildInt = BuildingEnergyModel.eb_solver_building_output!(
-                model,
-                TC,
-                TB,
-                TempVecB_ittm,
-                TempVec_ittm,
-                Humidity_ittm,
-                TempDamp_ittm,
-                SWRinWsun,
-                SWRinWshd,
-                G2Roof,
-                G2WallSun,
-                G2WallShade,
-                SWRabs_t,
-                ParHVAC,
-                ParCalculation,
-                BEM_on,
-            )
+            if i == 1
+                # Reset all EB variables of the first step to 0, similar to MATLAB
+                EB = model.variables.energybalance.EB
+                for var in fieldnames(typeof(EB))
+                    setfield!(EB, var, zero(getfield(EB, var)))
+                end
+            end
+
+            if !isnothing(manager)
+                save_outputs!(manager, model, fld(i - 1, 24) + 1)
+            end
+
+            # Update forcing parameters for the next step
+            model.forcing = forcing[i + 1]
         end
-
-        MeanRadiantTemperature.mean_radiant_temperature!(
-            model, SWRout_t, LWRout_t, ViewFactorPoint
-        )
-        # TODO: check whether we should be using the hour as a float (e.g. 10.5 for 10:30) or
-        # the hour as an integer (10 for 10:30).
-
-        Resistance.wind_profile_point_output!(model)
-
-        OutdoorThermalComfort.utci_approx!(model)
-
-        # Assign outputs
-        model.variables.energybalance.Solver.YfunctionOutput = vcat(
-            Yroof, Ycanyon, YBuildInt
-        )
-
-        # TODO: implement energy balance check script as function
-
-        # tempvec
-        model.variables.temperature.tempvec.T2m = T2m
-
-        ModelComponents.fix_soil_moisture!(
-            model.variables.waterflux.Owater,
-            model.parameters.soil.roof,
-            model.parameters.soil.ground,
-            O33,
-        )
-
-        update!(TempVecB_ittm, model.variables.buildingenergymodel.TempVecB)
-        update!(TempVec_ittm, model.variables.temperature.tempvec)
-        update!(Humidity_ittm, model.variables.humidity.Humidity)
-        update!(Int_ittm, model.variables.waterflux.Interception)
-        update!(ExWater_ittm, model.variables.waterflux.ExWater)
-        update!(Vwater_ittm, model.variables.waterflux.Vwater)
-        update!(Owater_ittm, model.variables.waterflux.Owater)
-        update!(SoilPotW_ittm, model.variables.waterflux.SoilPotW)
-        update!(CiCO2Leaf_ittm, model.variables.waterflux.CiCO2Leaf)
-        update!(TempDamp_ittm, model.variables.temperature.tempdamp)
-        update!(Runon_ittm, model.variables.waterflux.Runon)
-        update!(Qinlat_ittm, model.variables.waterflux.Qinlat)
-        update!(RES_ittm, model.variables.environmentalconditions.resistance)
-
-        urban_averages!(model)
-
-        assign_results!(results, accessors, model, i)
-
-        # Update forcing parameters for the next step
-        model.forcing = forcing[i + 1]
+    finally
+        if !isnothing(manager)
+            finalize_outputs!(manager)
+        end
     end
 
-    # reset all EB variables of the first step to 0, similar to MATLAB
-    for var in fieldnames(typeof(model.variables.energybalance.EB))
-        results[:EB][var][1] = 0
-    end
-
-    return results, ViewFactor, ViewFactorPoint
+    return manager, ViewFactor, ViewFactorPoint
 end
 
 function roof_temperature(

@@ -229,16 +229,20 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{EnergyBalanceVariables}, ::Type{EssentialOutputs}
 )
     return (:Solver,)
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{EnergyBalanceVariables}, ::Type{ExtendedOutputs}
 )
     return (:WBRoof, :WBCanyonIndv, :WBCanyonTot, :EB)
+end
+
+function TethysChlorisCore.storage_frequency(::Type{<:EnergyBalanceVariables})
+    return TethysChlorisCore.hourly_storage
 end
 
 function update!(x::EnergyBalanceVariables, results::NamedTuple, ::EBWBRoofDispatcher)

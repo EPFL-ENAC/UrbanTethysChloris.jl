@@ -1,28 +1,36 @@
 """
     urban_climate_variables(
-        results::Dict{Symbol,Dict{Symbol,Array}},
+        ncpath::AbstractString,
         model::Model{FT},
         forcing::ForcingInputSet{FT,1},
         NN::Signed,
     ) where {FT<:AbstractFloat}
 
-Processes the simulation `results` to extract urban climate variables such as
+Reads the streamed simulation results at `ncpath` to extract urban climate variables such as
 air temperature, surface temperatures, relative humidity, mean radiant temperature,
 and UTCI. It computes diurnal and seasonal averages and generates plots for
 visualization.
 
 # Arguments
-- `results::Dict{String,Any}`: Dictionary containing simulation results.
+- `ncpath`: Path to the streamed NetCDF results file.
 - `model::Model{FT}`: The urban climate model used for the simulation.
 - `forcing::ForcingInputSet{FT,1}`: Forcing input data used in the simulation.
 - `NN::Signed`: Number of timesteps in the simulation.
 """
 function urban_climate_variables(
-    results::Dict{Symbol,Dict{Symbol,Array}},
-    model::Model{FT},
-    forcing::ForcingInputSet{FT,1},
-    NN::Signed,
+    ncpath::AbstractString, model::Model{FT}, forcing::ForcingInputSet{FT,1}, NN::Signed
 ) where {FT<:AbstractFloat}
+    results = unpack_results(
+        ncpath,
+        1:NN,
+        "temperature.tempvec",
+        "temperature.thermalcomfort",
+        "temperature.mrt",
+        "humidity.Results2m",
+        "buildingenergymodel.TempVecB",
+        "buildingenergymodel.HumidityBuilding",
+    )
+
     TTUrban = DataFrame(;
         Hour=Dates.hour.(view(forcing.datetime, 1:NN)),
         Month=Dates.month.(view(forcing.datetime, 1:NN)),
