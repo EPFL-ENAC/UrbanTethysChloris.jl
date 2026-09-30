@@ -71,3 +71,13 @@ end
 function Dates.hour(forcing::ForcingInputSet{FT,0}) where {FT<:AbstractFloat}
     return Dates.hour(forcing.datetime[])
 end
+
+function TethysChlorisCore.outputs_to_save(
+    ::Type{<:ForcingInputSet}, ::Type{O}
+) where {O<:AbstractOutputsToSave}
+    return (:anthropogenic, :hvacschedule, :meteorological, :sunposition)
+end
+
+function TethysChlorisCore.storage_frequency(::Type{<:ForcingInputSet})
+    return TethysChlorisCore.static_storage
+end

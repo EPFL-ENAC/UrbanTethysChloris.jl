@@ -996,20 +996,24 @@ function TethysChlorisCore.preprocess_fields(
     return processed
 end
 
-function ModelComponents.outputs_to_save(::Type{WaterFluxVariables}, ::Type{PlotOutputs})
+function TethysChlorisCore.outputs_to_save(::Type{WaterFluxVariables}, ::Type{PlotOutputs})
     return (:Runoff, :Runon, :Leakage, :Interception, :dInt_dt, :dVwater_dt, :Owater)
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{WaterFluxVariables}, ::Type{ExtendedEnergyClimateOutputs}
 )
     return (:Eflux, :Infiltration, :Vwater, :SoilPotW)
 end
 
-function ModelComponents.outputs_to_save(
+function TethysChlorisCore.outputs_to_save(
     ::Type{WaterFluxVariables}, ::Type{ExtendedOutputs}
 )
     return (:OSwater, :Qinlat, :ExWater, :CiCO2Leaf)
+end
+
+function TethysChlorisCore.storage_frequency(::Type{<:WaterFluxVariables})
+    return TethysChlorisCore.hourly_storage
 end
 
 function update!(

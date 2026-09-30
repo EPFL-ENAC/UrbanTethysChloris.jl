@@ -33,6 +33,6 @@ export VegetatedOpticalProperties, SimpleOpticalProperties
 
 include("ParameterSet.jl")
 
-export initialize_parameter_set
+export initialize_parameter_set, ParameterSet
 
 end
