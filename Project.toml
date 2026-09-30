@@ -1,7 +1,7 @@
 name = "UrbanTethysChloris"
 uuid = "8ae36e77-b357-5cab-a873-ceeadc1a5254"
-authors = ["Hugo Solleder <hugo.solleder@epfl.ch>"]
 version = "0.12.1"
+authors = ["Hugo Solleder <hugo.solleder@epfl.ch>"]
 
 [deps]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
@@ -48,6 +48,6 @@ SimpleNonlinearSolve = "2.9.0"
 StaticArrays = "1.9.13"
 StaticArraysCore = "1.4.4"
 Statistics = "1.11.1"
-TethysChlorisCore = "0.2.0"
+TethysChlorisCore = "0.2.0, 0.4"
 YAML = "0.4"
 julia = "1.11"
